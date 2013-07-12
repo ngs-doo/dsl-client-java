@@ -1,0 +1,10 @@
+target
+.classpath
+.project
+.settings
+.history
+client/.history
+.cache
+test/Ngs-Java-Test/.cache
+*.orig
+*~
