@@ -3,6 +3,7 @@ package com.dslplatform.client;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -53,5 +54,48 @@ public class Bootstrap {
         finally {
             iniStream.close();
         }
+    }
+
+// -----------------------------------------------------------------------------
+
+    private static final Properties versionInfo = new Properties();
+
+    private static final String getVersionInfo(final String section) {
+        if (versionInfo.isEmpty()) {
+            try {
+                versionInfo.load(Bootstrap.class
+                        .getResourceAsStream("dsl-client.ini"));
+            } catch (final Throwable t) {
+                t.printStackTrace();
+            }
+        }
+
+        return versionInfo.getProperty(section);
+    }
+
+    public static String getVersion() {
+        return getVersionInfo("version");
+    }
+
+    public static String getReleaseDate() {
+        return getVersionInfo("date");
+    }
+
+    public static void main(final String[] args) {
+        final String versionString = String.format(
+                "dsl-client-%s.jar (released on: %s)",
+                getVersion(),
+                getReleaseDate());
+
+        System.out.println();
+        System.out.println(versionString);
+        System.out.println(versionString.replaceAll(".", "-"));
+        System.out.println();
+
+        System.out.println("This is the Java version of the DSL Platform client");
+        System.out.println("and is not indended to be run as a standalone application.");
+        System.out.println();
+        System.out.println("For more information, visit https://dsl-platform.com/");
+        System.out.println();
     }
 }

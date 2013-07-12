@@ -1,6 +1,16 @@
 import sbt._
 import Keys._
 
+// Eclipse plugin
+import com.typesafe.sbteclipse.plugin.EclipsePlugin._
+
+// Dependency graph plugin
+import net.virtualvoid.sbt.graph.Plugin._
+
+// Assembly plugin
+import sbtassembly.Plugin._
+import AssemblyKeys._
+
 // ----------------------------------------------------------------------------
 
 object Repositories {
@@ -40,15 +50,10 @@ object Publishing {
 // ----------------------------------------------------------------------------
 
 object Default {
-  // Eclipse plugin
-  import com.typesafe.sbteclipse.plugin.EclipsePlugin._
-
-  //Dependency graph plugin
-  import net.virtualvoid.sbt.graph.Plugin._
-
   val settings =
     Defaults.defaultSettings ++
     eclipseSettings ++
+    assemblySettings ++
     graphSettings ++
     Resolvers.settings ++
     Publishing.settings ++ Seq(
@@ -56,7 +61,7 @@ object Default {
 
     , crossPaths := false
     , autoScalaLibrary := false
-    , scalaVersion := "2.10.1"
+    , scalaVersion := "2.10.2"
 
     , javaHome := sys.env.get("JDK16_HOME").map(file(_))
     , javacOptions := Seq(
@@ -65,13 +70,12 @@ object Default {
       , "-Xlint:unchecked"
       , "-source", "1.6"
       , "-target", "1.6"
-      ) 
+      )
     , unmanagedSourceDirectories in Compile <<= (javaSource in Compile)(_ :: Nil)
     , unmanagedSourceDirectories in Test := Nil
 
     , EclipseKeys.projectFlavor := EclipseProjectFlavor.Java
     , EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource
-    , EclipseKeys.skipParents in ThisBuild := false
     )
 }
 
@@ -107,12 +111,14 @@ object NGSBuild extends Build {
   import Default._
   import Dependencies._
 
+  val libVersion = "0.4.1"
+
   lazy val core = Project(
     "core"
   , file("core")
   , settings = Default.settings ++ Seq(
       name := "DSL-Client-Core"
-    , version := "0.4.0"
+    , version := libVersion
     , libraryDependencies ++= Seq(
         jodaTime
       )
@@ -124,7 +130,7 @@ object NGSBuild extends Build {
   , file("http")
   , settings = Default.settings ++ Seq(
       name := "DSL-Client-HTTP"
-    , version := "0.4.0"
+    , version := libVersion
     , libraryDependencies ++= Seq(
         slf4j
       , jodaTime
@@ -134,7 +140,15 @@ object NGSBuild extends Build {
       , httpClient
       , aws % "provided"
       )
-    )
+    , assembleArtifact in packageScala := false
+    , artifact in (Compile, assembly) ~= (_.copy(`classifier` = Some("assembly")))
+    , test in assembly := {}
+    , mainClass in assembly := Some("com.dslplatform.client.Bootstrap")
+    , jarName in assembly := "dsl-client-%s.jar" format libVersion
+    , excludedJars in assembly <<= (fullClasspath in assembly) map (
+        _ filter (_.data.getName endsWith ".jar")
+      )
+    ) ++ addArtifact(artifact in (Compile, assembly), assembly)
   ) dependsOn(core)
 
   lazy val akka = Project(
@@ -142,7 +156,7 @@ object NGSBuild extends Build {
   , file("akka")
   , settings = Default.settings ++ Seq(
       name := "DSL-Client-Akka"
-    , version := "0.4.0"
+    , version := libVersion
     , libraryDependencies ++= Seq(
         akkaActor % "provided"
       )
