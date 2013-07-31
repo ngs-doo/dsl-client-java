@@ -28,7 +28,7 @@ class HttpStandardProxy implements StandardProxy {
         this.executorService = excutorService;
     }
 
-    @JsonSerialize(include=JsonSerialize.Inclusion.NON_EMPTY)
+    @JsonSerialize
     private static class PersistArg {
         @SuppressWarnings("unused")
         public final String RootName;

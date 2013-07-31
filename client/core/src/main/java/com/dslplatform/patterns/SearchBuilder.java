@@ -8,6 +8,8 @@ import java.util.concurrent.Future;
 
 /**
  * Utility class for building a search over a {@link SearchableRepository}
+ * Search can be performed using more fluent API, 
+ * by providing specification limit, offset and custom order  
  *
  * @param <T> domain object type.
  */
@@ -23,7 +25,7 @@ public class SearchBuilder<T extends Searchable> {
      * Constructor for SearchBuilder which requires a repository to perform
      * a search.
      *
-     * @param repository  repository to search over
+     * @param repository domain object repository
      */
     public SearchBuilder(final SearchableRepository<T> repository) {
         this.repository = repository;
@@ -32,8 +34,8 @@ public class SearchBuilder<T extends Searchable> {
     /**
      * Provide {@link Specification search predicate} for filtering results.
      *
-     * @param specification  search predicate
-     * @return  itself
+     * @param specification search predicate
+     * @return              itself
      */
     public SearchBuilder<T> with(final Specification<T> specification) {
         this.specification = specification;
@@ -43,16 +45,16 @@ public class SearchBuilder<T extends Searchable> {
     /**
      * Define a maximum number of results
      *
-     * @param limit  maximum number of results
-     * @return  itself
+     * @param limit maximum number of results
+     * @return      itself
      */
     public SearchBuilder<T> limit(final int limit) { return take(limit); }
 
     /**
      * Define a maximum number of results.
      *
-     * @param limit  maximum number of results
-     * @return  itself
+     * @param limit maximum number of results
+     * @return      itself
      */
     public SearchBuilder<T> take(final int limit) {
         this.limit = Integer.valueOf(limit);
@@ -62,16 +64,16 @@ public class SearchBuilder<T extends Searchable> {
     /**
      * Define a number of results to be skipped.
      *
-     * @param offset  number of results to be skipped
-     * @return  itself
+     * @param offset number of results to be skipped
+     * @return       itself
      */
     public SearchBuilder<T> offset(final int offset) { return skip(offset); }
 
     /**
      * Define a number of results to be skipped.
      *
-     * @param offset  number of results to be skipped
-     * @return  itself
+     * @param offset number of results to be skipped
+     * @return       itself
      */
     public SearchBuilder<T> skip(final int offset) {
         this.offset = Integer.valueOf(offset);
@@ -90,15 +92,17 @@ public class SearchBuilder<T extends Searchable> {
 
     /**
      * Order result ascendingly using a provided property
-     * @param property  name of domain objects property
-     * @return itself
+     * 
+     * @param property name of domain objects property
+     * @return         itself
      */
     public SearchBuilder<T> ascending(String property) { return orderBy(property, true); }
 
     /**
      * Order result descendingly using a provided property
+     * 
      * @param property name of domain objects property
-     * @return itself
+     * @return         itself
      */
     public SearchBuilder<T> descending(String property) { return orderBy(property, false); }
 

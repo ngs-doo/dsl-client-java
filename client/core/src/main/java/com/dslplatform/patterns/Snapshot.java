@@ -3,33 +3,22 @@ package com.dslplatform.patterns;
 import org.joda.time.DateTime;
 
 /**
- * Holder of some past state of {@link AggregateRoot}
+ * Snapshot of some past state of {@link AggregateRoot}
  *
  * @param <T> type of aggregate root
  */
 public class Snapshot<T extends AggregateRoot> implements Identifiable {
 
-    /**
-     * Unique identifier.
-     */
-    public String URI;
+    private final String URI;
+    private final DateTime At;
+    private final String Action;
+    private final T Value;
 
-    /**
-     * Date and time of roots value.
-     */
-    public DateTime At;
-    public String Action;
-
-    /**
-     * Instance of an aggregate root from {@link #At}
-     */
-    public T Value;
-
-    /**
-     * Snapshot constructor
-     */
-    public Snapshot(){}
-
+    @SuppressWarnings("unused")
+	private Snapshot() {
+    	this(null, null, null, null);
+    }
+    
     public Snapshot(
             final String URI,
             final DateTime At,
@@ -41,19 +30,39 @@ public class Snapshot<T extends AggregateRoot> implements Identifiable {
         this.Value = Value;
     }
 
+    /**
+     * Domain object identity.
+     * 
+     * @return Identity
+     */
     @Override
     public String getURI() {
         return URI;
     }
 
+    /**
+     * Date and time when snapshot was created.
+     * 
+     * @return DateTime of snapshot
+     */
     public DateTime getAt() {
         return At;
     }
 
+    /**
+     * Which action was performed (INSERT|UPDATE|DELETE)
+     * 
+     * @return Action type
+     */
     public String getAction() {
         return Action;
     }
 
+    /**
+     * Instance of an aggregate root at that time
+     * 
+     * @return aggregate root snapshot
+     */
     public T getValue() {
         return Value;
     }

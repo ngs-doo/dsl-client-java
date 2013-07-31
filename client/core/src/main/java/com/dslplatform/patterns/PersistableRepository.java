@@ -5,8 +5,12 @@ import java.util.Map;
 import java.util.concurrent.Future;
 
 /**
- * API for applying changes on {@link AggregateRoot aggregate root}
+ * Service for doing CRUD operations. 
+ * It can be used for applying changes on {@link AggregateRoot aggregate root}
  * to the remote server.
+ * <p>
+ * It should be used when Future is a preferred way of interacting with the remote server
+ * or bulk operations are required.
  *
  * @param <T> type of {@link AggregateRoot aggregate root}
  */
@@ -14,12 +18,12 @@ public interface PersistableRepository<T extends AggregateRoot>
         extends Repository<T>{
 
     /**
-     * Applies changes made locally to remote server.
+     * Apply local changes to the remote server.
      *
-     * @param insert  objects to be inserted
-     * @param update  objects to be updated
-     * @param delete  objects to be deleted
-     * @return  future uri value of affected roots
+     * @param insert new aggregate roots
+     * @param update pairs for updating old aggregate to new state
+     * @param delete aggregate roots which will be deleted
+     * @return       future uris of newly created aggregates
      */
     public Future<List<String>> persist(
             final Iterable<T> insert,
@@ -27,50 +31,53 @@ public interface PersistableRepository<T extends AggregateRoot>
             final Iterable<T> delete);
 
     /**
-     * Inserts a sequence of {@link AggregateRoot} to its repository.
+     * Bulk insert.
+     * Create multiple new {@link AggregateRoot aggregates}.
      *
-     * @param insert roots to insert
-     * @return  future uri value of affected roots
+     * @param insert new aggregate roots
+     * @return       future uris of created aggregate roots
      */
     public Future<List<String>> insert(final Iterable<T> insert);
 
     /**
-     * Inserts a {@link AggregateRoot} to its repository.
+     * Insert a single {@link AggregateRoot aggregate}.
      *
-     * @param insert root to insert
-     * @return  future uri value of affected root
+     * @param insert new aggregate root
+     * @return       future uri of created aggregate root
      */
     public Future<String> insert(final T insert);
 
     /**
-     * Updates remote server with changes to domain objects.
-     * @param update  sequence of objects to update
-     * @return  future with nothing inside
+     * Bulk update. 
+     * Changing state of multiple {@link AggregateRoot aggregates}.
+     * 
+     * @param update sequence of aggregate roots to update
+     * @return       future for error checking
      */
     public Future<?> update(final Iterable<T> update);
 
-
     /**
-     * Updates remote server with changes to domain objects.
+     * Changing state of an aggregate root.
      *
-     * @param update  object to update
-     * @return  future with nothing inside
+     * @param update aggregate root to update
+     * @return       future for error checking
      */
     public Future<?> update(final T update);
 
     /**
-     * Deletes domain objects from remote server.
+     * Bulk delete.
+     * Remote multiple {@link AggregateRoot aggregates}.
      *
-     * @param delete  objects to delete
-     * @return  future with nothing inside
+     * @param delete aggregate roots to delete
+     * @return       future for error checking
      */
     public Future<?> delete(final Iterable<T> delete);
 
     /**
-     * Deletes domain object from remote server.
+     * Deleting an {@link AggregateRoot aggregate}.
      *
-     * @param delete  object to delete
-     * @return  future with nothing inside
+     * @param delete aggregate root to delete
+     * @return       future for error checking
      */
     public Future<?> delete(final T delete);
 }

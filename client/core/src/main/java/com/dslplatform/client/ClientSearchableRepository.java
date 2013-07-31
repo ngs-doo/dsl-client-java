@@ -10,6 +10,28 @@ import com.dslplatform.patterns.SearchableRepository;
 import com.dslplatform.patterns.ServiceLocator;
 import com.dslplatform.patterns.Specification;
 
+/**
+ * Common base implementation for SearchableRepository
+ * It redirects calls to proxy services.
+ * It shouldn't be used or resolved.
+ * Instead domain model repositories should be resolved.
+ * <p>
+ * DSL example: 
+ * <blockquote><pre>
+ * module Todo {
+ *   sql TaskInfo 'SELECT name, description FROM task' {
+ *     string name;
+ *     string description;
+ *   }
+ * }
+ * </pre></blockquote>
+ * Java usage:
+ * <pre>
+ * ServiceLocator locator;
+ * SearchableRepository<Todo.TaskInfo> repository = locator.resolve(Todo.TaskInfoRepository.class);
+ * </pre>
+ * @param <T> domain object type 
+ */
 public class ClientSearchableRepository<T extends Searchable> implements SearchableRepository<T> {
     protected final Class<T> manifest;
     protected final DomainProxy domainProxy;

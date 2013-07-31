@@ -12,6 +12,28 @@ import com.dslplatform.patterns.AggregateRoot;
 import com.dslplatform.patterns.PersistableRepository;
 import com.dslplatform.patterns.ServiceLocator;
 
+/**
+ * Common base implementation for PersistableRepository
+ * It redirects calls to proxy services.
+ * It shouldn't be used or resolved.
+ * Instead domain model repositories should be resolved.
+ * 
+ * <p>
+ * DSL example: 
+ * <blockquote><pre>
+ * 
+ * module Todo {
+ *   aggregate Task;
+ * }
+ * </blockquote></pre>
+ * Java usage:
+ * <pre> 
+ * ServiceLocator locator;
+ * PersistableRepository<Todo.Task> repository = locator.resolve(Todo.TaskRepository.class);
+ * </pre>
+ *
+ * @param <T> aggregate root type 
+ */
 public class ClientPersistableRepository<T extends AggregateRoot>
         extends ClientRepository<T>
         implements PersistableRepository<T> {

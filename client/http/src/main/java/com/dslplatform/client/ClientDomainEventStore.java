@@ -4,7 +4,7 @@ import java.util.concurrent.Future;
 
 import com.dslplatform.patterns.*;
 
-public class ClientDomainEventStore implements DomainEventStore {
+class ClientDomainEventStore implements DomainEventStore {
     protected final DomainProxy domainProxy;
 
     public ClientDomainEventStore(final DomainProxy domainProxy) {

@@ -12,7 +12,7 @@ import com.dslplatform.patterns.Searchable;
 import com.dslplatform.patterns.SearchableRepository;
 import com.dslplatform.patterns.Specification;
 
-public class GenericSpecification<T extends Searchable> implements Specification<T> {
+class GenericSpecification<T extends Searchable> implements Specification<T> {
 
     private final HashMap<String, ArrayList<FilterPair>> filters = new HashMap<String, ArrayList<FilterPair>>();
 
@@ -29,7 +29,8 @@ public class GenericSpecification<T extends Searchable> implements Specification
             this.Value = value;
         }
 
-        private FilterPair() {
+        @SuppressWarnings("unused")
+		private FilterPair() {
             this.Key = null;
             this.Value = null;
         }
