@@ -5,6 +5,7 @@ import java.util.concurrent.Future;
 import com.dslplatform.patterns.AggregateRoot;
 import com.dslplatform.patterns.Identifiable;
 
+/** API for executing commands on remote server. */
 public interface CrudProxy {
     public <T extends Identifiable> Future<T> read(
             final Class<T> manifest,
