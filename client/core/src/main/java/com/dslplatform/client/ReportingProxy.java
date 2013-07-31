@@ -6,6 +6,7 @@ import java.util.concurrent.Future;
 
 import com.dslplatform.patterns.*;
 
+/** API for executing commands on remote server. */
 public interface ReportingProxy {
     public <TReport> Future<TReport> populate(
             final TReport report);

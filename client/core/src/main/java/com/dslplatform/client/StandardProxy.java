@@ -8,6 +8,7 @@ import com.dslplatform.patterns.AggregateRoot;
 import com.dslplatform.patterns.Searchable;
 import com.dslplatform.patterns.Specification;
 
+/** API for executing commands on remote server. */
 public interface StandardProxy {
     public <TAggregate extends AggregateRoot> Future<List<String>> persist(
             final Iterable<TAggregate> inserts,
