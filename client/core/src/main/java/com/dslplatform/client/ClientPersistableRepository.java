@@ -2,6 +2,7 @@ package com.dslplatform.client;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -17,22 +18,22 @@ import com.dslplatform.patterns.ServiceLocator;
  * It redirects calls to proxy services.
  * It shouldn't be used or resolved.
  * Instead domain model repositories should be resolved.
- * 
+ *
  * <p>
- * DSL example: 
+ * DSL example:
  * <blockquote><pre>
- * 
+ *
  * module Todo {
  *   aggregate Task;
  * }
  * </blockquote></pre>
  * Java usage:
- * <pre> 
+ * <pre>
  * ServiceLocator locator;
  * PersistableRepository<Todo.Task> repository = locator.resolve(Todo.TaskRepository.class);
  * </pre>
  *
- * @param <T> aggregate root type 
+ * @param <T> aggregate root type
  */
 public class ClientPersistableRepository<T extends AggregateRoot>
         extends ClientRepository<T>
@@ -54,6 +55,23 @@ public class ClientPersistableRepository<T extends AggregateRoot>
             final Iterable<Map.Entry<T, T>> updates,
             final Iterable<T> deletes) {
         return standardProxy.persist(inserts, updates, deletes);
+    }
+
+    @Override
+    public Future<List<String>> persist(
+            final T [] inserts,
+            final Map.Entry<T, T> [] updates,
+            final T [] deletes) {
+        return persist(
+            Arrays.asList(inserts),
+            Arrays.asList(updates),
+            Arrays.asList(deletes)
+            );
+    }
+
+    @Override
+    public Future<List<String>> insert(final T ... inserts) {
+        return insert(Arrays.asList(inserts));
     }
 
     @Override
@@ -85,6 +103,11 @@ public class ClientPersistableRepository<T extends AggregateRoot>
     }
 
     @Override
+    public Future<List<String>> update(final T ... updates) {
+      return update(Arrays.asList(updates));
+    }
+
+    @Override
     public Future<T> update(final T update) {
         return crudProxy.update(update);
     }
@@ -92,6 +115,11 @@ public class ClientPersistableRepository<T extends AggregateRoot>
     @Override
     public Future<?> delete(final Iterable<T> deletes) {
         return standardProxy.persist(null, null, deletes);
+    }
+
+    @Override
+    public Future<?> delete(final T ... deletes) {
+        return delete(Arrays.asList(deletes));
     }
 
     @Override

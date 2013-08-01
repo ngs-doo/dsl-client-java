@@ -5,22 +5,25 @@ import java.util.concurrent.Future;
 
 /**
  * Service for finding identifiable domain objects.
- * Finding domain objects using their URI identity is the fastest way 
+ * Finding domain objects using their URI identity is the fastest way
  * retrieve an object from the remote server.
- * 
+ *
  * @param <T> Identifiable domain object type
  */
 public interface Repository<T extends Identifiable>
         extends SearchableRepository<T> {
 
-  /**
-   * Returns a list of domain objects uniquely represented with their URIs.
-   * Only found objects will be returned (list will be empty if no objects are found).
-   *
-   * @param uris sequence of unique identifiers
-   * @return     future to found domain objects
-   */
+    /**
+     * Returns a list of domain objects uniquely represented with their URIs.
+     * Only found objects will be returned (list will be empty if no objects are found).
+     *
+     * @param uris sequence of unique identifiers
+     * @return     future to found domain objects
+     */
     public Future<List<T>> find(final Iterable<String> uris);
+
+    /** @see Repository#find(Iterable) */
+    public Future<List<T>> find(final String ... uris);
 
     /**
      * Returns a domain object uniquely represented with its URI.
