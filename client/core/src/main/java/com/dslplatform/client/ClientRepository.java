@@ -1,5 +1,6 @@
 package com.dslplatform.client;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -13,7 +14,7 @@ import com.dslplatform.patterns.ServiceLocator;
  * It shouldn't be used or resolved.
  * Instead domain model repositories should be resolved.
  * <p>
- * DSL example: 
+ * DSL example:
  * <blockquote><pre>
  * module Todo {
  *   aggregate Task;
@@ -25,7 +26,7 @@ import com.dslplatform.patterns.ServiceLocator;
  * ServiceLocator locator;
  * Repository<Todo.TaskList> repository = locator.resolve(Todo.TaskListRepository.class);
  * </pre>
- * @param <T> domain object type 
+ * @param <T> domain object type
  */
 public class ClientRepository<T extends Identifiable>
         extends ClientSearchableRepository<T>
@@ -42,6 +43,11 @@ public class ClientRepository<T extends Identifiable>
     @Override
     public Future<List<T>> find(final Iterable<String> uris) {
         return domainProxy.find(manifest, uris);
+    }
+
+    @Override
+    public Future<List<T>> find(final String ... uris) {
+      return find(Arrays.asList(uris));
     }
 
     @Override
