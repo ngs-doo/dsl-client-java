@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.concurrent.Future;
 
 /**
- * Service for doing CRUD operations. 
+ * Service for doing CRUD operations.
  * It can be used for applying changes on {@link AggregateRoot aggregate root}
  * to the remote server.
  * <p>
@@ -30,6 +30,12 @@ public interface PersistableRepository<T extends AggregateRoot>
             final Iterable<Map.Entry<T, T>> update,
             final Iterable<T> delete);
 
+    /** @see PersistableRepository#persist(Iterable, Iterable, Iterable) */
+    public Future<List<String>> persist(
+        final T [] insert,
+        final Map.Entry<T, T> [] update,
+        final T [] delete);
+
     /**
      * Bulk insert.
      * Create multiple new {@link AggregateRoot aggregates}.
@@ -38,6 +44,9 @@ public interface PersistableRepository<T extends AggregateRoot>
      * @return       future uris of created aggregate roots
      */
     public Future<List<String>> insert(final Iterable<T> insert);
+
+    /** @see PersistableRepository#insert(Iterable) */
+    public Future<List<String>> insert(final T ... insert);
 
     /**
      * Insert a single {@link AggregateRoot aggregate}.
@@ -48,13 +57,16 @@ public interface PersistableRepository<T extends AggregateRoot>
     public Future<String> insert(final T insert);
 
     /**
-     * Bulk update. 
+     * Bulk update.
      * Changing state of multiple {@link AggregateRoot aggregates}.
-     * 
+     *
      * @param update sequence of aggregate roots to update
      * @return       future for error checking
      */
     public Future<?> update(final Iterable<T> update);
+
+    /** @see PersistableRepository#update(Iterable) */
+    public Future<?> update(final T ... update);
 
     /**
      * Changing state of an aggregate root.
@@ -72,6 +84,9 @@ public interface PersistableRepository<T extends AggregateRoot>
      * @return       future for error checking
      */
     public Future<?> delete(final Iterable<T> delete);
+
+    /** @see #delete(Iterable) */
+    public Future<?> delete(final T ... delete);
 
     /**
      * Deleting an {@link AggregateRoot aggregate}.
