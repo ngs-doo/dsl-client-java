@@ -9,7 +9,7 @@ package com.dslplatform.patterns;
  * DSL example:
  * <blockquote><pre>
  * module Legacy {
- *   sql Town 'SELECT t.id, t.name FROM town t' {
+ *   sql Town 'SELECT id, name FROM town' {
  *     int id;
  *     string name;
  *   } 

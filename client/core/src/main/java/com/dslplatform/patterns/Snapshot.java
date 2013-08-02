@@ -3,7 +3,7 @@ package com.dslplatform.patterns;
 import org.joda.time.DateTime;
 
 /**
- * Snapshot of some past state of {@link AggregateRoot}
+ * Snapshot of some past state of an {@link AggregateRoot aggregate root}
  *
  * @param <T> type of aggregate root
  */

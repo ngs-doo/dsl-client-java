@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.concurrent.Future;
 
 /**
- * Utility class for building a search over a {@link SearchableRepository}
+ * Utility class for building a search over a {@link SearchableRepository searchable repository}.
  * Search can be performed using more fluent API, 
  * by providing specification limit, offset and custom order  
  *
@@ -38,6 +38,17 @@ public class SearchBuilder<T extends Searchable> {
      * @return              itself
      */
     public SearchBuilder<T> with(final Specification<T> specification) {
+        this.specification = specification;
+        return this;
+    }
+    
+    /**
+     * Provide {@link Specification search predicate} for filtering results.
+     *
+     * @param specification search predicate
+     * @return              itself
+     */
+    public SearchBuilder<T> filter(final Specification<T> specification) {
         this.specification = specification;
         return this;
     }

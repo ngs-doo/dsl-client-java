@@ -110,8 +110,8 @@ public class GenericSearchBuilder<T extends Searchable> {
     /**
      * Skip initial number of results.
      * 
-     * @param limit number of skipped results
-     * @return      itself
+     * @param offset number of skipped results
+     * @return       itself
      */
     public GenericSearchBuilder<T> skip(final int offset) {
         this.offset = offset;
@@ -120,16 +120,17 @@ public class GenericSearchBuilder<T extends Searchable> {
     /**
      * Skip initial number of results.
      * 
-     * @param limit number of skipped results
-     * @return      itself
+     * @param offset number of skipped results
+     * @return       itself
      */
     public GenericSearchBuilder<T> offset(final int offset) { return skip(offset); }
 
     /**
-     * Perform search using defined
+     * Ask server to provide domain objects which satisfy defined conditions
+     * in requested order if custom order was provided.
+     * Limit and offset will be applied on results if provided.
      * 
-     * @param limit number of skipped results
-     * @return      itself
+     * @return future to list of found domain object 
      */
     public Future<List<T>> search() {
 

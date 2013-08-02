@@ -9,7 +9,7 @@ import com.dslplatform.patterns.Repository;
 import com.dslplatform.patterns.ServiceLocator;
 
 /**
- * Common base implementation for Repository
+ * Common base implementation for {@link Repository repository}.
  * It redirects calls to proxy services.
  * It shouldn't be used or resolved.
  * Instead domain model repositories should be resolved.
@@ -24,7 +24,7 @@ import com.dslplatform.patterns.ServiceLocator;
  * Java usage:
  * <pre>
  * ServiceLocator locator;
- * Repository<Todo.TaskList> repository = locator.resolve(Todo.TaskListRepository.class);
+ * Repository&lt;Todo.TaskList&gt; repository = locator.resolve(Todo.TaskListRepository.class);
  * </pre>
  * @param <T> domain object type
  */
@@ -33,6 +33,12 @@ public abstract class ClientRepository<T extends Identifiable>
         implements Repository<T> {
     protected final CrudProxy crudProxy;
 
+    /**
+     * Generated class will provide class manifest and locator
+     * 
+     * @param manifest domain object type
+     * @param locator  context in which domain object lives
+     */
     public ClientRepository(
             final Class<T> manifest,
             final ServiceLocator locator) {

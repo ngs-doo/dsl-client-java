@@ -17,7 +17,7 @@ package com.dslplatform.patterns;
  *     timestamp startedAt;
  *     timestamp? finishedAt;
  *     int? priority;
- *     List<Note> notes;
+ *     List&lt;Note&gt; notes;
  *   }
  *   value Note {
  *     date entered;

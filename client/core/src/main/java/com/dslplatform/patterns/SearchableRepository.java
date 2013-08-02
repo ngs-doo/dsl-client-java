@@ -6,7 +6,7 @@ import java.util.concurrent.Future;
 
 /**
  * Service for searching and counting domain objects.
- * Search can be performed using {@link Specification Specification},
+ * Search can be performed using {@link Specification specification},
  * paged using limit and offset arguments.
  * Custom sort can be provided using list of property->direction pairs.
  * <p>
@@ -121,11 +121,10 @@ public interface SearchableRepository<T extends Searchable> {
     public Future<Long> countAll();
 
     /**
-     * Returns an instance of {@link SearchBuilder} for this repository.
+     * Returns an instance of {@link SearchBuilder search builder} for this repository.
      * Search builder is helper class with fluent API for building search.
      *
      * @return utility class for building a search.
-     * @see SearchBuilder
      */
     public SearchBuilder<T> builder();
 }

@@ -14,7 +14,7 @@ import com.dslplatform.patterns.PersistableRepository;
 import com.dslplatform.patterns.ServiceLocator;
 
 /**
- * Common base implementation for PersistableRepository
+ * Common base implementation for {@link PersistableRepository persistable repository}.
  * It redirects calls to proxy services.
  * It shouldn't be used or resolved.
  * Instead domain model repositories should be resolved.
@@ -30,7 +30,7 @@ import com.dslplatform.patterns.ServiceLocator;
  * Java usage:
  * <pre>
  * ServiceLocator locator;
- * PersistableRepository<Todo.Task> repository = locator.resolve(Todo.TaskRepository.class);
+ * PersistableRepository&lt;Todo.Task&gt; repository = locator.resolve(Todo.TaskRepository.class);
  * </pre>
  *
  * @param <T> aggregate root type
@@ -41,10 +41,16 @@ public abstract class ClientPersistableRepository<T extends AggregateRoot>
     protected final StandardProxy standardProxy;
     private final ExecutorService  executorService;
 
+    /**
+     * Generated class will provide class manifest and locator
+     * 
+     * @param manifest domain object type
+     * @param locator  context in which domain object lives
+     */
     public ClientPersistableRepository(
-            final Class<T> clazz,
+            final Class<T> manifest,
             final ServiceLocator locator) {
-        super(clazz, locator);
+        super(manifest, locator);
         this.standardProxy = locator.resolve(StandardProxy.class);
         this.executorService = locator.resolve(ExecutorService.class);
     }

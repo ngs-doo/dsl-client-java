@@ -22,9 +22,9 @@ import com.dslplatform.patterns.*;
  *   }
  *   
  *   report LoadData {
- *      int maxUnfinished;
- *   	List<Task> unfinishedTasks 'it => it.finishedAt == null' LIMIT maxUnfinished ORDER BY createdAt;
- *   	List<Task> recentlyFinishedTasks 'it => it.finishedAt != null' LIMIT 10 ORDER BY finishedAt DESC;
+ *     int maxUnfinished;
+ *     List&lt;Task&gt; unfinishedTasks 'it => it.finishedAt == null' LIMIT maxUnfinished ORDER BY createdAt;
+ *     List&lt;Task&gt; recentlyFinishedTasks 'it => it.finishedAt != null' LIMIT 10 ORDER BY finishedAt DESC;
  *   }
  * }
  * </pre></blockquote>
@@ -48,7 +48,7 @@ public interface ReportingProxy {
 	 * <blockquote><pre>
 	 * module Todo {
      *   report LoadData {
-     *     List<Task> unfinishedTasks 'it => it.finishedAt == null' ORDER BY createdAt;
+     *     List&lt;Task&gt; unfinishedTasks 'it => it.finishedAt == null' ORDER BY createdAt;
      *     templater createDocument 'Tasks.docx' pdf;
      *   }
      * }
@@ -104,7 +104,7 @@ public interface ReportingProxy {
 
 	/**
 	 * Get aggregate root history. 
-	 * History is collection of snapshots made at state changes. 
+	 * {@link History History} is collection of snapshots made at state changes. 
 	 * 
 	 * @param manifest aggregate root type
 	 * @param uris     collection of aggregate identities
@@ -116,12 +116,12 @@ public interface ReportingProxy {
 
     /**
 	 * Populate template using found domain object. 
-	 * Optionally convert document to pdf. 
+	 * Optionally convert document to PDF. 
      * 
      * @param manifest domain object type
      * @param file     template file
      * @param uri      domain object identity
-     * @param toPdf    convert populated document to pdf
+     * @param toPdf    convert populated document to PDF
      * @return         future to populated document
      */
     public <TIdentifiable extends Identifiable> Future<byte[]> findTemplater(
@@ -133,12 +133,12 @@ public interface ReportingProxy {
     /**
 	 * Populate template using domain objects which satisfies 
 	 * {@link Specification specification}. 
-	 * Optionally convert document to pdf. 
+	 * Optionally convert document to PDF. 
      * 
      * @param manifest      domain object type
      * @param file          template file
      * @param specification filter domain objects using specification
-     * @param toPdf         convert populated document to pdf
+     * @param toPdf         convert populated document to PDF
      * @return              future to populated document
      */
     public <TSearchable extends Searchable> Future<byte[]> searchTemplater(

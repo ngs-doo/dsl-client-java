@@ -54,7 +54,7 @@ public class S3 implements java.io.Serializable {
         instanceRepository = null;
     }
     /**
-     * Create new instance of S3. Provide custom S3Repository 
+     * Create new instance of S3. Provide custom {@link S3Repository S3 repository}. 
      * Upload must be called before persistence to the database.
      * 
      * @param repository custom S3 repository
@@ -95,8 +95,10 @@ public class S3 implements java.io.Serializable {
     }
 
     private final S3Repository instanceRepository;
-    private final static S3Repository staticRepository = Bootstrap.getLocator().resolve(S3Repository.class);
-    private final static String bucketName = Bootstrap.getLocator().resolve(ProjectSettings.class).get("s3-bucket");
+    @SuppressWarnings("deprecation")
+	private final static S3Repository staticRepository = Bootstrap.getLocator().resolve(S3Repository.class);
+    @SuppressWarnings("deprecation")
+	private final static String bucketName = Bootstrap.getLocator().resolve(ProjectSettings.class).get("s3-bucket");
     private S3Repository getRepository() {
         return instanceRepository != null ? instanceRepository : staticRepository;
     }

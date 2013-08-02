@@ -11,7 +11,7 @@ import com.dslplatform.patterns.ServiceLocator;
 import com.dslplatform.patterns.Specification;
 
 /**
- * Common base implementation for SearchableRepository
+ * Common base implementation for {@link SearchableRepository searchable repository}.
  * It redirects calls to proxy services.
  * It shouldn't be used or resolved.
  * Instead domain model repositories should be resolved.
@@ -28,7 +28,7 @@ import com.dslplatform.patterns.Specification;
  * Java usage:
  * <pre>
  * ServiceLocator locator;
- * SearchableRepository<Todo.TaskInfo> repository = locator.resolve(Todo.TaskInfoRepository.class);
+ * SearchableRepository&lt;Todo.TaskInfo&gt; repository = locator.resolve(Todo.TaskInfoRepository.class);
  * </pre>
  * @param <T> domain object type 
  */
@@ -36,6 +36,12 @@ public abstract class ClientSearchableRepository<T extends Searchable> implement
     protected final Class<T> manifest;
     protected final DomainProxy domainProxy;
 
+    /**
+     * Generated class will provide class manifest and locator
+     * 
+     * @param manifest domain object type
+     * @param locator  context in which domain object lives
+     */
     public ClientSearchableRepository(
             final Class<T> manifest,
             final ServiceLocator locator) {

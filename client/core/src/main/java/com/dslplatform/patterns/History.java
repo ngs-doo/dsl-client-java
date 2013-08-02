@@ -3,7 +3,7 @@ package com.dslplatform.patterns;
 import java.util.List;
 
 /**
- * Aggregation of single {@link AggregateRoot aggregate roots} snapshots.
+ * Aggregation of single {@link AggregateRoot aggregate root} snapshots.
  * Snapshot is created whenever aggregate is created, modified or deleted if 
  * history concept is enabled.
  * <p>
@@ -41,7 +41,7 @@ public final class History<T extends AggregateRoot> implements Identifiable {
     /**
      * Sequence of persisted snapshots.
      * 
-     * @return List of snapshots captured for provided aggregate root.
+     * @return List of snapshots captured for provided {@link AggregateRoot aggregate root}.
      */
     public List<Snapshot<T>> getSnapshots() {
         return this.Snapshots;

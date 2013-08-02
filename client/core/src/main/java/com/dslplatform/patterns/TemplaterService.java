@@ -67,7 +67,7 @@ public interface TemplaterService {
      * populated with data which satisfies {@link Specification search predicate}.
      *
      * @param file          template document
-     * @param specification {@link Specification search predicate}
+     * @param specification search predicate
      * @return              document content future
      */
     public <T extends Searchable> Future<byte[]> populate(
@@ -80,7 +80,7 @@ public interface TemplaterService {
      * and converted to PDF format.
      *
      * @param file          template document
-     * @param specification {@link Specification search predicate}
+     * @param specification search predicate
      * @return              document content future
      */
     public <T extends Searchable> Future<byte[]> populatePdf(

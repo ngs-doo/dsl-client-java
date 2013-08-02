@@ -23,7 +23,8 @@ public class Bootstrap {
      * In case of multiple projects and locator, you should avoid this method
      * and provide instances of locator yourself.
      * 
-     * @return last service locator which was initialized
+     * @deprecated avoid calling static service locator
+     * @return     last service locator which was initialized
      */
     public static ServiceLocator getLocator() {
         if (staticLocator == null)

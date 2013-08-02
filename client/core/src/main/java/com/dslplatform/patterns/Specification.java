@@ -1,8 +1,8 @@
 package com.dslplatform.patterns;
 
 /**
- * Search predicate which can be used to filter domain objects using
- * {@link SearchableRepository SearchableRepository} from the remote server.
+ * Search predicate which can be used to filter domain objects from the remote 
+ * server using {@link SearchableRepository searchable repository}.
  * <p>
  * Specification is defined in DSL with keyword {@code specification} 
  * and a predicate.

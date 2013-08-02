@@ -9,7 +9,7 @@ import com.dslplatform.patterns.Identifiable;
  * Proxy service to remote CRUD REST-like API.
  * Single aggregate root instance can be used.
  * New object instance will be returned when doing modifications.
- * Use {@link StandardProxy} if response is not required from the server.
+ * Use {@link StandardProxy standard proxy} if response is not required from the server.
  * <p>
  * It is preferred to use domain patterns instead of this proxy service.
  */

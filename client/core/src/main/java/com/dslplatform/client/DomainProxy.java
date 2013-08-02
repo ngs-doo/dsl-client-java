@@ -154,8 +154,8 @@ public interface DomainProxy {
      * Send domain event to the server. Server will return identity under which it was stored.
      * Events can't be modified once they are submitted. Only new events can be created.
      * 
-     * @param event event to raise
-     * @return      future containing string value of event URI
+     * @param domainEvent event to raise
+     * @return            future containing string value of event URI
      */
     public <TEvent extends DomainEvent> Future<String> submit(
             final TEvent domainEvent);
@@ -164,9 +164,9 @@ public interface DomainProxy {
      * Apply domain event to a single aggregate. Server will return modified aggregate root.
      * Events can't be modified once they are submitted. Only new events can be created.
      * 
-     * @param event event to apply
-     * @param uri   aggregate root uri
-     * @return      future containing modified aggregate root
+     * @param domainEvent event to apply
+     * @param uri         aggregate root uri
+     * @return            future containing modified aggregate root
      */
     public <TAggregate extends AggregateRoot, TEvent extends AggregateDomainEvent<TAggregate>> Future<TAggregate> submit(
             final TEvent domainEvent,

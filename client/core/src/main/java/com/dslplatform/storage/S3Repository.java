@@ -5,10 +5,11 @@ import java.util.Map;
 import java.util.concurrent.Future;
 
 /**
- * S3 can be used to off-load large binaries files
+ * S3 can be used to off-load large binaries
  * from the application server.
  * Bucket and key are saved in the application server.
- * This service used by S3 data type
+ * <p>
+ * This service is used by S3 data type
  */
 public interface S3Repository {
 	/**
