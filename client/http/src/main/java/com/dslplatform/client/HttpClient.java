@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import com.dslplatform.patterns.ServiceLocator;
 import com.fasterxml.jackson.databind.JavaType;
 
-public class HttpClient {
+class HttpClient {
     private static final Logger logger; static {
         logger = LoggerFactory.getLogger(HttpClient.class);
     }

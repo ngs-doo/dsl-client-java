@@ -10,9 +10,21 @@ import java.util.concurrent.Executors;
 import com.dslplatform.patterns.DomainEventStore;
 import com.dslplatform.patterns.ServiceLocator;
 
+/**
+ * DSL client Java initialization.
+ * Initialize {@link ServiceLocator locator} with services and 
+ * communication configuration, such as remote url and authentication.
+ */
 public class Bootstrap {
     private static ServiceLocator staticLocator;
 
+    /**
+     * Static service locator which was initialized.
+     * In case of multiple projects and locator, you should avoid this method
+     * and provide instances of locator yourself.
+     * 
+     * @return last service locator which was initialized
+     */
     public static ServiceLocator getLocator() {
         if (staticLocator == null)
             throw new RuntimeException("Bootstrap has not been initialized, call Bootstrap.init");
@@ -20,6 +32,13 @@ public class Bootstrap {
         return staticLocator;
     }
 
+    /**
+     * Initialize service locator using provided project.ini stream.
+     * 
+     * @param iniStream    stream for project.ini
+     * @return             initialized service locator
+     * @throws IOException in case of failure to read stream
+     */
     public static ServiceLocator init(final InputStream iniStream) throws IOException {
         final MapServiceLocator locator = new MapServiceLocator();
         final ProjectSettings project = new ProjectSettings(iniStream);
@@ -46,6 +65,13 @@ public class Bootstrap {
 //            .register(S3Repository.class, new AmazonS3Repository(project))
     }
 
+    /**
+     * Initialize service locator using provided project.ini path.
+     * 
+     * @param iniPath      path to project.ini
+     * @return             initialized service locator
+     * @throws IOException in case of failure to read project.ini
+     */
     public static ServiceLocator init(final String iniPath) throws IOException {
         final InputStream iniStream = new FileInputStream(iniPath);
         try {
@@ -73,14 +99,32 @@ public class Bootstrap {
         return versionInfo.getProperty(section);
     }
 
+    /**
+     * Get version info of this library.
+     * Useful for debugging purposes.
+     * 
+     * @return version info
+     */
     public static String getVersion() {
         return getVersionInfo("version");
     }
 
+    /**
+     * Get release date of this library.
+     * Useful for debugging purposes.
+     * 
+     * @return release date
+     */
     public static String getReleaseDate() {
         return getVersionInfo("date");
     }
 
+    /**
+     * This is a library and main should not be called.
+     * If main is called print short library description.
+     * 
+     * @param args ignored
+     */
     public static void main(final String[] args) {
         final String versionString = String.format(
                 "dsl-client-%s.jar (released on: %s)",

@@ -35,7 +35,7 @@ import com.dslplatform.patterns.ServiceLocator;
  *
  * @param <T> aggregate root type
  */
-public class ClientPersistableRepository<T extends AggregateRoot>
+public abstract class ClientPersistableRepository<T extends AggregateRoot>
         extends ClientRepository<T>
         implements PersistableRepository<T> {
     protected final StandardProxy standardProxy;
@@ -70,7 +70,7 @@ public class ClientPersistableRepository<T extends AggregateRoot>
     }
 
     @Override
-    public Future<List<String>> insert(final T ... inserts) {
+    public Future<List<String>> insert(@SuppressWarnings("unchecked") final T ... inserts) {
         return insert(Arrays.asList(inserts));
     }
 
@@ -103,7 +103,7 @@ public class ClientPersistableRepository<T extends AggregateRoot>
     }
 
     @Override
-    public Future<List<String>> update(final T ... updates) {
+    public Future<List<String>> update(@SuppressWarnings("unchecked") final T ... updates) {
       return update(Arrays.asList(updates));
     }
 
@@ -118,7 +118,7 @@ public class ClientPersistableRepository<T extends AggregateRoot>
     }
 
     @Override
-    public Future<?> delete(final T ... deletes) {
+    public Future<?> delete(@SuppressWarnings("unchecked") final T ... deletes) {
         return delete(Arrays.asList(deletes));
     }
 

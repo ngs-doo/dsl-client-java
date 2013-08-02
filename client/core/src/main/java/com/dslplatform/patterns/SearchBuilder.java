@@ -80,7 +80,7 @@ public class SearchBuilder<T extends Searchable> {
         return this;
     }
 
-    private SearchBuilder<T> orderBy(String property, boolean ascending) {//TODO: example
+    private SearchBuilder<T> orderBy(String property, boolean ascending) {
         if (property == null || property == "")
             throw new IllegalArgumentException("property can't be empty");
         Map.Entry<String, Boolean> pair =
@@ -91,7 +91,7 @@ public class SearchBuilder<T extends Searchable> {
     }
 
     /**
-     * Order result ascendingly using a provided property
+     * Order result ascending using a provided property
      * 
      * @param property name of domain objects property
      * @return         itself
@@ -99,7 +99,7 @@ public class SearchBuilder<T extends Searchable> {
     public SearchBuilder<T> ascending(String property) { return orderBy(property, true); }
 
     /**
-     * Order result descendingly using a provided property
+     * Order result descending using a provided property
      * 
      * @param property name of domain objects property
      * @return         itself

@@ -68,15 +68,13 @@ class HttpDomainProxy implements DomainProxy {
             final Integer offset,
             final Iterable<Map.Entry<String, Boolean>> order) {
 
-        final GenericSpecification<T> gs = specification instanceof GenericSpecification ? (GenericSpecification<T>)specification : null;
-
         final Class<?> specClass = specification.getClass();
-        final Class<?> manifest = gs == null ? specClass.getDeclaringClass() : gs.Manifest;
+        final Class<?> manifest = specClass.getDeclaringClass();
         final String parentName = client.getDslName(manifest);
 
         final String url =
             Utils.appendLimitOffsetOrder(
-                parentName + (gs == null ? "?specification=" + specClass.getSimpleName() : ""),
+                parentName + "?specification=" + specClass.getSimpleName(),
                 limit,
                 offset,
                 order,
@@ -85,9 +83,9 @@ class HttpDomainProxy implements DomainProxy {
         return
             client.sendRequest(
                 JsonSerialization.buildCollectionType(ArrayList.class, manifest),
-                DOMAIN_URI + (gs == null ? "search/" : "search-generic/") + url,
+                DOMAIN_URI + "search/" + url,
                 "PUT",
-                gs == null ? specification : gs.toFilter(),
+                specification,
                 new int[] { 200 });
     }
 

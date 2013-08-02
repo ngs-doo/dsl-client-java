@@ -46,7 +46,7 @@ public interface PersistableRepository<T extends AggregateRoot>
     public Future<List<String>> insert(final Iterable<T> insert);
 
     /** @see PersistableRepository#insert(Iterable) */
-    public Future<List<String>> insert(final T ... insert);
+    public Future<List<String>> insert(@SuppressWarnings("unchecked") final T ... insert);
 
     /**
      * Insert a single {@link AggregateRoot aggregate}.
@@ -66,7 +66,7 @@ public interface PersistableRepository<T extends AggregateRoot>
     public Future<?> update(final Iterable<T> update);
 
     /** @see PersistableRepository#update(Iterable) */
-    public Future<?> update(final T ... update);
+    public Future<?> update(@SuppressWarnings("unchecked") final T ... update);
 
     /**
      * Changing state of an aggregate root.
@@ -86,7 +86,7 @@ public interface PersistableRepository<T extends AggregateRoot>
     public Future<?> delete(final Iterable<T> delete);
 
     /** @see #delete(Iterable) */
-    public Future<?> delete(final T ... delete);
+    public Future<?> delete(@SuppressWarnings("unchecked") final T ... delete);
 
     /**
      * Deleting an {@link AggregateRoot aggregate}.

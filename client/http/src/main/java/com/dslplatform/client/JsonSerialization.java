@@ -37,7 +37,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
-public class JsonSerialization {
+class JsonSerialization {
 //    private static final Logger logger =
 //            LoggerFactory.getLogger(JsonSerialization.class);
 

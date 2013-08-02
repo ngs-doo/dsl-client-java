@@ -32,7 +32,7 @@ import com.dslplatform.patterns.Specification;
  * </pre>
  * @param <T> domain object type 
  */
-public class ClientSearchableRepository<T extends Searchable> implements SearchableRepository<T> {
+public abstract class ClientSearchableRepository<T extends Searchable> implements SearchableRepository<T> {
     protected final Class<T> manifest;
     protected final DomainProxy domainProxy;
 
