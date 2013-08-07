@@ -5,14 +5,14 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
- * Project.ini key->value pairs  
+ * Project.ini key->value pairs
  */
 public class ProjectSettings {
     private final Properties properties;
 
     /**
      * Stream to project.ini file
-     * 
+     *
      * @param iniStream    project.ini stream
      * @throws IOException in case of error reading stream
      */
@@ -24,7 +24,7 @@ public class ProjectSettings {
     /**
      * get value for provided property in project.ini
      * property = value
-     * 
+     *
      * @param property key
      * @return         found value
      */

@@ -12,7 +12,7 @@ import com.dslplatform.patterns.ServiceLocator;
 
 /**
  * DSL client Java initialization.
- * Initialize {@link ServiceLocator locator} with services and 
+ * Initialize {@link ServiceLocator locator} with services and
  * communication configuration, such as remote url and authentication.
  */
 public class Bootstrap {
@@ -22,7 +22,7 @@ public class Bootstrap {
      * Static service locator which was initialized.
      * In case of multiple projects and locator, you should avoid this method
      * and provide instances of locator yourself.
-     * 
+     *
      * @deprecated avoid calling static service locator
      * @return     last service locator which was initialized
      */
@@ -35,7 +35,7 @@ public class Bootstrap {
 
     /**
      * Initialize service locator using provided project.ini stream.
-     * 
+     *
      * @param iniStream    stream for project.ini
      * @return             initialized service locator
      * @throws IOException in case of failure to read stream
@@ -68,7 +68,7 @@ public class Bootstrap {
 
     /**
      * Initialize service locator using provided project.ini path.
-     * 
+     *
      * @param iniPath      path to project.ini
      * @return             initialized service locator
      * @throws IOException in case of failure to read project.ini
@@ -103,7 +103,7 @@ public class Bootstrap {
     /**
      * Get version info of this library.
      * Useful for debugging purposes.
-     * 
+     *
      * @return version info
      */
     public static String getVersion() {
@@ -113,7 +113,7 @@ public class Bootstrap {
     /**
      * Get release date of this library.
      * Useful for debugging purposes.
-     * 
+     *
      * @return release date
      */
     public static String getReleaseDate() {
@@ -123,7 +123,7 @@ public class Bootstrap {
     /**
      * This is a library and main should not be called.
      * If main is called print short library description.
-     * 
+     *
      * @param args ignored
      */
     public static void main(final String[] args) {

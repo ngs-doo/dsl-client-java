@@ -43,6 +43,7 @@ object Publishing {
     publishTo <<= (version) { version => Some(
       if (version.endsWith("SNAPSHOT")) NGSSnapshots else NGSReleases
     )}
+  , credentials += Credentials(Path.userHome / ".config" / "dsl-client-java" / "nexus.config")
   , publishArtifact in (Compile, packageDoc) := false
   )
 }
@@ -111,7 +112,7 @@ object NGSBuild extends Build {
   import Default._
   import Dependencies._
 
-  val libVersion = "0.4.1"
+  val libVersion = "0.4.2"
 
   lazy val core = Project(
     "core"

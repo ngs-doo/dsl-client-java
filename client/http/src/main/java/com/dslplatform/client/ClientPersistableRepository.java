@@ -43,7 +43,7 @@ public abstract class ClientPersistableRepository<T extends AggregateRoot>
 
     /**
      * Generated class will provide class manifest and locator
-     * 
+     *
      * @param manifest domain object type
      * @param locator  context in which domain object lives
      */

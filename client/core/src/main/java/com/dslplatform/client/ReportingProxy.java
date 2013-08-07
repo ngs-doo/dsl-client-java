@@ -6,7 +6,7 @@ import java.util.concurrent.Future;
 
 import com.dslplatform.patterns.*;
 
-/**  
+/**
  * Proxy service to reporting operations such as document generation,
  * report population and history lookup.
  * Report should be used to minimize calls to server.
@@ -20,7 +20,7 @@ import com.dslplatform.patterns.*;
  *     timestamp createdAt;
  *     timestamp? finishedAt;
  *   }
- *   
+ *
  *   report LoadData {
  *     int maxUnfinished;
  *     List&lt;Task&gt; unfinishedTasks 'it => it.finishedAt == null' LIMIT maxUnfinished ORDER BY createdAt;
@@ -30,33 +30,33 @@ import com.dslplatform.patterns.*;
  * </pre></blockquote>
  */
 public interface ReportingProxy {
-	/**
-	 * Populate report. Send message to server with serialized report specification.
-	 * TODO: API change. New version has TReport and TResult
-	 * 
-	 * @param report specification
-	 * @return       future to populated results
-	 */
+    /**
+     * Populate report. Send message to server with serialized report specification.
+     * TODO: API change. New version has TReport and TResult
+     *
+     * @param report specification
+     * @return       future to populated results
+     */
     public <TReport> Future<TReport> populate(
             final TReport report);
 
-	/**
-	 * Create document from report. Send message to server with serialized report specification.
-	 * Server will return template populated with found data. 
-	 * <p>
-	 * DSL example:
-	 * <blockquote><pre>
-	 * module Todo {
+    /**
+     * Create document from report. Send message to server with serialized report specification.
+     * Server will return template populated with found data.
+     * <p>
+     * DSL example:
+     * <blockquote><pre>
+     * module Todo {
      *   report LoadData {
      *     List&lt;Task&gt; unfinishedTasks 'it => it.finishedAt == null' ORDER BY createdAt;
      *     templater createDocument 'Tasks.docx' pdf;
      *   }
      * }
-	 * </pre></blockquote>
-	 * @param report    specification
-	 * @param templater templater name
-	 * @return          future to document content
-	 */
+     * </pre></blockquote>
+     * @param report    specification
+     * @param templater templater name
+     * @return          future to document content
+     */
     public <TReport> Future<byte[]> createReport(
             final TReport report,
             final String templater);
@@ -66,14 +66,14 @@ public interface ReportingProxy {
      * Data source is filtered using provided specification.
      * Analysis is performed by grouping data by dimensions
      * and aggregating information using specified facts.
-     * 
+     *
      * @param cubeName      olap cube name
      * @param specification filter data source
      * @param templater     templater name
      * @param dimensions    group by dimensions
      * @param facts         analyze using facts
      * @param order         custom order for result
-	 * @return              future to document content
+     * @return              future to document content
      */
     public <TSource extends Searchable> Future<byte[]> olapCube(
             final String cubeName,
@@ -87,13 +87,13 @@ public interface ReportingProxy {
      * Perform data analysis on specified data source.
      * Analysis is performed by grouping data by dimensions
      * and aggregating information using specified facts.
-     * 
+     *
      * @param cubeName   olap cube name
      * @param templater  templater name
      * @param dimensions group by dimensions
      * @param facts      analyze using facts
      * @param order      custom order for result
-	 * @return           future to document content
+     * @return           future to document content
      */
     public Future<byte[]> olapCube(
             final String cubeName,
@@ -102,22 +102,22 @@ public interface ReportingProxy {
             final Iterable<String> facts,
             final Iterable<Map.Entry<String, Boolean>> order);
 
-	/**
-	 * Get aggregate root history. 
-	 * {@link History History} is collection of snapshots made at state changes. 
-	 * 
-	 * @param manifest aggregate root type
-	 * @param uris     collection of aggregate identities
-	 * @return         future to collection of found aggregate histories
-	 */
+    /**
+     * Get aggregate root history.
+     * {@link History History} is collection of snapshots made at state changes.
+     *
+     * @param manifest aggregate root type
+     * @param uris     collection of aggregate identities
+     * @return         future to collection of found aggregate histories
+     */
     public <TAggregate extends AggregateRoot> Future<List<History<TAggregate>>> getHistory(
             final Class<TAggregate> manifest,
             final Iterable<String> uris);
 
     /**
-	 * Populate template using found domain object. 
-	 * Optionally convert document to PDF. 
-     * 
+     * Populate template using found domain object.
+     * Optionally convert document to PDF.
+     *
      * @param manifest domain object type
      * @param file     template file
      * @param uri      domain object identity
@@ -131,10 +131,10 @@ public interface ReportingProxy {
             final boolean toPdf);
 
     /**
-	 * Populate template using domain objects which satisfies 
-	 * {@link Specification specification}. 
-	 * Optionally convert document to PDF. 
-     * 
+     * Populate template using domain objects which satisfies
+     * {@link Specification specification}.
+     * Optionally convert document to PDF.
+     *
      * @param manifest      domain object type
      * @param file          template file
      * @param specification filter domain objects using specification

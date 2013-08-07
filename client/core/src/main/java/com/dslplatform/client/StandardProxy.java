@@ -8,11 +8,11 @@ import com.dslplatform.patterns.AggregateRoot;
 import com.dslplatform.patterns.Searchable;
 import com.dslplatform.patterns.Specification;
 
-/**  
- * Proxy service to various domain operations such as bulk persistence, 
+/**
+ * Proxy service to various domain operations such as bulk persistence,
  * data analysis and remote service calls.
  * <p>
- * It is preferred to use domain patterns instead of this proxy service.  
+ * It is preferred to use domain patterns instead of this proxy service.
  */
 public interface StandardProxy {
     /**
@@ -22,7 +22,7 @@ public interface StandardProxy {
      * @param updates pairs for updating old aggregate to new state
      * @param deletes aggregate roots which will be deleted
      * @return        future uris of newly created aggregates
-     */	
+     */
     public <TAggregate extends AggregateRoot> Future<List<String>> persist(
             final Iterable<TAggregate> inserts,
             final Iterable<Map.Entry<TAggregate, TAggregate>> updates,
@@ -33,7 +33,7 @@ public interface StandardProxy {
      * Data source is filtered using provided specification.
      * Analysis is performed by grouping data by dimensions
      * and aggregating information using specified facts.
-     * 
+     *
      * @param manifest      deserialize result into provided type collection
      * @param cubeName      olap cube name
      * @param specification filter data source
@@ -54,7 +54,7 @@ public interface StandardProxy {
      * Perform data analysis on specified data source.
      * Analysis is performed by grouping data by dimensions
      * and aggregating information using specified facts.
-     * 
+     *
      * @param manifest      deserialize result into provided type collection
      * @param cubeName      olap cube name
      * @param dimensions    group by dimensions
@@ -71,8 +71,8 @@ public interface StandardProxy {
 
     /**
      * Execute remote service (server implementation for IServerService<TArgument, TResult>)
-     * Send message with serialized argument to remote service and deserialize response. 
-     * 
+     * Send message with serialized argument to remote service and deserialize response.
+     *
      * @param manifest deserialize result into provided type
      * @param command  remote service name
      * @param argument remote service argument

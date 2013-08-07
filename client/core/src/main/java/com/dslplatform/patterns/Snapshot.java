@@ -15,10 +15,10 @@ public class Snapshot<T extends AggregateRoot> implements Identifiable {
     private final T Value;
 
     @SuppressWarnings("unused")
-	private Snapshot() {
-    	this(null, null, null, null);
+    private Snapshot() {
+        this(null, null, null, null);
     }
-    
+
     public Snapshot(
             final String URI,
             final DateTime At,
@@ -32,7 +32,7 @@ public class Snapshot<T extends AggregateRoot> implements Identifiable {
 
     /**
      * Domain object identity.
-     * 
+     *
      * @return Identity
      */
     @Override
@@ -42,7 +42,7 @@ public class Snapshot<T extends AggregateRoot> implements Identifiable {
 
     /**
      * Date and time when snapshot was created.
-     * 
+     *
      * @return DateTime of snapshot
      */
     public DateTime getAt() {
@@ -51,7 +51,7 @@ public class Snapshot<T extends AggregateRoot> implements Identifiable {
 
     /**
      * Which action was performed (INSERT|UPDATE|DELETE)
-     * 
+     *
      * @return Action type
      */
     public String getAction() {
@@ -60,7 +60,7 @@ public class Snapshot<T extends AggregateRoot> implements Identifiable {
 
     /**
      * Instance of an aggregate root at that time
-     * 
+     *
      * @return aggregate root snapshot
      */
     public T getValue() {

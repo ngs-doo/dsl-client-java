@@ -14,7 +14,7 @@ import java.util.concurrent.Future;
  * and sent to server.
  * <p>
  * When permissions are applied, server can restrict which results will be returned to the client.
- * Service should be used when Future is a preferred way of interacting with the remote server. 
+ * Service should be used when Future is a preferred way of interacting with the remote server.
  *
  * @param <T> domain object type.
  */

@@ -16,7 +16,7 @@ import com.dslplatform.patterns.Specification;
  * It shouldn't be used or resolved.
  * Instead domain model repositories should be resolved.
  * <p>
- * DSL example: 
+ * DSL example:
  * <blockquote><pre>
  * module Todo {
  *   sql TaskInfo 'SELECT name, description FROM task' {
@@ -30,7 +30,7 @@ import com.dslplatform.patterns.Specification;
  * ServiceLocator locator;
  * SearchableRepository&lt;Todo.TaskInfo&gt; repository = locator.resolve(Todo.TaskInfoRepository.class);
  * </pre>
- * @param <T> domain object type 
+ * @param <T> domain object type
  */
 public abstract class ClientSearchableRepository<T extends Searchable> implements SearchableRepository<T> {
     protected final Class<T> manifest;
@@ -38,7 +38,7 @@ public abstract class ClientSearchableRepository<T extends Searchable> implement
 
     /**
      * Generated class will provide class manifest and locator
-     * 
+     *
      * @param manifest domain object type
      * @param locator  context in which domain object lives
      */

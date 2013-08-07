@@ -11,13 +11,13 @@ import com.dslplatform.patterns.Identifiable;
 import com.dslplatform.patterns.Searchable;
 import com.dslplatform.patterns.Specification;
 
-/**  
+/**
  * Proxy service to remote REST-like API for basic domain operations
  * such as searching, counting and event sourcing.
  * <p>
- * It is preferred to use domain patterns instead of this proxy service.  
+ * It is preferred to use domain patterns instead of this proxy service.
  */
-public interface DomainProxy {	
+public interface DomainProxy {
     /**
      * Returns a list of domain objects uniquely represented with their URIs.
      * Only found objects will be returned (list will be empty if no objects are found).
@@ -153,7 +153,7 @@ public interface DomainProxy {
     /**
      * Send domain event to the server. Server will return identity under which it was stored.
      * Events can't be modified once they are submitted. Only new events can be created.
-     * 
+     *
      * @param domainEvent event to raise
      * @return            future containing string value of event URI
      */
@@ -163,7 +163,7 @@ public interface DomainProxy {
     /**
      * Apply domain event to a single aggregate. Server will return modified aggregate root.
      * Events can't be modified once they are submitted. Only new events can be created.
-     * 
+     *
      * @param domainEvent event to apply
      * @param uri         aggregate root uri
      * @return            future containing modified aggregate root

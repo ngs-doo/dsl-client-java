@@ -4,7 +4,7 @@ import java.util.List;
 
 /**
  * Aggregation of single {@link AggregateRoot aggregate root} snapshots.
- * Snapshot is created whenever aggregate is created, modified or deleted if 
+ * Snapshot is created whenever aggregate is created, modified or deleted if
  * history concept is enabled.
  * <p>
  * DSL example:
@@ -23,15 +23,15 @@ public final class History<T extends AggregateRoot> implements Identifiable {
     private final List<Snapshot<T>> Snapshots;
 
     @SuppressWarnings("unused")
-	private History() { this.Snapshots = null; }
-    
+    private History() { this.Snapshots = null; }
+
     public History(final List<Snapshot<T>> Snapshots) {
         this.Snapshots = Snapshots;
     }
 
     /**
      * {@link AggregateRoot aggregate root} identity
-     *  
+     *
      * @return URI found in first snapshot
      */
     public String getURI() {
@@ -40,7 +40,7 @@ public final class History<T extends AggregateRoot> implements Identifiable {
 
     /**
      * Sequence of persisted snapshots.
-     * 
+     *
      * @return List of snapshots captured for provided {@link AggregateRoot aggregate root}.
      */
     public List<Snapshot<T>> getSnapshots() {

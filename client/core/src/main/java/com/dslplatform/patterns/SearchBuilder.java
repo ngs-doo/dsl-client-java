@@ -8,8 +8,8 @@ import java.util.concurrent.Future;
 
 /**
  * Utility class for building a search over a {@link SearchableRepository searchable repository}.
- * Search can be performed using more fluent API, 
- * by providing specification limit, offset and custom order  
+ * Search can be performed using more fluent API,
+ * by providing specification limit, offset and custom order
  *
  * @param <T> domain object type.
  */
@@ -41,7 +41,7 @@ public class SearchBuilder<T extends Searchable> {
         this.specification = specification;
         return this;
     }
-    
+
     /**
      * Provide {@link Specification search predicate} for filtering results.
      *
@@ -103,7 +103,7 @@ public class SearchBuilder<T extends Searchable> {
 
     /**
      * Order result ascending using a provided property
-     * 
+     *
      * @param property name of domain objects property
      * @return         itself
      */
@@ -111,7 +111,7 @@ public class SearchBuilder<T extends Searchable> {
 
     /**
      * Order result descending using a provided property
-     * 
+     *
      * @param property name of domain objects property
      * @return         itself
      */

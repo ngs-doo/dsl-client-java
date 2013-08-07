@@ -47,25 +47,25 @@ public class S3 implements java.io.Serializable {
     }
 
     /**
-     * Create new instance of S3. 
+     * Create new instance of S3.
      * Upload must be called before persistence to the database.
      */
     public S3() {
         instanceRepository = null;
     }
     /**
-     * Create new instance of S3. Provide custom {@link S3Repository S3 repository}. 
+     * Create new instance of S3. Provide custom {@link S3Repository S3 repository}.
      * Upload must be called before persistence to the database.
-     * 
+     *
      * @param repository custom S3 repository
      */
     public S3(S3Repository repository) {
         instanceRepository = repository;
     }
     /**
-     * Create new instance of S3 from provided stream. 
+     * Create new instance of S3 from provided stream.
      * Upload will be called immediately. Stream will be read to check for length.
-     * 
+     *
      * @param stream Input stream which will be sent to the remote server
      */
     public S3(final InputStream stream) throws IOException {
@@ -73,9 +73,9 @@ public class S3 implements java.io.Serializable {
         upload(IOUtils.toByteArray(stream));
     }
     /**
-     * Create new instance of S3 from provided stream. 
+     * Create new instance of S3 from provided stream.
      * Upload will be called immediately.
-     * 
+     *
      * @param stream Input stream which will be sent to the remote server
      * @param length size of the stream
      */
@@ -84,9 +84,9 @@ public class S3 implements java.io.Serializable {
         upload(stream, length);
     }
     /**
-     * Create new instance of S3 from provided byte array. 
+     * Create new instance of S3 from provided byte array.
      * Upload will be called immediately.
-     * 
+     *
      * @param bytes Byte array which will be sent to the remote server
      */
     public S3(final byte[] bytes) throws IOException {
@@ -96,29 +96,29 @@ public class S3 implements java.io.Serializable {
 
     private final S3Repository instanceRepository;
     @SuppressWarnings("deprecation")
-	private final static S3Repository staticRepository = Bootstrap.getLocator().resolve(S3Repository.class);
+    private final static S3Repository staticRepository = Bootstrap.getLocator().resolve(S3Repository.class);
     @SuppressWarnings("deprecation")
-	private final static String bucketName = Bootstrap.getLocator().resolve(ProjectSettings.class).get("s3-bucket");
+    private final static String bucketName = Bootstrap.getLocator().resolve(ProjectSettings.class).get("s3-bucket");
     private S3Repository getRepository() {
         return instanceRepository != null ? instanceRepository : staticRepository;
     }
 
     private String bucket;
-    
+
     /**
      * Bucket under which data will be saved.
      * By default bucket is defined in the project.ini file under s3-bucket key
-     * 
+     *
      * @return bucket to remote server
      */
     @JsonProperty("Bucket")
     public String getBucket() { return bucket; }
 
     private String key;
-    
+
     /**
      * Key for bucket in which the data was saved.
-     * 
+     *
      * @return key in bucket on the remote server
      */
     @JsonProperty("Key")
@@ -127,28 +127,28 @@ public class S3 implements java.io.Serializable {
     public String getURI() { return bucket + ":" + key; }
 
     private long length;
-    
+
     /**
      * Byte length of data.
-     * 
+     *
      * @return number of bytes
      */
     @JsonProperty("Length")
     public long getLength() { return length; }
 
     private String name;
-    
+
     /**
      * For convenience, remote data can be assigned a name.
-     * 
+     *
      * @return name associated with the remote data
      */
     public String getName() { return name; }
-    
+
     /**
      * For convenience, remote data can be assigned a name.
-     * 
-     * @param value name which will be associated with data 
+     *
+     * @param value name which will be associated with data
      * @return      itself
      */
     public S3 setName(final String value) {
@@ -157,18 +157,18 @@ public class S3 implements java.io.Serializable {
     }
 
     private String mimeType;
-    
+
     /**
      * For convenience, remote data can be assigned a mime type.
-     * 
+     *
      * @return mime type associated with the remote data
      */
     @JsonProperty("MimeType")
     public String getMimeType() { return mimeType; }
-    
+
     /**
      * For convenience, remote data can be assigned a mime type.
-     * 
+     *
      * @param value mime type which will be associated with data
      * @return      itself
      */
@@ -178,23 +178,23 @@ public class S3 implements java.io.Serializable {
     }
 
     private final HashMap<String, String> metadata = new HashMap<String, String>();
-    
+
     /**
      * For convenience, various metadata can be associated with the remote data.
      * Metadata is a map of string keys and values
-     * 
+     *
      * @return associated metadata
      */
     @JsonProperty("Metadata")
     public Map<String, String> getMetadata() { return metadata; }
 
     private byte[] cachedContent;
-    
+
     /**
      * Get bytes saved on the remote server.
      * Data will be cached, so subsequent request will reuse downloaded bytes.
-     * 
-     * @return             bytes saved on the remote server 
+     *
+     * @return             bytes saved on the remote server
      * @throws IOException in case of communication failure
      */
     public byte[] getContent() throws IOException {
@@ -206,8 +206,8 @@ public class S3 implements java.io.Serializable {
     /**
      * Get stream saved on the remote server.
      * Data will not be cached, so subsequent request will download stream again.
-     * 
-     * @return             stream saved on the remote server 
+     *
+     * @return             stream saved on the remote server
      * @throws IOException in case of communication failure
      */
     public InputStream getStream() throws IOException {
@@ -225,8 +225,8 @@ public class S3 implements java.io.Serializable {
     /**
      * Get bytes saved on the remote server.
      * Data will not be cached, so subsequent request will download bytes again.
-     * 
-     * @return             bytes saved on the remote server 
+     *
+     * @return             bytes saved on the remote server
      * @throws IOException in case of communication failure
      */
     public byte[] getBytes() throws IOException {
@@ -247,7 +247,7 @@ public class S3 implements java.io.Serializable {
      * Upload provided stream to remote S3 server.
      * If key is already defined, this stream will overwrite remote stream,
      * otherwise new key will be created.
-     * 
+     *
      * @param stream       upload provided stream
      * @return             key under which data was saved
      * @throws IOException in case of communication error
@@ -260,7 +260,7 @@ public class S3 implements java.io.Serializable {
      * Upload provided stream to remote S3 server.
      * If key is already defined, this stream will overwrite remote stream,
      * otherwise new key will be created.
-     * 
+     *
      * @param stream       upload provided stream
      * @param length       size of provided stream
      * @return             key under which data was saved
@@ -275,7 +275,7 @@ public class S3 implements java.io.Serializable {
      * If key is already defined, this stream will overwrite remote stream,
      * otherwise new key will be created.
      * If key was already defined, bucket name can't be changed.
-     * 
+     *
      * @param bucket       bucket under data will be saved
      * @param stream       upload provided stream
      * @param length       size of provided stream
@@ -308,7 +308,7 @@ public class S3 implements java.io.Serializable {
      * Upload provided bytes to remote S3 server.
      * If key is already defined, this bytes will overwrite remote bytes,
      * otherwise new key will be created.
-     * 
+     *
      * @param bytes        upload provided bytes
      * @return             key under which data was saved
      * @throws IOException in case of communication error
@@ -322,7 +322,7 @@ public class S3 implements java.io.Serializable {
      * If key is already defined, this bytes will overwrite remote bytes,
      * otherwise new key will be created.
      * If key was already defined, bucket name can't be changed.
-     * 
+     *
      * @param bucket       bucket under data will be saved
      * @param bytes        upload provided bytes
      * @return             key under which data was saved
@@ -355,7 +355,7 @@ public class S3 implements java.io.Serializable {
 
     /**
      * Remote data from the remote S3 server.
-     * 
+     *
      * @throws IOException in case of communication error
      */
     public void delete() throws IOException {

@@ -12,7 +12,7 @@ package com.dslplatform.patterns;
  *   sql Town 'SELECT id, name FROM town' {
  *     int id;
  *     string name;
- *   } 
+ *   }
  * }
  * </pre></blockquote>
  */

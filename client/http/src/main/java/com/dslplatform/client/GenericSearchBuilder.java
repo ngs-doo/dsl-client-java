@@ -12,13 +12,13 @@ import com.dslplatform.patterns.Searchable;
 import com.dslplatform.patterns.ServiceLocator;
 
 /**
- * In case when specification is not defined on the server, 
+ * In case when specification is not defined on the server,
  * client side generic search builder can be used.
  * It should be used for testing and in rare cases when server can't be updated.
  * <p>
- * It is preferable to use server side specification.  
- * 
- * @param <T> type of domain object 
+ * It is preferable to use server side specification.
+ *
+ * @param <T> type of domain object
  */
 public class GenericSearchBuilder<T extends Searchable> {
 
@@ -40,7 +40,7 @@ public class GenericSearchBuilder<T extends Searchable> {
         }
 
         @SuppressWarnings("unused")
-		private FilterPair() {
+        private FilterPair() {
             this.Key = null;
             this.Value = null;
         }
@@ -73,9 +73,9 @@ public class GenericSearchBuilder<T extends Searchable> {
     }
 
     /**
-     * Create new instance of generic search builder by providing 
+     * Create new instance of generic search builder by providing
      * domain object type and locator
-     * 
+     *
      * @param manifest domain object type
      * @param locator  service locator with registered services
      */
@@ -90,7 +90,7 @@ public class GenericSearchBuilder<T extends Searchable> {
 
     /**
      * Limit the number of results which will be performed.
-     * 
+     *
      * @param limit maximum number of results
      * @return      itself
      */
@@ -98,10 +98,10 @@ public class GenericSearchBuilder<T extends Searchable> {
         this.limit = limit;
         return this;
     }
-    
+
     /**
      * Limit the number of results which will be performed.
-     * 
+     *
      * @param limit maximum number of results
      * @return      itself
      */
@@ -109,7 +109,7 @@ public class GenericSearchBuilder<T extends Searchable> {
 
     /**
      * Skip initial number of results.
-     * 
+     *
      * @param offset number of skipped results
      * @return       itself
      */
@@ -119,7 +119,7 @@ public class GenericSearchBuilder<T extends Searchable> {
     }
     /**
      * Skip initial number of results.
-     * 
+     *
      * @param offset number of skipped results
      * @return       itself
      */
@@ -129,8 +129,8 @@ public class GenericSearchBuilder<T extends Searchable> {
      * Ask server to provide domain objects which satisfy defined conditions
      * in requested order if custom order was provided.
      * Limit and offset will be applied on results if provided.
-     * 
-     * @return future to list of found domain object 
+     *
+     * @return future to list of found domain object
      */
     public Future<List<T>> search() {
 
@@ -159,15 +159,15 @@ public class GenericSearchBuilder<T extends Searchable> {
 
     /**
      * Order results ascending by specified property.
-     * 
+     *
      * @param property name of property
      * @return         itself
      */
     public GenericSearchBuilder<T> ascending(final String property) { return orderBy(property, true); }
-    
+
     /**
      * Order results descending by specified property.
-     * 
+     *
      * @param property name of property
      * @return         itself
      */
@@ -189,7 +189,7 @@ public class GenericSearchBuilder<T extends Searchable> {
     /**
      * Define equal (=) condition for specification.
      * Server will return only results that satisfy this and every other specified condition.
-     * 
+     *
      * @param property name of property to compare
      * @param value    check equality with provided value
      * @return         itself
@@ -201,7 +201,7 @@ public class GenericSearchBuilder<T extends Searchable> {
     /**
      * Define not equal (!=) condition for specification.
      * Server will return only results that satisfy this and every other specified condition.
-     * 
+     *
      * @param property name of property to compare
      * @param value    check equality with provided value
      * @return         itself
@@ -213,7 +213,7 @@ public class GenericSearchBuilder<T extends Searchable> {
     /**
      * Define less then (<) condition for specification.
      * Server will return only results that satisfy this and every other specified condition.
-     * 
+     *
      * @param property name of property to compare
      * @param value    check ordering with provided value
      * @return         itself
@@ -225,7 +225,7 @@ public class GenericSearchBuilder<T extends Searchable> {
     /**
      * Define less then or equal (<=) condition for specification.
      * Server will return only results that satisfy this and every other specified condition.
-     * 
+     *
      * @param property name of property to compare
      * @param value    check ordering and equality with provided value
      * @return         itself
@@ -237,7 +237,7 @@ public class GenericSearchBuilder<T extends Searchable> {
     /**
      * Define greater then (>) condition for specification.
      * Server will return only results that satisfy this and every other specified condition.
-     * 
+     *
      * @param property name of property to compare
      * @param value    check ordering with provided value
      * @return         itself
@@ -249,7 +249,7 @@ public class GenericSearchBuilder<T extends Searchable> {
     /**
      * Define greater then or equal (>=) condition for specification.
      * Server will return only results that satisfy this and every other specified condition.
-     * 
+     *
      * @param property name of property to compare
      * @param value    check ordering and equality with provided value
      * @return         itself
@@ -261,7 +261,7 @@ public class GenericSearchBuilder<T extends Searchable> {
     /**
      * Define in ( value in collection property ) condition for specification.
      * Server will return only results that satisfy this and every other specified condition.
-     * 
+     *
      * @param property name of property to check
      * @param value    check collection for provided value
      * @return         itself
@@ -273,7 +273,7 @@ public class GenericSearchBuilder<T extends Searchable> {
     /**
      * Define not in ( not value in collection property ) condition for specification.
      * Server will return only results that satisfy this and every other specified condition.
-     * 
+     *
      * @param property name of property to check
      * @param value    check collection for provided value
      * @return         itself
@@ -285,7 +285,7 @@ public class GenericSearchBuilder<T extends Searchable> {
     /**
      * Define in [ property in collection value ] condition for specification.
      * Server will return only results that satisfy this and every other specified condition.
-     * 
+     *
      * @param property name of collection property to check
      * @param value    check if property is in provided collection value
      * @return         itself
@@ -297,7 +297,7 @@ public class GenericSearchBuilder<T extends Searchable> {
     /**
      * Define in [ not property in collection value ] condition for specification.
      * Server will return only results that satisfy this and every other specified condition.
-     * 
+     *
      * @param property name of collection property to check
      * @param value    check if property is not in provided collection value
      * @return         itself
@@ -310,7 +310,7 @@ public class GenericSearchBuilder<T extends Searchable> {
      * Define startsWith [ property.startsWith(value) ] condition for specification.
      * Case sensitive comparison will be performed.
      * Server will return only results that satisfy this and every other specified condition.
-     * 
+     *
      * @param property name of property to check
      * @param value    comparison value
      * @return         itself
@@ -322,7 +322,7 @@ public class GenericSearchBuilder<T extends Searchable> {
     /**
      * Define startsWith and case sensitivity [ property.startsWith(value, case sensitivity) ] condition for specification.
      * Server will return only results that satisfy this and every other specified condition.
-     * 
+     *
      * @param property   name of property to check
      * @param value      comparison value
      * @param ignoreCase should string comparison ignore casing
@@ -341,7 +341,7 @@ public class GenericSearchBuilder<T extends Searchable> {
      * Define !startsWith [ not property.startsWith(value) ] condition for specification.
      * Case sensitive comparison will be performed.
      * Server will return only results that satisfy this and every other specified condition.
-     * 
+     *
      * @param property name of property to check
      * @param value    comparison value
      * @return         itself
@@ -353,7 +353,7 @@ public class GenericSearchBuilder<T extends Searchable> {
     /**
      * Define !startsWith and case sensitivity [ not property.startsWith(value, case sensitivity) ] condition for specification.
      * Server will return only results that satisfy this and every other specified condition.
-     * 
+     *
      * @param property   name of property to check
      * @param value      comparison value
      * @param ignoreCase should string comparison ignore casing
@@ -372,7 +372,7 @@ public class GenericSearchBuilder<T extends Searchable> {
      * Define startsWith [ value.startsWith(property) ] condition for specification.
      * Case sensitive comparison will be performed.
      * Server will return only results that satisfy this and every other specified condition.
-     * 
+     *
      * @param property name of property to check
      * @param value    comparison value
      * @return         itself
@@ -384,7 +384,7 @@ public class GenericSearchBuilder<T extends Searchable> {
     /**
      * Define startsWith and case sensitivity [ value.startsWith(property, case sensitivity) ] condition for specification.
      * Server will return only results that satisfy this and every other specified condition.
-     * 
+     *
      * @param property   name of property to check
      * @param value      comparison value
      * @param ignoreCase should string comparison ignore casing
@@ -403,7 +403,7 @@ public class GenericSearchBuilder<T extends Searchable> {
      * Define !startsWith [ not value.startsWith(property) ] condition for specification.
      * Case sensitive comparison will be performed.
      * Server will return only results that satisfy this and every other specified condition.
-     * 
+     *
      * @param property name of property to check
      * @param value    comparison value
      * @return         itself
@@ -415,7 +415,7 @@ public class GenericSearchBuilder<T extends Searchable> {
     /**
      * Define !startsWith and case sensitivity [ not value.startsWith(property, case sensitivity) ] condition for specification.
      * Server will return only results that satisfy this and every other specified condition.
-     * 
+     *
      * @param property   name of property to check
      * @param value      comparison value
      * @param ignoreCase should string comparison ignore casing
