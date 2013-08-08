@@ -20,33 +20,33 @@ public interface PersistableRepository<T extends AggregateRoot>
     /**
      * Apply local changes to the remote server.
      *
-     * @param insert new aggregate roots
-     * @param update pairs for updating old aggregate to new state
-     * @param delete aggregate roots which will be deleted
+     * @param inserts new aggregate roots
+     * @param updates pairs for updating old aggregate to new state
+     * @param deletes aggregate roots which will be deleted
      * @return       future uris of newly created aggregates
      */
     public Future<List<String>> persist(
-            final Iterable<T> insert,
-            final Iterable<Map.Entry<T, T>> update,
-            final Iterable<T> delete);
+            final Iterable<T> inserts,
+            final Iterable<Map.Entry<T, T>> updates,
+            final Iterable<T> deletes);
 
     /** @see PersistableRepository#persist(Iterable, Iterable, Iterable) */
     public Future<List<String>> persist(
-        final T [] insert,
-        final Map.Entry<T, T> [] update,
-        final T [] delete);
+        final T[] inserts,
+        final Map.Entry<T, T>[] updates,
+        final T[] deletes);
 
     /**
      * Bulk insert.
      * Create multiple new {@link AggregateRoot aggregates}.
      *
-     * @param insert new aggregate roots
+     * @param inserts new aggregate roots
      * @return       future uris of created aggregate roots
      */
-    public Future<List<String>> insert(final Iterable<T> insert);
+    public Future<List<String>> insert(final Iterable<T> inserts);
 
     /** @see PersistableRepository#insert(Iterable) */
-    public Future<List<String>> insert(@SuppressWarnings("unchecked") final T ... insert);
+    public Future<List<String>> insert(final T[] inserts);
 
     /**
      * Insert a single {@link AggregateRoot aggregate}.
@@ -60,13 +60,13 @@ public interface PersistableRepository<T extends AggregateRoot>
      * Bulk update.
      * Changing state of multiple {@link AggregateRoot aggregates}.
      *
-     * @param update sequence of aggregate roots to update
+     * @param updates sequence of aggregate roots to update
      * @return       future for error checking
      */
-    public Future<?> update(final Iterable<T> update);
+    public Future<?> update(final Iterable<T> updates);
 
     /** @see PersistableRepository#update(Iterable) */
-    public Future<?> update(@SuppressWarnings("unchecked") final T ... update);
+    public Future<?> update(final T[] updates);
 
     /**
      * Changing state of an aggregate root.
@@ -80,13 +80,13 @@ public interface PersistableRepository<T extends AggregateRoot>
      * Bulk delete.
      * Remote multiple {@link AggregateRoot aggregates}.
      *
-     * @param delete aggregate roots to delete
+     * @param deletes aggregate roots to delete
      * @return       future for error checking
      */
-    public Future<?> delete(final Iterable<T> delete);
+    public Future<?> delete(final Iterable<T> deletes);
 
     /** @see #delete(Iterable) */
-    public Future<?> delete(@SuppressWarnings("unchecked") final T ... delete);
+    public Future<?> delete(final T[] deletes);
 
     /**
      * Deleting an {@link AggregateRoot aggregate}.

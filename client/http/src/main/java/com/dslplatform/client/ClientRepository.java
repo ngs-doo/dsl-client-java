@@ -52,7 +52,7 @@ public abstract class ClientRepository<T extends Identifiable>
     }
 
     @Override
-    public Future<List<T>> find(final String ... uris) {
+    public Future<List<T>> find(final String[] uris) {
       return find(Arrays.asList(uris));
     }
 

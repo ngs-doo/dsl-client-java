@@ -23,7 +23,7 @@ public interface Repository<T extends Identifiable>
     public Future<List<T>> find(final Iterable<String> uris);
 
     /** @see Repository#find(Iterable) */
-    public Future<List<T>> find(final String ... uris);
+    public Future<List<T>> find(final String[] uris);
 
     /**
      * Returns a domain object uniquely represented with its URI.

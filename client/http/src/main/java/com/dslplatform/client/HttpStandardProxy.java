@@ -49,23 +49,23 @@ class HttpStandardProxy implements StandardProxy {
 
     @SuppressWarnings("serial")
     private static class Pair<K, V>
-    implements java.util.Map.Entry<K,V>, java.io.Serializable{
-      public K key;
-      public V value;
+            implements java.util.Map.Entry<K,V>, java.io.Serializable{
+        public K key;
+        public V value;
 
-      @Override
-      public K getKey() {
-        return key;
-      }
-      @Override
-      public V getValue() {
-        return value;
-      }
-      @Override
-      public V setValue(V value) {
-        this.value =value;
-        return value;
-      }
+        @Override
+        public K getKey() {
+            return key;
+        }
+        @Override
+        public V getValue() {
+            return value;
+        }
+        @Override
+        public V setValue(V value) {
+            this.value =value;
+            return value;
+        }
     }
 
     @Override
@@ -91,11 +91,11 @@ class HttpStandardProxy implements StandardProxy {
                 String toUpdate = null;
                 if(updates != null) {
                     final List<Pair<T, T>> list = new ArrayList<Pair<T, T>>();
-                    for (Map.Entry<T, T> updatei: updates)
+                    for (Map.Entry<T, T> update: updates)
                     {
                       final Pair<T, T> pair = new Pair<T, T>();
-                      pair.key = updatei.getKey();
-                      pair.value = updatei.getValue();
+                      pair.key = update.getKey();
+                      pair.value = update.getValue();
                       list.add(pair);
                     }
                     if(!list.isEmpty()) {

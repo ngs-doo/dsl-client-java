@@ -28,7 +28,7 @@ class AdditionalKeyStoresSSLSocketFactory extends SSLSocketFactory {
 
     public AdditionalKeyStoresSSLSocketFactory(KeyStore keyStore) throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, UnrecoverableKeyException {
         super(keyStore);
-        sslContext.init(null, new TrustManager[]{new AdditionalKeyStoresTrustManager(keyStore)}, null);
+        sslContext.init(null, new TrustManager[]{new AdditionalKeyStoreTrustManager(keyStore)}, null);
     }
 
     @Override
@@ -44,12 +44,11 @@ class AdditionalKeyStoresSSLSocketFactory extends SSLSocketFactory {
     /**
      * Based on http://download.oracle.com/javase/1.5.0/docs/guide/security/jsse/JSSERefGuide.html#X509TrustManager
      */
-    public static class AdditionalKeyStoresTrustManager implements X509TrustManager {
+    public static class AdditionalKeyStoreTrustManager implements X509TrustManager {
 
         protected ArrayList<X509TrustManager> x509TrustManagers = new ArrayList<X509TrustManager>();
 
-
-        protected AdditionalKeyStoresTrustManager(KeyStore... additionalkeyStores) {
+        protected AdditionalKeyStoreTrustManager(final KeyStore additionalKeyStore) {
             final ArrayList<TrustManagerFactory> factories = new ArrayList<TrustManagerFactory>();
 
             try {
@@ -58,11 +57,9 @@ class AdditionalKeyStoresSSLSocketFactory extends SSLSocketFactory {
                 original.init((KeyStore) null);
                 factories.add(original);
 
-                for( KeyStore keyStore : additionalkeyStores ) {
-                    final TrustManagerFactory additionalCerts = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-                    additionalCerts.init(keyStore);
-                    factories.add(additionalCerts);
-                }
+                final TrustManagerFactory additionalCerts = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                additionalCerts.init(additionalKeyStore);
+                factories.add(additionalCerts);
 
             } catch (Exception e) {
                 throw new RuntimeException(e);

@@ -65,9 +65,9 @@ public abstract class ClientPersistableRepository<T extends AggregateRoot>
 
     @Override
     public Future<List<String>> persist(
-            final T [] inserts,
-            final Map.Entry<T, T> [] updates,
-            final T [] deletes) {
+            final T[] inserts,
+            final Map.Entry<T, T>[] updates,
+            final T[] deletes) {
         return persist(
             Arrays.asList(inserts),
             Arrays.asList(updates),
@@ -76,7 +76,7 @@ public abstract class ClientPersistableRepository<T extends AggregateRoot>
     }
 
     @Override
-    public Future<List<String>> insert(@SuppressWarnings("unchecked") final T ... inserts) {
+    public Future<List<String>> insert(final T[] inserts) {
         return insert(Arrays.asList(inserts));
     }
 
@@ -109,7 +109,7 @@ public abstract class ClientPersistableRepository<T extends AggregateRoot>
     }
 
     @Override
-    public Future<List<String>> update(@SuppressWarnings("unchecked") final T ... updates) {
+    public Future<List<String>> update(final T[] updates) {
       return update(Arrays.asList(updates));
     }
 
@@ -124,7 +124,7 @@ public abstract class ClientPersistableRepository<T extends AggregateRoot>
     }
 
     @Override
-    public Future<?> delete(@SuppressWarnings("unchecked") final T ... deletes) {
+    public final Future<?> delete(final T[] deletes) {
         return delete(Arrays.asList(deletes));
     }
 
