@@ -18,7 +18,7 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
@@ -134,7 +134,7 @@ class HttpClient {
             logger.debug("{} to URL: [{}]", method, url);
         }
 
-        final HttpUriRequest req;
+        final HttpRequestBase req;
         if (method == "POST") {
             final HttpPost post = new HttpPost(url);
             if(payload != null) {
@@ -174,12 +174,22 @@ class HttpClient {
             logger.trace("¯¯¯¯ headers ¯¯¯¯");
         }
 
-        final HttpResponse response = httpClient.execute(req);
+        try {
+            final HttpResponse response = httpClient.execute(req);
 
-        final int code = response.getStatusLine().getStatusCode();
-        final byte[] body = EntityUtils.toByteArray(response.getEntity());
+            final int code = response.getStatusLine().getStatusCode();
+            final byte[] body = EntityUtils.toByteArray(response.getEntity());
 
-        return new Response(code, body);
+            return new Response(code, body);
+        }
+        catch (final RuntimeException e) {
+            logger.error("A runtime exception has occured while executing request", e);
+            req.abort();
+            throw e;
+        }
+        finally {
+            req.releaseConnection();
+        }
     }
 
     public String getDslName(final Class<?> clazz) {
