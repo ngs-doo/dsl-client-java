@@ -7,6 +7,9 @@ import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.dslplatform.patterns.DomainEventStore;
 import com.dslplatform.patterns.ServiceLocator;
 
@@ -44,8 +47,9 @@ public class Bootstrap {
         final MapServiceLocator locator = new MapServiceLocator();
         final ProjectSettings project = new ProjectSettings(iniStream);
         final JsonSerialization json = new JsonSerialization();
+        final Logger logger = LoggerFactory.getLogger("dsl-client-http");
         final ExecutorService executorService = Executors.newCachedThreadPool();
-        final HttpClient httpClient = new HttpClient(project, locator, json, executorService);
+        final HttpClient httpClient = new HttpClient(project, locator, json, logger, executorService);
         final DomainProxy domainProxy = new HttpDomainProxy(httpClient);
 
         staticLocator = locator;

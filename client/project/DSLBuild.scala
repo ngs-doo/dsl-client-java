@@ -100,7 +100,7 @@ object Dependencies {
   val commonsCodec = "commons-codec" % "commons-codec" % "1.8"
 
   // Amazon Web Services SDK
-  val aws = "com.amazonaws" % "aws-java-sdk" % "1.5.0"
+  val aws = "com.amazonaws" % "aws-java-sdk" % "1.5.4"
 
   // Akka Actor (contains the Serializer)
   val akkaActor = "com.typesafe.akka" %% "akka-actor" % "2.2.0"
@@ -112,7 +112,7 @@ object NGSBuild extends Build {
   import Default._
   import Dependencies._
 
-  val libVersion = "0.4.3"
+  val libVersion = "0.4.4"
 
   lazy val core = Project(
     "core"

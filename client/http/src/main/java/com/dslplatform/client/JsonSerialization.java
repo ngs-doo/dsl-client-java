@@ -38,11 +38,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 class JsonSerialization {
-//    private static final Logger logger =
-//            LoggerFactory.getLogger(JsonSerialization.class);
-
-// -----------------------------------------------------------------------------
-
     private static final JsonSerializer<LocalDate> dateSerializer = new JsonSerializer<LocalDate>() {
         @Override
         public void serialize(

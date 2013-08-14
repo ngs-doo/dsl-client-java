@@ -6,10 +6,10 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.KeyStore;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
@@ -26,18 +26,11 @@ import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.dslplatform.patterns.ServiceLocator;
 import com.fasterxml.jackson.databind.JavaType;
 
 class HttpClient {
-    private static final Logger logger; static {
-        logger = LoggerFactory.getLogger(HttpClient.class);
-    }
-
- // -----------------------------------------------------------------------------
-
     public static String encode(final String param) {
         try {
             return URLEncoder.encode(param, "UTF-8");
@@ -51,6 +44,7 @@ class HttpClient {
 
     private static final SchemeRegistry schemeRegistry;
     private static final DefaultHttpClient httpClient;
+
     static {
         try {
             final String storeType = KeyStore.getDefaultType();
@@ -77,30 +71,35 @@ class HttpClient {
 
     private final ServiceLocator locator;
     private final JsonSerialization json;
+    private final Logger logger;
+    private final ExecutorService executorService;
 
     private final String domainPrefix;
     private final int domainPrefixLength;
 
-    private final ExecutorService executorService;
 
     public HttpClient(
             final ProjectSettings project,
             final ServiceLocator locator,
             final JsonSerialization json,
+            final Logger logger,
             final ExecutorService executorService) throws IOException {
         this.locator = locator;
         this.json = json;
+        this.logger = logger;
         this.executorService = executorService;
 
         this.remoteUrl = project.get("api-url");
         this.domainPrefix = project.get("package-name");
         this.domainPrefixLength = domainPrefix.length() + 1;
 
-        logger.debug("Initialized with: \n    username [{}] \n    api: [{}] \n    pid: [{}]"
-            , project.get("username")
-            , project.get("api-url")
-            , project.get("project-id")
-            );
+        if (logger.isDebugEnabled()) {
+            logger.debug("Initialized with: \n    username [{}] \n    api: [{}] \n    pid: [{}]"
+                , project.get("username")
+                , project.get("api-url")
+                , project.get("project-id")
+                );
+        }
 
         final String token = project.get("username") +':'+ project.get("project-id");
         basicAuth = "Basic " + new String(encodeBase64(token.getBytes("UTF-8")));
@@ -111,17 +110,17 @@ class HttpClient {
     private static final String MIME_TYPE = "application/json";
 
     static class Response {
-      public final int code;
-      public final byte[] body;
+        public final int code;
+        public final byte[] body;
 
-      public Response(final int code, final byte[] body) {
-        this.code = code;
-        this.body = body;
-      }
+        public Response(final int code, final byte[] body) {
+            this.code = code;
+            this.body = body;
+        }
 
-      public String bodyToString() {
-        return (body == null) ? "" : new String(body, java.nio.charset.Charset.forName("UTF-8"));
-      }
+        public String bodyToString() {
+            return (body == null) ? "" : new String(body, java.nio.charset.Charset.forName("UTF-8"));
+        }
     }
 
     private Response transmit(
@@ -131,16 +130,20 @@ class HttpClient {
             final byte[] payload) throws IOException {
 
         final String url = remoteUrl + service;
-        logger.debug("{} to URL: [{}]", method, url);
+        if (logger.isDebugEnabled()) {
+            logger.debug("{} to URL: [{}]", method, url);
+        }
 
         final HttpUriRequest req;
         if (method == "POST") {
             final HttpPost post = new HttpPost(url);
             if(payload != null) {
                 post.setEntity(new ByteArrayEntity(payload));
-                logger.debug("____ payload _____");
-                logger.debug("{}", IOUtils.toString(post.getEntity().getContent()));
-                logger.debug("¯¯¯¯ payload ¯¯¯¯¯");
+                if (logger.isTraceEnabled()) {
+                    logger.trace("____ payload _____");
+                    logger.trace("{}", IOUtils.toString(post.getEntity().getContent()));
+                    logger.trace("¯¯¯¯ payload ¯¯¯¯¯");
+                }
             }
             req = post;
         } else if (method == "PUT"){
@@ -158,16 +161,19 @@ class HttpClient {
         req.setHeader("Accept", MIME_TYPE);
         req.setHeader("Content-Type", MIME_TYPE);
         req.setHeader("Authorization", basicAuth);
+
         for(final Map.Entry<String, String> h: headers.entrySet()) {
           req.setHeader(h.getKey(), h.getValue());
         }
 
-        logger.debug("____ headers ____");
-        for(final Header h: req.getAllHeaders()) {
-          logger.debug("{}:{}", h.getName(), h.getValue());
+        if (logger.isTraceEnabled()) {
+            logger.trace("____ headers ____");
+            for(final Header h: req.getAllHeaders()) {
+              logger.trace("{}:{}", h.getName(), h.getValue());
+            }
+            logger.trace("¯¯¯¯ headers ¯¯¯¯");
         }
 
-        logger.debug("¯¯¯¯ headers ¯¯¯¯");
         final HttpResponse response = httpClient.execute(req);
 
         final int code = response.getStatusLine().getStatusCode();
@@ -189,33 +195,46 @@ class HttpClient {
     }
   //-----------------------------------------------------------------------------
 
-  private <TArgument> Response doRawRequest(
-      final String service,
-      final Map<String, String> headers,
-      final String method,
-      final TArgument content,
-      final int[] expected,
-      final long start)
-      throws UnsupportedEncodingException, IOException {
-    final byte[] body;
+    private <TArgument> Response doRawRequest(
+            final String service,
+            final Map<String, String> headers,
+            final String method,
+            final TArgument content,
+            final int[] expected,
+            final long start) throws UnsupportedEncodingException, IOException {
 
+        final byte[] body;
         if (content == null) {
             body = null;
-            logger.debug("Sending request [{}]: {}, no content", method, service);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Sending request [{}]: {}, no content", method, service);
+            }
         }
         else {
             final String jsonBody = json.serialize(content);
             body = jsonBody.getBytes("UTF-8");
-            logger.debug("Sending request [{}]: {}, content: {}", method, service, jsonBody);
-            logger.trace("Sending request body: {} ", new String(body, "UTF-8"));
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Sending request [{}]: {}, content size: {} bytes", method, service, jsonBody.length());
+
+                if (logger.isTraceEnabled()) {
+                    logger.trace("Sending request body: {} ", new String(body, "UTF-8"));
+                }
+            }
         }
 
 
         final Response response = transmit(service, headers, method, body);
 
-        final long time = System.currentTimeMillis() - start;
-        logger.debug("Received response [{}, {} bytes] in {} ms", response.code, response.body.length, time);
-        logger.trace("Received response body: {}", response.bodyToString());
+        if (logger.isDebugEnabled()) {
+            final long time = System.currentTimeMillis() - start;
+            logger.debug("Received response [{}, {} bytes] in {} ms", response.code, response.body.length, time);
+
+            if (logger.isTraceEnabled()) {
+                logger.trace("Received response body: {}", response.bodyToString());
+            }
+        }
 
         if (expected != null && !contains(expected, response.code)) {
             throw new IOException("Unexpected return code: " + response.code + ", response: " + response.bodyToString());
@@ -225,9 +244,9 @@ class HttpClient {
         }
 
         return response;
-  }
+    }
 
-  private static final Map<String, String> emptyHeaders = new java.util.HashMap<String, String>();
+    private static final Map<String, String> emptyHeaders = new java.util.HashMap<String, String>();
 
     public <TArgument> Future<byte[]> sendRawRequest(
             final String service,
