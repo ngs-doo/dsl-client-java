@@ -16,8 +16,7 @@ class Utils {
             final Iterable<Map.Entry<String, Boolean>> order,
             final boolean isFirst) {
         if (order != null && order.iterator().hasNext()) {
-            sb.append((isFirst) ? "?" : "&");
-            sb.append("order=");
+            sb.append(isFirst ? "?order=" : "&order=");
             for(final Map.Entry<String, Boolean> el: order) {
                 // null Boolean object will default to true
                 if(el.getValue() == Boolean.FALSE) {
@@ -40,12 +39,12 @@ class Utils {
         final boolean offsetnull = offset == null;
         final boolean orderFirst = limitnull && offsetnull && isFirst;
 
-        if(! limitnull)
-            sB.append( isFirst ? '?' : '&').append("limit=").append(limit);
-        if(! offsetnull)
-            sB.append((limitnull && isFirst) ? "?offset=" : "&offset=").append(offset);
-        appendOrder(sB, order, orderFirst);
+        if(!limitnull)
+            sB.append(isFirst ? "?limit=" : "&limit=").append(limit);
+        if(!offsetnull)
+            sB.append(limitnull && isFirst ? "?offset=" : "&offset=").append(offset);
 
+        appendOrder(sB, order, orderFirst);
         return sB.toString();
     }
 
