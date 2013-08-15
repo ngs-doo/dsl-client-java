@@ -13,12 +13,10 @@ class Utils {
 
     private static void appendOrder(
             final StringBuilder sb,
-            final Iterable<Map.Entry<String, Boolean>> order) {
+            final Iterable<Map.Entry<String, Boolean>> order,
+            final boolean isFirst) {
         if (order != null && order.iterator().hasNext()) {
-            if(sb.length() > 0)
-                sb.append("&");
-            else
-                sb.append("?");
+            sb.append((isFirst) ? "?" : "&");
             sb.append("order=");
             for(final Map.Entry<String, Boolean> el: order) {
                 // null Boolean object will default to true
@@ -38,12 +36,15 @@ class Utils {
             final Iterable<Map.Entry<String, Boolean>> order,
             final Boolean isFirst) {
         final StringBuilder sB = new StringBuilder(url);
+        final boolean limitnull = limit == null;
+        final boolean offsetnull = offset == null;
+        final boolean orderFirst = limitnull && offsetnull && isFirst;
 
-        if(limit != null)
+        if(! limitnull)
             sB.append( isFirst ? '?' : '&').append("limit=").append(limit);
-        if(offset != null)
-            sB.append((limit == null && isFirst) ? "?offset=" : "&offset=").append(offset);
-        appendOrder(sB, order);
+        if(! offsetnull)
+            sB.append((limitnull && isFirst) ? "?offset=" : "&offset=").append(offset);
+        appendOrder(sB, order, orderFirst);
 
         return sB.toString();
     }
@@ -76,7 +77,7 @@ class Utils {
         if (query.length() == 0)
             throw new IllegalArgumentException("At least one dimension or fact is required");
 
-        appendOrder(query, order);
+        appendOrder(query, order, false);
 
         return query.toString();
     }
