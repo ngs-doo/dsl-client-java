@@ -37,7 +37,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
-class JsonSerialization {
+public class JsonSerialization {
     private static final JsonSerializer<LocalDate> dateSerializer = new JsonSerializer<LocalDate>() {
         @Override
         public void serialize(
