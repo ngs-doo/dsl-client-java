@@ -84,7 +84,7 @@ object Default {
 
 object Dependencies {
   // JodaTime
-  val jodaTime = "joda-time" % "joda-time" % "2.2"
+  val jodaTime = "joda-time" % "joda-time" % "2.3"
 
   // Json serialization
   val jackson = "com.fasterxml.jackson.core" % "jackson-databind" % "2.2.2"
@@ -112,7 +112,7 @@ object NGSBuild extends Build {
   import Default._
   import Dependencies._
 
-  val libVersion = "0.4.6"
+  val libVersion = "0.4.8-SNAPSHOT"
 
   lazy val core = Project(
     "core"
