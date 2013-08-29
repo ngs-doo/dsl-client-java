@@ -144,7 +144,7 @@ class HttpReportingProxy implements ReportingProxy {
                 null,
                 headers,
                 new int[] { 200 });
-  }
+    }
 
     @Override
     public <TSearchable extends Searchable> Future<byte[]> searchTemplater(
@@ -152,15 +152,16 @@ class HttpReportingProxy implements ReportingProxy {
             final String file,
             final Specification<TSearchable> specification,
             final boolean toPdf) {
-        if(file == null || file == "") throw new IllegalArgumentException("file not specified");
+        if(file == null || file.equals("")) throw new IllegalArgumentException("file not specified");
         if(specification == null && manifest == null) throw new IllegalArgumentException("specification or manifest must be provided");
         final HashMap<String, String> headers = new HashMap<String, String>();
         if(toPdf) {
-        headers.put("Accept", "application/pdf");
-      }
-      else {
-        headers.put("Accept", "application/octet-stream");
-      }
+            headers.put("Accept", "application/pdf");
+        }
+        else {
+            headers.put("Accept", "application/octet-stream");
+        }
+        // Branching if null!
         if (specification == null) {
             final String domainName = client.getDslName(manifest);
           return
@@ -181,5 +182,5 @@ class HttpReportingProxy implements ReportingProxy {
                 specification,
                 headers,
                 new int[] { 200 });
-  }
+    }
 }
