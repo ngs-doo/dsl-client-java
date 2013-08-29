@@ -101,7 +101,7 @@ class HttpClient {
                 );
         }
 
-        final String token = project.get("username") +':'+ project.get("project-id");
+        final String token = project.get("username") + ':' + project.get("project-id");
         basicAuth = "Basic " + new String(encodeBase64(token.getBytes("UTF-8")));
     }
 
@@ -135,24 +135,20 @@ class HttpClient {
         }
 
         final HttpRequestBase req;
-        if (method == "POST") {
+        if (method.equals("POST")) {
             final HttpPost post = new HttpPost(url);
             if(payload != null) {
                 post.setEntity(new ByteArrayEntity(payload));
-                if (logger.isTraceEnabled()) {
-                    logger.trace("____ payload _____");
-                    logger.trace("{}", IOUtils.toString(post.getEntity().getContent()));
-                    logger.trace("¯¯¯¯ payload ¯¯¯¯¯");
-                }
+                if (logger.isTraceEnabled()) logger.trace("payload: [{}]", IOUtils.toString(post.getEntity().getContent()));
             }
             req = post;
-        } else if (method == "PUT"){
+        } else if (method.equals("PUT")){
             final HttpPut put = new HttpPut(url);
             if(payload != null) {
                 put.setEntity(new ByteArrayEntity(payload));
             }
             req = put;
-        } else if (method == "DELETE") {
+        } else if (method.equals("DELETE")) {
             req = new HttpDelete(url);
         } else {
             req = new HttpGet(url);
@@ -162,17 +158,11 @@ class HttpClient {
         req.setHeader("Content-Type", MIME_TYPE);
         req.setHeader("Authorization", basicAuth);
 
-        for(final Map.Entry<String, String> h: headers.entrySet()) {
+        for (final Map.Entry<String, String> h : headers.entrySet()) {
           req.setHeader(h.getKey(), h.getValue());
         }
 
-        if (logger.isTraceEnabled()) {
-            logger.trace("____ headers ____");
-            for(final Header h: req.getAllHeaders()) {
-              logger.trace("{}:{}", h.getName(), h.getValue());
-            }
-            logger.trace("¯¯¯¯ headers ¯¯¯¯");
-        }
+        if (logger.isTraceEnabled()) for (final Header h : req.getAllHeaders()) logger.trace("header:{}:{}", h.getName(), h.getValue());
 
         try {
             final HttpResponse response = httpClient.execute(req);
@@ -233,7 +223,6 @@ class HttpClient {
                 }
             }
         }
-
 
         final Response response = transmit(service, headers, method, body);
 
