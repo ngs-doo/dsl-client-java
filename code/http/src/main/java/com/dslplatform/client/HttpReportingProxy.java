@@ -127,8 +127,8 @@ class HttpReportingProxy implements ReportingProxy {
       final String file,
       final String uri,
       final boolean toPdf) {
-    if(file == null || file == "") throw new IllegalArgumentException("file not specified");
-    if(uri == "") throw new IllegalArgumentException("uri not specified");
+    if(file == null || file.isEmpty()) throw new IllegalArgumentException("file not specified");
+    if(uri.isEmpty()) throw new IllegalArgumentException("uri not specified");
         final String domainName = client.getDslName(manifest);
       final HashMap<String, String> headers = new HashMap<String, String>();
       if(toPdf) {
@@ -152,7 +152,7 @@ class HttpReportingProxy implements ReportingProxy {
             final String file,
             final Specification<TSearchable> specification,
             final boolean toPdf) {
-        if(file == null || file.equals("")) throw new IllegalArgumentException("file not specified");
+        if(file == null || file.isEmpty()) throw new IllegalArgumentException("file not specified");
         if(specification == null && manifest == null) throw new IllegalArgumentException("specification or manifest must be provided");
         final HashMap<String, String> headers = new HashMap<String, String>();
         if(toPdf) {

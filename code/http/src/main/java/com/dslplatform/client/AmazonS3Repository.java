@@ -25,9 +25,9 @@ class AmazonS3Repository implements S3Repository {
     private AmazonS3Client s3Client;
     private AmazonS3Client getS3Client() throws IOException {
         if(s3Client == null) {
-            if(s3AccessKey == null || s3AccessKey == "")
+            if(s3AccessKey == null || s3AccessKey.isEmpty())
                 throw new IOException("S3 configuration is missing. Please add s3-user");
-            if(s3SecretKey == null || s3SecretKey == "")
+            if(s3SecretKey == null || s3SecretKey.isEmpty())
                 throw new IOException("S3 configuration is missing. Please add s3-secret");
             s3Client = new AmazonS3Client(new BasicAWSCredentials(s3AccessKey, s3SecretKey));
         }
@@ -43,7 +43,7 @@ class AmazonS3Repository implements S3Repository {
     }
 
     private void checkBucket(final String name) throws IOException {
-        if(name == null || name == "")
+        if(name == null || name.isEmpty())
             throw new IOException("Bucket not specified. If you wish to use default bucket name, add it as s3-bucket to project.ini");
     }
 

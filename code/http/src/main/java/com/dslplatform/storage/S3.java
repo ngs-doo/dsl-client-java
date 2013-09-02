@@ -211,7 +211,7 @@ public class S3 implements java.io.Serializable {
      * @throws IOException in case of communication failure
      */
     public InputStream getStream() throws IOException {
-        if(key == null || key == "")
+        if(key == null || key.isEmpty())
             return null;
         try{
             return getRepository().get(bucket, key).get();
@@ -230,7 +230,7 @@ public class S3 implements java.io.Serializable {
      * @throws IOException in case of communication failure
      */
     public byte[] getBytes() throws IOException {
-        if (key == null || key == "")
+        if (key == null || key.isEmpty())
             return null;
         final InputStream stream;
         try {
@@ -285,7 +285,7 @@ public class S3 implements java.io.Serializable {
     public String upload(String bucket, InputStream stream, long length) throws IOException {
         if (stream == null)
             throw new IllegalArgumentException("Stream can't be null.");
-        if (key == null || key == "") {
+        if (key == null || key.isEmpty()) {
             this.bucket = bucket;
             key = UUID.randomUUID().toString();
         }
@@ -331,7 +331,7 @@ public class S3 implements java.io.Serializable {
     public String upload(final String bucket, final byte[] bytes) throws IOException {
         if (bytes == null)
             throw new IllegalArgumentException("Stream can't be null.");
-        if (key == null || key == "") {
+        if (key == null || key.isEmpty()) {
             this.bucket = bucket;
             key = UUID.randomUUID().toString();
         }
@@ -359,7 +359,7 @@ public class S3 implements java.io.Serializable {
      * @throws IOException in case of communication error
      */
     public void delete() throws IOException {
-        if (key == null || key == "")
+        if (key == null || key.isEmpty())
             throw new IllegalArgumentException("S3 object is empty.");
         cachedContent = null;
         try {

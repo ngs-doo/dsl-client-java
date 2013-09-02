@@ -152,7 +152,7 @@ public class GenericSearchBuilder<T extends Searchable> {
     }
 
     private GenericSearchBuilder<T> orderBy(final String property, final Boolean direction) {
-        if(property == null || property == "") throw new IllegalArgumentException("property can't be null");
+        if(property == null || property.isEmpty()) throw new IllegalArgumentException("property can't be null");
         this.order.add(new AbstractMap.SimpleEntry<String, Boolean>(property, direction));
         return this;
     }
@@ -174,7 +174,7 @@ public class GenericSearchBuilder<T extends Searchable> {
     public GenericSearchBuilder<T> descending(final String property) { return orderBy(property, false); }
 
     private GenericSearchBuilder<T> filter(final String property, final int id, final Object value) throws IOException {
-        if(property == null || property == "") throw new IllegalArgumentException("property can't be null");
+        if(property == null || property.isEmpty()) throw new IllegalArgumentException("property can't be null");
         final String json = value != null ? serializer.serialize(value) : null;
         final ArrayList<FilterPair> pairs;
         if(!filters.containsKey(property)) {

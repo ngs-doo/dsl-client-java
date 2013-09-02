@@ -53,7 +53,7 @@ public class CubeBuilder<T extends Identifiable> {
     }
 
     private CubeBuilder<T> orderBy(String property, boolean ascending) {
-        if (property == null || property == "")
+        if (property == null || property.isEmpty())
             throw new IllegalArgumentException("property can't be empty");
         Map.Entry<String, Boolean> pair =
           new AbstractMap.SimpleEntry<String, Boolean>(

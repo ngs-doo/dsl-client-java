@@ -137,7 +137,7 @@ public class JsonSerialization {
         }
         if(hm.size() == 1) {
             final String name = children.keySet().iterator().next();
-            if(name == "#text") {
+            if(name.equals("#text")) {
                 return hm.get(name);
             }
             else {
@@ -162,7 +162,7 @@ public class JsonSerialization {
                 if(kv.getKey().startsWith("@")) {
                     el.setAttribute(kv.getKey().substring(1), kv.getValue().toString());
                 }
-                else if (kv.getKey() == "#text") {
+                else if (kv.getKey().equals("#text")) {
                     el.setTextContent(kv.getValue().toString());
                 }
                 else {

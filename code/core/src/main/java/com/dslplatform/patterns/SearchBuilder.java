@@ -92,7 +92,7 @@ public class SearchBuilder<T extends Searchable> {
     }
 
     private SearchBuilder<T> orderBy(String property, boolean ascending) {
-        if (property == null || property == "")
+        if (property == null || property.isEmpty())
             throw new IllegalArgumentException("property can't be empty");
         Map.Entry<String, Boolean> pair =
           new AbstractMap.SimpleEntry<String, Boolean>(

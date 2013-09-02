@@ -25,12 +25,8 @@ object Resolvers {
   import Repositories._
 
   val settings = Seq(
-    resolvers := Seq(
-      NGSNexus
-    )
-  , externalResolvers <<= resolvers map { r =>
-      Resolver.withDefaultResolvers(r, mavenCentral = false)
-    }
+    resolvers := Seq(NGSNexus, NGSSnapshots)
+  , externalResolvers := Resolver.withDefaultResolvers(resolvers.value, mavenCentral = false)
   )
 }
 
@@ -40,9 +36,9 @@ object Publishing {
   import Repositories._
 
   val settings = Seq(
-    publishTo <<= (version) { version => Some(
-      if (version.endsWith("SNAPSHOT")) NGSSnapshots else NGSReleases
-    )}
+    publishTo := Some(
+      if (version.value endsWith "SNAPSHOT") NGSSnapshots else NGSReleases
+    )
   , credentials += Credentials(Path.userHome / ".config" / "dsl-client-java" / "nexus.config")
   , publishArtifact in (Compile, packageDoc) := false
   )
@@ -72,7 +68,7 @@ object Default {
       , "-source", "1.6"
       , "-target", "1.6"
       )
-    , unmanagedSourceDirectories in Compile <<= (javaSource in Compile)(_ :: Nil)
+    , unmanagedSourceDirectories in Compile := (javaSource in Compile).value :: Nil
     , unmanagedSourceDirectories in Test := Nil
 
     , EclipseKeys.projectFlavor := EclipseProjectFlavor.Java
@@ -100,10 +96,10 @@ object Dependencies {
   val commonsCodec = "commons-codec" % "commons-codec" % "1.8"
 
   // Amazon Web Services SDK
-  val aws = "com.amazonaws" % "aws-java-sdk" % "1.5.4"
+  val aws = "com.amazonaws" % "aws-java-sdk" % "1.5.5"
 
   // Akka Actor (contains the Serializer)
-  val akkaActor = "com.typesafe.akka" %% "akka-actor" % "2.2.0"
+  val akkaActor = "com.typesafe.akka" %% "akka-actor" % "2.2.1"
 }
 
 // ----------------------------------------------------------------------------
@@ -112,7 +108,7 @@ object NGSBuild extends Build {
   import Default._
   import Dependencies._
 
-  val libVersion = "0.4.8-SNAPSHOT"
+  val libVersion = "0.4.8"
 
   lazy val core = Project(
     "core"
@@ -146,9 +142,8 @@ object NGSBuild extends Build {
     , test in assembly := {}
     , mainClass in assembly := Some("com.dslplatform.client.Bootstrap")
     , jarName in assembly := "dsl-client-%s.jar" format libVersion
-    , excludedJars in assembly <<= (fullClasspath in assembly) map (
-        _ filter (_.data.getName endsWith ".jar")
-      )
+    , excludedJars in assembly :=
+        (fullClasspath in assembly).value.filter(_.data.getName endsWith ".jar")
     ) ++ addArtifact(artifact in (Compile, assembly), assembly)
   ) dependsOn(core)
 

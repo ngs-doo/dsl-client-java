@@ -1,12 +1,9 @@
 resolvers := Seq(
   "NGS Nexus" at "http://ngs.hr/nexus/content/groups/public/"
-, Resolver.url("NGS Nexus (Ivy)",
-    url("http://ngs.hr/nexus/content/groups/public/"))(Resolver.ivyStylePatterns)
+, Resolver.url("NGS Nexus (Ivy)", url("http://ngs.hr/nexus/content/groups/public/"))(Resolver.ivyStylePatterns)
 )
 
-externalResolvers <<= resolvers map { r =>
-  Resolver.withDefaultResolvers(r, mavenCentral = false)
-}
+externalResolvers := Resolver.withDefaultResolvers(resolvers.value, mavenCentral = false)
 
 // +------------------------------------------------------------------------------------+
 // | SBT Eclipse (https://github.com/typesafehub/sbteclipse)                            |
