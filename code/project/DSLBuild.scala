@@ -108,7 +108,7 @@ object NGSBuild extends Build {
   import Default._
   import Dependencies._
 
-  val libVersion = "0.4.8"
+  val libVersion = "0.4.9-SNAPSHOT"
 
   lazy val core = Project(
     "core"

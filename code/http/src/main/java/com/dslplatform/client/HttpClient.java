@@ -139,7 +139,9 @@ class HttpClient {
             final HttpPost post = new HttpPost(url);
             if(payload != null) {
                 post.setEntity(new ByteArrayEntity(payload));
-                if (logger.isTraceEnabled()) logger.trace("payload: [{}]", IOUtils.toString(post.getEntity().getContent()));
+                if (logger.isTraceEnabled()) {
+                    logger.trace("payload: [{}]", IOUtils.toString(post.getEntity().getContent()));
+                }
             }
             req = post;
         } else if (method.equals("PUT")){
@@ -162,7 +164,11 @@ class HttpClient {
           req.setHeader(h.getKey(), h.getValue());
         }
 
-        if (logger.isTraceEnabled()) for (final Header h : req.getAllHeaders()) logger.trace("header:{}:{}", h.getName(), h.getValue());
+        if (logger.isTraceEnabled()) {
+            for (final Header h : req.getAllHeaders()) {
+                logger.trace("header:{}:{}", h.getName(), h.getValue());
+            }
+        }
 
         try {
             final HttpResponse response = httpClient.execute(req);
@@ -171,6 +177,17 @@ class HttpClient {
             final byte[] body = EntityUtils.toByteArray(response.getEntity());
 
             return new Response(code, body);
+        }
+        catch (final IOException e) {
+            logger.error("{} to URL: [{}]", method, url);
+
+            for (final Header h : req.getAllHeaders()) {
+                logger.error("header:{}:{}", h.getName(), h.getValue());
+            }
+
+            // logger.error(payload body)
+
+            throw e;
         }
         catch (final RuntimeException e) {
             logger.error("A runtime exception has occured while executing request", e);
@@ -217,10 +234,6 @@ class HttpClient {
 
             if (logger.isDebugEnabled()) {
                 logger.debug("Sending request [{}]: {}, content size: {} bytes", method, service, jsonBody.length());
-
-                if (logger.isTraceEnabled()) {
-                    logger.trace("Sending request body: {} ", new String(body, "UTF-8"));
-                }
             }
         }
 
