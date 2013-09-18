@@ -72,7 +72,7 @@ class AdditionalKeyStoresSSLSocketFactory extends SSLSocketFactory {
              * to any that are X509TrustManagers
              */
             for (TrustManagerFactory tmf : factories)
-                for( TrustManager tm : tmf.getTrustManagers() )
+                for (TrustManager tm : tmf.getTrustManagers() )
                     if (tm instanceof X509TrustManager)
                         x509TrustManagers.add( (X509TrustManager)tm );
 

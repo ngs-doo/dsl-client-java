@@ -13,6 +13,7 @@ import java.util.concurrent.Future;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
+import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -148,6 +149,9 @@ class HttpClient {
             final HttpPut put = new HttpPut(url);
             if(payload != null) {
                 put.setEntity(new ByteArrayEntity(payload));
+                if (logger.isTraceEnabled()) {
+                    logger.trace("payload: [{}]", IOUtils.toString(put.getEntity().getContent()));
+                }
             }
             req = put;
         } else if (method.equals("DELETE")) {
@@ -185,8 +189,10 @@ class HttpClient {
                 logger.error("header:{}:{}", h.getName(), h.getValue());
             }
 
-            // logger.error(payload body)
-
+            if (req instanceof HttpEntityEnclosingRequest) {
+            	final HttpEntityEnclosingRequest heer = (HttpEntityEnclosingRequest)req;
+            	logger.error("payload:{}", EntityUtils.toString(heer.getEntity()));
+            }
             throw e;
         }
         catch (final RuntimeException e) {
