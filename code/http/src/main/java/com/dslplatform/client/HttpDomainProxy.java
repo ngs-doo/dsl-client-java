@@ -156,7 +156,7 @@ class HttpDomainProxy implements DomainProxy {
         return
             client.sendRequest(
                 JsonSerialization.buildType(Long.class),
-                DOMAIN_URI + "count/" + parentName +'/'+ specClass.getSimpleName(),
+                DOMAIN_URI + "count/" + parentName + "?specification=" + specClass.getSimpleName(),
                 "PUT",
                 specification,
                 new int[] { 200 });
