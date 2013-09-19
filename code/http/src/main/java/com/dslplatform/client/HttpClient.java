@@ -190,8 +190,8 @@ class HttpClient {
             }
 
             if (req instanceof HttpEntityEnclosingRequest) {
-            	final HttpEntityEnclosingRequest heer = (HttpEntityEnclosingRequest)req;
-            	logger.error("payload:{}", EntityUtils.toString(heer.getEntity()));
+                final HttpEntityEnclosingRequest heer = (HttpEntityEnclosingRequest)req;
+                logger.error("payload:{}", EntityUtils.toString(heer.getEntity()));
             }
             throw e;
         }
