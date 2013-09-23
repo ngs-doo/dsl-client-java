@@ -237,7 +237,7 @@ public class JsonSerialization {
     private static final ObjectMapper serializationMapper =
         new ObjectMapper()
             .registerModule(serializationModule)
-            .setSerializationInclusion(Include.NON_EMPTY)
+            .setSerializationInclusion(Include.NON_NULL)
             .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
 
     private static final TypeFactory typeFactory = serializationMapper.getTypeFactory();
