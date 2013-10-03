@@ -13,47 +13,12 @@ import AssemblyKeys._
 
 // ----------------------------------------------------------------------------
 
-object Repositories {
-  val NGSNexus     = "NGS Nexus"     at "http://ngs.hr/nexus/content/groups/public/"
-  val NGSReleases  = "NGS Releases"  at "http://ngs.hr/nexus/content/repositories/releases/"
-  val NGSSnapshots = "NGS Snapshots" at "http://ngs.hr/nexus/content/repositories/snapshots/"
-}
-
-// ----------------------------------------------------------------------------
-
-object Resolvers {
-  import Repositories._
-
-  val settings = Seq(
-    resolvers := Seq(NGSNexus, NGSSnapshots)
-  , externalResolvers := Resolver.withDefaultResolvers(resolvers.value, mavenCentral = false)
-  )
-}
-
-// ----------------------------------------------------------------------------
-
-object Publishing {
-  import Repositories._
-
-  val settings = Seq(
-    publishTo := Some(
-      if (version.value endsWith "SNAPSHOT") NGSSnapshots else NGSReleases
-    )
-  , credentials += Credentials(Path.userHome / ".config" / "dsl-client-java" / "nexus.config")
-  , publishArtifact in (Compile, packageDoc) := false
-  )
-}
-
-// ----------------------------------------------------------------------------
-
 object Default {
   val settings =
     Defaults.defaultSettings ++
     eclipseSettings ++
     assemblySettings ++
-    graphSettings ++
-    Resolvers.settings ++
-    Publishing.settings ++ Seq(
+    graphSettings ++ Seq(
       organization := "com.dslplatform"
 
     , crossPaths := false
@@ -69,7 +34,9 @@ object Default {
       , "-target", "1.6"
       )
     , unmanagedSourceDirectories in Compile := (javaSource in Compile).value :: Nil
-    , unmanagedSourceDirectories in Test := Nil
+    , unmanagedSourceDirectories in Test := (javaSource in Test).value :: Nil
+
+    , publishArtifact in (Compile, packageDoc) := false
 
     , EclipseKeys.projectFlavor := EclipseProjectFlavor.Java
     , EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource
@@ -100,6 +67,8 @@ object Dependencies {
 
   // Akka Actor (contains the Serializer)
   val akkaActor = "com.typesafe.akka" %% "akka-actor" % "2.2.1"
+
+  val jUnit = "junit" % "junit" % "4.11" % "test"
 }
 
 // ----------------------------------------------------------------------------
@@ -108,14 +77,11 @@ object NGSBuild extends Build {
   import Default._
   import Dependencies._
 
-  val libVersion = "0.4.10-SHAPSHOT"
-
   lazy val core = Project(
     "core"
   , file("core")
   , settings = Default.settings ++ Seq(
       name := "DSL-Client-Core"
-    , version := libVersion
     , libraryDependencies ++= Seq(
         jodaTime
       )
@@ -127,11 +93,11 @@ object NGSBuild extends Build {
   , file("http")
   , settings = Default.settings ++ Seq(
       name := "DSL-Client-HTTP"
-    , version := libVersion
     , libraryDependencies ++= Seq(
         slf4j
       , jodaTime
       , jackson
+      , jUnit
       , commonsIo
       , commonsCodec
       , httpClient
@@ -141,7 +107,7 @@ object NGSBuild extends Build {
     , artifact in (Compile, assembly) ~= (_.copy(`classifier` = Some("assembly")))
     , test in assembly := {}
     , mainClass in assembly := Some("com.dslplatform.client.Bootstrap")
-    , jarName in assembly := "dsl-client-%s.jar" format libVersion
+    , jarName in assembly := "dsl-client-%s.jar" format version.value
     , excludedJars in assembly :=
         (fullClasspath in assembly).value.filter(_.data.getName endsWith ".jar")
     ) ++ addArtifact(artifact in (Compile, assembly), assembly)
@@ -152,7 +118,6 @@ object NGSBuild extends Build {
   , file("akka")
   , settings = Default.settings ++ Seq(
       name := "DSL-Client-Akka"
-    , version := libVersion
     , libraryDependencies ++= Seq(
         akkaActor % "provided"
       )
