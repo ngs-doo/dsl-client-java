@@ -3,6 +3,7 @@ package com.dslplatform.client;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,8 +26,8 @@ public class Bootstrap {
      * Static service locator which was initialized.
      * In case of multiple projects and locator, you should avoid this method
      * and provide instances of locator yourself.
+     * Calling static service locator should be avoided.
      *
-     * @deprecated avoid calling static service locator
      * @return     last service locator which was initialized
      */
     public static ServiceLocator getLocator() {
@@ -37,6 +38,21 @@ public class Bootstrap {
     }
 
     /**
+     * Initialize service locator using provided project.ini stream and
+     * components specified in initialComponents param. Use this constructor
+     * if you want to inject arbitrary instance of org.slf4j.Logger, and(or)
+     * java.util.concurrent.ExecutorService.
+     *
+     * @param iniStream                stream for project.ini
+     * @param initialComponents        components to initialize with
+     * @return                         initialized service locator
+     * @throws IOException             in case of failure to read stream
+     */
+    public static ServiceLocator init(final InputStream iniStream, final Map<Class<?>, Object> initalComponents) throws IOException {
+        return init(iniStream, new  MapServiceLocator(initalComponents));
+    }
+
+    /**
      * Initialize service locator using provided project.ini stream.
      *
      * @param iniStream    stream for project.ini
@@ -44,11 +60,14 @@ public class Bootstrap {
      * @throws IOException in case of failure to read stream
      */
     public static ServiceLocator init(final InputStream iniStream) throws IOException {
-        final MapServiceLocator locator = new MapServiceLocator();
-        final ProjectSettings project = new ProjectSettings(iniStream);
+        return init(iniStream, new  MapServiceLocator());
+    }
+
+    private static ServiceLocator init(final InputStream iniStream, final MapServiceLocator locator) throws IOException {
+        final Logger logger = locator.contains(Logger.class) ? locator.resolve(Logger.class) : locator.registerAndReturnInstance(Logger.class, LoggerFactory.getLogger("dsl-client-http"));
+        final ProjectSettings project = new ProjectSettings(logger, iniStream);
         final JsonSerialization json = new JsonSerialization();
-        final Logger logger = LoggerFactory.getLogger("dsl-client-http");
-        final ExecutorService executorService = Executors.newCachedThreadPool();
+        final ExecutorService executorService = locator.contains(ExecutorService.class) ? locator.resolve(ExecutorService.class) : locator.registerAndReturnInstance(ExecutorService.class, Executors.newCachedThreadPool());
         final HttpClient httpClient = new HttpClient(project, locator, json, logger, executorService);
         final DomainProxy domainProxy = new HttpDomainProxy(httpClient);
 
@@ -58,7 +77,6 @@ public class Bootstrap {
             .register(JsonSerialization.class, json)
             .register(ProjectSettings.class, project)
             .register(HttpClient.class, httpClient)
-            .register(ExecutorService.class, executorService)
 
             .register(ApplicationProxy.class, new HttpApplicationProxy(httpClient))
             .register(CrudProxy.class, new HttpCrudProxy(httpClient))
