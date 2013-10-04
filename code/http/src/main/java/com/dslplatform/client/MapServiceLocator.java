@@ -11,8 +11,17 @@ class MapServiceLocator implements ServiceLocator {
     private final Map<Class<?>, Object> components = new LinkedHashMap<Class<?>, Object>();
     private final static boolean cacheResult = true;
 
-    public MapServiceLocator() {
+    MapServiceLocator() {
         components.put(ServiceLocator.class, this);
+    }
+
+    MapServiceLocator(final Map<Class<?>, Object> initialComponents) {
+        components.put(ServiceLocator.class, this);
+        components.putAll(initialComponents);
+    }
+
+    boolean contains(final Class<?> clazz) {
+        return components.containsKey(clazz);
     }
 
     @Override
@@ -22,7 +31,7 @@ class MapServiceLocator implements ServiceLocator {
     }
 
     private void cacheIf(final Class<?> clazz, final Object service) {
-         if(cacheResult && service != null)
+         if (cacheResult && service != null)
            register(clazz, service);
     }
 
@@ -46,7 +55,7 @@ class MapServiceLocator implements ServiceLocator {
     }
 
     private Object tryResolve(final Class<?> target) {
-        for(final Constructor<?> c : target.getConstructors()) {
+        for (final Constructor<?> c : target.getConstructors()) {
             final ArrayList<Object> args = new ArrayList<Object>();
             boolean success = true;
             for(final Class<?> p : c.getParameterTypes()) {
@@ -58,7 +67,7 @@ class MapServiceLocator implements ServiceLocator {
                 args.add(a);
             }
 
-            if(success) {
+            if (success) {
                 try {
                    final Object instance = c.newInstance(args.toArray());
                    cacheIf(target, instance);
@@ -70,6 +79,11 @@ class MapServiceLocator implements ServiceLocator {
             }
         }
         return null;
+    }
+
+    <T> T registerAndReturnInstance(final Class<T> target, final T service) {
+        components.put(target, service);
+        return service;
     }
 
     public <T> MapServiceLocator register(final Class<T> target, final Object service) {
