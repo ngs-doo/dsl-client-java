@@ -105,28 +105,28 @@ public class JsonSerialization {
         final NodeList cn = el.getChildNodes();
         final int childLen = cn.getLength();
         final LinkedHashMap<String, LinkedList<Node>> children = new LinkedHashMap<String, LinkedList<Node>>();
-        for(int i = 0; i < childLen; i++) {
+        for (int i = 0; i < childLen; i++) {
             final Node n = cn.item(i);
             final String name = n.getNodeName();
-            if(!children.containsKey(name)) {
+            if (!children.containsKey(name)) {
                 children.put(name, new LinkedList<Node>());
             }
             children.get(name).add(n);
         }
-        if(childLen == 0 && el.getAttributes().getLength() == 0) {
+        if (childLen == 0 && el.getAttributes().getLength() == 0) {
             return el.getTextContent();
         }
         final LinkedHashMap<String, Object> hm = new LinkedHashMap<String, Object>();
         final int attLen = el.getAttributes().getLength();
-        for(int i = 0; i< attLen; i++) {
+        for (int i = 0; i< attLen; i++) {
             final Node a = el.getAttributes().item(i);
             hm.put("@" + a.getNodeName(), a.getNodeValue());
         }
-        for(final Map.Entry<String, LinkedList<Node>> kv: children.entrySet()) {
+        for (final Map.Entry<String, LinkedList<Node>> kv: children.entrySet()) {
             final Object[] items = new Object[kv.getValue().size()];
-            for(int i = 0; i < items.length; i++) {
+            for (int i = 0; i < items.length; i++) {
                 final Node n = kv.getValue().get(i);
-                if(n instanceof Element) {
+                if (n instanceof Element) {
                     items[i] = buildFromXml((Element) n);
                 }
                 else {
@@ -135,14 +135,14 @@ public class JsonSerialization {
             }
             hm.put(kv.getKey(), items.length > 1 ? items : items[0]);
         }
-        if(hm.size() == 1) {
+        if (hm.size() == 1) {
             final String name = children.keySet().iterator().next();
-            if(name.equals("#text")) {
+            if (name.equals("#text")) {
                 return hm.get(name);
             }
             else {
                 final Object parent = hm.get(name);
-                if(parent instanceof HashMap) {
+                if (parent instanceof HashMap) {
                     @SuppressWarnings("unchecked")
                     final HashMap<String, Object> parentHm = (HashMap<String, Object>) parent;
                     if(parentHm.size() == 1 && parentHm.containsKey(name)) {
@@ -155,11 +155,11 @@ public class JsonSerialization {
     }
 
     private static void buildXmlFromHashMap(final Document doc, final Element el, final Object value) {
-        if(value instanceof HashMap) {
+        if (value instanceof HashMap) {
             @SuppressWarnings("unchecked")
             final HashMap<String, Object> hm = (HashMap<String, Object>) value;
-            for(final Map.Entry<String, Object> kv: hm.entrySet()) {
-                if(kv.getKey().startsWith("@")) {
+            for (final Map.Entry<String, Object> kv: hm.entrySet()) {
+                if (kv.getKey().startsWith("@")) {
                     el.setAttribute(kv.getKey().substring(1), kv.getValue().toString());
                 }
                 else if (kv.getKey().equals("#text")) {
@@ -172,17 +172,17 @@ public class JsonSerialization {
                 }
             }
         }
-        else if(value instanceof List) {
+        else if (value instanceof List) {
             @SuppressWarnings("unchecked")
             final List<Object> l = (List<Object>) value;
-            for(final Object v : l) {
+            for (final Object v : l) {
                 final Element newElement = doc.createElement(el.getNodeName());
                 el.appendChild(newElement);
                 buildXmlFromHashMap(doc, newElement, v);
             }
         }
         else {
-            if(value != null) {
+            if (value != null) {
                 el.setTextContent(value.toString());
             }
         }
@@ -200,7 +200,7 @@ public class JsonSerialization {
             if(hm == null) return null;
 
             final Set<String> xmlRoot = hm.keySet();
-            if(xmlRoot.size() > 1) throw new IOException("Invalid XML. Expecting root element");
+            if (xmlRoot.size() > 1) throw new IOException("Invalid XML. Expecting root element");
             final String rootName = xmlRoot.iterator().next();
 
             final Document document;

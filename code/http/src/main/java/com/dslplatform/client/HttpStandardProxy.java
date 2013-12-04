@@ -63,7 +63,7 @@ class HttpStandardProxy implements StandardProxy {
         }
         @Override
         public V setValue(V value) {
-            this.value =value;
+            this.value = value;
             return value;
         }
     }
@@ -81,15 +81,15 @@ class HttpStandardProxy implements StandardProxy {
                 Class<?> clazz = null;
 
                 String toInsert = null;
-                if(inserts != null) {
+                if (inserts != null) {
                     final List<T> list = Utils.toArrayList(inserts);
-                    if(!list.isEmpty()) {
+                    if (!list.isEmpty()) {
                         toInsert = json.serialize(list);
                         clazz = list.get(0).getClass();
                     }
                 }
                 String toUpdate = null;
-                if(updates != null) {
+                if (updates != null) {
                     final List<Pair<T, T>> list = new ArrayList<Pair<T, T>>();
                     for (Map.Entry<T, T> update: updates)
                     {
@@ -98,23 +98,23 @@ class HttpStandardProxy implements StandardProxy {
                       pair.value = update.getValue();
                       list.add(pair);
                     }
-                    if(!list.isEmpty()) {
+                    if (!list.isEmpty()) {
                         toUpdate = json.serialize(list);
                         clazz = list.get(0).value.getClass();
                     }
                 }
 
                 String toDelete = null;
-                if(deletes != null) {
+                if (deletes != null) {
                     final List<T> list = Utils.toArrayList(deletes);
-                    if(!list.isEmpty()) {
+                    if (!list.isEmpty()) {
 
                         toDelete = json.serialize(list);
                         clazz = list.get(0).getClass();
                     }
                 }
 
-                if(clazz == null)
+                if (clazz == null)
                     return new ArrayList<String>();
 
                 final String domainName = client.getDslName(clazz);
