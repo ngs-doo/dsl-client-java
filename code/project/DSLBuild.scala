@@ -18,12 +18,11 @@ object Default {
     Defaults.defaultSettings ++
     eclipseSettings ++
     assemblySettings ++
-    graphSettings ++ Seq(
-      organization := "com.dslplatform"
-
-    , crossPaths := false
+    graphSettings ++
+    Seq(
+      crossPaths := false
     , autoScalaLibrary := false
-    , scalaVersion := "2.10.2"
+    , scalaVersion := "2.10.3"
 
     , javaHome := sys.env.get("JDK16_HOME").map(file(_))
     , javacOptions := Seq(
@@ -33,10 +32,11 @@ object Default {
       , "-source", "1.6"
       , "-target", "1.6"
       )
+    , javacOptions in doc := Seq("-source", "1.6")
     , unmanagedSourceDirectories in Compile := (javaSource in Compile).value :: Nil
     , unmanagedSourceDirectories in Test := (javaSource in Test).value :: Nil
 
-    , publishArtifact in (Compile, packageDoc) := false
+
 
     , EclipseKeys.projectFlavor := EclipseProjectFlavor.Java
     , EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource
@@ -50,13 +50,13 @@ object Dependencies {
   val jodaTime = "joda-time" % "joda-time" % "2.3"
 
   // Json serialization
-  val jackson = "com.fasterxml.jackson.core" % "jackson-databind" % "2.2.2"
+  val jackson = "com.fasterxml.jackson.core" % "jackson-databind" % "2.2.3"
 
   // Logging facade
   val slf4j = "org.slf4j" % "slf4j-api" % "1.7.5"
 
   // Apache HttpClient
-  val httpClient = "org.apache.httpcomponents" % "httpclient" % "4.2.5"
+  val httpClient = "org.apache.httpcomponents" % "httpclient" % "4.3.1"
 
   // Apache commons
   val commonsIo = "commons-io" % "commons-io" % "2.4"
