@@ -68,6 +68,7 @@ class HttpDomainProxy implements DomainProxy {
             final Integer offset,
             final Iterable<Map.Entry<String, Boolean>> order) {
 
+        if (specification == null) throw new IllegalArgumentException("Specification can't be null");
         final Class<?> specClass = specification.getClass();
         final Class<?> manifest = specClass.getDeclaringClass();
         final String parentName = client.getDslName(manifest);
