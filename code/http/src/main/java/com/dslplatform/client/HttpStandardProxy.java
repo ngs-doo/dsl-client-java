@@ -91,12 +91,11 @@ class HttpStandardProxy implements StandardProxy {
                 String toUpdate = null;
                 if (updates != null) {
                     final List<Pair<T, T>> list = new ArrayList<Pair<T, T>>();
-                    for (Map.Entry<T, T> update: updates)
-                    {
-                      final Pair<T, T> pair = new Pair<T, T>();
-                      pair.key = update.getKey();
-                      pair.value = update.getValue();
-                      list.add(pair);
+                    for (Map.Entry<T, T> update : updates) {
+                        final Pair<T, T> pair = new Pair<T, T>();
+                        pair.key = update.getKey();
+                        pair.value = update.getValue();
+                        list.add(pair);
                     }
                     if (!list.isEmpty()) {
                         toUpdate = json.serialize(list);
@@ -138,11 +137,20 @@ class HttpStandardProxy implements StandardProxy {
             final Iterable<String> dimensions,
             final Iterable<String> facts,
             final Iterable<Map.Entry<String, Boolean>> order) {
-        final String args = Utils.buildOlapArguments(dimensions, facts, order);
+
+        final Class<?> specClazz = specification.getClass();
+        final String specParent = client.getDslName(specClazz.getEnclosingClass());
+        final String specificationName = cubeName.equals(specParent)
+                ? specClazz.getSimpleName()
+                : specParent + "%2B" + specClazz.getSimpleName();
+
+        final String args = Utils.buildOlapArguments(dimensions, facts, order,
+                specificationName);
+
         return
             client.sendRequest(
               JsonSerialization.buildCollectionType(java.util.List.class, manifest),
-                STANDARD_URI + "olap/" + cubeName +'/'+ specification.getClass().getSimpleName() + args, //TODO check spec name
+                STANDARD_URI + "olap/" + cubeName + args,
                 "PUT",
                 specification,
                 new int[] { 200, 201 });
