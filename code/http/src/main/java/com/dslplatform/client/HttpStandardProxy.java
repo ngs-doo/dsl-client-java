@@ -17,14 +17,11 @@ class HttpStandardProxy implements StandardProxy {
     private final ExecutorService  executorService;
 
     private final HttpClient client;
-    private final JsonSerialization json;
 
     public HttpStandardProxy(
             final HttpClient client,
-            final JsonSerialization json,
             final ExecutorService excutorService) {
         this.client = client;
-        this.json = json;
         this.executorService = excutorService;
     }
 
@@ -84,7 +81,7 @@ class HttpStandardProxy implements StandardProxy {
                 if (inserts != null) {
                     final List<T> list = Utils.toArrayList(inserts);
                     if (!list.isEmpty()) {
-                        toInsert = json.serialize(list);
+                        toInsert = JsonSerialization.serialize(list);
                         clazz = list.get(0).getClass();
                     }
                 }
@@ -99,7 +96,7 @@ class HttpStandardProxy implements StandardProxy {
                       list.add(pair);
                     }
                     if (!list.isEmpty()) {
-                        toUpdate = json.serialize(list);
+                        toUpdate = JsonSerialization.serialize(list);
                         clazz = list.get(0).value.getClass();
                     }
                 }
@@ -109,7 +106,7 @@ class HttpStandardProxy implements StandardProxy {
                     final List<T> list = Utils.toArrayList(deletes);
                     if (!list.isEmpty()) {
 
-                        toDelete = json.serialize(list);
+                        toDelete = JsonSerialization.serialize(list);
                         clazz = list.get(0).getClass();
                     }
                 }
