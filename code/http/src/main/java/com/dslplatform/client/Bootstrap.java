@@ -48,8 +48,8 @@ public class Bootstrap {
      * @return                         initialized service locator
      * @throws IOException             in case of failure to read stream
      */
-    public static ServiceLocator init(final InputStream iniStream, final Map<Class<?>, Object> initalComponents) throws IOException {
-        return init(iniStream, new  MapServiceLocator(initalComponents));
+    public static ServiceLocator init(final InputStream iniStream, final Map<Class<?>, Object> initialComponents) throws IOException {
+        return init(iniStream, new  MapServiceLocator(initialComponents));
     }
 
     /**
@@ -66,22 +66,22 @@ public class Bootstrap {
     private static ServiceLocator init(final InputStream iniStream, final MapServiceLocator locator) throws IOException {
         final Logger logger = locator.contains(Logger.class) ? locator.resolve(Logger.class) : locator.registerAndReturnInstance(Logger.class, LoggerFactory.getLogger("dsl-client-http"));
         final ProjectSettings project = new ProjectSettings(logger, iniStream);
-        final JsonSerialization json = new JsonSerialization();
+        final JsonSerialization jsonDeserializer = new JsonSerialization(locator);
         final ExecutorService executorService = locator.contains(ExecutorService.class) ? locator.resolve(ExecutorService.class) : locator.registerAndReturnInstance(ExecutorService.class, Executors.newCachedThreadPool());
-        final HttpClient httpClient = new HttpClient(project, locator, json, logger, executorService);
+        final HttpClient httpClient = new HttpClient(project, locator, jsonDeserializer, logger, executorService);
         final DomainProxy domainProxy = new HttpDomainProxy(httpClient);
 
         staticLocator = locator;
 
         return locator
-            .register(JsonSerialization.class, json)
+            .register(JsonSerialization.class, jsonDeserializer)
             .register(ProjectSettings.class, project)
             .register(HttpClient.class, httpClient)
 
             .register(ApplicationProxy.class, new HttpApplicationProxy(httpClient))
             .register(CrudProxy.class, new HttpCrudProxy(httpClient))
             .register(DomainProxy.class, domainProxy)
-            .register(StandardProxy.class, new HttpStandardProxy(httpClient, json, executorService))
+            .register(StandardProxy.class, new HttpStandardProxy(httpClient, executorService))
             .register(ReportingProxy.class, new HttpReportingProxy(httpClient))
             .register(DomainEventStore.class, new ClientDomainEventStore(domainProxy));
 

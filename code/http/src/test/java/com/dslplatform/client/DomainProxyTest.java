@@ -1,6 +1,5 @@
 package com.dslplatform.client;
 
-import static org.junit.Assert.*;
 import org.junit.*;
 
 import com.dslplatform.patterns.ServiceLocator;

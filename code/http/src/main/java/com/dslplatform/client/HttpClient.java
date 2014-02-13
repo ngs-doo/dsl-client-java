@@ -71,7 +71,7 @@ class HttpClient {
 //-----------------------------------------------------------------------------
 
     private final ServiceLocator locator;
-    private final JsonSerialization json;
+    private final JsonSerialization jsonDeserializer;
     private final Logger logger;
     private final ExecutorService executorService;
 
@@ -82,11 +82,11 @@ class HttpClient {
     public HttpClient(
             final ProjectSettings project,
             final ServiceLocator locator,
-            final JsonSerialization json,
+            final JsonSerialization jsonDeserializer,
             final Logger logger,
             final ExecutorService executorService) throws IOException {
         this.locator = locator;
-        this.json = json;
+        this.jsonDeserializer = jsonDeserializer;
         this.logger = logger;
         this.executorService = executorService;
 
@@ -235,7 +235,7 @@ class HttpClient {
             }
         }
         else {
-            final String jsonBody = json.serialize(content);
+            final String jsonBody = JsonSerialization.serialize(content);
             body = jsonBody.getBytes("UTF-8");
 
             if (logger.isDebugEnabled()) {
@@ -301,7 +301,7 @@ class HttpClient {
                     final Response response = doRawRequest(service, emptyHeaders, method, content, expected, start);
 
                     return type != null
-                        ? (TResult)json.deserialize(type, response.bodyToString(), locator)
+                        ? (TResult) jsonDeserializer.deserialize(type, response.bodyToString())
                         : null;
                 }
             });

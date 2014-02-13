@@ -27,7 +27,6 @@ public class GenericSearchBuilder<T extends Searchable> {
     private final Class<T> manifest;
     private final String domainName;
     private final HttpClient httpClient;
-    private final JsonSerialization serializer;
 
     static class FilterPair
     {
@@ -85,7 +84,6 @@ public class GenericSearchBuilder<T extends Searchable> {
         this.manifest = manifest;
         this.httpClient = locator.resolve(HttpClient.class);
         this.domainName = httpClient.getDslName(manifest);
-        this.serializer = locator.resolve(JsonSerialization.class);
     }
 
     /**
@@ -175,7 +173,7 @@ public class GenericSearchBuilder<T extends Searchable> {
 
     private GenericSearchBuilder<T> filter(final String property, final int id, final Object value) throws IOException {
         if(property == null || property.isEmpty()) throw new IllegalArgumentException("property can't be null");
-        final String json = value != null ? serializer.serialize(value) : null;
+        final String json = value != null ? JsonSerialization.serialize(value) : null;
         final ArrayList<FilterPair> pairs;
         if(!filters.containsKey(property)) {
             pairs = new ArrayList<FilterPair>();

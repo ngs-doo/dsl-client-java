@@ -260,7 +260,26 @@ public class JsonSerialization {
         return typeFactory.constructCollectionType(collection, element);
     }
 
-    public <T> String serialize(final T data) throws IOException {
+    // -----------------------------------------------------------------------------
+
+    private final ObjectMapper deserializationMapper;
+
+    JsonSerialization(final ServiceLocator locator) {
+        deserializationMapper = new ObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .registerModule(deserializationModule)
+            .setInjectableValues(new InjectableValues.Std().addValue("_serviceLocator", locator));
+    }
+
+    public <T> T deserialize(
+            final JavaType type,
+            final String data) throws IOException {
+        return deserializationMapper.readValue(data, type);
+    }
+
+    // -----------------------------------------------------------------------------
+
+    public static <T> String serialize(final T data) throws IOException {
         return serializationMapper.writer()/*.withDefaultPrettyPrinter()*/.writeValueAsString(data);
     }
 
@@ -271,7 +290,7 @@ public class JsonSerialization {
                 .addDeserializer(DateTime.class, timestampDeserializer)
                 .addDeserializer(Element.class, xmlDeserializer);
 
-    public <T> T deserialize(
+    public static <T> T deserialize(
             final JavaType type,
             final String data,
             final ServiceLocator locator) throws IOException {
