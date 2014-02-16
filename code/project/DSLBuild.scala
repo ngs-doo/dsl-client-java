@@ -19,8 +19,8 @@ trait Default {
     assemblySettings ++
     graphSettings ++ Seq(
       version := "0.4.14-SNAPSHOT"
-    , organization := "com.dslplatform"    
-    
+    , organization := "com.dslplatform"
+
     , crossPaths := false
     , autoScalaLibrary := false
     , scalaVersion := "2.10.3"
@@ -67,6 +67,9 @@ trait Dependencies {
   // Akka Actor (contains the Serializer)
   val akkaActor = "com.typesafe.akka" %% "akka-actor" % "2.2.3"
 
+  // Android SDK
+  val androidSDK = "com.google.android" % "android" % "4.1.1.4"
+
   // Testing
   val jUnit = "junit" % "junit" % "4.11"
 }
@@ -79,9 +82,7 @@ object NGSBuild extends Build with Default with Dependencies {
   , file("core")
   , settings = defaultSettings ++ Seq(
       name := "DSL-Client-Core"
-    , libraryDependencies ++= Seq(
-        jodaTime
-      )
+    , libraryDependencies += jodaTime
     )
   )
 
@@ -96,23 +97,40 @@ object NGSBuild extends Build with Default with Dependencies {
       , jackson
       , commonsIo
       , commonsCodec
-      , httpClient
+      )
+    )
+  ) dependsOn(core)
+
+  lazy val httpApache = Project(
+    "http-apache"
+  , file("http-apache")
+  , settings = defaultSettings ++ Seq(
+      name := "DSL-Client-HTTP-Apache"
+    , libraryDependencies ++= Seq(
+        httpClient
       , aws % "provided"
       , jUnit % "test"
       )
     , unmanagedSourceDirectories in Test += (javaSource in Test).value
     , EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource
     )
-  ) dependsOn(core)
+  ) dependsOn(http)
 
   lazy val akka = Project(
     "akka"
   , file("akka")
   , settings = defaultSettings ++ Seq(
       name := "DSL-Client-Akka"
-    , libraryDependencies ++= Seq(
-        akkaActor % "provided"
-      )
+    , libraryDependencies += akkaActor % "provided"
+    )
+  ) dependsOn(httpApache)
+
+  lazy val httpAndroid = Project(
+    "http-android"
+  , file("http-android")
+  , settings = defaultSettings ++ Seq(
+      name := "DSL-Client-HTTP-Android"
+    , libraryDependencies += androidSDK
     )
   ) dependsOn(http)
 
