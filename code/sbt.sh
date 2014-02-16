@@ -2,7 +2,10 @@
 cd `dirname $0`
 
 ## START JVM PARAMS
-JVM_PARAMS="-Xss2m -Xms2g -Xmx2g -XX:+TieredCompilation -XX:ReservedCodeCacheSize=256m -XX:MaxPermSize=512m -XX:+CMSClassUnloadingEnabled -XX:+UseNUMA -XX:+UseParallelGC -Dscalac.patmat.analysisBudget=off"
+JVM_PARAMS="-Xss2m -Xms2g -Xmx2g \
+  -XX:+TieredCompilation -XX:ReservedCodeCacheSize=256m -XX:MaxPermSize=512m \
+  -XX:+CMSClassUnloadingEnabled -XX:+UseNUMA -XX:+UseParallelGC \
+  -Dscalac.patmat.analysisBudget=off"
 
 TRY_JREBEL=true
 LOG_LEVEL=

@@ -3,7 +3,10 @@ setlocal
 pushd
 cd "%~dp0"
 
-set JVM_PARAMS=-Xss2m -Xms2g -Xmx2g -XX:+TieredCompilation -XX:ReservedCodeCacheSize=256m -XX:MaxPermSize=512m -XX:+CMSClassUnloadingEnabled -XX:+UseNUMA -XX:+UseParallelGC -Dscalac.patmat.analysisBudget=off
+set JVM_PARAMS=-Xss2m -Xms2g -Xmx2g ^
+  -XX:+TieredCompilation -XX:ReservedCodeCacheSize=256m -XX:MaxPermSize=512m ^
+  -XX:+CMSClassUnloadingEnabled -XX:+UseNUMA -XX:+UseParallelGC ^
+  -Dscalac.patmat.analysisBudget=off -Dinput.encoding=Cp1252
 
 set TRY_JREBEL=true
 set LOG_LEVEL=
