@@ -138,8 +138,7 @@ public interface DomainProxy {
      * @param manifest domain object class
      * @return         future to number of domain objects
      */
-    public <T extends Searchable> Future<Long> count(
-            final Class<T> manifest);
+    public <T extends Searchable> Future<Long> count(final Class<T> manifest);
 
     /**
      * Returns a number of elements satisfying provided specification.

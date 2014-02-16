@@ -36,10 +36,9 @@ import com.dslplatform.patterns.ServiceLocator;
  * @param <T> aggregate root type
  */
 public abstract class ClientPersistableRepository<T extends AggregateRoot>
-        extends ClientRepository<T>
-        implements PersistableRepository<T> {
+        extends ClientRepository<T> implements PersistableRepository<T> {
     protected final StandardProxy standardProxy;
-    private final ExecutorService  executorService;
+    private final ExecutorService executorService;
 
     /**
      * Generated class will provide class manifest and locator
@@ -51,8 +50,8 @@ public abstract class ClientPersistableRepository<T extends AggregateRoot>
             final Class<T> manifest,
             final ServiceLocator locator) {
         super(manifest, locator);
-        this.standardProxy = locator.resolve(StandardProxy.class);
-        this.executorService = locator.resolve(ExecutorService.class);
+        standardProxy = locator.resolve(StandardProxy.class);
+        executorService = locator.resolve(ExecutorService.class);
     }
 
     @Override
@@ -68,11 +67,8 @@ public abstract class ClientPersistableRepository<T extends AggregateRoot>
             final T[] inserts,
             final Map.Entry<T, T>[] updates,
             final T[] deletes) {
-        return persist(
-            Arrays.asList(inserts),
-            Arrays.asList(updates),
-            Arrays.asList(deletes)
-            );
+        return persist(Arrays.asList(inserts), Arrays.asList(updates),
+                Arrays.asList(deletes));
     }
 
     @Override
@@ -88,21 +84,20 @@ public abstract class ClientPersistableRepository<T extends AggregateRoot>
     @Override
     public Future<String> insert(final T insert) {
         final Future<T> result = crudProxy.create(insert);
-        return executorService.submit(
-            new Callable<String>() {
-                @Override
-                public String call() throws Exception {
-                    return result.get().getURI();
-                }
-            });
+        return executorService.submit(new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                return result.get().getURI();
+            }
+        });
     }
 
     @Override
     public Future<List<String>> update(final Iterable<T> updates) {
         final ArrayList<Map.Entry<T, T>> map = new ArrayList<Map.Entry<T, T>>();
-        for(final T it: updates) {
-            final Map.Entry<T, T> pair =
-                new AbstractMap.SimpleEntry<T, T>(null, it);
+        for (final T it : updates) {
+            final Map.Entry<T, T> pair = new AbstractMap.SimpleEntry<T, T>(
+                    null, it);
             map.add(pair);
         }
         return standardProxy.persist(null, map, null);
@@ -110,7 +105,7 @@ public abstract class ClientPersistableRepository<T extends AggregateRoot>
 
     @Override
     public Future<List<String>> update(final T[] updates) {
-      return update(Arrays.asList(updates));
+        return update(Arrays.asList(updates));
     }
 
     @Override

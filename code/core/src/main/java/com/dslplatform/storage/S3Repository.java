@@ -19,9 +19,7 @@ public interface S3Repository {
      * @param key    key in bucket for stream
      * @return       future to stream
      */
-    Future<InputStream> get(
-            final String bucket,
-            final String key);
+    Future<InputStream> get(final String bucket, final String key);
 
     /**
      * Upload stream defined by bucket and key.
@@ -48,7 +46,5 @@ public interface S3Repository {
      * @param key    key in bucket for stream
      * @return       future for error checking
      */
-    Future<?> delete(
-            final String bucket,
-            final String key);
+    Future<?> delete(final String bucket, final String key);
 }

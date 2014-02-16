@@ -62,8 +62,7 @@ public interface SearchableRepository<T extends Searchable> {
      * @param specification search predicate
      * @return              future to domain objects which satisfy search predicate
      */
-    public Future<List<T>> search(
-            final Specification<T> specification);
+    public Future<List<T>> search(final Specification<T> specification);
 
     /**
      * Returns a list of all domain objects
@@ -93,9 +92,7 @@ public interface SearchableRepository<T extends Searchable> {
      * @param offset number of results to be skipped
      * @return       future to found domain objects
      */
-    public Future<List<T>> findAll(
-            final Integer limit,
-            final Integer offset);
+    public Future<List<T>> findAll(final Integer limit, final Integer offset);
 
     /**
      * Returns a list of all domain objects
@@ -110,8 +107,7 @@ public interface SearchableRepository<T extends Searchable> {
      * @param specification search predicate
      * @return              future to number of domain objects which satisfy specification
      */
-    public Future<Long> count(
-            final Specification<T> specification);
+    public Future<Long> count(final Specification<T> specification);
 
     /**
      * Returns a total number of domain objects.

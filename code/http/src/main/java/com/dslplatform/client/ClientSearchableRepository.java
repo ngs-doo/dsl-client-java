@@ -32,7 +32,8 @@ import com.dslplatform.patterns.Specification;
  * </pre>
  * @param <T> domain object type
  */
-public abstract class ClientSearchableRepository<T extends Searchable> implements SearchableRepository<T> {
+public abstract class ClientSearchableRepository<T extends Searchable>
+        implements SearchableRepository<T> {
     protected final Class<T> manifest;
     protected final DomainProxy domainProxy;
 
@@ -46,7 +47,7 @@ public abstract class ClientSearchableRepository<T extends Searchable> implement
             final Class<T> manifest,
             final ServiceLocator locator) {
         this.manifest = manifest;
-        this.domainProxy = locator.resolve(DomainProxy.class);
+        domainProxy = locator.resolve(DomainProxy.class);
     }
 
     @Override
@@ -67,8 +68,7 @@ public abstract class ClientSearchableRepository<T extends Searchable> implement
     }
 
     @Override
-    public Future<List<T>> search(
-            final Specification<T> specification) {
+    public Future<List<T>> search(final Specification<T> specification) {
         return domainProxy.search(specification);
     }
 
@@ -81,9 +81,7 @@ public abstract class ClientSearchableRepository<T extends Searchable> implement
     }
 
     @Override
-    public Future<List<T>> findAll(
-            final Integer limit,
-            final Integer offset) {
+    public Future<List<T>> findAll(final Integer limit, final Integer offset) {
         return domainProxy.findAll(manifest, limit, offset);
     }
 
@@ -93,8 +91,7 @@ public abstract class ClientSearchableRepository<T extends Searchable> implement
     }
 
     @Override
-    public Future<Long> count(
-            final Specification<T> specification) {
+    public Future<Long> count(final Specification<T> specification) {
         return domainProxy.count(specification);
     }
 
