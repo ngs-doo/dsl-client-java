@@ -31,8 +31,10 @@ public class Bootstrap {
      * @return     last service locator which was initialized
      */
     public static ServiceLocator getLocator() {
-        if (staticLocator == null)
-            throw new RuntimeException("Bootstrap has not been initialized, call Bootstrap.init");
+        if (staticLocator == null) {
+            throw new RuntimeException(
+                    "Bootstrap has not been initialized, call Bootstrap.init");
+        }
 
         return staticLocator;
     }
@@ -48,8 +50,10 @@ public class Bootstrap {
      * @return                         initialized service locator
      * @throws IOException             in case of failure to read stream
      */
-    public static ServiceLocator init(final InputStream iniStream, final Map<Class<?>, Object> initialComponents) throws IOException {
-        return init(iniStream, new  MapServiceLocator(initialComponents));
+    public static ServiceLocator init(
+            final InputStream iniStream,
+            final Map<Class<?>, Object> initialComponents) throws IOException {
+        return init(iniStream, new MapServiceLocator(initialComponents));
     }
 
     /**
@@ -59,34 +63,49 @@ public class Bootstrap {
      * @return             initialized service locator
      * @throws IOException in case of failure to read stream
      */
-    public static ServiceLocator init(final InputStream iniStream) throws IOException {
-        return init(iniStream, new  MapServiceLocator());
+    public static ServiceLocator init(final InputStream iniStream)
+            throws IOException {
+        if (iniStream == null) {
+            throw new IOException("Provided input stream was null.");
+        }
+        return init(iniStream, new MapServiceLocator());
     }
 
-    private static ServiceLocator init(final InputStream iniStream, final MapServiceLocator locator) throws IOException {
-        final Logger logger = locator.contains(Logger.class) ? locator.resolve(Logger.class) : locator.registerAndReturnInstance(Logger.class, LoggerFactory.getLogger("dsl-client-http"));
+    // format: OFF
+    private static ServiceLocator init(
+            final InputStream iniStream,
+            final MapServiceLocator locator) throws IOException {
+        final JsonSerialization jsonDeserialization = new JsonSerialization(locator);
+        final Logger logger = locator.contains(Logger.class)
+                ? locator.resolve(Logger.class)
+                : locator.registerAndReturnInstance(Logger.class, LoggerFactory.getLogger("dsl-client-http"));
         final ProjectSettings project = new ProjectSettings(logger, iniStream);
-        final JsonSerialization jsonDeserializer = new JsonSerialization(locator);
-        final ExecutorService executorService = locator.contains(ExecutorService.class) ? locator.resolve(ExecutorService.class) : locator.registerAndReturnInstance(ExecutorService.class, Executors.newCachedThreadPool());
-        final HttpClient httpClient = new HttpClient(project, locator, jsonDeserializer, logger, executorService);
+        final ExecutorService executorService = locator.contains(ExecutorService.class)
+                ? locator.resolve(ExecutorService.class)
+                : locator.registerAndReturnInstance(ExecutorService.class, Executors.newCachedThreadPool());
+        final HttpAuthorization httpAuthorization = locator.contains(HttpAuthorization.class)
+                ? locator.resolve(HttpAuthorization.class)
+                : locator.registerAndReturnInstance(HttpAuthorization.class, new HttpAuthorization.ProjectAuthorization(project));
+        final HttpTransport httpTransport = locator.contains(HttpTransport.class)
+                ? locator.resolve(HttpTransport.class)
+                : locator.registerAndReturnInstance(HttpTransport.class, new HttpClientTransport(logger, project, httpAuthorization));
+        final HttpClient httpClient = new HttpClient(project, locator, jsonDeserialization, logger, executorService, httpTransport);
         final DomainProxy domainProxy = new HttpDomainProxy(httpClient);
 
-        staticLocator = locator;
+        locator.register(JsonSerialization.class, jsonDeserialization)
+                .register(ProjectSettings.class, project)
+                .register(HttpClient.class, httpClient)
+                .register(ApplicationProxy.class, new HttpApplicationProxy(httpClient))
+                .register(CrudProxy.class, HttpCrudProxy.class)
+                .register(DomainProxy.class, domainProxy)
+                .register(StandardProxy.class, new HttpStandardProxy(httpClient, executorService))
+                .register(ReportingProxy.class, new HttpReportingProxy(httpClient))
+                .register(DomainEventStore.class, new ClientDomainEventStore(domainProxy));
+//                .register(S3Repository.class, new AmazonS3Repository(project))
 
-        return locator
-            .register(JsonSerialization.class, jsonDeserializer)
-            .register(ProjectSettings.class, project)
-            .register(HttpClient.class, httpClient)
-
-            .register(ApplicationProxy.class, new HttpApplicationProxy(httpClient))
-            .register(CrudProxy.class, new HttpCrudProxy(httpClient))
-            .register(DomainProxy.class, domainProxy)
-            .register(StandardProxy.class, new HttpStandardProxy(httpClient, executorService))
-            .register(ReportingProxy.class, new HttpReportingProxy(httpClient))
-            .register(DomainEventStore.class, new ClientDomainEventStore(domainProxy));
-
-//            .register(S3Repository.class, new AmazonS3Repository(project))
+        return staticLocator = locator;
     }
+    // format: ON
 
     /**
      * Initialize service locator using provided project.ini path.
@@ -99,8 +118,7 @@ public class Bootstrap {
         final InputStream iniStream = new FileInputStream(iniPath);
         try {
             return init(iniStream);
-        }
-        finally {
+        } finally {
             iniStream.close();
         }
     }
@@ -148,6 +166,7 @@ public class Bootstrap {
      *
      * @param args ignored
      */
+    // format: OFF
     public static void main(final String[] args) {
         final String versionString = String.format(
                 "dsl-client-%s.jar (released on: %s)",
