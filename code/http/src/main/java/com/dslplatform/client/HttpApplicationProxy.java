@@ -7,8 +7,7 @@ class HttpApplicationProxy implements ApplicationProxy {
 
     private final HttpClient client;
 
-    public HttpApplicationProxy(
-            final HttpClient client) {
+    public HttpApplicationProxy(final HttpClient client) {
         this.client = client;
     }
 

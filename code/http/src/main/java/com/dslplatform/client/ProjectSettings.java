@@ -21,15 +21,13 @@ public class ProjectSettings {
      * @param iniStream    project.ini stream
      * @throws IOException in case of error reading stream
      */
-    public ProjectSettings(
-            final Logger logger,
-            final InputStream iniStream) throws IOException {
+    public ProjectSettings(final Logger logger, final InputStream iniStream)
+            throws IOException {
         this.logger = logger;
         properties = new Properties();
         properties.load(iniStream);
         if (logger.isDebugEnabled()) {
-            for (final Map.Entry<Object, Object> prop : properties
-                    .entrySet()) {
+            for (final Map.Entry<Object, Object> prop : properties.entrySet()) {
                 if (logger.isTraceEnabled()) {
                     logger.trace("Setting [" + prop.getKey() + "] = "
                             + prop.getValue());

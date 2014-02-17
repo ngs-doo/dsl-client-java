@@ -21,18 +21,24 @@ class HttpDomainProxy implements DomainProxy {
 
     private final HttpClient client;
 
-    public HttpDomainProxy(
-            final HttpClient client) {
+    public HttpDomainProxy(final HttpClient client) {
         this.client = client;
     }
 
     private static class GetArgument {
         @SuppressWarnings("unused")
+        public final String Name;
+        @SuppressWarnings("unused")
         public final ArrayList<String> Uri;
 
-        public GetArgument(
-                final String name,
-                final Iterable<String> uris) {
+        @SuppressWarnings("unused")
+        private GetArgument() {
+            Name = null;
+            Uri = null;
+        }
+
+        public GetArgument(final String name, final Iterable<String> uris) {
+            Name = name;
             Uri = Utils.toArrayList(uris);
         }
     }
@@ -48,9 +54,8 @@ class HttpDomainProxy implements DomainProxy {
     public <T extends Identifiable> Future<List<T>> find(
             final Class<T> manifest,
             final Iterable<String> uris) {
-        if (uris == null) {
+        if (uris == null)
             throw new IllegalArgumentException("uris can't be null.");
-        }
         final String domainName = client.getDslName(manifest);
 
         return client.sendRequest(JsonSerialization.buildCollectionType(
@@ -66,16 +71,16 @@ class HttpDomainProxy implements DomainProxy {
             final Integer offset,
             final Iterable<Map.Entry<String, Boolean>> order) {
 
-        if (specification == null) {
+        if (specification == null)
             throw new IllegalArgumentException("Specification can't be null");
-        }
         final Class<?> specClass = specification.getClass();
         final Class<?> manifest = specClass.getDeclaringClass();
         final String parentName = client.getDslName(manifest);
 
-        final String url = Utils.appendLimitOffsetOrder(parentName
-                + "?specification=" + specClass.getSimpleName(), limit, offset,
-                order, false);
+        final String url =
+                Utils.appendLimitOffsetOrder(parentName + "?specification="
+                        + specClass.getSimpleName(), limit, offset, order,
+                        false);
 
         return client.sendRequest(JsonSerialization.buildCollectionType(
                 ArrayList.class, manifest), DOMAIN_URI + "search/" + url,
@@ -104,8 +109,9 @@ class HttpDomainProxy implements DomainProxy {
             final Iterable<Map.Entry<String, Boolean>> order) {
         final String domainName = client.getDslName(manifest);
 
-        final String url = Utils.appendLimitOffsetOrder(domainName, limit,
-                offset, order, true);
+        final String url =
+                Utils.appendLimitOffsetOrder(domainName, limit, offset, order,
+                        true);
         return client.sendRequest(JsonSerialization.buildCollectionType(
                 ArrayList.class, manifest), DOMAIN_URI + "search/" + url,
                 "GET", null, new int[] { 200 });
@@ -137,8 +143,8 @@ class HttpDomainProxy implements DomainProxy {
     public <T extends Searchable> Future<Long> count(
             final Specification<T> specification) {
         final Class<?> specClass = specification.getClass();
-        final String parentName = client.getDslName(specClass
-                .getDeclaringClass());
+        final String parentName =
+                client.getDslName(specClass.getDeclaringClass());
         return client.sendRequest(JsonSerialization.buildType(Long.class),
                 DOMAIN_URI + "count/" + parentName + "?specification="
                         + specClass.getSimpleName(), "PUT", specification,
@@ -148,11 +154,9 @@ class HttpDomainProxy implements DomainProxy {
     @Override
     public <TEvent extends DomainEvent> Future<String> submit(
             final TEvent domainEvent) {
-        final String domainName = client
-                .getDslName(domainEvent.getClass());
-        return client.sendRequest(
-                JsonSerialization.buildType(String.class), DOMAIN_URI
-                        + "submit/" + domainName, "POST", domainEvent,
+        final String domainName = client.getDslName(domainEvent.getClass());
+        return client.sendRequest(JsonSerialization.buildType(String.class),
+                DOMAIN_URI + "submit/" + domainName, "POST", domainEvent,
                 new int[] { 201 });
     }
 
@@ -160,9 +164,8 @@ class HttpDomainProxy implements DomainProxy {
     public <TAggregate extends AggregateRoot, TEvent extends AggregateDomainEvent<TAggregate>> Future<TAggregate> submit(
             final TEvent domainEvent,
             final String uri) {
-        if (uri == null) {
+        if (uri == null)
             throw new IllegalArgumentException("uri can't be null.");
-        }
         final Class<?> eventClazz = domainEvent.getClass();
         final Class<?> manifest = eventClazz.getEnclosingClass();
         final String domainName = client.getDslName(manifest);

@@ -20,9 +20,7 @@ public class CubeBuilder<T extends Identifiable> {
     private final List<String> facts;
     private final List<Map.Entry<String, Boolean>> order;
 
-    public CubeBuilder(
-            final String cubeName,
-            final ServiceLocator locator) {
+    public CubeBuilder(final String cubeName, final ServiceLocator locator) {
         this.cubeName = cubeName;
         this.locator = locator;
         dimensions = new LinkedList<String>();
@@ -58,11 +56,11 @@ public class CubeBuilder<T extends Identifiable> {
     private CubeBuilder<T> orderBy(
             final String property,
             final boolean ascending) {
-        if (property == null || property.isEmpty()) {
+        if (property == null || property.isEmpty())
             throw new IllegalArgumentException("property can't be empty");
-        }
-        final Map.Entry<String, Boolean> pair = new AbstractMap.SimpleEntry<String, Boolean>(
-                property, Boolean.valueOf(ascending));
+        final Map.Entry<String, Boolean> pair =
+                new AbstractMap.SimpleEntry<String, Boolean>(property,
+                        Boolean.valueOf(ascending));
         order.add(pair);
         return this;
     }
@@ -100,9 +98,11 @@ public class CubeBuilder<T extends Identifiable> {
             throws java.io.IOException {
         final StandardProxy proxy = locator.resolve(StandardProxy.class);
         try {
-            return specification == null ? proxy.olapCube(clazz, cubeName,
-                    dimensions, facts, order).get() : proxy.olapCube(clazz,
-                    cubeName, specification, dimensions, facts, order).get();
+            return specification == null
+                    ? proxy.olapCube(clazz, cubeName, dimensions, facts, order)
+                            .get()
+                    : proxy.olapCube(clazz, cubeName, specification,
+                            dimensions, facts, order).get();
         } catch (final InterruptedException e) {
             throw new java.io.IOException(e);
         } catch (final java.util.concurrent.ExecutionException e) {

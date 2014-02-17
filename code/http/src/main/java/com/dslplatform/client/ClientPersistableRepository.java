@@ -96,8 +96,8 @@ public abstract class ClientPersistableRepository<T extends AggregateRoot>
     public Future<List<String>> update(final Iterable<T> updates) {
         final ArrayList<Map.Entry<T, T>> map = new ArrayList<Map.Entry<T, T>>();
         for (final T it : updates) {
-            final Map.Entry<T, T> pair = new AbstractMap.SimpleEntry<T, T>(
-                    null, it);
+            final Map.Entry<T, T> pair =
+                    new AbstractMap.SimpleEntry<T, T>(null, it);
             map.add(pair);
         }
         return standardProxy.persist(null, map, null);

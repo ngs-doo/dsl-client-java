@@ -8,15 +8,15 @@ import java.util.Map;
 import com.dslplatform.patterns.ServiceLocator;
 
 class MapServiceLocator implements ServiceLocator {
-    private final Map<Class<?>, Object> components = new LinkedHashMap<Class<?>, Object>();
+    private final Map<Class<?>, Object> components =
+            new LinkedHashMap<Class<?>, Object>();
     private final static boolean cacheResult = true;
 
     MapServiceLocator() {
         components.put(ServiceLocator.class, this);
     }
 
-    MapServiceLocator(
-            final Map<Class<?>, Object> initialComponents) {
+    MapServiceLocator(final Map<Class<?>, Object> initialComponents) {
         components.put(ServiceLocator.class, this);
         components.putAll(initialComponents);
     }
@@ -40,19 +40,16 @@ class MapServiceLocator implements ServiceLocator {
     private Object resolve(final Class<?> clazz, final boolean checkErrors) {
         final Object component = components.get(clazz);
 
-        if (component != null) {
-            return component instanceof Class
-                    ? tryResolve((Class<?>) component)
-                    : component;
-        }
+        if (component != null) return component instanceof Class
+                ? tryResolve((Class<?>) component)
+                : component;
 
         final Object instance = tryResolve(clazz);
 
-        if (instance == null && checkErrors) {
+        if (instance == null && checkErrors)
             throw new RuntimeException(
                     "Container could not locate class of type: "
                             + clazz.getName());
-        }
 
         cacheIf(clazz, instance);
 
@@ -83,11 +80,6 @@ class MapServiceLocator implements ServiceLocator {
             }
         }
         return null;
-    }
-
-    <T> T registerAndReturnInstance(final Class<T> target, final T service) {
-        components.put(target, service);
-        return service;
     }
 
     public <T> MapServiceLocator register(

@@ -11,8 +11,8 @@ public class AkkaSerialization extends JSerializer {
     private final JsonSerialization jsonDeserialization;
 
     public AkkaSerialization() {
-        jsonDeserialization = Bootstrap.getLocator().resolve(
-                JsonSerialization.class);
+        jsonDeserialization =
+                Bootstrap.getLocator().resolve(JsonSerialization.class);
     }
 
     @Override

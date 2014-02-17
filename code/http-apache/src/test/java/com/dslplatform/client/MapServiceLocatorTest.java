@@ -15,16 +15,17 @@ public class MapServiceLocatorTest {
 
     @Test
     public void withDefaultLoggerAndEC() throws Exception {
-        final Map<Class<?>, Object> initialComponents = new HashMap<Class<?>, Object>();
+        final Map<Class<?>, Object> initialComponents =
+                new HashMap<Class<?>, Object>();
         initialComponents.put(ExecutorService.class,
                 Executors.newSingleThreadExecutor());
         final String testLoggerName = "testLogger";
         initialComponents.put(Logger.class,
                 LoggerFactory.getLogger(testLoggerName));
-        final MapServiceLocator mapServiceLocator = new MapServiceLocator(
-                initialComponents);
-        final ExecutorService executorService = mapServiceLocator
-                .resolve(ExecutorService.class);
+        final MapServiceLocator mapServiceLocator =
+                new MapServiceLocator(initialComponents);
+        final ExecutorService executorService =
+                mapServiceLocator.resolve(ExecutorService.class);
         final Logger logger = mapServiceLocator.resolve(Logger.class);
 
         System.out.println(logger.getName());
