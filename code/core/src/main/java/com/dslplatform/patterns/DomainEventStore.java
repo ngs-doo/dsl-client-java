@@ -27,7 +27,8 @@ public interface DomainEventStore {
      * @return      future containing modified aggregate root
      */
     public <TAggregate extends AggregateRoot, TEvent extends AggregateDomainEvent<TAggregate>> Future<TAggregate> submit(
-        final TEvent event, final String uri);
+            final TEvent event,
+            final String uri);
 
     /**
      * Helper method for sending domain event to the server. Server will return modified aggregate root.
@@ -38,5 +39,6 @@ public interface DomainEventStore {
      * @return          future containing modified aggregate root
      */
     public <TAggregate extends AggregateRoot, TEvent extends AggregateDomainEvent<TAggregate>> Future<TAggregate> submit(
-        final TEvent event, final TAggregate aggregate);
+            final TEvent event,
+            final TAggregate aggregate);
 }

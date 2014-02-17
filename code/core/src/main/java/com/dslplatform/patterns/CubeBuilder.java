@@ -14,17 +14,20 @@ import com.dslplatform.client.StandardProxy;
 public class CubeBuilder<T extends Identifiable> {
 
     private final ServiceLocator locator;
-    private String cubeName;
-    private Specification<T> specification = null;
-    private List<String> dimensions = new LinkedList<String>();
-    private List<String> facts = new LinkedList<String>();
-    private final ArrayList<Map.Entry<String, Boolean>> order = new ArrayList<Map.Entry<String, Boolean>>();
+    private final String cubeName;
+    private Specification<T> specification;
+    private final List<String> dimensions;
+    private final List<String> facts;
+    private final List<Map.Entry<String, Boolean>> order;
 
-    public CubeBuilder(final String cubeName, final ServiceLocator locator) {
-        this.locator = locator;
+    public CubeBuilder(
+            final String cubeName,
+            final ServiceLocator locator) {
         this.cubeName = cubeName;
+        this.locator = locator;
         dimensions = new LinkedList<String>();
         facts = new LinkedList<String>();
+        order = new ArrayList<Map.Entry<String, Boolean>>();
     }
 
     public CubeBuilder<T> with(final Specification<T> specification) {
@@ -33,31 +36,33 @@ public class CubeBuilder<T extends Identifiable> {
     }
 
     public CubeBuilder<T> addDimension(final String dimension) {
-        this.dimensions.add(dimension);
+        dimensions.add(dimension);
         return this;
     }
 
     public CubeBuilder<T> addDimensions(final Collection<String> dimensions) {
-        this.dimensions.addAll(dimensions);
+        dimensions.addAll(dimensions);
         return this;
     }
 
     public CubeBuilder<T> addFact(final String fact) {
-        this.facts.add(fact);
+        facts.add(fact);
         return this;
     }
 
     public CubeBuilder<T> addFacts(final Collection<String> facts) {
-        this.facts.addAll(facts);
+        facts.addAll(facts);
         return this;
     }
 
-    private CubeBuilder<T> orderBy(String property, boolean ascending) {
-        if (property == null || property.isEmpty())
+    private CubeBuilder<T> orderBy(
+            final String property,
+            final boolean ascending) {
+        if (property == null || property.isEmpty()) {
             throw new IllegalArgumentException("property can't be empty");
-        Map.Entry<String, Boolean> pair =
-          new AbstractMap.SimpleEntry<String, Boolean>(
-            property, Boolean.valueOf(ascending));
+        }
+        final Map.Entry<String, Boolean> pair = new AbstractMap.SimpleEntry<String, Boolean>(
+                property, Boolean.valueOf(ascending));
         order.add(pair);
         return this;
     }
@@ -68,7 +73,9 @@ public class CubeBuilder<T extends Identifiable> {
      * @param property name of domain objects property
      * @return         itself
      */
-    public CubeBuilder<T> ascending(String property) { return orderBy(property, true); }
+    public CubeBuilder<T> ascending(final String property) {
+        return orderBy(property, true);
+    }
 
     /**
      * Order result descending using a provided property
@@ -76,7 +83,9 @@ public class CubeBuilder<T extends Identifiable> {
      * @param property name of domain objects property
      * @return         itself
      */
-    public CubeBuilder<T> descending(String property) { return orderBy(property, false); }
+    public CubeBuilder<T> descending(final String property) {
+        return orderBy(property, false);
+    }
 
     /**
      * Returns a list of domain objects which satisfy
@@ -87,12 +96,13 @@ public class CubeBuilder<T extends Identifiable> {
      *
      * @return  future value of the resulting sequence
      */
-    public <TResult> java.util.List<TResult> analyze( final Class<TResult> clazz) throws java.io.IOException {
+    public <TResult> java.util.List<TResult> analyze(final Class<TResult> clazz)
+            throws java.io.IOException {
         final StandardProxy proxy = locator.resolve(StandardProxy.class);
         try {
-            return specification == null
-                ? proxy.olapCube(clazz, cubeName, dimensions, facts, order).get()
-                : proxy.olapCube(clazz, cubeName, specification, dimensions, facts, order).get();
+            return specification == null ? proxy.olapCube(clazz, cubeName,
+                    dimensions, facts, order).get() : proxy.olapCube(clazz,
+                    cubeName, specification, dimensions, facts, order).get();
         } catch (final InterruptedException e) {
             throw new java.io.IOException(e);
         } catch (final java.util.concurrent.ExecutionException e) {

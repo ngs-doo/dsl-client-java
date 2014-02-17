@@ -22,10 +22,8 @@ public final class History<T extends AggregateRoot> implements Identifiable {
 
     private final List<Snapshot<T>> Snapshots;
 
-    @SuppressWarnings("unused")
-    private History() { this.Snapshots = null; }
-
-    public History(final List<Snapshot<T>> Snapshots) {
+    public History(
+            final List<Snapshot<T>> Snapshots) {
         this.Snapshots = Snapshots;
     }
 
@@ -34,8 +32,9 @@ public final class History<T extends AggregateRoot> implements Identifiable {
      *
      * @return URI found in first snapshot
      */
+    @Override
     public String getURI() {
-        return this.Snapshots.get(0).getURI();
+        return Snapshots.get(0).getURI();
     }
 
     /**
@@ -44,6 +43,6 @@ public final class History<T extends AggregateRoot> implements Identifiable {
      * @return List of snapshots captured for provided {@link AggregateRoot aggregate root}.
      */
     public List<Snapshot<T>> getSnapshots() {
-        return this.Snapshots;
+        return Snapshots;
     }
 }

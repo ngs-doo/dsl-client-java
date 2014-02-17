@@ -4,7 +4,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
-import com.dslplatform.patterns.*;
+import com.dslplatform.patterns.AggregateRoot;
+import com.dslplatform.patterns.History;
+import com.dslplatform.patterns.Identifiable;
+import com.dslplatform.patterns.Searchable;
+import com.dslplatform.patterns.Specification;
 
 /**
  * Proxy service to reporting operations such as document generation,
@@ -17,8 +21,8 @@ import com.dslplatform.patterns.*;
  * <blockquote><pre>
  * module Todo {
  *   aggregate Task {
- *     timestamp createdAt;
- *     timestamp? finishedAt;
+ *     Timestamp createdAt;
+ *     Timestamp? finishedAt;
  *   }
  *
  *   report LoadData {
@@ -37,8 +41,7 @@ public interface ReportingProxy {
      * @param report specification
      * @return       future to populated results
      */
-    public <TReport> Future<TReport> populate(
-            final TReport report);
+    public <TReport> Future<TReport> populate(final TReport report);
 
     /**
      * Create document from report. Send message to server with serialized report specification.

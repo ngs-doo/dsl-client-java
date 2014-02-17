@@ -5,19 +5,14 @@ import java.nio.charset.Charset;
 
 import akka.serialization.JSerializer;
 
-import com.dslplatform.client.AkkaSerialization;
-import com.dslplatform.client.Bootstrap;
-import com.dslplatform.client.JsonSerialization;
-import com.dslplatform.patterns.ServiceLocator;
 import com.fasterxml.jackson.databind.JavaType;
 
 public class AkkaSerialization extends JSerializer {
-    private final ServiceLocator locator;
-    private final JsonSerialization jsonSerialization;
+    private final JsonSerialization jsonDeserialization;
 
     public AkkaSerialization() {
-        locator = Bootstrap.getLocator();
-        jsonSerialization = locator.resolve(JsonSerialization.class);
+        jsonDeserialization = Bootstrap.getLocator().resolve(
+                JsonSerialization.class);
     }
 
     @Override
@@ -33,7 +28,7 @@ public class AkkaSerialization extends JSerializer {
     @Override
     public byte[] toBinary(final Object obj) {
         try {
-            final String json = jsonSerialization.serialize(obj);
+            final String json = JsonSerialization.serialize(obj);
             return (obj.getClass().getName() + ':' + json).getBytes("UTF-8");
         } catch (final IOException e) {
             throw new RuntimeException(e);
@@ -48,7 +43,7 @@ public class AkkaSerialization extends JSerializer {
             final Class<?> clazz = Class.forName(body.substring(0, split));
             final JavaType type = JsonSerialization.buildType(clazz);
             final String json = body.substring(split + 1);
-            return jsonSerialization.deserialize(type, json, locator);
+            return jsonDeserialization.deserialize(type, json);
         } catch (final ClassNotFoundException e) {
             throw new RuntimeException(e);
         } catch (final IOException e) {

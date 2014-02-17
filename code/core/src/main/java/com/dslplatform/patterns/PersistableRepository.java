@@ -14,8 +14,8 @@ import java.util.concurrent.Future;
  *
  * @param <T> type of {@link AggregateRoot aggregate root}
  */
-public interface PersistableRepository<T extends AggregateRoot>
-        extends Repository<T>{
+public interface PersistableRepository<T extends AggregateRoot> extends
+        Repository<T> {
 
     /**
      * Apply local changes to the remote server.
@@ -32,9 +32,9 @@ public interface PersistableRepository<T extends AggregateRoot>
 
     /** @see PersistableRepository#persist(Iterable, Iterable, Iterable) */
     public Future<List<String>> persist(
-        final T[] inserts,
-        final Map.Entry<T, T>[] updates,
-        final T[] deletes);
+            final T[] inserts,
+            final Map.Entry<T, T>[] updates,
+            final T[] deletes);
 
     /**
      * Bulk insert.

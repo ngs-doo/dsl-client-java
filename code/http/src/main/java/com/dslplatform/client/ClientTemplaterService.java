@@ -2,12 +2,16 @@ package com.dslplatform.client;
 
 import java.util.concurrent.Future;
 
-import com.dslplatform.patterns.*;
+import com.dslplatform.patterns.Identifiable;
+import com.dslplatform.patterns.Searchable;
+import com.dslplatform.patterns.Specification;
+import com.dslplatform.patterns.TemplaterService;
 
 class ClientTemplaterService implements TemplaterService {
     protected final ReportingProxy proxy;
 
-    public ClientTemplaterService(final ReportingProxy proxy) {
+    public ClientTemplaterService(
+            final ReportingProxy proxy) {
         this.proxy = proxy;
     }
 
@@ -15,16 +19,22 @@ class ClientTemplaterService implements TemplaterService {
     public <T extends Identifiable> Future<byte[]> populate(
             final String file,
             final T aggregate) {
-        if(aggregate == null) throw new IllegalArgumentException("aggregate can't be null");
-        return proxy.findTemplater(aggregate.getClass(), file, aggregate.getURI(), false);
+        if (aggregate == null) {
+            throw new IllegalArgumentException("aggregate can't be null");
+        }
+        return proxy.findTemplater(aggregate.getClass(), file,
+                aggregate.getURI(), false);
     }
 
     @Override
     public <T extends Identifiable> Future<byte[]> populatePdf(
             final String file,
             final T aggregate) {
-        if(aggregate == null) throw new IllegalArgumentException("aggregate can't be null");
-        return proxy.findTemplater(aggregate.getClass(), file, aggregate.getURI(), true);
+        if (aggregate == null) {
+            throw new IllegalArgumentException("aggregate can't be null");
+        }
+        return proxy.findTemplater(aggregate.getClass(), file,
+                aggregate.getURI(), true);
     }
 
     @Override
@@ -42,14 +52,22 @@ class ClientTemplaterService implements TemplaterService {
     }
 
     @Override
-    public <T extends Searchable> Future<byte[]> populate(final String file, final Specification<T> specification) {
-        if(specification == null) throw new IllegalArgumentException("specification can't be null");
+    public <T extends Searchable> Future<byte[]> populate(
+            final String file,
+            final Specification<T> specification) {
+        if (specification == null) {
+            throw new IllegalArgumentException("specification can't be null");
+        }
         return proxy.searchTemplater(null, file, specification, false);
     }
 
     @Override
-    public <T extends Searchable> Future<byte[]> populatePdf(final String file, final Specification<T> specification) {
-        if(specification == null) throw new IllegalArgumentException("specification can't be null");
+    public <T extends Searchable> Future<byte[]> populatePdf(
+            final String file,
+            final Specification<T> specification) {
+        if (specification == null) {
+            throw new IllegalArgumentException("specification can't be null");
+        }
         return proxy.searchTemplater(null, file, specification, true);
     }
 }

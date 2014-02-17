@@ -19,7 +19,7 @@ public class SearchBuilder<T extends Searchable> {
     private Specification<T> specification;
     private Integer limit;
     private Integer offset;
-    private final ArrayList<Map.Entry<String, Boolean>> order = new ArrayList<Map.Entry<String, Boolean>>();
+    private final List<Map.Entry<String, Boolean>> order;
 
     /**
      * Constructor for SearchBuilder which requires a repository to perform
@@ -27,8 +27,10 @@ public class SearchBuilder<T extends Searchable> {
      *
      * @param repository domain object repository
      */
-    public SearchBuilder(final SearchableRepository<T> repository) {
+    public SearchBuilder(
+            final SearchableRepository<T> repository) {
         this.repository = repository;
+        order = new ArrayList<Map.Entry<String, Boolean>>();
     }
 
     /**
@@ -59,7 +61,9 @@ public class SearchBuilder<T extends Searchable> {
      * @param limit maximum number of results
      * @return      itself
      */
-    public SearchBuilder<T> limit(final int limit) { return take(limit); }
+    public SearchBuilder<T> limit(final int limit) {
+        return take(limit);
+    }
 
     /**
      * Define a maximum number of results.
@@ -68,7 +72,7 @@ public class SearchBuilder<T extends Searchable> {
      * @return      itself
      */
     public SearchBuilder<T> take(final int limit) {
-        this.limit = Integer.valueOf(limit);
+        this.limit = limit;
         return this;
     }
 
@@ -78,7 +82,9 @@ public class SearchBuilder<T extends Searchable> {
      * @param offset number of results to be skipped
      * @return       itself
      */
-    public SearchBuilder<T> offset(final int offset) { return skip(offset); }
+    public SearchBuilder<T> offset(final int offset) {
+        return skip(offset);
+    }
 
     /**
      * Define a number of results to be skipped.
@@ -87,17 +93,18 @@ public class SearchBuilder<T extends Searchable> {
      * @return       itself
      */
     public SearchBuilder<T> skip(final int offset) {
-        this.offset = Integer.valueOf(offset);
+        this.offset = offset;
         return this;
     }
 
-    private SearchBuilder<T> orderBy(String property, boolean ascending) {
-        if (property == null || property.isEmpty())
+    private SearchBuilder<T> orderBy(
+            final String property,
+            final boolean ascending) {
+        if (property == null || property.isEmpty()) {
             throw new IllegalArgumentException("property can't be empty");
-        Map.Entry<String, Boolean> pair =
-          new AbstractMap.SimpleEntry<String, Boolean>(
-            property, Boolean.valueOf(ascending));
-        order.add(pair);
+        }
+        order.add(new AbstractMap.SimpleEntry<String, Boolean>(
+                property, ascending));
         return this;
     }
 
@@ -107,7 +114,9 @@ public class SearchBuilder<T extends Searchable> {
      * @param property name of domain objects property
      * @return         itself
      */
-    public SearchBuilder<T> ascending(String property) { return orderBy(property, true); }
+    public SearchBuilder<T> ascending(final String property) {
+        return orderBy(property, true);
+    }
 
     /**
      * Order result descending using a provided property
@@ -115,7 +124,9 @@ public class SearchBuilder<T extends Searchable> {
      * @param property name of domain objects property
      * @return         itself
      */
-    public SearchBuilder<T> descending(String property) { return orderBy(property, false); }
+    public SearchBuilder<T> descending(final String property) {
+        return orderBy(property, false);
+    }
 
     /**
      * Returns a list of domain objects which satisfy
@@ -128,7 +139,7 @@ public class SearchBuilder<T extends Searchable> {
      */
     public Future<List<T>> search() {
         return specification == null
-            ? repository.findAll(limit, offset, order)
-            : repository.search(specification, limit, offset, order);
+                ? repository.findAll(limit, offset, order)
+                : repository.search(specification, limit, offset, order);
     }
 }
