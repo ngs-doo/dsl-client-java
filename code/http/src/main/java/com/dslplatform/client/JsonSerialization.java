@@ -44,8 +44,7 @@ public class JsonSerialization {
                 public void serialize(
                         final LocalDate value,
                         final JsonGenerator generator,
-                        final SerializerProvider x) throws IOException,
-                        JsonProcessingException {
+                        final SerializerProvider x) throws IOException {
                     generator.writeString(value.toString());
                 }
             };
@@ -56,7 +55,7 @@ public class JsonSerialization {
                 public LocalDate deserialize(
                         final JsonParser parser,
                         final DeserializationContext context)
-                        throws IOException, JsonProcessingException {
+                        throws IOException {
                     return new DateTime(parser.getValueAsString())
                             .toLocalDate();
                 }

@@ -55,7 +55,7 @@ class HttpClient {
             final JsonSerialization jsonDeserialization,
             final Logger logger,
             final ExecutorService executorService,
-            final HttpTransport httpTransport) throws IOException {
+            final HttpTransport httpTransport) {
         this.logger = logger;
         this.jsonDeserialization = jsonDeserialization;
         this.executorService = executorService;

@@ -82,11 +82,6 @@ class MapServiceLocator implements ServiceLocator {
         return null;
     }
 
-    <T> T registerAndReturnInstance(final Class<T> target, final T service) {
-        components.put(target, service);
-        return service;
-    }
-
     public <T> MapServiceLocator register(
             final Class<T> target,
             final Object service) {

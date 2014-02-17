@@ -19,7 +19,7 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 
 public class HttpClientTransport implements HttpTransport {
-    final Logger logger;
+    private final Logger logger;
 
     private final org.apache.http.client.HttpClient httpClient;
     private final HttpAuthorization httpAuthorization;

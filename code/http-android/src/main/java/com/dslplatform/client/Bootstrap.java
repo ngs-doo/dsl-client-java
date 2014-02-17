@@ -74,31 +74,36 @@ public class Bootstrap {
             final MapServiceLocator locator) throws IOException {
         final JsonSerialization jsonDeserialization =
                 new JsonSerialization(locator);
-        final Logger logger =
-                locator.contains(Logger.class)
-                        ? locator.resolve(Logger.class)
-                        : locator.registerAndReturnInstance(Logger.class,
-                                LoggerFactory.getLogger("dsl-client-http"));
+        final Logger logger;
+        if (locator.contains(Logger.class)) {
+            logger = locator.resolve(Logger.class);
+        } else {
+            logger = LoggerFactory.getLogger("dsl-client-http");
+            locator.register(Logger.class, logger);
+        }
         final ProjectSettings project = new ProjectSettings(logger, iniStream);
-        final ExecutorService executorService =
-                locator.contains(ExecutorService.class)
-                        ? locator.resolve(ExecutorService.class)
-                        : locator.registerAndReturnInstance(
-                                ExecutorService.class,
-                                Executors.newCachedThreadPool());
-        final HttpAuthorization httpAuthorization =
-                locator.contains(HttpAuthorization.class)
-                        ? locator.resolve(HttpAuthorization.class)
-                        : locator.registerAndReturnInstance(
-                                HttpAuthorization.class,
-                                new HttpAuthorization.ProjectAuthorization(
-                                        project));
-        final HttpTransport httpTransport =
-                locator.contains(HttpTransport.class)
-                        ? locator.resolve(HttpTransport.class)
-                        : locator.registerAndReturnInstance(
-                                HttpTransport.class, new HttpClientTransport(
-                                        logger, project, httpAuthorization));
+        final ExecutorService executorService;
+        if (locator.contains(ExecutorService.class)) {
+            executorService = locator.resolve(ExecutorService.class);
+        } else {
+            executorService = Executors.newCachedThreadPool();
+            locator.register(ExecutorService.class, executorService);
+        }
+        final HttpAuthorization httpAuthorization;
+        if (locator.contains(HttpAuthorization.class)) {
+            httpAuthorization = locator.resolve(HttpAuthorization.class);
+        } else {
+            httpAuthorization = new ProjectAuthorization(project);
+            locator.register(HttpAuthorization.class, httpAuthorization);
+        }
+        final HttpTransport httpTransport;
+        if (locator.contains(HttpTransport.class)) {
+            httpTransport = locator.resolve(HttpTransport.class);
+        } else {
+            httpTransport =
+                    new HttpClientTransport(logger, project, httpAuthorization);
+            locator.register(HttpTransport.class, httpTransport);
+        }
         final HttpClient httpClient =
                 new HttpClient(project, locator, jsonDeserialization, logger,
                         executorService, httpTransport);
