@@ -130,7 +130,7 @@ object NGSBuild extends Build with Default with Dependencies {
   , file("http-android")
   , settings = defaultSettings ++ Seq(
       name := "DSL-Client-HTTP-Android"
-    , libraryDependencies += androidSDK
+    , libraryDependencies += androidSDK % "provided"
     )
   ) dependsOn(http)
 
