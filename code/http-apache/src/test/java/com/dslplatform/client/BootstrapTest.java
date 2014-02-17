@@ -18,8 +18,9 @@ public class BootstrapTest {
 
     @Test
     public void withDefaultLoggerAndEC() throws Exception {
-        final ServiceLocator locator = Bootstrap.init(getClass()
-                .getResourceAsStream("/mockproject.ini"));
+        final ServiceLocator locator =
+                Bootstrap.init(getClass().getResourceAsStream(
+                        "/mockproject.ini"));
         final ProjectSettings ps = locator.resolve(ProjectSettings.class);
         assertEquals("Project id matches", ps.get("project-id"),
                 "0e13d168-1e2d-6ced-82f0-b9e693acde3e");
@@ -29,14 +30,17 @@ public class BootstrapTest {
     public void withCustomLoggerAndEC() throws Exception {
         final String loggerName = "testLogger";
         final Logger logger = LoggerFactory.getLogger(loggerName);
-        final Map<Class<?>, Object> initialComponents = new HashMap<Class<?>, Object>();
-        final ExecutorService newSingleThreadExecutor = Executors
-                .newSingleThreadExecutor();
+        final Map<Class<?>, Object> initialComponents =
+                new HashMap<Class<?>, Object>();
+        final ExecutorService newSingleThreadExecutor =
+                Executors.newSingleThreadExecutor();
         initialComponents.put(ExecutorService.class, newSingleThreadExecutor);
         initialComponents.put(Logger.class, logger);
 
-        final ServiceLocator locator = Bootstrap.init(getClass()
-                .getResourceAsStream("/mockproject.ini"), initialComponents);
+        final ServiceLocator locator =
+                Bootstrap.init(
+                        getClass().getResourceAsStream("/mockproject.ini"),
+                        initialComponents);
 
         assertSame("Logger instance matches.", locator.resolve(Logger.class),
                 logger);

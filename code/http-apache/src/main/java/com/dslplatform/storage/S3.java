@@ -61,8 +61,7 @@ public class S3 implements java.io.Serializable {
      *
      * @param repository custom S3 repository
      */
-    public S3(
-            final S3Repository repository) {
+    public S3(final S3Repository repository) {
         instanceRepository = repository;
     }
 
@@ -72,8 +71,7 @@ public class S3 implements java.io.Serializable {
      *
      * @param stream Input stream which will be sent to the remote server
      */
-    public S3(
-            final InputStream stream) throws IOException {
+    public S3(final InputStream stream) throws IOException {
         instanceRepository = null;
         upload(IOUtils.toByteArray(stream));
     }
@@ -85,9 +83,7 @@ public class S3 implements java.io.Serializable {
      * @param stream Input stream which will be sent to the remote server
      * @param length size of the stream
      */
-    public S3(
-            final InputStream stream,
-            final long length) throws IOException {
+    public S3(final InputStream stream, final long length) throws IOException {
         instanceRepository = null;
         upload(stream, length);
     }
@@ -98,8 +94,7 @@ public class S3 implements java.io.Serializable {
      *
      * @param bytes Byte array which will be sent to the remote server
      */
-    public S3(
-            final byte[] bytes) throws IOException {
+    public S3(final byte[] bytes) throws IOException {
         instanceRepository = null;
         upload(bytes);
     }
@@ -202,7 +197,8 @@ public class S3 implements java.io.Serializable {
         return this;
     }
 
-    private final HashMap<String, String> metadata = new HashMap<String, String>();
+    private final HashMap<String, String> metadata =
+            new HashMap<String, String>();
 
     /**
      * For convenience, various metadata can be associated with the remote data.
@@ -239,9 +235,7 @@ public class S3 implements java.io.Serializable {
      * @throws IOException in case of communication failure
      */
     public InputStream getStream() throws IOException {
-        if (key == null || key.isEmpty()) {
-            return null;
-        }
+        if (key == null || key.isEmpty()) return null;
         try {
             return getRepository().get(bucket, key).get();
         } catch (final InterruptedException e) {
@@ -259,9 +253,7 @@ public class S3 implements java.io.Serializable {
      * @throws IOException in case of communication failure
      */
     public byte[] getBytes() throws IOException {
-        if (key == null || key.isEmpty()) {
-            return null;
-        }
+        if (key == null || key.isEmpty()) return null;
         final InputStream stream;
         try {
             stream = getRepository().get(bucket, key).get();
@@ -319,15 +311,13 @@ public class S3 implements java.io.Serializable {
             final String bucket,
             final InputStream stream,
             final long length) throws IOException {
-        if (stream == null) {
+        if (stream == null)
             throw new IllegalArgumentException("Stream can't be null.");
-        }
         if (key == null || key.isEmpty()) {
             this.bucket = bucket;
             key = UUID.randomUUID().toString();
-        } else if (this.bucket != bucket) {
+        } else if (this.bucket != bucket)
             throw new IllegalArgumentException("Can't change bucket name");
-        }
         try {
             getRepository().upload(bucket, key, stream, length, metadata).get();
         } catch (final InterruptedException e) {
@@ -368,15 +358,13 @@ public class S3 implements java.io.Serializable {
      */
     public String upload(final String bucket, final byte[] bytes)
             throws IOException {
-        if (bytes == null) {
+        if (bytes == null)
             throw new IllegalArgumentException("Stream can't be null.");
-        }
         if (key == null || key.isEmpty()) {
             this.bucket = bucket;
             key = UUID.randomUUID().toString();
-        } else if (this.bucket != bucket) {
+        } else if (this.bucket != bucket)
             throw new IllegalArgumentException("Can't change bucket name");
-        }
         final ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
         try {
             getRepository().upload(bucket, key, stream, bytes.length, metadata)
@@ -399,9 +387,8 @@ public class S3 implements java.io.Serializable {
      * @throws IOException in case of communication error
      */
     public void delete() throws IOException {
-        if (key == null || key.isEmpty()) {
+        if (key == null || key.isEmpty())
             throw new IllegalArgumentException("S3 object is empty.");
-        }
         cachedContent = null;
         try {
             getRepository().delete(bucket, key).get();

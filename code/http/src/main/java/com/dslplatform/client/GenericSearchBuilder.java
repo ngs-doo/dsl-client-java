@@ -30,17 +30,22 @@ public class GenericSearchBuilder<T extends Searchable> {
         public final Integer Key;
         public final String Value;
 
-        public FilterPair(
-                final int key,
-                final String value) {
+        public FilterPair(final int key, final String value) {
             Key = key;
             Value = value;
+        }
+
+        @SuppressWarnings("unused")
+        private FilterPair() {
+            this.Key = null;
+            this.Value = null;
         }
     }
 
     private Integer limit;
     private Integer offset;
-    private final ArrayList<Map.Entry<String, Boolean>> order = new ArrayList<Map.Entry<String, Boolean>>();
+    private final ArrayList<Map.Entry<String, Boolean>> order =
+            new ArrayList<Map.Entry<String, Boolean>>();
 
     static class GenericSearchFilter {
         public static final int EQUALS = 0;
@@ -129,8 +134,9 @@ public class GenericSearchBuilder<T extends Searchable> {
      * @return future to list of found domain object
      */
     public Future<List<T>> search() {
-        final String url = Utils.appendLimitOffsetOrder(domainName, limit,
-                offset, order, false);
+        final String url =
+                Utils.appendLimitOffsetOrder(domainName, limit, offset, order,
+                        false);
 
         return httpClient.sendRequest(JsonSerialization.buildCollectionType(
                 ArrayList.class, manifest), "Domain.svc/search-generic/" + url,
@@ -140,9 +146,8 @@ public class GenericSearchBuilder<T extends Searchable> {
     private GenericSearchBuilder<T> orderBy(
             final String property,
             final Boolean direction) {
-        if (property == null || property.isEmpty()) {
+        if (property == null || property.isEmpty())
             throw new IllegalArgumentException("property can't be null");
-        }
         order.add(new AbstractMap.SimpleEntry<String, Boolean>(property,
                 direction));
         return this;
@@ -172,9 +177,8 @@ public class GenericSearchBuilder<T extends Searchable> {
             final String property,
             final int id,
             final Object value) throws IOException {
-        if (property == null || property.isEmpty()) {
+        if (property == null || property.isEmpty())
             throw new IllegalArgumentException("property can't be null");
-        }
         final String json = value != null
                 ? JsonSerialization.serialize(value)
                 : null;
@@ -357,14 +361,10 @@ public class GenericSearchBuilder<T extends Searchable> {
             final String property,
             final String value,
             final boolean ignoreCase) throws IOException {
-        if (ignoreCase) {
-            return filter(property,
-                    GenericSearchFilter.STARTS_WITH_CASE_INSENSITIVE_VALUE,
-                    value);
-        } else {
-            return filter(property, GenericSearchFilter.STARTS_WITH_VALUE,
-                    value);
-        }
+        if (ignoreCase) return filter(property,
+                GenericSearchFilter.STARTS_WITH_CASE_INSENSITIVE_VALUE, value);
+        else return filter(property, GenericSearchFilter.STARTS_WITH_VALUE,
+                value);
     }
 
     /**
@@ -396,14 +396,11 @@ public class GenericSearchBuilder<T extends Searchable> {
             final String property,
             final String value,
             final boolean ignoreCase) throws IOException {
-        if (ignoreCase) {
-            return filter(property,
-                    GenericSearchFilter.NOT_STARTS_WITH_CASE_INSENSITIVE_VALUE,
-                    value);
-        } else {
-            return filter(property, GenericSearchFilter.NOT_STARTS_WITH_VALUE,
-                    value);
-        }
+        if (ignoreCase) return filter(property,
+                GenericSearchFilter.NOT_STARTS_WITH_CASE_INSENSITIVE_VALUE,
+                value);
+        else return filter(property, GenericSearchFilter.NOT_STARTS_WITH_VALUE,
+                value);
     }
 
     /**
@@ -434,14 +431,10 @@ public class GenericSearchBuilder<T extends Searchable> {
             final String property,
             final String value,
             final boolean ignoreCase) throws IOException {
-        if (ignoreCase) {
-            return filter(property,
-                    GenericSearchFilter.VALUE_STARTS_WITH_CASE_INSENSITIVE,
-                    value);
-        } else {
-            return filter(property, GenericSearchFilter.VALUE_STARTS_WITH,
-                    value);
-        }
+        if (ignoreCase) return filter(property,
+                GenericSearchFilter.VALUE_STARTS_WITH_CASE_INSENSITIVE, value);
+        else return filter(property, GenericSearchFilter.VALUE_STARTS_WITH,
+                value);
     }
 
     /**
@@ -473,13 +466,10 @@ public class GenericSearchBuilder<T extends Searchable> {
             final String property,
             final String value,
             final boolean ignoreCase) throws IOException {
-        if (ignoreCase) {
-            return filter(property,
-                    GenericSearchFilter.NOT_VALUE_STARTS_WITH_CASE_INSENSITIVE,
-                    value);
-        } else {
-            return filter(property, GenericSearchFilter.NOT_VALUE_STARTS_WITH,
-                    value);
-        }
+        if (ignoreCase) return filter(property,
+                GenericSearchFilter.NOT_VALUE_STARTS_WITH_CASE_INSENSITIVE,
+                value);
+        else return filter(property, GenericSearchFilter.NOT_VALUE_STARTS_WITH,
+                value);
     }
 }

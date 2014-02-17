@@ -38,8 +38,9 @@ public class HttpClientTransport implements HttpTransport {
             keystore.load(
                     HttpClient.class.getResourceAsStream("common-cas."
                             + storeType), "common-cas".toCharArray());
-            final TrustManagerFactory tmf = TrustManagerFactory
-                    .getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            final TrustManagerFactory tmf =
+                    TrustManagerFactory.getInstance(TrustManagerFactory
+                            .getDefaultAlgorithm());
             tmf.init(keystore);
             final TrustManager[] tms = tmf.getTrustManagers();
             final SSLContext sslContext = SSLContext.getInstance("TLS");
@@ -55,7 +56,7 @@ public class HttpClientTransport implements HttpTransport {
             final ProjectSettings project,
             final HttpAuthorization httpAuthorization) {
         this.logger = logger;
-        this.httpClient = createContext();
+        httpClient = createContext();
         this.httpAuthorization = httpAuthorization;
         remoteUrl = project.get("api-url");
     }
@@ -131,7 +132,8 @@ public class HttpClientTransport implements HttpTransport {
             }
 
             if (req instanceof HttpEntityEnclosingRequest) {
-                final HttpEntityEnclosingRequest heer = (HttpEntityEnclosingRequest) req;
+                final HttpEntityEnclosingRequest heer =
+                        (HttpEntityEnclosingRequest) req;
                 logger.error("payload:{}",
                         EntityUtils.toString(heer.getEntity()));
             }
