@@ -21,9 +21,9 @@ class HttpStandardProxy implements StandardProxy {
 
     public HttpStandardProxy(
             final HttpClient client,
-            final ExecutorService excutorService) {
+            final ExecutorService executorService) {
         this.client = client;
-        this.executorService = excutorService;
+        this.executorService = executorService;
     }
 
     @JsonSerialize
@@ -38,10 +38,10 @@ class HttpStandardProxy implements StandardProxy {
         public final String ToDelete;
 
         public PersistArg(
-                String rootName,
-                String toInsert,
-                String toUpdate,
-                String toDelete) {
+                final String rootName,
+                final String toInsert,
+                final String toUpdate,
+                final String toDelete) {
             RootName = rootName;
             ToInsert = toInsert;
             ToUpdate = toUpdate;
@@ -118,9 +118,7 @@ class HttpStandardProxy implements StandardProxy {
                     }
                 }
 
-                if (clazz == null) {
-                    return new ArrayList<String>();
-                }
+                if (clazz == null) return new ArrayList<String>();
 
                 final String domainName = client.getDslName(clazz);
 
@@ -147,14 +145,15 @@ class HttpStandardProxy implements StandardProxy {
             final Iterable<Map.Entry<String, Boolean>> order) {
 
         final Class<?> specClazz = specification.getClass();
-        final String specParent = client.getDslName(specClazz
-                .getEnclosingClass());
+        final String specParent =
+                client.getDslName(specClazz.getEnclosingClass());
         final String specificationName = cubeName.equals(specParent)
                 ? specClazz.getSimpleName()
                 : specParent + "%2B" + specClazz.getSimpleName();
 
-        final String args = Utils.buildOlapArguments(dimensions, facts, order,
-                specificationName);
+        final String args =
+                Utils.buildOlapArguments(dimensions, facts, order,
+                        specificationName);
 
         return client
                 .sendRequest(JsonSerialization.buildCollectionType(

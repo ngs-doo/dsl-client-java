@@ -27,16 +27,16 @@ class HttpClient {
         public final int code;
         public final byte[] body;
 
-        public Response(
-                final int code,
-                final byte[] body) {
+        public Response(final int code, final byte[] body) {
             this.code = code;
             this.body = body;
         }
 
         public String bodyToString() {
-            return body == null ? "" : new String(body,
-                    java.nio.charset.Charset.forName("UTF-8"));
+            return body == null
+                    ? ""
+                    : new String(body,
+                            java.nio.charset.Charset.forName("UTF-8"));
         }
     }
 
@@ -69,18 +69,15 @@ class HttpClient {
 
     public String getDslName(final Class<?> clazz) {
         final String domainObjectName = clazz.getName();
-        if (domainObjectName.startsWith(domainPrefix)) {
+        if (domainObjectName.startsWith(domainPrefix))
             return domainObjectName.substring(domainPrefixLength);
-        }
         throw new RuntimeException(domainObjectName
                 + " is not defined for package " + domainPrefix);
     }
 
     private static boolean contains(final int[] array, final int v) {
         for (final int e : array) {
-            if (e == v) {
-                return true;
-            }
+            if (e == v) return true;
         }
         return false;
     }
@@ -114,8 +111,8 @@ class HttpClient {
             }
         }
 
-        final Response response = httpTransport.transmit(service, headers,
-                method, body);
+        final Response response =
+                httpTransport.transmit(service, headers, method, body);
 
         if (logger.isDebugEnabled()) {
             final long time = System.currentTimeMillis() - start;
@@ -128,18 +125,17 @@ class HttpClient {
             }
         }
 
-        if (expected != null && !contains(expected, response.code)) {
-            throw new IOException("Unexpected return code: " + response.code
-                    + ", response: " + response.bodyToString());
-        } else if (expected == null && response.code >= 300) {
+        if (expected != null && !contains(expected, response.code)) throw new IOException(
+                "Unexpected return code: " + response.code + ", response: "
+                        + response.bodyToString());
+        else if (expected == null && response.code >= 300)
             throw new IOException(response.bodyToString());
-        }
 
         return response;
     }
 
-    private static final List<Map.Entry<String, String>> emptyHeaders = new java.util.ArrayList<Map.Entry<String, String>>(
-            0);
+    private static final List<Map.Entry<String, String>> emptyHeaders =
+            new java.util.ArrayList<Map.Entry<String, String>>(0);
 
     public <TArgument> Future<byte[]> sendRawRequest(
             final String service,
@@ -172,11 +168,14 @@ class HttpClient {
             @SuppressWarnings("unchecked")
             @Override
             public TResult call() throws IOException {
-                final Response response = doRawRequest(service, emptyHeaders,
-                        method, content, expected, start);
+                final Response response =
+                        doRawRequest(service, emptyHeaders, method, content,
+                                expected, start);
 
-                return type != null ? (TResult) jsonDeserialization
-                        .deserialize(type, response.bodyToString()) : null;
+                return type != null
+                        ? (TResult) jsonDeserialization.deserialize(type,
+                                response.bodyToString())
+                        : null;
             }
         });
     }

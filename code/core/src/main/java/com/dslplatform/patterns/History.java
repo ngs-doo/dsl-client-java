@@ -19,11 +19,14 @@ import java.util.List;
  * @param <T> aggregate root type
  */
 public final class History<T extends AggregateRoot> implements Identifiable {
-
     private final List<Snapshot<T>> Snapshots;
 
-    public History(
-            final List<Snapshot<T>> Snapshots) {
+    @SuppressWarnings("unused")
+    private History() {
+        this.Snapshots = null;
+    }
+
+    public History(final List<Snapshot<T>> Snapshots) {
         this.Snapshots = Snapshots;
     }
 

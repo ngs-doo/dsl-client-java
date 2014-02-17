@@ -10,8 +10,7 @@ import com.dslplatform.patterns.TemplaterService;
 class ClientTemplaterService implements TemplaterService {
     protected final ReportingProxy proxy;
 
-    public ClientTemplaterService(
-            final ReportingProxy proxy) {
+    public ClientTemplaterService(final ReportingProxy proxy) {
         this.proxy = proxy;
     }
 
@@ -19,9 +18,8 @@ class ClientTemplaterService implements TemplaterService {
     public <T extends Identifiable> Future<byte[]> populate(
             final String file,
             final T aggregate) {
-        if (aggregate == null) {
+        if (aggregate == null)
             throw new IllegalArgumentException("aggregate can't be null");
-        }
         return proxy.findTemplater(aggregate.getClass(), file,
                 aggregate.getURI(), false);
     }
@@ -30,9 +28,8 @@ class ClientTemplaterService implements TemplaterService {
     public <T extends Identifiable> Future<byte[]> populatePdf(
             final String file,
             final T aggregate) {
-        if (aggregate == null) {
+        if (aggregate == null)
             throw new IllegalArgumentException("aggregate can't be null");
-        }
         return proxy.findTemplater(aggregate.getClass(), file,
                 aggregate.getURI(), true);
     }
@@ -55,9 +52,8 @@ class ClientTemplaterService implements TemplaterService {
     public <T extends Searchable> Future<byte[]> populate(
             final String file,
             final Specification<T> specification) {
-        if (specification == null) {
+        if (specification == null)
             throw new IllegalArgumentException("specification can't be null");
-        }
         return proxy.searchTemplater(null, file, specification, false);
     }
 
@@ -65,9 +61,8 @@ class ClientTemplaterService implements TemplaterService {
     public <T extends Searchable> Future<byte[]> populatePdf(
             final String file,
             final Specification<T> specification) {
-        if (specification == null) {
+        if (specification == null)
             throw new IllegalArgumentException("specification can't be null");
-        }
         return proxy.searchTemplater(null, file, specification, true);
     }
 }

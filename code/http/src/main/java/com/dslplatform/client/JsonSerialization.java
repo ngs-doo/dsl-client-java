@@ -38,80 +38,86 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 public class JsonSerialization {
-    private static final JsonSerializer<LocalDate> dateSerializer = new JsonSerializer<LocalDate>() {
-        @Override
-        public void serialize(
-                final LocalDate value,
-                final JsonGenerator generator,
-                final SerializerProvider x) throws IOException,
-                JsonProcessingException {
-            generator.writeString(value.toString());
-        }
-    };
+    private static final JsonSerializer<LocalDate> dateSerializer =
+            new JsonSerializer<LocalDate>() {
+                @Override
+                public void serialize(
+                        final LocalDate value,
+                        final JsonGenerator generator,
+                        final SerializerProvider x) throws IOException,
+                        JsonProcessingException {
+                    generator.writeString(value.toString());
+                }
+            };
 
-    private static final JsonDeserializer<LocalDate> dateDeserializer = new JsonDeserializer<LocalDate>() {
-        @Override
-        public LocalDate deserialize(
-                final JsonParser parser,
-                final DeserializationContext context) throws IOException,
-                JsonProcessingException {
-            return new DateTime(parser.getValueAsString()).toLocalDate();
-        }
-    };
+    private static final JsonDeserializer<LocalDate> dateDeserializer =
+            new JsonDeserializer<LocalDate>() {
+                @Override
+                public LocalDate deserialize(
+                        final JsonParser parser,
+                        final DeserializationContext context)
+                        throws IOException, JsonProcessingException {
+                    return new DateTime(parser.getValueAsString())
+                            .toLocalDate();
+                }
+            };
 
     // -----------------------------------------------------------------------------
 
-    private static final JsonSerializer<DateTime> timestampSerializer = new JsonSerializer<DateTime>() {
-        @Override
-        public void serialize(
-                final DateTime value,
-                final JsonGenerator gen,
-                final SerializerProvider sP) throws IOException,
-                JsonProcessingException {
-            gen.writeString(value.toString());
-        }
-    };
+    private static final JsonSerializer<DateTime> timestampSerializer =
+            new JsonSerializer<DateTime>() {
+                @Override
+                public void serialize(
+                        final DateTime value,
+                        final JsonGenerator gen,
+                        final SerializerProvider sP) throws IOException,
+                        JsonProcessingException {
+                    gen.writeString(value.toString());
+                }
+            };
 
-    private static final JsonDeserializer<DateTime> timestampDeserializer = new JsonDeserializer<DateTime>() {
-        @Override
-        public DateTime deserialize(
-                final JsonParser parser,
-                final DeserializationContext context) throws IOException,
-                JsonProcessingException {
-            return new DateTime(parser.getValueAsString());
-        }
-    };
+    private static final JsonDeserializer<DateTime> timestampDeserializer =
+            new JsonDeserializer<DateTime>() {
+                @Override
+                public DateTime deserialize(
+                        final JsonParser parser,
+                        final DeserializationContext context)
+                        throws IOException, JsonProcessingException {
+                    return new DateTime(parser.getValueAsString());
+                }
+            };
 
 // -----------------------------------------------------------------------------
 
-    private static final JsonSerializer<Element> xmlSerializer = new JsonSerializer<Element>() {
-        @Override
-        public void serialize(
-                final Element value,
-                final JsonGenerator gen,
-                final SerializerProvider sP) throws IOException,
-                JsonProcessingException {
+    private static final JsonSerializer<Element> xmlSerializer =
+            new JsonSerializer<Element>() {
+                @Override
+                public void serialize(
+                        final Element value,
+                        final JsonGenerator gen,
+                        final SerializerProvider sP) throws IOException,
+                        JsonProcessingException {
 
-            if (value == null) {
-                return;
-            }
+                    if (value == null) return;
 
-            final NodeList children = value.getChildNodes();
-            if (children.getLength() == 0) {
-                gen.writeStringField(value.getNodeName(),
-                        value.getTextContent());
-            } else {
-                final HashMap<String, Object> hm = new HashMap<String, Object>();
-                hm.put(value.getNodeName(), buildFromXml(value));
-                gen.writeObject(hm);
-            }
-        }
-    };
+                    final NodeList children = value.getChildNodes();
+                    if (children.getLength() == 0) {
+                        gen.writeStringField(value.getNodeName(),
+                                value.getTextContent());
+                    } else {
+                        final HashMap<String, Object> hm =
+                                new HashMap<String, Object>();
+                        hm.put(value.getNodeName(), buildFromXml(value));
+                        gen.writeObject(hm);
+                    }
+                }
+            };
 
     private static Object buildFromXml(final Element el) {
         final NodeList cn = el.getChildNodes();
         final int childLen = cn.getLength();
-        final LinkedHashMap<String, LinkedList<Node>> children = new LinkedHashMap<String, LinkedList<Node>>();
+        final LinkedHashMap<String, LinkedList<Node>> children =
+                new LinkedHashMap<String, LinkedList<Node>>();
         for (int i = 0; i < childLen; i++) {
             final Node n = cn.item(i);
             final String name = n.getNodeName();
@@ -120,10 +126,10 @@ public class JsonSerialization {
             }
             children.get(name).add(n);
         }
-        if (childLen == 0 && el.getAttributes().getLength() == 0) {
+        if (childLen == 0 && el.getAttributes().getLength() == 0)
             return el.getTextContent();
-        }
-        final LinkedHashMap<String, Object> hm = new LinkedHashMap<String, Object>();
+        final LinkedHashMap<String, Object> hm =
+                new LinkedHashMap<String, Object>();
         final int attLen = el.getAttributes().getLength();
         for (int i = 0; i < attLen; i++) {
             final Node a = el.getAttributes().item(i);
@@ -139,20 +145,21 @@ public class JsonSerialization {
                     items[i] = n.getNodeValue();
                 }
             }
-            hm.put(kv.getKey(), items.length > 1 ? items : items[0]);
+            hm.put(kv.getKey(), items.length > 1
+                    ? items
+                    : items[0]);
         }
         if (hm.size() == 1) {
             final String name = children.keySet().iterator().next();
-            if (name.equals("#text")) {
-                return hm.get(name);
-            } else {
+            if (name.equals("#text")) return hm.get(name);
+            else {
                 final Object parent = hm.get(name);
                 if (parent instanceof HashMap) {
                     @SuppressWarnings("unchecked")
-                    final HashMap<String, Object> parentHm = (HashMap<String, Object>) parent;
-                    if (parentHm.size() == 1 && parentHm.containsKey(name)) {
+                    final HashMap<String, Object> parentHm =
+                            (HashMap<String, Object>) parent;
+                    if (parentHm.size() == 1 && parentHm.containsKey(name))
                         return parentHm;
-                    }
                 }
             }
         }
@@ -193,49 +200,48 @@ public class JsonSerialization {
         }
     }
 
-    private static final JsonDeserializer<Element> xmlDeserializer = new JsonDeserializer<Element>() {
-        @Override
-        public Element deserialize(
-                final JsonParser parser,
-                final DeserializationContext context) throws IOException,
-                JsonProcessingException {
+    private static final JsonDeserializer<Element> xmlDeserializer =
+            new JsonDeserializer<Element>() {
+                @Override
+                public Element deserialize(
+                        final JsonParser parser,
+                        final DeserializationContext context)
+                        throws IOException, JsonProcessingException {
 
-            @SuppressWarnings("unchecked")
-            final HashMap<String, Object> hm = parser
-                    .readValueAs(HashMap.class);
+                    @SuppressWarnings("unchecked")
+                    final HashMap<String, Object> hm =
+                            parser.readValueAs(HashMap.class);
 
-            if (hm == null) {
-                return null;
-            }
+                    if (hm == null) return null;
 
-            final Set<String> xmlRoot = hm.keySet();
-            if (xmlRoot.size() > 1) {
-                throw new IOException("Invalid XML. Expecting root element");
-            }
-            final String rootName = xmlRoot.iterator().next();
+                    final Set<String> xmlRoot = hm.keySet();
+                    if (xmlRoot.size() > 1)
+                        throw new IOException(
+                                "Invalid XML. Expecting root element");
+                    final String rootName = xmlRoot.iterator().next();
 
-            final Document document;
-            final Element element;
+                    final Document document;
+                    final Element element;
 
-            try {
-                synchronized (this) {
-                    final DocumentBuilderFactory factory = DocumentBuilderFactory
-                            .newInstance();
-                    final DocumentBuilder builder = factory
-                            .newDocumentBuilder();
-                    document = builder.newDocument();
-                    element = document.createElement(rootName);
-                    document.appendChild(element);
+                    try {
+                        synchronized (this) {
+                            final DocumentBuilderFactory factory =
+                                    DocumentBuilderFactory.newInstance();
+                            final DocumentBuilder builder =
+                                    factory.newDocumentBuilder();
+                            document = builder.newDocument();
+                            element = document.createElement(rootName);
+                            document.appendChild(element);
+                        }
+                    } catch (final Exception e) {
+                        throw new IOException(e);
+                    }
+
+                    buildXmlFromHashMap(document, element, hm.get(rootName));
+                    return element;
+
                 }
-            } catch (final Exception e) {
-                throw new IOException(e);
-            }
-
-            buildXmlFromHashMap(document, element, hm.get(rootName));
-            return element;
-
-        }
-    };
+            };
 
     // -----------------------------------------------------------------------------
 
@@ -282,8 +288,7 @@ public class JsonSerialization {
 
     private final ObjectMapper deserializationMapper;
 
-    JsonSerialization(
-            final ServiceLocator locator) {
+    JsonSerialization(final ServiceLocator locator) {
         deserializationMapper = makeDeserializationObjectMapper(locator);
     }
 
@@ -306,15 +311,16 @@ public class JsonSerialization {
             .addDeserializer(DateTime.class, timestampDeserializer)
             .addDeserializer(Element.class, xmlDeserializer);
 
-    // format: OFF
     private static ObjectMapper makeDeserializationObjectMapper(
             final ServiceLocator locator) {
         return new ObjectMapper()
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
+                        false)
                 .registerModule(deserializationModule)
-                .setInjectableValues(new InjectableValues.Std().addValue("_serviceLocator", locator));
+                .setInjectableValues(
+                        new InjectableValues.Std().addValue("_serviceLocator",
+                                locator));
     }
-    // format: ON
 
     public static <T> T deserialize(
             final JavaType type,

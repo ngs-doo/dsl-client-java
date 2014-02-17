@@ -10,8 +10,7 @@ import com.dslplatform.patterns.DomainEventStore;
 class ClientDomainEventStore implements DomainEventStore {
     protected final DomainProxy domainProxy;
 
-    public ClientDomainEventStore(
-            final DomainProxy domainProxy) {
+    public ClientDomainEventStore(final DomainProxy domainProxy) {
         this.domainProxy = domainProxy;
     }
 

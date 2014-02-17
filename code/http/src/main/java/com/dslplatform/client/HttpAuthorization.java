@@ -22,8 +22,8 @@ public interface HttpAuthorization {
         public CredentialsAuthorization(
                 final String username,
                 final String password) throws IOException {
-            final String authToken = Base64
-                    .encodeBase64String((username + ':' + password)
+            final String authToken =
+                    Base64.encodeBase64String((username + ':' + password)
                             .getBytes("ISO-8859-1"));
             authorizationHeaders = Arrays.asList("Basic " + authToken);
         }
@@ -35,8 +35,8 @@ public interface HttpAuthorization {
     }
 
     public static class ProjectAuthorization extends CredentialsAuthorization {
-        public ProjectAuthorization(
-                final ProjectSettings projectSettings) throws IOException {
+        public ProjectAuthorization(final ProjectSettings projectSettings)
+                throws IOException {
             super(projectSettings.get("username"), projectSettings
                     .get("project-id"));
         }
