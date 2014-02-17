@@ -13,7 +13,7 @@ public class CredentialsAuthorization implements HttpAuthorization {
             throws IOException {
         final String authToken =
                 Base64.encodeToString(
-                        (username + ':' + password).getBytes("ISO-8859-1"),
+                        (username + ':' + password).getBytes("UTF-8"),
                         Base64.NO_WRAP);
         authorizationHeaders = Arrays.asList("Basic " + authToken);
     }
