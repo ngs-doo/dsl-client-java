@@ -1,16 +1,17 @@
 package com.dslplatform.client;
 
 import static com.dslplatform.client.Helpers.getFileForResource;
+import static com.dslplatform.client.Helpers.jsonStringFromXml;
 import static com.dslplatform.client.Helpers.parseXmlFile;
 import static com.dslplatform.client.Helpers.printXmlDocument;
 import static com.dslplatform.client.Helpers.stringFromFile;
+import static com.dslplatform.client.Helpers.xmlDocumentFromJson;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -20,11 +21,7 @@ import org.json.JSONException;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
-
-import com.dslplatform.client.XmlBruteForceComparator;
 
 public class Xml2JsonRoundTripTest {
 
@@ -93,28 +90,10 @@ public class Xml2JsonRoundTripTest {
 	}
     }
 
-    private static Document xmlDocumentFromJson(String jSon) throws IOException, ParserConfigurationException {
-
-	final Element xmlRootElement = new JsonSerialization(new com.dslplatform.client.MapServiceLocator())
-		.<Element> deserialize(JsonSerialization.buildType(org.w3c.dom.Element.class), jSon);
-
-	final Document xmlDocument = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-
-	Node rootNode = xmlDocument.importNode(xmlRootElement, true);
-	xmlDocument.appendChild(rootNode);
-
-	return xmlDocument;
-    }
-
-    private static String jsonStringFromXml(final Document source_xml) throws IOException {
-	return JsonSerialization.<org.w3c.dom.Element> serialize(source_xml.getDocumentElement());
-    }
-
     private static void assertJsonEquivalence(String lhs, String rhs) throws JSONException {
-
-	System.out.println("Source: ");
-	System.out.println(lhs);
-	System.out.println("Converted: ");
+	System.out.println();
+	System.out.println("Checking JSon equivalence: ");	
+	System.out.println(lhs);	
 	System.out.println(rhs);
 	
 	JSONAssert.assertEquals(lhs, rhs, false);
@@ -122,12 +101,6 @@ public class Xml2JsonRoundTripTest {
 
     private static void assertXmlEquivalence(String message, Document lhs, Document rhs) {
 	XmlBruteForceComparator comparator = new XmlBruteForceComparator();
-
-//	System.out.println();
-//	System.out.println();
-//	printXmlDocument(lhs);
-//	System.out.println();
-//	printXmlDocument(rhs);
 	
 	assertTrue(message, comparator.compare(lhs.getDocumentElement(), rhs.getDocumentElement()) == 0);
     }

@@ -6,13 +6,18 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.dom.DOMSource;
+
 import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import com.fasterxml.jackson.databind.node.TextNode;
-import com.sun.org.apache.xalan.internal.xsltc.compiler.util.NodeType;
 
 /**
  * A comparator for {@link org.w3c.dom.Element}, compares two XML subtrees. The
@@ -36,13 +41,20 @@ public class XmlBruteForceComparator implements Comparator<Element> {
     private boolean collapseAllCDataContentIntoSingleNode = true;
     private boolean collapseAllCommentsIntoSingleNode = true;
 
+    
+    /**
+     * While comparing, collapse all {@link Node.COMMENT_NODE} children of
+     * each element into a single {@link Node.COMMENT_NODE}.
+     * This will permanently change the tree. 
+     */
     public void setCollapseAllCommentsIntoSingleNode(boolean collapseAllCommentsIntoSingleNode) {
 	this.collapseAllCommentsIntoSingleNode = collapseAllCommentsIntoSingleNode;
     }
 
     /**
      * While comparing, collapse all {@link Node.CDATA_SECTION_NODE} children of
-     * each element into a single {@link Node.CDATA_SECTION_NODE}
+     * each element into a single {@link Node.CDATA_SECTION_NODE}.
+     * This will permanently change the tree. 
      */
     public void setCollapseAllCDataContentIntoSingleNode(boolean collapseAllCDataContentIntoSingleNode) {
 	this.collapseAllCDataContentIntoSingleNode = collapseAllCDataContentIntoSingleNode;
@@ -51,13 +63,14 @@ public class XmlBruteForceComparator implements Comparator<Element> {
     /**
      * While comparing, collapse all {@link Node.TEXT_NODE} children of each
      * element into a single {@link Node.TEXT_NODE}
+     * This will permanently change the tree.
      */
     public void setCollapseAllTextContentIntoSingleNode(boolean collapseAllTextContentIntoSingleNode) {
 	this.collapseAllTextContentIntoSingleNode = collapseAllTextContentIntoSingleNode;
     }
 
     @Override
-    public int compare(Element lhs, Element rhs) {
+    public int compare(Element lhs, Element rhs){		
 
 	collapseNodes(lhs, rhs);
 
@@ -319,5 +332,4 @@ public class XmlBruteForceComparator implements Comparator<Element> {
 	else
 	    return o1.equals(o2);
     }
-
 }
