@@ -37,7 +37,7 @@ trait Default {
         "-source", "1.6"
       )
     , unmanagedSourceDirectories in Compile := Seq((javaSource in Compile).value)
-    , unmanagedSourceDirectories in Test := Nil
+    //, unmanagedSourceDirectories in Test := Nil
     , EclipseKeys.projectFlavor := EclipseProjectFlavor.Java
     )
 }
@@ -72,6 +72,8 @@ trait Dependencies {
 
   // Testing
   val jUnit = "junit" % "junit" % "4.11"
+  val jsonAssert = "org.skyscreamer" % "jsonassert" % "1.2.3"
+  val xmlUnit = "xmlunit" % "xmlunit" % "1.4"
 }
 
 // ----------------------------------------------------------------------------
@@ -97,7 +99,12 @@ object NGSBuild extends Build with Default with Dependencies {
       , jackson
       , commonsIo
       , commonsCodec
+      , jUnit % "test"
+      , jsonAssert % "test"
+      , xmlUnit % "test"      
       )
+      , unmanagedSourceDirectories in Test += (javaSource in Test).value
+      , EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource
     )
   ) dependsOn(core)
 
