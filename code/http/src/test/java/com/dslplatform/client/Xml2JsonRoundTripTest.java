@@ -107,7 +107,7 @@ public class Xml2JsonRoundTripTest {
     System.out.println(lhs);
     System.out.println(rhs);
 
-    JSONAssert.assertEquals(lhs, rhs, false);
+    JSONAssert.assertEquals(lhs, rhs, true);
   }
 
   private static void assertXmlEquivalence(String message, Document lhs, Document rhs) {
