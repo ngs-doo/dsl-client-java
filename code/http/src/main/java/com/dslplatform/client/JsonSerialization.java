@@ -3,6 +3,7 @@ package com.dslplatform.client;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -133,6 +134,9 @@ public class JsonSerialization {
     final int childLen = cn.getLength();
 
     final LinkedHashMap<String, LinkedList<Node>> childrenByName = new LinkedHashMap<String, LinkedList<Node>>();
+
+    System.out.println("Doctype:");
+    System.out.println(el.getOwnerDocument().getDoctype());
 
     /* Sort the nodes in the hash map by children names */
     for (int i = 0; i < childLen; i++) {
@@ -266,7 +270,7 @@ public class JsonSerialization {
         }
       }
     } else if (elementContent instanceof List) {
-      buildXmlFromList(doc, subtreeRootElement, (List) elementContent);
+      buildXmlFromJsonArray(doc, subtreeRootElement, (List) elementContent);
     } else {
       if (elementContent != null) {
         subtreeRootElement.setTextContent(elementContent.toString());
@@ -311,7 +315,7 @@ public class JsonSerialization {
    * @param elementContentList
    *          The actual list contents
    */
-  private static void buildXmlFromList(final Document doc, final Node listHeadNode,
+  private static void buildXmlFromJsonArray(final Document doc, final Node listHeadNode,
       final List<Object> elementContentList) {
 
     Node subtreeRootNode = listHeadNode.getParentNode();
@@ -337,12 +341,26 @@ public class JsonSerialization {
         return null;
       }
 
-      /* The root is expected to have a single element, otherwise we fail */
-      final Set<String> xmlRoot = hm.keySet();
-      if (xmlRoot.size() > 1) {
+      /*
+       * The root is expected to have either a single element, or a prolog +
+       * single element, otherwise we fail
+       */
+      final Set<String> xmlRootElementNames_set = hm.keySet();
+      final Iterator<String> rootIterator = xmlRootElementNames_set.iterator();
+
+      if (xmlRootElementNames_set.size() == 2) {
+
+        final String prologName = rootIterator.next();
+        // TODO: Handle prolog, for now we ignore it
+        if (!prologName.equals("?xml"))
+          throw new IOException("Invalid XML. Expecting prolog");
+
+      } else if (xmlRootElementNames_set.size() > 1) {
+        System.out.println(xmlRootElementNames_set);
         throw new IOException("Invalid XML. Expecting root element");
       }
-      final String rootName = xmlRoot.iterator().next();
+
+      final String rootName = rootIterator.next();
 
       final Document document;
       final Element rootElement;
