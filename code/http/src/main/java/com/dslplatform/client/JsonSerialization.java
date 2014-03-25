@@ -341,26 +341,14 @@ public class JsonSerialization {
         return null;
       }
 
-      /*
-       * The root is expected to have either a single element, or a prolog +
-       * single element, otherwise we fail
-       */
-      final Set<String> xmlRootElementNames_set = hm.keySet();
-      final Iterator<String> rootIterator = xmlRootElementNames_set.iterator();
+      /* The root is expected to be a single element */
+      final Set<String> xmlRootElementNames = hm.keySet();
 
-      if (xmlRootElementNames_set.size() == 2) {
-
-        final String prologName = rootIterator.next();
-        // TODO: Handle prolog, for now we ignore it
-        if (!prologName.equals("?xml"))
-          throw new IOException("Invalid XML. Expecting prolog");
-
-      } else if (xmlRootElementNames_set.size() > 1) {
-        System.out.println(xmlRootElementNames_set);
+      if (xmlRootElementNames.size() > 1) {
         throw new IOException("Invalid XML. Expecting root element");
       }
 
-      final String rootName = rootIterator.next();
+      final String rootName = xmlRootElementNames.iterator().next();
 
       final Document document;
       final Element rootElement;
