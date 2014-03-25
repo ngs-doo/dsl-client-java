@@ -1,5 +1,0 @@
-<root>
-<!--Though specified in the documentation-->
-<!--Comments are not implemented in Json.Net-->
-<!--Instead they are serialized as JavaScript comments-->
-</root>

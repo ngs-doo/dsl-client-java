@@ -1,7 +1,0 @@
-{
-"root":{
-	"#comment":"Though specified in the documentation,"
-	, "#comment":"Comments are not implemented in Json.Net"
-	, "#comment":"Instead they are serialized as JavaScript comments"
-}
-}
