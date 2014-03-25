@@ -55,7 +55,9 @@ public class Json2XmlRoundTripTest {
       TransformerFactoryConfigurationError {
 
     File jsonSourceFile = this.sourceFile;
-    System.out.println("Testiramo za datoteku: " + jsonSourceFile.getName());
+    System.out.println("-----------------------------------------------------");
+    System.out.println("| Testiramo za datoteku: " + jsonSourceFile.getName());
+    System.out.println("-----------------------------------------------------");
 
     /* Filename initialisation */
     final String sourceFilename_json = jsonSourceFile.getName();

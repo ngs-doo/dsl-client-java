@@ -62,8 +62,9 @@ public class Xml2JsonRoundTripTest {
 
     File xmlSourceFile = this.sourceFile;
 
-    System.out.println();
-    System.out.println("Testiramo za datoteku: " + xmlSourceFile.getName());
+    System.out.println("-----------------------------------------------------");
+    System.out.println("| Testiramo za datoteku: " + xmlSourceFile.getName());
+    System.out.println("-----------------------------------------------------");
     /* Filename initialisation */
     final String sourceFilename_xml = xmlSourceFile.getName();
     final String convertedFilename_json = sourceFilename_xml + ".json";
