@@ -30,9 +30,9 @@ public class HttpClientTransport implements HttpTransport {
             final Logger logger,
             final ProjectSettings project,
             final HttpAuthorization httpAuthorization) {
-        this.remoteUrl = project.get("api-url");
+        remoteUrl = project.get("api-url");
         this.logger = logger;
-        this.httpClient = new DefaultHttpClient();
+        httpClient = new DefaultHttpClient();
         this.httpAuthorization = httpAuthorization;
     }
 
@@ -42,9 +42,9 @@ public class HttpClientTransport implements HttpTransport {
             final List<Map.Entry<String, String>> headers,
             final String method,
             final byte[] payload) throws IOException {
-        final String url = this.remoteUrl + service;
-        if (this.logger.isDebugEnabled()) {
-            this.logger.debug("{} to URL: [{}]", method, url);
+        final String url = remoteUrl + service;
+        if (logger.isDebugEnabled()) {
+            logger.debug("{} to URL: [{}]", method, url);
         }
 
         final HttpRequestBase req;
@@ -52,8 +52,8 @@ public class HttpClientTransport implements HttpTransport {
             final HttpPost post = new HttpPost(url);
             if (payload != null) {
                 post.setEntity(new ByteArrayEntity(payload));
-                if (this.logger.isTraceEnabled()) {
-                    this.logger.trace("payload: [{}]",
+                if (logger.isTraceEnabled()) {
+                    logger.trace("payload: [{}]",
                             IOUtils.toString(post.getEntity().getContent()));
                 }
             }
@@ -62,8 +62,8 @@ public class HttpClientTransport implements HttpTransport {
             final HttpPut put = new HttpPut(url);
             if (payload != null) {
                 put.setEntity(new ByteArrayEntity(payload));
-                if (this.logger.isTraceEnabled()) {
-                    this.logger.trace("payload: [{}]",
+                if (logger.isTraceEnabled()) {
+                    logger.trace("payload: [{}]",
                             IOUtils.toString(put.getEntity().getContent()));
                 }
             }
@@ -77,7 +77,7 @@ public class HttpClientTransport implements HttpTransport {
         req.setHeader("Accept", MIME_TYPE);
         req.setHeader("Content-Type", MIME_TYPE);
 
-        for (final String authHeader : this.httpAuthorization
+        for (final String authHeader : httpAuthorization
                 .getAuthorizationHeaders()) {
             req.setHeader("Authorization", authHeader);
         }
@@ -86,34 +86,35 @@ public class HttpClientTransport implements HttpTransport {
             req.setHeader(h.getKey(), h.getValue());
         }
 
-        if (this.logger.isTraceEnabled()) {
+        if (logger.isTraceEnabled()) {
             for (final Header h : req.getAllHeaders()) {
-                this.logger.trace("header:{}:{}", h.getName(), h.getValue());
+                logger.trace("header:{}:{}", h.getName(), h.getValue());
             }
         }
 
         try {
-            final HttpResponse response = this.httpClient.execute(req);
+            final HttpResponse response = httpClient.execute(req);
 
             final int code = response.getStatusLine().getStatusCode();
             final byte[] body = EntityUtils.toByteArray(response.getEntity());
 
             return new HttpClient.Response(code, body);
         } catch (final IOException e) {
-            this.logger.error("{} to URL: [{}]", method, url);
+            logger.error("{} to URL: [{}]", method, url);
 
             for (final Header h : req.getAllHeaders()) {
-                this.logger.error("header:{}:{}", h.getName(), h.getValue());
+                logger.error("header:{}:{}", h.getName(), h.getValue());
             }
 
             if (req instanceof HttpEntityEnclosingRequest) {
-                final HttpEntityEnclosingRequest heer = (HttpEntityEnclosingRequest) req;
-                this.logger.error("payload:{}",
+                final HttpEntityEnclosingRequest heer =
+                        (HttpEntityEnclosingRequest) req;
+                logger.error("payload:{}",
                         EntityUtils.toString(heer.getEntity()));
             }
             throw e;
         } catch (final RuntimeException e) {
-            this.logger.error(
+            logger.error(
                     "A runtime exception has occured while executing request",
                     e);
             req.abort();

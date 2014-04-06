@@ -23,86 +23,97 @@ import org.xml.sax.SAXException;
 
 public class Helpers {
 
-  public static File getFileForResource(String resourcePath) throws URISyntaxException {
-    final URL resourceURL = Xml2JsonRoundTripTest.class.getResource(resourcePath);
+    public static File getFileForResource(final String resourcePath)
+            throws URISyntaxException {
+        final URL resourceURL =
+                Xml2JsonRoundTripTest.class.getResource(resourcePath);
 
-    if (resourceURL == null)
-      return null;
-    else
-      return new File(resourceURL.toURI());
+        if (resourceURL == null) return null;
+        else return new File(resourceURL.toURI());
 
-  }
-
-  public static Document parseXmlFile(final File file) throws SAXException, IOException, ParserConfigurationException {
-
-    final Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file);
-
-    doc.normalizeDocument();
-
-    return doc;
-  }
-
-  public static String stringFromFile(File file) throws IOException {
-    BufferedReader br = new BufferedReader(new FileReader(file));
-    try {
-      StringBuilder sb = new StringBuilder();
-      String line = br.readLine();
-
-      while (line != null) {
-        sb.append(line);
-        sb.append("\n");
-        line = br.readLine();
-      }
-      return sb.toString();
-    } finally {
-      br.close();
     }
-  }
 
-  public static void printDocumentTree(Node el) {
-    System.out.println(el.toString());
-    for (int i = 0; i < el.getChildNodes().getLength(); i++)
-      printDocumentTree(el.getChildNodes().item(i));
-  }
+    public static Document parseXmlFile(final File file) throws SAXException,
+            IOException, ParserConfigurationException {
 
-  public static void printXmlDocument(Document doc) {
-    System.out.println(xmlDocumentToString(doc));
-  }
+        final Document doc =
+                DocumentBuilderFactory.newInstance().newDocumentBuilder()
+                        .parse(file);
 
-  public static String xmlDocumentToString(Document doc) {
-    try {
-      DOMSource domSource = new DOMSource(doc);
-      StringWriter writer = new StringWriter();
-      StreamResult result = new StreamResult(writer);
-      TransformerFactory tf = TransformerFactory.newInstance();
-      Transformer transformer = tf.newTransformer();
-      transformer.transform(domSource, result);
-      return writer.toString();
-    } catch (TransformerException ex) {
-      ex.printStackTrace();
-      return null;
+        doc.normalizeDocument();
+
+        return doc;
     }
-  }
 
-  public static Document xmlDocumentFromJson(String jSon) throws IOException, ParserConfigurationException {
+    public static String stringFromFile(final File file) throws IOException {
+        final BufferedReader br = new BufferedReader(new FileReader(file));
+        try {
+            final StringBuilder sb = new StringBuilder();
+            String line = br.readLine();
 
-    System.out.println("Json:");
-    System.out.println(jSon);
+            while (line != null) {
+                sb.append(line);
+                sb.append("\n");
+                line = br.readLine();
+            }
+            return sb.toString();
+        } finally {
+            br.close();
+        }
+    }
 
+    public static void printDocumentTree(final Node el) {
+        System.out.println(el.toString());
+        for (int i = 0; i < el.getChildNodes().getLength(); i++) {
+            printDocumentTree(el.getChildNodes().item(i));
+        }
+    }
 
-    final Element xmlRootElement = new JsonSerialization(new com.dslplatform.client.MapServiceLocator())
-        .<Element> deserialize(JsonSerialization.buildType(org.w3c.dom.Element.class), jSon);
+    public static void printXmlDocument(final Document doc) {
+        System.out.println(xmlDocumentToString(doc));
+    }
 
-    final Document xmlDocument = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+    public static String xmlDocumentToString(final Document doc) {
+        try {
+            final DOMSource domSource = new DOMSource(doc);
+            final StringWriter writer = new StringWriter();
+            final StreamResult result = new StreamResult(writer);
+            final TransformerFactory tf = TransformerFactory.newInstance();
+            final Transformer transformer = tf.newTransformer();
+            transformer.transform(domSource, result);
+            return writer.toString();
+        } catch (final TransformerException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
 
-    Node rootNode = xmlDocument.importNode(xmlRootElement, true);
-    xmlDocument.appendChild(rootNode);
+    public static Document xmlDocumentFromJson(final String jSon)
+            throws IOException, ParserConfigurationException {
 
-    return xmlDocument;
-  }
+        System.out.println("Json:");
+        System.out.println(jSon);
 
-  public static String jsonStringFromXml(final Document source_xml) throws IOException {
-    return JsonSerialization.<org.w3c.dom.Element> serialize(source_xml.getDocumentElement());
-  }
+        final Element xmlRootElement =
+                new JsonSerialization(
+                        new com.dslplatform.client.MapServiceLocator())
+                        .<Element> deserialize(JsonSerialization
+                                .buildType(org.w3c.dom.Element.class), jSon);
+
+        final Document xmlDocument =
+                DocumentBuilderFactory.newInstance().newDocumentBuilder()
+                        .newDocument();
+
+        final Node rootNode = xmlDocument.importNode(xmlRootElement, true);
+        xmlDocument.appendChild(rootNode);
+
+        return xmlDocument;
+    }
+
+    public static String jsonStringFromXml(final Document source_xml)
+            throws IOException {
+        return JsonSerialization.<org.w3c.dom.Element> serialize(source_xml
+                .getDocumentElement());
+    }
 
 }

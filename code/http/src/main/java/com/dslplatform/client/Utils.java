@@ -18,7 +18,9 @@ class Utils {
             final Iterable<Map.Entry<String, Boolean>> order,
             final boolean isFirst) {
         if (order != null && order.iterator().hasNext()) {
-            sb.append(isFirst ? "?order=" : "&order=");
+            sb.append(isFirst
+                    ? "?order="
+                    : "&order=");
             for (final Map.Entry<String, Boolean> el : order) {
                 // null Boolean object will default to true
                 if (el.getValue() == Boolean.FALSE) {
@@ -42,11 +44,14 @@ class Utils {
         final boolean orderFirst = limitnull && offsetnull && isFirst;
 
         if (!limitnull) {
-            sB.append(isFirst ? "?limit=" : "&limit=").append(limit);
+            sB.append(isFirst
+                    ? "?limit="
+                    : "&limit=").append(limit);
         }
         if (!offsetnull) {
-            sB.append(limitnull && isFirst ? "?offset=" : "&offset=").append(
-                    offset);
+            sB.append(limitnull && isFirst
+                    ? "?offset="
+                    : "&offset=").append(offset);
         }
 
         appendOrder(sB, order, orderFirst);
@@ -62,18 +67,16 @@ class Utils {
         final StringBuilder query = new StringBuilder();
 
         if (order != null && order.iterator().hasNext()
-                && !contains(dimensions, order) && !contains(facts, order)) {
+                && !contains(dimensions, order) && !contains(facts, order))
             throw new IllegalArgumentException(
                     "Order must be an element of dimensions or facts!");
-        }
 
         appendUrlParam(query, "dimensions", dimensions);
         appendUrlParam(query, "facts", facts);
 
-        if (query.length() == 0) {
+        if (query.length() == 0)
             throw new IllegalArgumentException(
                     "At least one dimension or fact is required");
-        }
 
         appendUrlParam(query, "specification", specificationName);
         appendOrder(query, order, false);
@@ -88,18 +91,16 @@ class Utils {
         final StringBuilder query = new StringBuilder();
 
         if (order != null && order.iterator().hasNext()
-                && !contains(dimensions, order) && !contains(facts, order)) {
+                && !contains(dimensions, order) && !contains(facts, order))
             throw new IllegalArgumentException(
                     "Order must be an element of dimensions or facts!");
-        }
 
         appendUrlParam(query, "dimensions", dimensions);
         appendUrlParam(query, "facts", facts);
 
-        if (query.length() == 0) {
+        if (query.length() == 0)
             throw new IllegalArgumentException(
                     "At least one dimension or fact is required");
-        }
 
         appendOrder(query, order, false);
 
@@ -109,13 +110,9 @@ class Utils {
     private static Boolean contains(
             final Iterable<String> iterSource,
             final Iterable<Map.Entry<String, Boolean>> orders) {
-        if (iterSource == null) {
-            return false;
-        }
+        if (iterSource == null) return false;
         for (final Map.Entry<String, Boolean> ord : orders) {
-            if (!contains(iterSource, ord.getKey())) {
-                return false;
-            }
+            if (!contains(iterSource, ord.getKey())) return false;
         }
         return true;
     }
@@ -124,17 +121,14 @@ class Utils {
             final StringBuilder sB,
             final String param,
             final Iterable<String> args) {
-        if (args == null) {
-            return;
-        }
+        if (args == null) return;
 
         final Iterator<String> aI = args.iterator();
-        if (!aI.hasNext()) {
-            return;
-        }
+        if (!aI.hasNext()) return;
 
-        sB.append(sB.length() == 0 ? "?" : "&").append(param).append('=')
-                .append(aI.next());
+        sB.append(sB.length() == 0
+                ? "?"
+                : "&").append(param).append('=').append(aI.next());
         while (aI.hasNext()) {
             sB.append(',').append(aI.next());
         }
@@ -144,20 +138,17 @@ class Utils {
             final StringBuilder sB,
             final String param,
             final String arg) {
-        if (arg == null) {
-            return;
-        }
-        sB.append(sB.length() == 0 ? "?" : "&").append(param).append('=')
-                .append(arg);
+        if (arg == null) return;
+        sB.append(sB.length() == 0
+                ? "?"
+                : "&").append(param).append('=').append(arg);
     }
 
     private static Boolean contains(
             final Iterable<String> iterSource,
             final String orders) {
         for (final String src : iterSource) {
-            if (orders.equals(src)) {
-                return true;
-            }
+            if (orders.equals(src)) return true;
         }
         return false;
     }
