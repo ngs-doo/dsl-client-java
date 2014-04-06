@@ -1,10 +1,10 @@
 package com.dslplatform.client;
 
-import org.apache.commons.codec.binary.Base64;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+
+import org.apache.commons.codec.binary.Base64;
 
 public class CredentialsAuthorization implements HttpAuthorization {
     private final List<String> authorizationHeaders;
