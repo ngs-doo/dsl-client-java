@@ -38,6 +38,7 @@ trait Default {
     , unmanagedSourceDirectories in Test := Seq((javaSource in Test).value)
     , EclipseKeys.projectFlavor := EclipseProjectFlavor.Java
     , EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource
+    , EclipseKeys.eclipseOutput := Some(".target")
     )
 }
 

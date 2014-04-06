@@ -3,8 +3,7 @@ target
 .project
 .settings
 .history
-client/.history
+.target
 .cache
-test/Ngs-Java-Test/.cache
 *.orig
 *~
