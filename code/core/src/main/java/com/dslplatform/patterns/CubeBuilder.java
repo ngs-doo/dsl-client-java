@@ -1,5 +1,6 @@
 package com.dslplatform.patterns;
 
+import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,7 +13,6 @@ import com.dslplatform.client.StandardProxy;
 /** Utility class for building olap cube analysis.*/
 
 public class CubeBuilder<T extends Identifiable> {
-
     private final ServiceLocator locator;
     private final String cubeName;
     private Specification<T> specification;
@@ -20,9 +20,7 @@ public class CubeBuilder<T extends Identifiable> {
     private final List<String> facts;
     private final List<Map.Entry<String, Boolean>> order;
 
-    public CubeBuilder(
-            final String cubeName,
-            final ServiceLocator locator) {
+    public CubeBuilder(final String cubeName, final ServiceLocator locator) {
         this.cubeName = cubeName;
         this.locator = locator;
         dimensions = new LinkedList<String>();
@@ -55,15 +53,9 @@ public class CubeBuilder<T extends Identifiable> {
         return this;
     }
 
-    private CubeBuilder<T> orderBy(
-            final String property,
-            final boolean ascending) {
-        if (property == null || property.isEmpty()) {
-            throw new IllegalArgumentException("property can't be empty");
-        }
-        final Map.Entry<String, Boolean> pair = new AbstractMap.SimpleEntry<String, Boolean>(
-                property, Boolean.valueOf(ascending));
-        order.add(pair);
+    private CubeBuilder<T> orderBy(final String property, final boolean ascending) {
+        if (property == null || property.isEmpty()) throw new IllegalArgumentException("property can't be empty");
+        order.add(new AbstractMap.SimpleEntry<String, Boolean>(property, Boolean.valueOf(ascending)));
         return this;
     }
 
@@ -96,13 +88,12 @@ public class CubeBuilder<T extends Identifiable> {
      *
      * @return  future value of the resulting sequence
      */
-    public <TResult> java.util.List<TResult> analyze(final Class<TResult> clazz)
-            throws java.io.IOException {
+    public <TResult> java.util.List<TResult> analyze(final Class<TResult> clazz) throws IOException {
         final StandardProxy proxy = locator.resolve(StandardProxy.class);
         try {
-            return specification == null ? proxy.olapCube(clazz, cubeName,
-                    dimensions, facts, order).get() : proxy.olapCube(clazz,
-                    cubeName, specification, dimensions, facts, order).get();
+            return specification == null
+                    ? proxy.olapCube(clazz, cubeName, dimensions, facts, order).get()
+                    : proxy.olapCube(clazz, cubeName, specification, dimensions, facts, order).get();
         } catch (final InterruptedException e) {
             throw new java.io.IOException(e);
         } catch (final java.util.concurrent.ExecutionException e) {

@@ -8,7 +8,6 @@ import org.joda.time.DateTime;
  * @param <T> type of aggregate root
  */
 public class Snapshot<T extends AggregateRoot> implements Identifiable {
-
     private final String URI;
     private final DateTime At;
     private final String Action;

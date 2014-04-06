@@ -14,7 +14,6 @@ import java.util.concurrent.Future;
  * @param <T> domain object type.
  */
 public class SearchBuilder<T extends Searchable> {
-
     private final SearchableRepository<T> repository;
     private Specification<T> specification;
     private Integer limit;
@@ -27,8 +26,7 @@ public class SearchBuilder<T extends Searchable> {
      *
      * @param repository domain object repository
      */
-    public SearchBuilder(
-            final SearchableRepository<T> repository) {
+    public SearchBuilder(final SearchableRepository<T> repository) {
         this.repository = repository;
         order = new ArrayList<Map.Entry<String, Boolean>>();
     }
@@ -97,14 +95,9 @@ public class SearchBuilder<T extends Searchable> {
         return this;
     }
 
-    private SearchBuilder<T> orderBy(
-            final String property,
-            final boolean ascending) {
-        if (property == null || property.isEmpty()) {
-            throw new IllegalArgumentException("property can't be empty");
-        }
-        order.add(new AbstractMap.SimpleEntry<String, Boolean>(
-                property, ascending));
+    private SearchBuilder<T> orderBy(final String property, final boolean ascending) {
+        if (property == null || property.isEmpty()) throw new IllegalArgumentException("property can't be empty");
+        order.add(new AbstractMap.SimpleEntry<String, Boolean>(property, ascending));
         return this;
     }
 

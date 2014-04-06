@@ -14,14 +14,14 @@ package com.dslplatform.patterns;
  * <blockquote><pre>
  * module Todo {
  *   aggregate Task {
- *     timestamp startedAt;
- *     timestamp? finishedAt;
- *     int? priority;
+ *     Timestamp startedAt;
+ *     Timestamp? finishedAt;
+ *     Int? priority;
  *     List&lt;Note&gt; notes;
  *   }
  *   value Note {
- *     date entered;
- *     string remark;
+ *     Date entered;
+ *     String remark;
  *   }
  * }
  * </pre></blockquote>

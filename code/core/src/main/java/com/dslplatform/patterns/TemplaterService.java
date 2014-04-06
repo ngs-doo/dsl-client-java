@@ -13,7 +13,6 @@ import java.util.concurrent.Future;
  * More info about Templater library can be found at http://templater.info/
  */
 public interface TemplaterService {
-
     /**
      * Returns a document generated from template named {@code file}
      * populated with {@code aggregate}.
@@ -22,9 +21,7 @@ public interface TemplaterService {
      * @param aggregate data to populate with
      * @return          document content future
      */
-    public <T extends Identifiable> Future<byte[]> populate(
-            final String file,
-            final T aggregate);
+    public <T extends Identifiable> Future<byte[]> populate(final String file, final T aggregate);
 
     /**
      * Returns a document generated from template named {@code file}
@@ -34,9 +31,7 @@ public interface TemplaterService {
      * @param aggregate data to populate with
      * @return          document content future
      */
-    public <T extends Identifiable> Future<byte[]> populatePdf(
-            final String file,
-            final T aggregate);
+    public <T extends Identifiable> Future<byte[]> populatePdf(final String file, final T aggregate);
 
     /**
      * Returns a document generated from template named {@code file}
@@ -46,9 +41,7 @@ public interface TemplaterService {
      * @param manifest data to populate with
      * @return         document content future
      */
-    public <T extends Searchable> Future<byte[]> populate(
-            final Class<T> manifest,
-            final String file);
+    public <T extends Searchable> Future<byte[]> populate(final Class<T> manifest, final String file);
 
     /**
      * Returns a document generated from template named {@code file}
@@ -58,9 +51,7 @@ public interface TemplaterService {
      * @param manifest data to populate with
      * @return         document content future
      */
-    public <T extends Searchable> Future<byte[]> populatePdf(
-            final Class<T> manifest,
-            final String file);
+    public <T extends Searchable> Future<byte[]> populatePdf(final Class<T> manifest, final String file);
 
     /**
      * Returns a document generated from template named {@code file}
@@ -70,9 +61,7 @@ public interface TemplaterService {
      * @param specification search predicate
      * @return              document content future
      */
-    public <T extends Searchable> Future<byte[]> populate(
-            final String file,
-            final Specification<T> specification);
+    public <T extends Searchable> Future<byte[]> populate(final String file, final Specification<T> specification);
 
     /**
      * Returns a document generated from template named {@code file}
@@ -83,7 +72,5 @@ public interface TemplaterService {
      * @param specification search predicate
      * @return              document content future
      */
-    public <T extends Searchable> Future<byte[]> populatePdf(
-            final String file,
-            final Specification<T> specification);
+    public <T extends Searchable> Future<byte[]> populatePdf(final String file, final Specification<T> specification);
 }

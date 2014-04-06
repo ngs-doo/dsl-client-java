@@ -1,7 +1,6 @@
 package com.dslplatform.client;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 
 import akka.serialization.JSerializer;
 
@@ -11,8 +10,7 @@ public class AkkaSerialization extends JSerializer {
     private final JsonSerialization jsonDeserialization;
 
     public AkkaSerialization() {
-        jsonDeserialization = Bootstrap.getLocator().resolve(
-                JsonSerialization.class);
+        jsonDeserialization = Bootstrap.getLocator().resolve(JsonSerialization.class);
     }
 
     @Override
@@ -38,7 +36,7 @@ public class AkkaSerialization extends JSerializer {
     @Override
     public Object fromBinaryJava(final byte[] bytes, final Class<?> notUsed) {
         try {
-            final String body = new String(bytes, Charset.forName("UTF-8"));
+            final String body = new String(bytes, "UTF-8");
             final int split = body.indexOf(':');
             final Class<?> clazz = Class.forName(body.substring(0, split));
             final JavaType type = JsonSerialization.buildType(clazz);

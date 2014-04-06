@@ -10,9 +10,7 @@ import java.util.concurrent.Future;
  *
  * @param <T> Identifiable domain object type
  */
-public interface Repository<T extends Identifiable> extends
-        SearchableRepository<T> {
-
+public interface Repository<T extends Identifiable> extends SearchableRepository<T> {
     /**
      * Returns a list of domain objects uniquely represented with their URIs.
      * Only found objects will be returned (list will be empty if no objects are found).

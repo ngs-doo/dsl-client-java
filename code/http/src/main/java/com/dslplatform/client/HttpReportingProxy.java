@@ -19,8 +19,7 @@ class HttpReportingProxy implements ReportingProxy {
 
     private final HttpClient client;
 
-    public HttpReportingProxy(
-            final HttpClient client) {
+    public HttpReportingProxy(final HttpClient client) {
         this.client = client;
     }
 
@@ -28,20 +27,23 @@ class HttpReportingProxy implements ReportingProxy {
     public <TReport> Future<TReport> populate(final TReport report) {
         final Class<?> manifest = report.getClass();
         final String domainName = client.getDslName(manifest);
-        return client.sendRequest(JsonSerialization.buildType(manifest),
-                REPORTING_URI + "report/" + domainName, "PUT", report,
+        return client.sendRequest(
+                JsonSerialization.buildType(manifest),
+                REPORTING_URI + "report/" + domainName,
+                "PUT",
+                report,
                 new int[] { 200 });
     }
 
     @Override
-    public <TReport> Future<byte[]> createReport(
-            final TReport report,
-            final String templater) {
+    public <TReport> Future<byte[]> createReport(final TReport report, final String templater) {
         final String domainName = client.getDslName(report.getClass());
         return client.sendRequest(
-                JsonSerialization.buildType(byte[].class), REPORTING_URI
-                        + "report/" + domainName + "/" + templater, "PUT",
-                report, new int[] { 201 });
+                JsonSerialization.buildType(byte[].class),
+                REPORTING_URI + "report/" + domainName + "/" + templater,
+                "PUT",
+                report,
+                new int[] { 201 });
     }
 
     @Override
@@ -52,19 +54,17 @@ class HttpReportingProxy implements ReportingProxy {
             final Iterable<String> dimensions,
             final Iterable<String> facts,
             final Iterable<Map.Entry<String, Boolean>> order) {
-        if (specification == null) {
-            return olapCube(cubeName, templater, dimensions, facts, order);
-        }
+        if (specification == null) return olapCube(cubeName, templater, dimensions, facts, order);
         final String args = Utils.buildOlapArguments(dimensions, facts, order);
         final Class<?> specClass = specification.getClass();
-        final String parentName = client.getDslName(specClass
-                .getDeclaringClass());
+        final String parentName = client.getDslName(specClass.getDeclaringClass());
         final String specName = parentName == cubeName ? parentName + "/" : "";
         return client.sendRequest(
                 JsonSerialization.buildType(byte[].class),
-                REPORTING_URI + "olap/" + cubeName + '/' + specName
-                        + specClass.getSimpleName() + '/' + templater + args,
-                "PUT", specification, new int[] { 200 });
+                REPORTING_URI + "olap/" + cubeName + '/' + specName + specClass.getSimpleName() + '/' + templater + args,
+                "PUT",
+                specification,
+                new int[] { 200 });
     }
 
     @Override
@@ -76,18 +76,27 @@ class HttpReportingProxy implements ReportingProxy {
             final Iterable<Map.Entry<String, Boolean>> order) {
         final String args = Utils.buildOlapArguments(dimensions, facts, order);
         return client.sendRequest(
-                JsonSerialization.buildType(byte[].class), REPORTING_URI
-                        + "olap/" + cubeName + '/' + templater + args, "GET",
-                null, new int[] { 200 });
+                JsonSerialization.buildType(byte[].class),
+                REPORTING_URI + "olap/" + cubeName + '/' + templater + args,
+                "GET",
+                null,
+                new int[] { 200 });
     }
 
     private static class HistoryArg {
         @SuppressWarnings("unused")
+        public final String Name;
+        @SuppressWarnings("unused")
         public final ArrayList<String> Uri;
 
-        public HistoryArg(
-                final String name,
-                final Iterable<String> uris) {
+        @SuppressWarnings("unused")
+        private HistoryArg() {
+            Name = null;
+            Uri = null;
+        }
+
+        public HistoryArg(final String name, final Iterable<String> uris) {
+            Name = name;
             Uri = Utils.toArrayList(uris);
         }
     }
@@ -98,11 +107,14 @@ class HttpReportingProxy implements ReportingProxy {
             final Iterable<String> uris) {
         final String domainName = client.getDslName(manifest);
 
-        return client.sendRequest(JsonSerialization.buildCollectionType(
-                ArrayList.class,
-                JsonSerialization.buildGenericType(History.class, manifest)),
-                APPLICATION_URI + "GetRootHistory", "POST", new HistoryArg(
-                        domainName, uris), new int[] { 200 });
+        return client.sendRequest(
+                JsonSerialization.buildCollectionType(
+                        ArrayList.class,
+                        JsonSerialization.buildGenericType(History.class, manifest)),
+                APPLICATION_URI + "GetRootHistory",
+                "POST",
+                new HistoryArg(domainName, uris),
+                new int[] { 200 });
     }
 
     @Override
@@ -111,23 +123,22 @@ class HttpReportingProxy implements ReportingProxy {
             final String file,
             final String uri,
             final boolean toPdf) {
-        if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("file not specified");
-        }
-        if (uri.isEmpty()) {
-            throw new IllegalArgumentException("uri not specified");
-        }
+        if (file == null || file.isEmpty()) throw new IllegalArgumentException("file not specified");
+        if (uri.isEmpty()) throw new IllegalArgumentException("uri not specified");
         final String domainName = client.getDslName(manifest);
 
-        final List<Map.Entry<String, String>> headers = Arrays
-                .asList((Map.Entry<String, String>) new AbstractMap.SimpleEntry<String, String>(
-                        "Accept", toPdf
-                                ? "application/pdf"
-                                : "application/octet-stream"));
+        @SuppressWarnings("unchecked")
+        final List<Map.Entry<String, String>> headers =
+                Arrays.asList((Map.Entry<String, String>) new AbstractMap.SimpleEntry<String, String>(
+                        "Accept",
+                        toPdf ? "application/pdf" : "application/octet-stream"));
 
-        return client.sendRawRequest(REPORTING_URI + "templater/" + file
-                + "/" + domainName + "?uri=" + HttpClient.encode(uri), "GET",
-                null, headers, new int[] { 200 });
+        return client.sendRawRequest(
+                REPORTING_URI + "templater/" + file + "/" + domainName + "?uri=" + HttpClient.encode(uri),
+                "GET",
+                null,
+                headers,
+                new int[] { 200 });
     }
 
     @Override
@@ -136,32 +147,34 @@ class HttpReportingProxy implements ReportingProxy {
             final String file,
             final Specification<TSearchable> specification,
             final boolean toPdf) {
-        if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("file not specified");
-        }
-        if (specification == null && manifest == null) {
-            throw new IllegalArgumentException(
-                    "specification or manifest must be provided");
-        }
+        if (file == null || file.isEmpty()) throw new IllegalArgumentException("file not specified");
+        if (specification == null && manifest == null)
+            throw new IllegalArgumentException("specification or manifest must be provided");
 
-        final List<Map.Entry<String, String>> headers = Arrays
-                .asList((Map.Entry<String, String>) new AbstractMap.SimpleEntry<String, String>(
-                        "Accept", toPdf
-                                ? "application/pdf"
-                                : "application/octet-stream"));
+        @SuppressWarnings("unchecked")
+        final List<Map.Entry<String, String>> headers =
+                Arrays.asList((Map.Entry<String, String>) new AbstractMap.SimpleEntry<String, String>(
+                        "Accept",
+                        toPdf ? "application/pdf" : "application/octet-stream"));
 
         // Branching if null!
         if (specification == null) {
             final String domainName = client.getDslName(manifest);
-            return client.sendRawRequest(REPORTING_URI + "templater/"
-                    + file + "/" + domainName, "GET", null, headers,
+            return client.sendRawRequest(
+                    REPORTING_URI + "templater/" + file + "/" + domainName,
+                    "GET",
+                    null,
+                    headers,
                     new int[] { 200 });
         }
         final Class<?> specClass = specification.getClass();
         final Class<?> parentClass = specClass.getDeclaringClass();
         final String domainName = client.getDslName(parentClass);
-        return client.sendRawRequest(REPORTING_URI + "templater/" + file
-                + "/" + domainName + "/" + specClass.getSimpleName(), "PUT",
-                specification, headers, new int[] { 200 });
+        return client.sendRawRequest(
+                REPORTING_URI + "templater/" + file + "/" + domainName + "/" + specClass.getSimpleName(),
+                "PUT",
+                specification,
+                headers,
+                new int[] { 200 });
     }
 }

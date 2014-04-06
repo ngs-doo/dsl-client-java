@@ -1,6 +1,6 @@
 package com.dslplatform.client;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertSame;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,21 +16,14 @@ public class MapServiceLocatorTest {
     @Test
     public void withDefaultLoggerAndEC() throws Exception {
         final Map<Class<?>, Object> initialComponents = new HashMap<Class<?>, Object>();
-        initialComponents.put(ExecutorService.class,
-                Executors.newSingleThreadExecutor());
-        final String testLoggerName = "testLogger";
-        initialComponents.put(Logger.class,
-                LoggerFactory.getLogger(testLoggerName));
-        final MapServiceLocator mapServiceLocator = new MapServiceLocator(
-                initialComponents);
-        final ExecutorService executorService = mapServiceLocator
-                .resolve(ExecutorService.class);
-        final Logger logger = mapServiceLocator.resolve(Logger.class);
+        final ExecutorService executorService = Executors.newSingleThreadExecutor();
+        initialComponents.put(ExecutorService.class, executorService);
+        final Logger logger = LoggerFactory.getLogger("test-logger");
+        initialComponents.put(Logger.class, logger);
 
-        System.out.println(logger.getName());
-        assertTrue("Executor matches",
-                executorService instanceof ExecutorService);
-        assertTrue("Logger matches", logger.getName().equals(testLoggerName));
+        final MapServiceLocator mapServiceLocator = new MapServiceLocator(initialComponents);
+        assertSame("Executor matches", executorService, mapServiceLocator.resolve(ExecutorService.class));
+        assertSame("Logger matches", logger, mapServiceLocator.resolve(Logger.class));
     }
 
 }

@@ -14,9 +14,7 @@ import java.util.concurrent.Future;
  *
  * @param <T> type of {@link AggregateRoot aggregate root}
  */
-public interface PersistableRepository<T extends AggregateRoot> extends
-        Repository<T> {
-
+public interface PersistableRepository<T extends AggregateRoot> extends Repository<T> {
     /**
      * Apply local changes to the remote server.
      *

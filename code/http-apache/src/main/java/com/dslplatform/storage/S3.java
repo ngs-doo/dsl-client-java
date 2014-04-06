@@ -61,8 +61,7 @@ public class S3 implements java.io.Serializable {
      *
      * @param repository custom S3 repository
      */
-    public S3(
-            final S3Repository repository) {
+    public S3(final S3Repository repository) {
         instanceRepository = repository;
     }
 
@@ -72,8 +71,7 @@ public class S3 implements java.io.Serializable {
      *
      * @param stream Input stream which will be sent to the remote server
      */
-    public S3(
-            final InputStream stream) throws IOException {
+    public S3(final InputStream stream) throws IOException {
         instanceRepository = null;
         upload(IOUtils.toByteArray(stream));
     }
@@ -85,9 +83,7 @@ public class S3 implements java.io.Serializable {
      * @param stream Input stream which will be sent to the remote server
      * @param length size of the stream
      */
-    public S3(
-            final InputStream stream,
-            final long length) throws IOException {
+    public S3(final InputStream stream, final long length) throws IOException {
         instanceRepository = null;
         upload(stream, length);
     }
@@ -98,17 +94,14 @@ public class S3 implements java.io.Serializable {
      *
      * @param bytes Byte array which will be sent to the remote server
      */
-    public S3(
-            final byte[] bytes) throws IOException {
+    public S3(final byte[] bytes) throws IOException {
         instanceRepository = null;
         upload(bytes);
     }
 
     private final S3Repository instanceRepository;
-    private final static S3Repository staticRepository = Bootstrap.getLocator()
-            .resolve(S3Repository.class);
-    private final static String bucketName = Bootstrap.getLocator()
-            .resolve(ProjectSettings.class).get("s3-bucket");
+    private final static S3Repository staticRepository = Bootstrap.getLocator().resolve(S3Repository.class);
+    private final static String bucketName = Bootstrap.getLocator().resolve(ProjectSettings.class).get("s3-bucket");
 
     private S3Repository getRepository() {
         return instanceRepository != null
@@ -239,9 +232,7 @@ public class S3 implements java.io.Serializable {
      * @throws IOException in case of communication failure
      */
     public InputStream getStream() throws IOException {
-        if (key == null || key.isEmpty()) {
-            return null;
-        }
+        if (key == null || key.isEmpty()) return null;
         try {
             return getRepository().get(bucket, key).get();
         } catch (final InterruptedException e) {
@@ -259,9 +250,7 @@ public class S3 implements java.io.Serializable {
      * @throws IOException in case of communication failure
      */
     public byte[] getBytes() throws IOException {
-        if (key == null || key.isEmpty()) {
-            return null;
-        }
+        if (key == null || key.isEmpty()) return null;
         final InputStream stream;
         try {
             stream = getRepository().get(bucket, key).get();
@@ -296,8 +285,7 @@ public class S3 implements java.io.Serializable {
      * @return             key under which data was saved
      * @throws IOException in case of communication error
      */
-    public String upload(final InputStream stream, final long length)
-            throws IOException {
+    public String upload(final InputStream stream, final long length) throws IOException {
         return upload(bucket != null && bucket.length() > 0
                 ? bucket
                 : bucketName, stream, length);
@@ -315,19 +303,12 @@ public class S3 implements java.io.Serializable {
      * @return             key under which data was saved
      * @throws IOException in case of communication error
      */
-    public String upload(
-            final String bucket,
-            final InputStream stream,
-            final long length) throws IOException {
-        if (stream == null) {
-            throw new IllegalArgumentException("Stream can't be null.");
-        }
+    public String upload(final String bucket, final InputStream stream, final long length) throws IOException {
+        if (stream == null) throw new IllegalArgumentException("Stream can't be null.");
         if (key == null || key.isEmpty()) {
             this.bucket = bucket;
             key = UUID.randomUUID().toString();
-        } else if (this.bucket != bucket) {
-            throw new IllegalArgumentException("Can't change bucket name");
-        }
+        } else if (this.bucket != bucket) throw new IllegalArgumentException("Can't change bucket name");
         try {
             getRepository().upload(bucket, key, stream, length, metadata).get();
         } catch (final InterruptedException e) {
@@ -366,21 +347,15 @@ public class S3 implements java.io.Serializable {
      * @return             key under which data was saved
      * @throws IOException in case of communication error
      */
-    public String upload(final String bucket, final byte[] bytes)
-            throws IOException {
-        if (bytes == null) {
-            throw new IllegalArgumentException("Stream can't be null.");
-        }
+    public String upload(final String bucket, final byte[] bytes) throws IOException {
+        if (bytes == null) throw new IllegalArgumentException("Stream can't be null.");
         if (key == null || key.isEmpty()) {
             this.bucket = bucket;
             key = UUID.randomUUID().toString();
-        } else if (this.bucket != bucket) {
-            throw new IllegalArgumentException("Can't change bucket name");
-        }
+        } else if (this.bucket != bucket) throw new IllegalArgumentException("Can't change bucket name");
         final ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
         try {
-            getRepository().upload(bucket, key, stream, bytes.length, metadata)
-                    .get();
+            getRepository().upload(bucket, key, stream, bytes.length, metadata).get();
         } catch (final InterruptedException e) {
             System.out.println(e.getMessage());
             throw new IOException(e);
@@ -399,9 +374,7 @@ public class S3 implements java.io.Serializable {
      * @throws IOException in case of communication error
      */
     public void delete() throws IOException {
-        if (key == null || key.isEmpty()) {
-            throw new IllegalArgumentException("S3 object is empty.");
-        }
+        if (key == null || key.isEmpty()) throw new IllegalArgumentException("S3 object is empty.");
         cachedContent = null;
         try {
             getRepository().delete(bucket, key).get();

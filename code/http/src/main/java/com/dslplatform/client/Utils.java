@@ -45,8 +45,7 @@ class Utils {
             sB.append(isFirst ? "?limit=" : "&limit=").append(limit);
         }
         if (!offsetnull) {
-            sB.append(limitnull && isFirst ? "?offset=" : "&offset=").append(
-                    offset);
+            sB.append(limitnull && isFirst ? "?offset=" : "&offset=").append(offset);
         }
 
         appendOrder(sB, order, orderFirst);
@@ -61,19 +60,13 @@ class Utils {
 
         final StringBuilder query = new StringBuilder();
 
-        if (order != null && order.iterator().hasNext()
-                && !contains(dimensions, order) && !contains(facts, order)) {
-            throw new IllegalArgumentException(
-                    "Order must be an element of dimensions or facts!");
-        }
+        if (order != null && order.iterator().hasNext() && !contains(dimensions, order) && !contains(facts, order))
+            throw new IllegalArgumentException("Order must be an element of dimensions or facts!");
 
         appendUrlParam(query, "dimensions", dimensions);
         appendUrlParam(query, "facts", facts);
 
-        if (query.length() == 0) {
-            throw new IllegalArgumentException(
-                    "At least one dimension or fact is required");
-        }
+        if (query.length() == 0) throw new IllegalArgumentException("At least one dimension or fact is required");
 
         appendUrlParam(query, "specification", specificationName);
         appendOrder(query, order, false);
@@ -87,77 +80,47 @@ class Utils {
             final Iterable<Map.Entry<String, Boolean>> order) {
         final StringBuilder query = new StringBuilder();
 
-        if (order != null && order.iterator().hasNext()
-                && !contains(dimensions, order) && !contains(facts, order)) {
-            throw new IllegalArgumentException(
-                    "Order must be an element of dimensions or facts!");
-        }
+        if (order != null && order.iterator().hasNext() && !contains(dimensions, order) && !contains(facts, order))
+            throw new IllegalArgumentException("Order must be an element of dimensions or facts!");
 
         appendUrlParam(query, "dimensions", dimensions);
         appendUrlParam(query, "facts", facts);
 
-        if (query.length() == 0) {
-            throw new IllegalArgumentException(
-                    "At least one dimension or fact is required");
-        }
+        if (query.length() == 0) throw new IllegalArgumentException("At least one dimension or fact is required");
 
         appendOrder(query, order, false);
 
         return query.toString();
     }
 
-    private static Boolean contains(
-            final Iterable<String> iterSource,
-            final Iterable<Map.Entry<String, Boolean>> orders) {
-        if (iterSource == null) {
-            return false;
-        }
+    private static Boolean contains(final Iterable<String> iterSource, final Iterable<Map.Entry<String, Boolean>> orders) {
+        if (iterSource == null) return false;
         for (final Map.Entry<String, Boolean> ord : orders) {
-            if (!contains(iterSource, ord.getKey())) {
-                return false;
-            }
+            if (!contains(iterSource, ord.getKey())) return false;
         }
         return true;
     }
 
-    private static void appendUrlParam(
-            final StringBuilder sB,
-            final String param,
-            final Iterable<String> args) {
-        if (args == null) {
-            return;
-        }
+    private static void appendUrlParam(final StringBuilder sB, final String param, final Iterable<String> args) {
+        if (args == null) return;
 
         final Iterator<String> aI = args.iterator();
-        if (!aI.hasNext()) {
-            return;
-        }
+        if (!aI.hasNext()) return;
 
-        sB.append(sB.length() == 0 ? "?" : "&").append(param).append('=')
-                .append(aI.next());
+        sB.append(sB.length() == 0 ? "?" : "&").append(param).append('=').append(aI.next());
         while (aI.hasNext()) {
             sB.append(',').append(aI.next());
         }
     }
 
-    private static void appendUrlParam(
-            final StringBuilder sB,
-            final String param,
-            final String arg) {
-        if (arg == null) {
-            return;
-        }
-        sB.append(sB.length() == 0 ? "?" : "&").append(param).append('=')
-                .append(arg);
+    private static void appendUrlParam(final StringBuilder sB, final String param, final String arg) {
+        if (arg == null) return;
+        sB.append(sB.length() == 0 ? "?" : "&").append(param).append('=').append(arg);
     }
 
-    private static Boolean contains(
-            final Iterable<String> iterSource,
-            final String orders) {
+    private static Boolean contains(final Iterable<String> iterSource, final String orders) {
         for (final String src : iterSource) {
-            if (orders.equals(src)) {
-                return true;
-            }
+            if (orders.equals(src)) return true;
         }
         return false;
     }

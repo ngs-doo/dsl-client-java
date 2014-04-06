@@ -11,7 +11,7 @@ package com.dslplatform.patterns;
  * module Legacy {
  *   sql Town 'SELECT id, name FROM town' {
  *     int id;
- *     string name;
+ *     String name;
  *   }
  * }
  * </pre></blockquote>
