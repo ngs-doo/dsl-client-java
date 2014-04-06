@@ -7,38 +7,38 @@ import com.typesafe.sbteclipse.plugin.EclipsePlugin._
 // Dependency graph plugin
 import net.virtualvoid.sbt.graph.Plugin._
 
-// Assembly plugin
-import sbtassembly.Plugin._
-
 // ----------------------------------------------------------------------------
 
 trait Default {
   val defaultSettings =
     Defaults.defaultSettings ++
     eclipseSettings ++
-    assemblySettings ++
     graphSettings ++ Seq(
       version := "0.4.14-SNAPSHOT"
     , organization := "com.dslplatform"
 
+    , scalaVersion := "2.10.4"
     , crossPaths := false
     , autoScalaLibrary := false
-    , scalaVersion := "2.10.3"
 
-    , javaHome := sys.env.get("JDK16_HOME").map(file(_))
+    , javacOptions in doc := Seq(
+        "-encoding", "UTF-8"
+      , "-source", "1.6"
+      ) ++ (sys.env.get("JDK16_HOME") match {
+        case Some(jdk16Home) => Seq("-bootclasspath", jdk16Home + "/jre/lib/rt.jar")
+        case _ => Nil
+      })
     , javacOptions := Seq(
         "-deprecation"
-      , "-encoding", "UTF-8"
-      , "-Xlint:unchecked"
-      , "-source", "1.6"
+      , "-Xlint"
       , "-target", "1.6"
-      )
-    , javacOptions in doc := Seq(
-        "-source", "1.6"
-      )
+      ) ++ (javacOptions in doc).value
+
     , unmanagedSourceDirectories in Compile := Seq((javaSource in Compile).value)
-    , unmanagedSourceDirectories in Test := Nil
+    , unmanagedSourceDirectories in Test := Seq((javaSource in Test).value)
     , EclipseKeys.projectFlavor := EclipseProjectFlavor.Java
+    , EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource
+    , EclipseKeys.eclipseOutput := Some(".target")
     )
 }
 
@@ -49,29 +49,31 @@ trait Dependencies {
   val jodaTime = "joda-time" % "joda-time" % "2.3"
 
   // Json serialization
-  val jackson = "com.fasterxml.jackson.core" % "jackson-databind" % "2.3.1"
+  val jackson = "com.fasterxml.jackson.core" % "jackson-databind" % "2.3.2"
 
   // Logging facade
-  val slf4j = "org.slf4j" % "slf4j-api" % "1.7.5"
+  val slf4j = "org.slf4j" % "slf4j-api" % "1.7.7"
 
   // Apache HttpClient
-  val httpClient = "org.apache.httpcomponents" % "httpclient" % "4.3.2"
+  val httpClient = "org.apache.httpcomponents" % "httpclient" % "4.3.3"
 
   // Apache commons
   val commonsIo = "commons-io" % "commons-io" % "2.4"
   val commonsCodec = "commons-codec" % "commons-codec" % "1.9"
 
   // Amazon Web Services SDK (S3 type)
-  val aws = "com.amazonaws" % "aws-java-sdk" % "1.7.1"
+  val aws = "com.amazonaws" % "aws-java-sdk" % "1.7.5" % "provided"
 
   // Akka Actor (contains the Serializer)
-  val akkaActor = "com.typesafe.akka" %% "akka-actor" % "2.2.3"
+  val akkaActor = "com.typesafe.akka" %% "akka-actor" % "2.3.1" % "provided"
 
   // Android SDK
-  val androidSDK = "com.google.android" % "android" % "4.1.1.4"
+  val androidSDK = "com.google.android" % "android" % "4.1.1.4" % "provided"
 
   // Testing
-  val jUnit = "junit" % "junit" % "4.11"
+  val jUnit = "junit" % "junit" % "4.11" % "test"
+  val jsonAssert = "org.skyscreamer" % "jsonassert" % "1.2.3" % "test"
+  val xmlUnit = "xmlunit" % "xmlunit" % "1.4" % "test"
 }
 
 // ----------------------------------------------------------------------------
@@ -97,6 +99,9 @@ object NGSBuild extends Build with Default with Dependencies {
       , jackson
       , commonsIo
       , commonsCodec
+      , jUnit
+      , jsonAssert
+      , xmlUnit
       )
     )
   ) dependsOn(core)
@@ -108,11 +113,9 @@ object NGSBuild extends Build with Default with Dependencies {
       name := "DSL-Client-HTTP-Apache"
     , libraryDependencies ++= Seq(
         httpClient
-      , aws % "provided"
-      , jUnit % "test"
+      , aws
+      , jUnit
       )
-    , unmanagedSourceDirectories in Test += (javaSource in Test).value
-    , EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource
     )
   ) dependsOn(http)
 
@@ -121,7 +124,7 @@ object NGSBuild extends Build with Default with Dependencies {
   , file("akka")
   , settings = defaultSettings ++ Seq(
       name := "DSL-Client-Akka"
-    , libraryDependencies += akkaActor % "provided"
+    , libraryDependencies += akkaActor
     )
   ) dependsOn(httpApache)
 
@@ -130,27 +133,16 @@ object NGSBuild extends Build with Default with Dependencies {
   , file("http-android")
   , settings = defaultSettings ++ Seq(
       name := "DSL-Client-HTTP-Android"
-    , libraryDependencies += androidSDK % "provided"
+    , libraryDependencies += androidSDK
     )
   ) dependsOn(http)
-
-  import AssemblyKeys._
 
   lazy val root = Project(
     "root"
   , file(".")
   , settings = defaultSettings ++ Seq(
       name := "DSL-Client"
-    , mainClass in assembly := Some("com.dslplatform.client.Bootstrap")
-    , jarName in assembly := "dsl-client-%s.jar" format version.value
-    , excludedJars in assembly := (fullClasspath in assembly).value.filter(_.data.getName endsWith ".jar")
     , EclipseKeys.skipProject := true
-/*
-    , assembleArtifact in packageScala := false
-    , artifact in (Compile, assembly) ~= (_.copy(`classifier` = Some("assembly")))
-    , test in assembly := {}
-    ) ++ addArtifact(artifact in (Compile, assembly), assembly)
-*/
     )
   ) dependsOn(http)
 }
