@@ -14,7 +14,7 @@ trait Default {
     Defaults.defaultSettings ++
     eclipseSettings ++
     graphSettings ++ Seq(
-      version := "0.4.14-SNAPSHOT"
+      version := "0.4.15-SNAPSHOT"
     , organization := "com.dslplatform"
 
     , scalaVersion := "2.10.4"
@@ -25,7 +25,10 @@ trait Default {
         "-encoding", "UTF-8"
       , "-source", "1.6"
       ) ++ (sys.env.get("JDK16_HOME") match {
-        case Some(jdk16Home) => Seq("-bootclasspath", jdk16Home + "/jre/lib/rt.jar")
+        case Some(jdk16Home) => Seq("-bootclasspath", 
+            Seq("rt", "jsse")
+             .map(jdk16Home + "/jre/lib/" + _ + ".jar")
+             .mkString(";"))
         case _ => Nil
       })
     , javacOptions := Seq(

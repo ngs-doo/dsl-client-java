@@ -1,5 +1,8 @@
 package com.dslplatform.client;
 
+import java.awt.Point;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -30,6 +33,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -48,21 +52,22 @@ public class JsonSerialization {
     private static final JsonSerializer<LocalDate> dateSerializer = new JsonSerializer<LocalDate>() {
         @Override
         public void serialize(final LocalDate value, final JsonGenerator generator, final SerializerProvider x)
-                throws IOException {
+                throws IOException, JsonProcessingException {
             generator.writeString(value.toString());
         }
     };
 
     private static final JsonDeserializer<LocalDate> dateDeserializer = new JsonDeserializer<LocalDate>() {
         @Override
-        public LocalDate deserialize(final JsonParser parser, final DeserializationContext context) throws IOException {
+        public LocalDate deserialize(final JsonParser parser, final DeserializationContext context) throws IOException,
+                JsonProcessingException {
             return new DateTime(parser.getValueAsString()).toLocalDate();
         }
     };
 
     // -----------------------------------------------------------------------------
 
-    private static final JsonSerializer<DateTime> TimestampSerializer = new JsonSerializer<DateTime>() {
+    private static final JsonSerializer<DateTime> timestampSerializer = new JsonSerializer<DateTime>() {
         @Override
         public void serialize(final DateTime value, final JsonGenerator gen, final SerializerProvider sP)
                 throws IOException, JsonProcessingException {
@@ -70,11 +75,81 @@ public class JsonSerialization {
         }
     };
 
-    private static final JsonDeserializer<DateTime> TimestampDeserializer = new JsonDeserializer<DateTime>() {
+    private static final JsonDeserializer<DateTime> timestampDeserializer = new JsonDeserializer<DateTime>() {
         @Override
         public DateTime deserialize(final JsonParser parser, final DeserializationContext context) throws IOException,
                 JsonProcessingException {
             return new DateTime(parser.getValueAsString());
+        }
+    };
+
+    // -----------------------------------------------------------------------------
+
+    private static final JsonSerializer<Point> pointSerializer = new JsonSerializer<Point>() {
+        @Override
+        public void serialize(final Point value, final JsonGenerator gen, final SerializerProvider sP)
+                throws IOException, JsonProcessingException {
+            gen.writeStartObject();
+            gen.writeNumberField("x", value.x);
+            gen.writeNumberField("y", value.y);
+            gen.writeEndObject();
+        }
+    };
+
+    private static final JsonDeserializer<Point> pointDeserializer = new JsonDeserializer<Point>() {
+        @Override
+        public Point deserialize(final JsonParser parser, final DeserializationContext context) throws IOException,
+                JsonProcessingException {
+            final JsonNode tree = parser.getCodec().readTree(parser);
+            return new Point(tree.get("x").asInt(), tree.get("y").asInt());
+        }
+    };
+
+    // -----------------------------------------------------------------------------
+
+    private static final JsonSerializer<Point2D> locationSerializer = new JsonSerializer<Point2D>() {
+        @Override
+        public void serialize(final Point2D value, final JsonGenerator gen, final SerializerProvider sP)
+                throws IOException, JsonProcessingException {
+            gen.writeStartObject();
+            gen.writeNumberField("x", value.getX());
+            gen.writeNumberField("y", value.getY());
+            gen.writeEndObject();
+        }
+    };
+
+    private static final JsonDeserializer<Point2D> locationDeserializer = new JsonDeserializer<Point2D>() {
+        @Override
+        public Point2D deserialize(final JsonParser parser, final DeserializationContext context) throws IOException,
+                JsonProcessingException {
+            final JsonNode tree = parser.getCodec().readTree(parser);
+            return new Point2D.Double(tree.get("x").asDouble(), tree.get("y").asDouble());
+        }
+    };
+
+    // -----------------------------------------------------------------------------
+
+    private static final JsonSerializer<Rectangle2D> rectangleSerializer = new JsonSerializer<Rectangle2D>() {
+        @Override
+        public void serialize(final Rectangle2D value, final JsonGenerator gen, final SerializerProvider sP)
+                throws IOException, JsonProcessingException {
+            gen.writeStartObject();
+            gen.writeNumberField("x", value.getX());
+            gen.writeNumberField("y", value.getY());
+            gen.writeNumberField("width", value.getWidth());
+            gen.writeNumberField("height", value.getHeight());
+            gen.writeEndObject();
+        }
+    };
+
+    private static final JsonDeserializer<Rectangle2D> rectangleDeserializer = new JsonDeserializer<Rectangle2D>() {
+        @Override
+        public Rectangle2D deserialize(final JsonParser parser, final DeserializationContext context)
+                throws IOException, JsonProcessingException {
+            final JsonNode tree = parser.getCodec().readTree(parser);
+            return new Rectangle2D.Double(tree.get("x").asDouble(), tree.get("y").asDouble(), tree
+                    .get("width")
+                    .asDouble(), tree.get("height").asDouble());
         }
     };
 
@@ -94,20 +169,12 @@ public class JsonSerialization {
             /* If the node is null, write nothing */
             if (value == null) return;
 
-            final NodeList children = value.getChildNodes();
-            /* If the node has no children, only write the node name:value */
-            if (children.getLength() == 0) {
-                gen.writeStringField(value.getNodeName(), value.getTextContent());
-            }
-            /*
-             * Otherwise write recursively build the JSON hashmap, and write it to the
-             * generator
-             */
-            else {
-                final HashMap<String, Object> hm = new HashMap<String, Object>();
-                hm.put(value.getNodeName(), buildFromXml(value));
-                gen.writeObject(hm);
-            }
+            value.getChildNodes();
+            final HashMap<String, Object> hm = new HashMap<String, Object>();
+
+            hm.put(value.getNodeName(), buildFromXml(value));
+
+            gen.writeObject(hm);
         }
     };
 
@@ -131,9 +198,6 @@ public class JsonSerialization {
         final int childLen = cn.getLength();
 
         final LinkedHashMap<String, LinkedList<Node>> childrenByName = new LinkedHashMap<String, LinkedList<Node>>();
-
-        System.out.println("Doctype:");
-        System.out.println(el.getOwnerDocument().getDoctype());
 
         /* Sort the nodes in the hash map by children names */
         for (int i = 0; i < childLen; i++) {
@@ -378,7 +442,10 @@ public class JsonSerialization {
     private static final SimpleModule serializationModule =
             new SimpleModule("SerializationModule", new Version(0, 0, 0, "SNAPSHOT", "com.dslplatform", "dsl-client"))
             .addSerializer(LocalDate.class, dateSerializer)
-            .addSerializer(DateTime.class, TimestampSerializer)
+            .addSerializer(DateTime.class, timestampSerializer)
+            .addSerializer(Point.class, pointSerializer)
+            .addSerializer(Point2D.class, locationSerializer)
+            .addSerializer(Rectangle2D.class, rectangleSerializer)
             .addSerializer(Element.class, xmlSerializer);
 
     private static final ObjectMapper serializationMapper = new ObjectMapper()
@@ -427,7 +494,10 @@ public class JsonSerialization {
     private static final SimpleModule deserializationModule =
             new SimpleModule("DeserializationModule", new Version(0, 0, 0, "SNAPSHOT", "com.dslplatform", "dsl-client"))
             .addDeserializer(LocalDate.class, dateDeserializer)
-            .addDeserializer(DateTime.class, TimestampDeserializer)
+            .addDeserializer(DateTime.class, timestampDeserializer)
+            .addDeserializer(Point.class, pointDeserializer)
+            .addDeserializer(Point2D.class, locationDeserializer)
+            .addDeserializer(Rectangle2D.class, rectangleDeserializer)
             .addDeserializer(Element.class, xmlDeserializer);
 
     private static ObjectMapper makeDeserializationObjectMapper(final ServiceLocator locator) {
