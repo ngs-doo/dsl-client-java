@@ -10,7 +10,7 @@ package com.dslplatform.patterns;
  * <blockquote><pre>
  * module Legacy {
  *   sql Town 'SELECT id, name FROM town' {
- *     Int id;
+ *     int id;
  *     String name;
  *   }
  * }

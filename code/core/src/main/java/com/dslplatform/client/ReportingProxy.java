@@ -26,7 +26,7 @@ import com.dslplatform.patterns.Specification;
  *   }
  *
  *   report LoadData {
- *     Int maxUnfinished;
+ *     int maxUnfinished;
  *     List&lt;Task&gt; unfinishedTasks 'it => it.finishedAt == null' LIMIT maxUnfinished ORDER BY createdAt;
  *     List&lt;Task&gt; recentlyFinishedTasks 'it => it.finishedAt != null' LIMIT 10 ORDER BY finishedAt DESC;
  *   }

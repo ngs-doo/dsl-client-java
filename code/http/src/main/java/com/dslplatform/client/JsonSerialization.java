@@ -147,9 +147,11 @@ public class JsonSerialization {
         public Rectangle2D deserialize(final JsonParser parser, final DeserializationContext context)
                 throws IOException, JsonProcessingException {
             final JsonNode tree = parser.getCodec().readTree(parser);
-            return new Rectangle2D.Double(tree.get("x").asDouble(), tree.get("y").asDouble(), tree
-                    .get("width")
-                    .asDouble(), tree.get("height").asDouble());
+            return new Rectangle2D.Double(
+                    tree.get("x").asDouble(),
+                    tree.get("y").asDouble(),
+                    tree.get("width").asDouble(),
+                    tree.get("height").asDouble());
         }
     };
 
@@ -159,7 +161,6 @@ public class JsonSerialization {
         @Override
         public void serialize(final Element value, final JsonGenerator gen, final SerializerProvider sP)
                 throws IOException, JsonProcessingException {
-
             /*
              * The Xml needs to be cleaned from whitespace text nodes, otherwise the
              * converted document won't match Json.Net's conversion

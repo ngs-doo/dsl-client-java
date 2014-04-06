@@ -153,9 +153,9 @@ class HttpReportingProxy implements ReportingProxy {
 
         @SuppressWarnings("unchecked")
         final List<Map.Entry<String, String>> headers =
-                Arrays.asList((Map.Entry<String, String>) new AbstractMap.SimpleEntry<String, String>("Accept", toPdf
-                        ? "application/pdf"
-                        : "application/octet-stream"));
+                Arrays.asList((Map.Entry<String, String>) new AbstractMap.SimpleEntry<String, String>(
+                        "Accept",
+                        toPdf ? "application/pdf" : "application/octet-stream"));
 
         // Branching if null!
         if (specification == null) {
