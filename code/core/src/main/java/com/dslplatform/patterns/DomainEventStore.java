@@ -8,7 +8,6 @@ import java.util.concurrent.Future;
  * It should be used when Future is a preferred way of interacting with the remote server.
  */
 public interface DomainEventStore {
-
     /**
      * Send domain event to the server. Server will return identity under which it was stored.
      * Events can't be modified once they are submitted. Only new events can be created.

@@ -19,7 +19,6 @@ import java.util.concurrent.Future;
  * @param <T> domain object type.
  */
 public interface SearchableRepository<T extends Searchable> {
-
     /**
      * Returns a list of domain objects satisfying {@link Specification specification}
      * with up to <code>limit</code> results.

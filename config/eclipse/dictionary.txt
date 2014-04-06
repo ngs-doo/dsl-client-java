@@ -3,12 +3,16 @@ deserialization
 deserialize
 deserialized
 int
+json
 metadata
+mime
+offload
 olap
 payload
 pdf
 persistable
 proxy
+roundtrip
 searchable
 snowflake
 sourcing
@@ -19,3 +23,4 @@ todo
 unapplied
 uri
 uris
+xml

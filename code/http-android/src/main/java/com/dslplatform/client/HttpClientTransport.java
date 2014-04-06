@@ -53,8 +53,7 @@ public class HttpClientTransport implements HttpTransport {
             if (payload != null) {
                 post.setEntity(new ByteArrayEntity(payload));
                 if (logger.isTraceEnabled()) {
-                    logger.trace("payload: [{}]",
-                            IOUtils.toString(post.getEntity().getContent()));
+                    logger.trace("payload: [{}]", IOUtils.toString(post.getEntity().getContent()));
                 }
             }
             req = post;
@@ -63,8 +62,7 @@ public class HttpClientTransport implements HttpTransport {
             if (payload != null) {
                 put.setEntity(new ByteArrayEntity(payload));
                 if (logger.isTraceEnabled()) {
-                    logger.trace("payload: [{}]",
-                            IOUtils.toString(put.getEntity().getContent()));
+                    logger.trace("payload: [{}]", IOUtils.toString(put.getEntity().getContent()));
                 }
             }
             req = put;
@@ -77,8 +75,7 @@ public class HttpClientTransport implements HttpTransport {
         req.setHeader("Accept", MIME_TYPE);
         req.setHeader("Content-Type", MIME_TYPE);
 
-        for (final String authHeader : httpAuthorization
-                .getAuthorizationHeaders()) {
+        for (final String authHeader : httpAuthorization.getAuthorizationHeaders()) {
             req.setHeader("Authorization", authHeader);
         }
 
@@ -107,16 +104,12 @@ public class HttpClientTransport implements HttpTransport {
             }
 
             if (req instanceof HttpEntityEnclosingRequest) {
-                final HttpEntityEnclosingRequest heer =
-                        (HttpEntityEnclosingRequest) req;
-                logger.error("payload:{}",
-                        EntityUtils.toString(heer.getEntity()));
+                final HttpEntityEnclosingRequest heer = (HttpEntityEnclosingRequest) req;
+                logger.error("payload:{}", EntityUtils.toString(heer.getEntity()));
             }
             throw e;
         } catch (final RuntimeException e) {
-            logger.error(
-                    "A runtime exception has occured while executing request",
-                    e);
+            logger.error("A runtime exception has occured while executing request", e);
             req.abort();
             throw e;
         }

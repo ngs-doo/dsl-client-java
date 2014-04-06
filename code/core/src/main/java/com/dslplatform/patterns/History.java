@@ -11,7 +11,7 @@ import java.util.List;
  * <blockquote><pre>
  * module Blog {
  *   aggregate Post {
- *     string content;
+ *     String content;
  *     history;
  *   }
  * }

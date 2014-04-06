@@ -32,8 +32,7 @@ public class Bootstrap {
      */
     public static ServiceLocator getLocator() {
         if (staticLocator == null)
-            throw new RuntimeException(
-                    "Bootstrap has not been initialized, call Bootstrap.init");
+            throw new RuntimeException("Bootstrap has not been initialized, call Bootstrap.init");
 
         return staticLocator;
     }
@@ -62,18 +61,15 @@ public class Bootstrap {
      * @return             initialized service locator
      * @throws IOException in case of failure to read stream
      */
-    public static ServiceLocator init(final InputStream iniStream)
-            throws IOException {
-        if (iniStream == null)
-            throw new IOException("Provided input stream was null.");
+    public static ServiceLocator init(final InputStream iniStream) throws IOException {
+        if (iniStream == null) throw new IOException("Provided input stream was null.");
         return init(iniStream, new MapServiceLocator());
     }
 
     private static ServiceLocator init(
             final InputStream iniStream,
             final MapServiceLocator locator) throws IOException {
-        final JsonSerialization jsonDeserialization =
-                new JsonSerialization(locator);
+        final JsonSerialization jsonDeserialization = new JsonSerialization(locator);
         final Logger logger;
         if (locator.contains(Logger.class)) {
             logger = locator.resolve(Logger.class);
@@ -100,28 +96,23 @@ public class Bootstrap {
         if (locator.contains(HttpTransport.class)) {
             httpTransport = locator.resolve(HttpTransport.class);
         } else {
-            httpTransport =
-                    new HttpClientTransport(logger, project, httpAuthorization);
+            httpTransport = new HttpClientTransport(logger, project, httpAuthorization);
             locator.register(HttpTransport.class, httpTransport);
         }
         final HttpClient httpClient =
-                new HttpClient(project, locator, jsonDeserialization, logger,
-                        executorService, httpTransport);
+                new HttpClient(project, locator, jsonDeserialization, logger, executorService, httpTransport);
         final DomainProxy domainProxy = new HttpDomainProxy(httpClient);
 
-        locator.register(JsonSerialization.class, jsonDeserialization)
+        locator
+                .register(JsonSerialization.class, jsonDeserialization)
                 .register(ProjectSettings.class, project)
                 .register(HttpClient.class, httpClient)
-                .register(ApplicationProxy.class,
-                        new HttpApplicationProxy(httpClient))
+                .register(ApplicationProxy.class, new HttpApplicationProxy(httpClient))
                 .register(CrudProxy.class, HttpCrudProxy.class)
                 .register(DomainProxy.class, domainProxy)
-                .register(StandardProxy.class,
-                        new HttpStandardProxy(httpClient, executorService))
-                .register(ReportingProxy.class,
-                        new HttpReportingProxy(httpClient))
-                .register(DomainEventStore.class,
-                        new ClientDomainEventStore(domainProxy));
+                .register(StandardProxy.class, new HttpStandardProxy(httpClient, executorService))
+                .register(ReportingProxy.class, new HttpReportingProxy(httpClient))
+                .register(DomainEventStore.class, new ClientDomainEventStore(domainProxy));
 //                .register(S3Repository.class, new AmazonS3Repository(project))
 
         return staticLocator = locator;
@@ -150,8 +141,7 @@ public class Bootstrap {
     private static final String getVersionInfo(final String section) {
         if (versionInfo.isEmpty()) {
             try {
-                versionInfo.load(Bootstrap.class
-                        .getResourceAsStream("dsl-client.ini"));
+                versionInfo.load(Bootstrap.class.getResourceAsStream("dsl-client.ini"));
             } catch (final Throwable t) {
                 t.printStackTrace();
             }
@@ -188,21 +178,17 @@ public class Bootstrap {
      */
     public static void main(final String[] args) {
         final String versionString =
-                String.format("dsl-client-%s.jar (released on: %s)",
-                        getVersion(), getReleaseDate());
+                String.format("dsl-client-%s.jar (released on: %s)", getVersion(), getReleaseDate());
 
         System.out.println();
         System.out.println(versionString);
         System.out.println(versionString.replaceAll(".", "-"));
         System.out.println();
 
-        System.out
-                .println("This is the Java version of the DSL Platform client");
-        System.out
-                .println("and is not indended to be run as a standalone application.");
+        System.out.println("This is the Java (Android) version of the DSL Platform client library");
+        System.out.println("and is not indended to be run as a standalone application.");
         System.out.println();
-        System.out
-                .println("For more information, visit https://dsl-platform.com/");
+        System.out.println("For more information, visit https://dsl-platform.com/");
         System.out.println();
     }
 }

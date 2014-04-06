@@ -14,11 +14,11 @@ package com.dslplatform.patterns;
  * <blockquote><pre>
  * module Todo {
  *   aggregate Task {
- *       timestamp createdOn;
+ *       Timestamp createdOn;
  *       specification findBetween
  *           'it => it.createdOn >= after && it.createdOn <= before'  {
- *         date after;
- *         date before;
+ *         Date after;
+ *         Date before;
  *       }
  * }
  * </pre></blockquote>

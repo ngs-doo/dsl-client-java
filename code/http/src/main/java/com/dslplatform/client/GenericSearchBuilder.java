@@ -45,7 +45,7 @@ public class GenericSearchBuilder<T extends Searchable> {
     private Integer limit;
     private Integer offset;
     private final ArrayList<Map.Entry<String, Boolean>> order =
-            new ArrayList<Map.Entry<String, Boolean>>();
+            new ArrayList<Map.Entry<String, Boolean>>(0);
 
     static class GenericSearchFilter {
         public static final int EQUALS = 0;
@@ -75,9 +75,7 @@ public class GenericSearchBuilder<T extends Searchable> {
      * @param manifest domain object type
      * @param locator  service locator with registered services
      */
-    public GenericSearchBuilder(
-            final Class<T> manifest,
-            final ServiceLocator locator) {
+    public GenericSearchBuilder(final Class<T> manifest, final ServiceLocator locator) {
         this.manifest = manifest;
         httpClient = locator.resolve(HttpClient.class);
         domainName = httpClient.getDslName(manifest);
@@ -134,22 +132,19 @@ public class GenericSearchBuilder<T extends Searchable> {
      * @return future to list of found domain object
      */
     public Future<List<T>> search() {
-        final String url =
-                Utils.appendLimitOffsetOrder(domainName, limit, offset, order,
-                        false);
+        final String url = Utils.appendLimitOffsetOrder(domainName, limit, offset, order, false);
 
-        return httpClient.sendRequest(JsonSerialization.buildCollectionType(
-                ArrayList.class, manifest), "Domain.svc/search-generic/" + url,
-                "PUT", filters, new int[] { 200 });
+        return httpClient.sendRequest(
+                JsonSerialization.buildCollectionType(ArrayList.class, manifest),
+                "Domain.svc/search-generic/" + url,
+                "PUT",
+                filters,
+                new int[] { 200 });
     }
 
-    private GenericSearchBuilder<T> orderBy(
-            final String property,
-            final Boolean direction) {
-        if (property == null || property.isEmpty())
-            throw new IllegalArgumentException("property can't be null");
-        order.add(new AbstractMap.SimpleEntry<String, Boolean>(property,
-                direction));
+    private GenericSearchBuilder<T> orderBy(final String property, final Boolean direction) {
+        if (property == null || property.isEmpty()) throw new IllegalArgumentException("property can't be null");
+        order.add(new AbstractMap.SimpleEntry<String, Boolean>(property, direction));
         return this;
     }
 
@@ -173,15 +168,9 @@ public class GenericSearchBuilder<T extends Searchable> {
         return orderBy(property, false);
     }
 
-    private GenericSearchBuilder<T> filter(
-            final String property,
-            final int id,
-            final Object value) throws IOException {
-        if (property == null || property.isEmpty())
-            throw new IllegalArgumentException("property can't be null");
-        final String json = value != null
-                ? JsonSerialization.serialize(value)
-                : null;
+    private GenericSearchBuilder<T> filter(final String property, final int id, final Object value) throws IOException {
+        if (property == null || property.isEmpty()) throw new IllegalArgumentException("property can't be null");
+        final String json = value != null ? JsonSerialization.serialize(value) : null;
         final List<FilterPair> pairs;
         if (!filters.containsKey(property)) {
             pairs = new ArrayList<FilterPair>();
@@ -201,9 +190,7 @@ public class GenericSearchBuilder<T extends Searchable> {
      * @param value    check equality with provided value
      * @return         itself
      */
-    public GenericSearchBuilder<T> equal(
-            final String property,
-            final Object value) throws IOException {
+    public GenericSearchBuilder<T> equal(final String property, final Object value) throws IOException {
         return filter(property, GenericSearchFilter.EQUALS, value);
     }
 
@@ -215,9 +202,7 @@ public class GenericSearchBuilder<T extends Searchable> {
      * @param value    check equality with provided value
      * @return         itself
      */
-    public GenericSearchBuilder<T> nonEqual(
-            final String property,
-            final Object value) throws IOException {
+    public GenericSearchBuilder<T> nonEqual(final String property, final Object value) throws IOException {
         return filter(property, GenericSearchFilter.NOT_EQUALS, value);
     }
 
@@ -229,9 +214,7 @@ public class GenericSearchBuilder<T extends Searchable> {
      * @param value    check ordering with provided value
      * @return         itself
      */
-    public GenericSearchBuilder<T> lessThen(
-            final String property,
-            final Object value) throws IOException {
+    public GenericSearchBuilder<T> lessThen(final String property, final Object value) throws IOException {
         return filter(property, GenericSearchFilter.LESS_THEN, value);
     }
 
@@ -243,9 +226,7 @@ public class GenericSearchBuilder<T extends Searchable> {
      * @param value    check ordering and equality with provided value
      * @return         itself
      */
-    public GenericSearchBuilder<T> lessThenOrEqual(
-            final String property,
-            final Object value) throws IOException {
+    public GenericSearchBuilder<T> lessThenOrEqual(final String property, final Object value) throws IOException {
         return filter(property, GenericSearchFilter.LESS_THEN_OR_EQUAL, value);
     }
 
@@ -257,9 +238,7 @@ public class GenericSearchBuilder<T extends Searchable> {
      * @param value    check ordering with provided value
      * @return         itself
      */
-    public GenericSearchBuilder<T> greaterThen(
-            final String property,
-            final Object value) throws IOException {
+    public GenericSearchBuilder<T> greaterThen(final String property, final Object value) throws IOException {
         return filter(property, GenericSearchFilter.GREATER_THEN, value);
     }
 
@@ -271,11 +250,8 @@ public class GenericSearchBuilder<T extends Searchable> {
      * @param value    check ordering and equality with provided value
      * @return         itself
      */
-    public GenericSearchBuilder<T> greaterThenOrEqual(
-            final String property,
-            final Object value) throws IOException {
-        return filter(property, GenericSearchFilter.GREATER_THEN_OR_EQUAL,
-                value);
+    public GenericSearchBuilder<T> greaterThenOrEqual(final String property, final Object value) throws IOException {
+        return filter(property, GenericSearchFilter.GREATER_THEN_OR_EQUAL, value);
     }
 
     /**
@@ -286,8 +262,7 @@ public class GenericSearchBuilder<T extends Searchable> {
      * @param value    check collection for provided value
      * @return         itself
      */
-    public GenericSearchBuilder<T> in(final String property, final Object value)
-            throws IOException {
+    public GenericSearchBuilder<T> in(final String property, final Object value) throws IOException {
         return filter(property, GenericSearchFilter.VALUE_IN, value);
     }
 
@@ -299,9 +274,7 @@ public class GenericSearchBuilder<T extends Searchable> {
      * @param value    check collection for provided value
      * @return         itself
      */
-    public GenericSearchBuilder<T> notIn(
-            final String property,
-            final Object value) throws IOException {
+    public GenericSearchBuilder<T> notIn(final String property, final Object value) throws IOException {
         return filter(property, GenericSearchFilter.NOT_VALUE_IN, value);
     }
 
@@ -313,9 +286,7 @@ public class GenericSearchBuilder<T extends Searchable> {
      * @param value    check if property is in provided collection value
      * @return         itself
      */
-    public GenericSearchBuilder<T> inValue(
-            final String property,
-            final Object value) throws IOException {
+    public GenericSearchBuilder<T> inValue(final String property, final Object value) throws IOException {
         return filter(property, GenericSearchFilter.IN_VALUE, value);
     }
 
@@ -327,9 +298,7 @@ public class GenericSearchBuilder<T extends Searchable> {
      * @param value    check if property is not in provided collection value
      * @return         itself
      */
-    public GenericSearchBuilder<T> notInValue(
-            final String property,
-            final Object value) throws IOException {
+    public GenericSearchBuilder<T> notInValue(final String property, final Object value) throws IOException {
         return filter(property, GenericSearchFilter.NOT_IN_VALUE, value);
     }
 
@@ -342,9 +311,7 @@ public class GenericSearchBuilder<T extends Searchable> {
      * @param value    comparison value
      * @return         itself
      */
-    public GenericSearchBuilder<T> startsWith(
-            final String property,
-            final String value) throws IOException {
+    public GenericSearchBuilder<T> startsWith(final String property, final String value) throws IOException {
         return filter(property, GenericSearchFilter.STARTS_WITH_VALUE, value);
     }
 
@@ -357,14 +324,10 @@ public class GenericSearchBuilder<T extends Searchable> {
      * @param ignoreCase should string comparison ignore casing
      * @return           itself
      */
-    public GenericSearchBuilder<T> startsWith(
-            final String property,
-            final String value,
-            final boolean ignoreCase) throws IOException {
-        if (ignoreCase) return filter(property,
-                GenericSearchFilter.STARTS_WITH_CASE_INSENSITIVE_VALUE, value);
-        else return filter(property, GenericSearchFilter.STARTS_WITH_VALUE,
-                value);
+    public GenericSearchBuilder<T> startsWith(final String property, final String value, final boolean ignoreCase) throws IOException {
+        return ignoreCase
+                ? filter(property, GenericSearchFilter.STARTS_WITH_CASE_INSENSITIVE_VALUE, value)
+                : filter(property, GenericSearchFilter.STARTS_WITH_VALUE, value);
     }
 
     /**
@@ -376,11 +339,8 @@ public class GenericSearchBuilder<T extends Searchable> {
      * @param value    comparison value
      * @return         itself
      */
-    public GenericSearchBuilder<T> doesntStartsWith(
-            final String property,
-            final String value) throws IOException {
-        return filter(property, GenericSearchFilter.NOT_STARTS_WITH_VALUE,
-                value);
+    public GenericSearchBuilder<T> doesntStartsWith(final String property, final String value) throws IOException {
+        return filter(property, GenericSearchFilter.NOT_STARTS_WITH_VALUE, value);
     }
 
     /**
@@ -392,15 +352,10 @@ public class GenericSearchBuilder<T extends Searchable> {
      * @param ignoreCase should string comparison ignore casing
      * @return           itself
      */
-    public GenericSearchBuilder<T> doesntStartsWith(
-            final String property,
-            final String value,
-            final boolean ignoreCase) throws IOException {
-        if (ignoreCase) return filter(property,
-                GenericSearchFilter.NOT_STARTS_WITH_CASE_INSENSITIVE_VALUE,
-                value);
-        else return filter(property, GenericSearchFilter.NOT_STARTS_WITH_VALUE,
-                value);
+    public GenericSearchBuilder<T> doesntStartsWith(final String property, final String value, final boolean ignoreCase) throws IOException {
+        return ignoreCase
+                ? filter(property, GenericSearchFilter.NOT_STARTS_WITH_CASE_INSENSITIVE_VALUE, value)
+                : filter(property, GenericSearchFilter.NOT_STARTS_WITH_VALUE, value);
     }
 
     /**
@@ -412,9 +367,7 @@ public class GenericSearchBuilder<T extends Searchable> {
      * @param value    comparison value
      * @return         itself
      */
-    public GenericSearchBuilder<T> valueStartsWith(
-            final String property,
-            final String value) throws IOException {
+    public GenericSearchBuilder<T> valueStartsWith(final String property, final String value) throws IOException {
         return filter(property, GenericSearchFilter.VALUE_STARTS_WITH, value);
     }
 
@@ -427,14 +380,10 @@ public class GenericSearchBuilder<T extends Searchable> {
      * @param ignoreCase should string comparison ignore casing
      * @return           itself
      */
-    public GenericSearchBuilder<T> valueStartsWith(
-            final String property,
-            final String value,
-            final boolean ignoreCase) throws IOException {
-        if (ignoreCase) return filter(property,
-                GenericSearchFilter.VALUE_STARTS_WITH_CASE_INSENSITIVE, value);
-        else return filter(property, GenericSearchFilter.VALUE_STARTS_WITH,
-                value);
+    public GenericSearchBuilder<T> valueStartsWith(final String property, final String value, final boolean ignoreCase) throws IOException {
+        return ignoreCase
+                ? filter(property, GenericSearchFilter.VALUE_STARTS_WITH_CASE_INSENSITIVE, value)
+                : filter(property, GenericSearchFilter.VALUE_STARTS_WITH, value);
     }
 
     /**
@@ -446,11 +395,8 @@ public class GenericSearchBuilder<T extends Searchable> {
      * @param value    comparison value
      * @return         itself
      */
-    public GenericSearchBuilder<T> valueDoesntStartsWith(
-            final String property,
-            final String value) throws IOException {
-        return filter(property, GenericSearchFilter.NOT_VALUE_STARTS_WITH,
-                value);
+    public GenericSearchBuilder<T> valueDoesntStartsWith(final String property, final String value) throws IOException {
+        return filter(property, GenericSearchFilter.NOT_VALUE_STARTS_WITH, value);
     }
 
     /**
@@ -466,10 +412,8 @@ public class GenericSearchBuilder<T extends Searchable> {
             final String property,
             final String value,
             final boolean ignoreCase) throws IOException {
-        if (ignoreCase) return filter(property,
-                GenericSearchFilter.NOT_VALUE_STARTS_WITH_CASE_INSENSITIVE,
-                value);
-        else return filter(property, GenericSearchFilter.NOT_VALUE_STARTS_WITH,
-                value);
+        return ignoreCase
+                ? filter(property, GenericSearchFilter.NOT_VALUE_STARTS_WITH_CASE_INSENSITIVE, value)
+                : filter(property, GenericSearchFilter.NOT_VALUE_STARTS_WITH, value);
     }
 }

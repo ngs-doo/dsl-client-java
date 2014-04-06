@@ -71,9 +71,10 @@ trait Dependencies {
   val androidSDK = "com.google.android" % "android" % "4.1.1.4" % "provided"
 
   // Testing
-  val jUnit = "junit" % "junit" % "4.11" % "test"
+  val junit = "junit" % "junit" % "4.11" % "test"
   val jsonAssert = "org.skyscreamer" % "jsonassert" % "1.2.3" % "test"
   val xmlUnit = "xmlunit" % "xmlunit" % "1.4" % "test"
+  val logback = "ch.qos.logback" % "logback-classic" % "1.1.1" % "test"
 }
 
 // ----------------------------------------------------------------------------
@@ -99,9 +100,10 @@ object NGSBuild extends Build with Default with Dependencies {
       , jackson
       , commonsIo
       , commonsCodec
-      , jUnit
+      , junit
       , jsonAssert
       , xmlUnit
+      , logback
       )
     )
   ) dependsOn(core)
@@ -114,7 +116,8 @@ object NGSBuild extends Build with Default with Dependencies {
     , libraryDependencies ++= Seq(
         httpClient
       , aws
-      , jUnit
+      , junit
+      , logback
       )
     )
   ) dependsOn(http)

@@ -38,10 +38,8 @@ public class XmlBruteForceComparator implements Comparator<Element> {
      * each element into a single {@link Node.COMMENT_NODE}.
      * This will permanently change the tree.
      */
-    public void setCollapseAllCommentsIntoSingleNode(
-            final boolean collapseAllCommentsIntoSingleNode) {
-        this.collapseAllCommentsIntoSingleNode =
-                collapseAllCommentsIntoSingleNode;
+    public void setCollapseAllCommentsIntoSingleNode(final boolean collapseAllCommentsIntoSingleNode) {
+        this.collapseAllCommentsIntoSingleNode = collapseAllCommentsIntoSingleNode;
     }
 
     /**
@@ -49,10 +47,8 @@ public class XmlBruteForceComparator implements Comparator<Element> {
      * each element into a single {@link Node.CDATA_SECTION_NODE}.
      * This will permanently change the tree.
      */
-    public void setCollapseAllCDataContentIntoSingleNode(
-            final boolean collapseAllCDataContentIntoSingleNode) {
-        this.collapseAllCDataContentIntoSingleNode =
-                collapseAllCDataContentIntoSingleNode;
+    public void setCollapseAllCDataContentIntoSingleNode(final boolean collapseAllCDataContentIntoSingleNode) {
+        this.collapseAllCDataContentIntoSingleNode = collapseAllCDataContentIntoSingleNode;
     }
 
     /**
@@ -60,10 +56,8 @@ public class XmlBruteForceComparator implements Comparator<Element> {
      * element into a single {@link Node.TEXT_NODE}
      * This will permanently change the tree.
      */
-    public void setCollapseAllTextContentIntoSingleNode(
-            final boolean collapseAllTextContentIntoSingleNode) {
-        this.collapseAllTextContentIntoSingleNode =
-                collapseAllTextContentIntoSingleNode;
+    public void setCollapseAllTextContentIntoSingleNode(final boolean collapseAllTextContentIntoSingleNode) {
+        this.collapseAllTextContentIntoSingleNode = collapseAllTextContentIntoSingleNode;
     }
 
     @Override
@@ -94,9 +88,7 @@ public class XmlBruteForceComparator implements Comparator<Element> {
         }
     }
 
-    private void collapseAllContentIntoSingleNode(
-            final Node node,
-            final short nodeType) {
+    private void collapseAllContentIntoSingleNode(final Node node, final short nodeType) {
         if (node.hasChildNodes()) {
             boolean weFoundAnyTextNodes = false;
             /*
@@ -116,19 +108,14 @@ public class XmlBruteForceComparator implements Comparator<Element> {
                 switch (nodeType) {
                     case Node.TEXT_NODE:
                         if (collectedTextNodes.length() > 0) {
-                            node.appendChild(node.getOwnerDocument()
-                                    .createTextNode(
-                                            collectedTextNodes.toString()));
+                            node.appendChild(node.getOwnerDocument().createTextNode(collectedTextNodes.toString()));
                         }
                         break;
                     case Node.CDATA_SECTION_NODE:
-                        node.appendChild(node.getOwnerDocument()
-                                .createCDATASection(
-                                        collectedTextNodes.toString()));
+                        node.appendChild(node.getOwnerDocument().createCDATASection(collectedTextNodes.toString()));
                         break;
                     case Node.COMMENT_NODE:
-                        node.appendChild(node.getOwnerDocument().createComment(
-                                collectedTextNodes.toString()));
+                        node.appendChild(node.getOwnerDocument().createComment(collectedTextNodes.toString()));
                         break;
                     default:
                         break;
@@ -155,10 +142,7 @@ public class XmlBruteForceComparator implements Comparator<Element> {
      *            The current node on the path; root in the first step, a leaf
      *            in the last step
      */
-    private void buildPaths(
-            final List<List<Node>> allPaths,
-            List<Node> pathUpToNode,
-            final Node node) {
+    private void buildPaths(final List<List<Node>> allPaths, List<Node> pathUpToNode, final Node node) {
         if (pathUpToNode == null) {
             pathUpToNode = new ArrayList<Node>();
         }
@@ -190,9 +174,7 @@ public class XmlBruteForceComparator implements Comparator<Element> {
      *            The rhs XML tree paths
      * @return {@code 0} if they are equal {@code -1} otherwise
      */
-    private int compareAllPaths(
-            final List<List<Node>> lhs,
-            final List<List<Node>> rhs) {
+    private int compareAllPaths(final List<List<Node>> lhs, final List<List<Node>> rhs) {
         if (lhs.size() != rhs.size()) {
             System.out.println("Različite veličine:");
             System.out.println();
@@ -253,10 +235,8 @@ public class XmlBruteForceComparator implements Comparator<Element> {
 
         if (node1 == null && node2 == null) return true;
         else if (node1 == null || node2 == null) return false;
-        else return nodesHaveEqualNames(node1, node2)
-                && nodesHaveEqualNumberOfChildren(node1, node2)
-                && nodesHaveEqualValues(node1, node2)
-                && nodesHaveEqualAttributes(node1, node2);
+        else return nodesHaveEqualNames(node1, node2) && nodesHaveEqualNumberOfChildren(node1, node2)
+                && nodesHaveEqualValues(node1, node2) && nodesHaveEqualAttributes(node1, node2);
     }
 
     private boolean nodesHaveEqualValues(final Node node1, final Node node2) {
@@ -273,19 +253,14 @@ public class XmlBruteForceComparator implements Comparator<Element> {
         return equalsWithNull(node1_name, node2_name);
     }
 
-    private boolean nodesHaveEqualNumberOfChildren(
-            final Node node1,
-            final Node node2) {
-        return node1.getChildNodes().getLength() == node2.getChildNodes()
-                .getLength();
+    private boolean nodesHaveEqualNumberOfChildren(final Node node1, final Node node2) {
+        return node1.getChildNodes().getLength() == node2.getChildNodes().getLength();
     }
 
     private boolean nodesHaveEqualAttributes(final Node node1, final Node node2) {
         if (node1.hasAttributes() != node2.hasAttributes()) return false;
-        else if (node1.hasAttributes() == false
-                && node2.hasAttributes() == false) return true;
-        else if (node1.getAttributes().getLength() != node2.getAttributes()
-                .getLength()) return false;
+        else if (node1.hasAttributes() == false && node2.hasAttributes() == false) return true;
+        else if (node1.getAttributes().getLength() != node2.getAttributes().getLength()) return false;
         else {
             for (final Attr attr1 : getListOfAttributes(node1)) {
                 boolean found = false;
@@ -302,9 +277,7 @@ public class XmlBruteForceComparator implements Comparator<Element> {
         return true;
     }
 
-    private boolean attributesAreEqual(
-            final Attr attribute1,
-            final Attr attribute2) {
+    private boolean attributesAreEqual(final Attr attribute1, final Attr attribute2) {
         if (attribute1 == null && attribute2 == null) return true;
         else if (attribute1 == null || attribute2 == null) return false;
         else return equalsWithNull(attribute1.getName(), attribute2.getName())

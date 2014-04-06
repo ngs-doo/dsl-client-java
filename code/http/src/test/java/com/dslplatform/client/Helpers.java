@@ -23,22 +23,17 @@ import org.xml.sax.SAXException;
 
 public class Helpers {
 
-    public static File getFileForResource(final String resourcePath)
-            throws URISyntaxException {
-        final URL resourceURL =
-                Xml2JsonRoundTripTest.class.getResource(resourcePath);
+    public static File getFileForResource(final String resourcePath) throws URISyntaxException {
+        final URL resourceURL = Xml2JsonRoundTripTest.class.getResource(resourcePath);
 
         if (resourceURL == null) return null;
         else return new File(resourceURL.toURI());
 
     }
 
-    public static Document parseXmlFile(final File file) throws SAXException,
-            IOException, ParserConfigurationException {
+    public static Document parseXmlFile(final File file) throws SAXException, IOException, ParserConfigurationException {
 
-        final Document doc =
-                DocumentBuilderFactory.newInstance().newDocumentBuilder()
-                        .parse(file);
+        final Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file);
 
         doc.normalizeDocument();
 
@@ -88,21 +83,17 @@ public class Helpers {
         }
     }
 
-    public static Document xmlDocumentFromJson(final String jSon)
-            throws IOException, ParserConfigurationException {
+    public static Document xmlDocumentFromJson(final String jSon) throws IOException, ParserConfigurationException {
 
         System.out.println("Json:");
         System.out.println(jSon);
 
         final Element xmlRootElement =
-                new JsonSerialization(
-                        new com.dslplatform.client.MapServiceLocator())
-                        .<Element> deserialize(JsonSerialization
-                                .buildType(org.w3c.dom.Element.class), jSon);
+                new JsonSerialization(new com.dslplatform.client.MapServiceLocator()).<Element> deserialize(
+                        JsonSerialization.buildType(org.w3c.dom.Element.class),
+                        jSon);
 
-        final Document xmlDocument =
-                DocumentBuilderFactory.newInstance().newDocumentBuilder()
-                        .newDocument();
+        final Document xmlDocument = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
 
         final Node rootNode = xmlDocument.importNode(xmlRootElement, true);
         xmlDocument.appendChild(rootNode);
@@ -110,10 +101,8 @@ public class Helpers {
         return xmlDocument;
     }
 
-    public static String jsonStringFromXml(final Document source_xml)
-            throws IOException {
-        return JsonSerialization.<org.w3c.dom.Element> serialize(source_xml
-                .getDocumentElement());
+    public static String jsonStringFromXml(final Document source_xml) throws IOException {
+        return JsonSerialization.<org.w3c.dom.Element> serialize(source_xml.getDocumentElement());
     }
 
 }

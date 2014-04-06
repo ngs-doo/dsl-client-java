@@ -20,5 +20,4 @@ package com.dslplatform.patterns;
  * </pre></blockquote>
  * @param <T> aggregate root type
  */
-public interface AggregateDomainEvent<T extends AggregateRoot> extends
-        Identifiable {}
+public interface AggregateDomainEvent<T extends AggregateRoot> extends Identifiable {}

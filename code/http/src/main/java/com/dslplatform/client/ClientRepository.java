@@ -28,8 +28,9 @@ import com.dslplatform.patterns.ServiceLocator;
  * </pre>
  * @param <T> domain object type
  */
-public abstract class ClientRepository<T extends Identifiable> extends
-        ClientSearchableRepository<T> implements Repository<T> {
+public abstract class ClientRepository<T extends Identifiable>
+        extends ClientSearchableRepository<T>
+        implements Repository<T> {
     protected final CrudProxy crudProxy;
 
     /**
@@ -38,9 +39,7 @@ public abstract class ClientRepository<T extends Identifiable> extends
      * @param manifest domain object type
      * @param locator  context in which domain object lives
      */
-    public ClientRepository(
-            final Class<T> manifest,
-            final ServiceLocator locator) {
+    public ClientRepository(final Class<T> manifest, final ServiceLocator locator) {
         super(manifest, locator);
         crudProxy = locator.resolve(CrudProxy.class);
     }

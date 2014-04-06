@@ -36,7 +36,8 @@ import com.dslplatform.patterns.ServiceLocator;
  * @param <T> aggregate root type
  */
 public abstract class ClientPersistableRepository<T extends AggregateRoot>
-        extends ClientRepository<T> implements PersistableRepository<T> {
+        extends ClientRepository<T>
+        implements PersistableRepository<T> {
     protected final StandardProxy standardProxy;
     private final ExecutorService executorService;
 
@@ -67,8 +68,7 @@ public abstract class ClientPersistableRepository<T extends AggregateRoot>
             final T[] inserts,
             final Map.Entry<T, T>[] updates,
             final T[] deletes) {
-        return persist(Arrays.asList(inserts), Arrays.asList(updates),
-                Arrays.asList(deletes));
+        return persist(Arrays.asList(inserts), Arrays.asList(updates), Arrays.asList(deletes));
     }
 
     @Override
@@ -96,9 +96,7 @@ public abstract class ClientPersistableRepository<T extends AggregateRoot>
     public Future<List<String>> update(final Iterable<T> updates) {
         final ArrayList<Map.Entry<T, T>> map = new ArrayList<Map.Entry<T, T>>();
         for (final T it : updates) {
-            final Map.Entry<T, T> pair =
-                    new AbstractMap.SimpleEntry<T, T>(null, it);
-            map.add(pair);
+            map.add(new AbstractMap.SimpleEntry<T, T>(null, it));
         }
         return standardProxy.persist(null, map, null);
     }

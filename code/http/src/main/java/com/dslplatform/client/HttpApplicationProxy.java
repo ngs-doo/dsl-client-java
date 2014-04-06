@@ -16,8 +16,12 @@ class HttpApplicationProxy implements ApplicationProxy {
             final Class<TResult> manifest,
             final String command,
             final int[] expectedStatus) {
-        return client.sendRequest(JsonSerialization.buildType(manifest),
-                APPLICATION_URI + command, "GET", null, expectedStatus);
+        return client.sendRequest(
+                JsonSerialization.buildType(manifest),
+                APPLICATION_URI + command,
+                "GET",
+                null,
+                expectedStatus);
     }
 
     @Override
@@ -26,7 +30,11 @@ class HttpApplicationProxy implements ApplicationProxy {
             final String command,
             final TArgument argument,
             final int[] expectedStatus) {
-        return client.sendRequest(JsonSerialization.buildType(manifest),
-                APPLICATION_URI + command, "POST", argument, expectedStatus);
+        return client.sendRequest(
+                JsonSerialization.buildType(manifest),
+                APPLICATION_URI + command,
+                "POST",
+                argument,
+                expectedStatus);
     }
 }

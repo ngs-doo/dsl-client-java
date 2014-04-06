@@ -50,9 +50,7 @@ class HttpStandardProxy implements StandardProxy {
     }
 
     @SuppressWarnings("serial")
-    private static class Pair<K, V> implements java.util.Map.Entry<K, V>,
-            java.io.Serializable {
-
+    private static class Pair<K, V> implements java.util.Map.Entry<K, V>, java.io.Serializable {
         public K key;
         public V value;
 
@@ -68,8 +66,7 @@ class HttpStandardProxy implements StandardProxy {
 
         @Override
         public V setValue(final V value) {
-            this.value = value;
-            return value;
+            return this.value = value;
         }
     }
 
@@ -122,15 +119,12 @@ class HttpStandardProxy implements StandardProxy {
 
                 final String domainName = client.getDslName(clazz);
 
-                return (List<String>) client
-                        .sendRequest(
-                                JsonSerialization.buildCollectionType(
-                                        ArrayList.class, String.class),
-                                APPLICATION_URI + "PersistAggregateRoot",
-                                "POST",
-                                new PersistArg(domainName, toInsert, toUpdate,
-                                        toDelete), new int[] { 200, 201 })
-                        .get();
+                return (List<String>) client.sendRequest(
+                        JsonSerialization.buildCollectionType(ArrayList.class, String.class),
+                        APPLICATION_URI + "PersistAggregateRoot",
+                        "POST",
+                        new PersistArg(domainName, toInsert, toUpdate, toDelete),
+                        new int[] { 200, 201 }).get();
             }
         });
     }
@@ -145,21 +139,19 @@ class HttpStandardProxy implements StandardProxy {
             final Iterable<Map.Entry<String, Boolean>> order) {
 
         final Class<?> specClazz = specification.getClass();
-        final String specParent =
-                client.getDslName(specClazz.getEnclosingClass());
+        final String specParent = client.getDslName(specClazz.getEnclosingClass());
         final String specificationName = cubeName.equals(specParent)
                 ? specClazz.getSimpleName()
                 : specParent + "%2B" + specClazz.getSimpleName();
 
-        final String args =
-                Utils.buildOlapArguments(dimensions, facts, order,
-                        specificationName);
+        final String args = Utils.buildOlapArguments(dimensions, facts, order, specificationName);
 
-        return client
-                .sendRequest(JsonSerialization.buildCollectionType(
-                        java.util.List.class, manifest), STANDARD_URI + "olap/"
-                        + cubeName + args, "PUT", specification, new int[] {
-                        200, 201 });
+        return client.sendRequest(
+                JsonSerialization.buildCollectionType(java.util.List.class, manifest),
+                STANDARD_URI + "olap/" + cubeName + args,
+                "PUT",
+                specification,
+                new int[] { 200, 201 });
     }
 
     @Override
@@ -171,9 +163,12 @@ class HttpStandardProxy implements StandardProxy {
             final Iterable<Map.Entry<String, Boolean>> order) {
         final String args = Utils.buildOlapArguments(dimensions, facts, order);
 
-        return client.sendRequest(JsonSerialization.buildCollectionType(
-                java.util.List.class, manifest), STANDARD_URI + "olap/"
-                + cubeName + args, "GET", null, new int[] { 200, 201 });
+        return client.sendRequest(
+                JsonSerialization.buildCollectionType(java.util.List.class, manifest),
+                STANDARD_URI + "olap/" + cubeName + args,
+                "GET",
+                null,
+                new int[] { 200, 201 });
     }
 
     @Override
@@ -181,8 +176,11 @@ class HttpStandardProxy implements StandardProxy {
             final Class<TResult> manifest,
             final String command,
             final TArgument argument) {
-        return client.sendRequest(JsonSerialization.buildType(manifest),
-                STANDARD_URI + "execute/" + command, "POST", argument,
+        return client.sendRequest(
+                JsonSerialization.buildType(manifest),
+                STANDARD_URI + "execute/" + command,
+                "POST",
+                argument,
                 new int[] { 200, 201 });
     }
 }
