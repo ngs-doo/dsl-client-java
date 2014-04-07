@@ -25,7 +25,6 @@ public class ProjectSettings {
         this.logger = logger;
         properties = new Properties();
         properties.load(iniStream);
-        if (properties.containsKey("")) properties.remove("");
         if (logger.isDebugEnabled()) {
             for (final Map.Entry<Object, Object> prop : properties.entrySet()) {
                 if (logger.isTraceEnabled()) {

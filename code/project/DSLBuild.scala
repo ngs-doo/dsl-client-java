@@ -25,7 +25,7 @@ trait Default {
         "-encoding", "UTF-8"
       , "-source", "1.6"
       ) ++ (sys.env.get("JDK16_HOME") match {
-        case Some(jdk16Home) => Seq("-bootclasspath", 
+        case Some(jdk16Home) => Seq("-bootclasspath",
             Seq("rt", "jsse")
              .map(jdk16Home + "/jre/lib/" + _ + ".jar")
              .mkString(";"))

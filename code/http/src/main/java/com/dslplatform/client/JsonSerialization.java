@@ -90,8 +90,8 @@ public class JsonSerialization {
         public void serialize(final Point value, final JsonGenerator gen, final SerializerProvider sP)
                 throws IOException, JsonProcessingException {
             gen.writeStartObject();
-            gen.writeNumberField("x", value.x);
-            gen.writeNumberField("y", value.y);
+            gen.writeNumberField("X", value.x);
+            gen.writeNumberField("Y", value.y);
             gen.writeEndObject();
         }
     };
@@ -101,7 +101,7 @@ public class JsonSerialization {
         public Point deserialize(final JsonParser parser, final DeserializationContext context) throws IOException,
                 JsonProcessingException {
             final JsonNode tree = parser.getCodec().readTree(parser);
-            return new Point(tree.get("x").asInt(), tree.get("y").asInt());
+            return new Point(tree.get("X").asInt(), tree.get("Y").asInt());
         }
     };
 
@@ -112,8 +112,8 @@ public class JsonSerialization {
         public void serialize(final Point2D value, final JsonGenerator gen, final SerializerProvider sP)
                 throws IOException, JsonProcessingException {
             gen.writeStartObject();
-            gen.writeNumberField("x", value.getX());
-            gen.writeNumberField("y", value.getY());
+            gen.writeNumberField("X", value.getX());
+            gen.writeNumberField("Y", value.getY());
             gen.writeEndObject();
         }
     };
@@ -123,7 +123,7 @@ public class JsonSerialization {
         public Point2D deserialize(final JsonParser parser, final DeserializationContext context) throws IOException,
                 JsonProcessingException {
             final JsonNode tree = parser.getCodec().readTree(parser);
-            return new Point2D.Double(tree.get("x").asDouble(), tree.get("y").asDouble());
+            return new Point2D.Double(tree.get("X").asDouble(), tree.get("Y").asDouble());
         }
     };
 
@@ -134,10 +134,10 @@ public class JsonSerialization {
         public void serialize(final Rectangle2D value, final JsonGenerator gen, final SerializerProvider sP)
                 throws IOException, JsonProcessingException {
             gen.writeStartObject();
-            gen.writeNumberField("x", value.getX());
-            gen.writeNumberField("y", value.getY());
-            gen.writeNumberField("width", value.getWidth());
-            gen.writeNumberField("height", value.getHeight());
+            gen.writeNumberField("X", value.getX());
+            gen.writeNumberField("Y", value.getY());
+            gen.writeNumberField("Width", value.getWidth());
+            gen.writeNumberField("Height", value.getHeight());
             gen.writeEndObject();
         }
     };
@@ -148,10 +148,10 @@ public class JsonSerialization {
                 throws IOException, JsonProcessingException {
             final JsonNode tree = parser.getCodec().readTree(parser);
             return new Rectangle2D.Double(
-                    tree.get("x").asDouble(),
-                    tree.get("y").asDouble(),
-                    tree.get("width").asDouble(),
-                    tree.get("height").asDouble());
+                    tree.get("X").asDouble(),
+                    tree.get("Y").asDouble(),
+                    tree.get("Width").asDouble(),
+                    tree.get("Height").asDouble());
         }
     };
 
