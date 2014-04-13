@@ -3,7 +3,11 @@ package com.dslplatform.client;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -12,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -152,6 +157,27 @@ public class JsonSerialization {
                     tree.get("Y").asDouble(),
                     tree.get("Width").asDouble(),
                     tree.get("Height").asDouble());
+        }
+    };
+
+    // -----------------------------------------------------------------------------
+
+    private static final JsonSerializer<BufferedImage> imageSerializer = new JsonSerializer<BufferedImage>() {
+        @Override
+        public void serialize(final BufferedImage value, final JsonGenerator gen, final SerializerProvider sP)
+                throws IOException, JsonProcessingException {
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(value, "png", baos);
+            gen.writeBinary(baos.toByteArray());
+        }
+    };
+
+    private static final JsonDeserializer<BufferedImage> imageDeserializer = new JsonDeserializer<BufferedImage>() {
+        @Override
+        public BufferedImage deserialize(final JsonParser parser, final DeserializationContext context)
+                throws IOException, JsonProcessingException {
+            final InputStream is = new ByteArrayInputStream(parser.getBinaryValue());
+            return ImageIO.read(is);
         }
     };
 
@@ -447,6 +473,7 @@ public class JsonSerialization {
             .addSerializer(Point.class, pointSerializer)
             .addSerializer(Point2D.class, locationSerializer)
             .addSerializer(Rectangle2D.class, rectangleSerializer)
+            .addSerializer(BufferedImage.class, imageSerializer)
             .addSerializer(Element.class, xmlSerializer);
 
     private static final ObjectMapper serializationMapper = new ObjectMapper()
@@ -499,6 +526,7 @@ public class JsonSerialization {
             .addDeserializer(Point.class, pointDeserializer)
             .addDeserializer(Point2D.class, locationDeserializer)
             .addDeserializer(Rectangle2D.class, rectangleDeserializer)
+            .addDeserializer(BufferedImage.class, imageDeserializer)
             .addDeserializer(Element.class, xmlDeserializer);
 
     private static ObjectMapper makeDeserializationObjectMapper(final ServiceLocator locator) {
