@@ -17,7 +17,7 @@ trait Default {
       version := "0.4.15-SNAPSHOT"
     , organization := "com.dslplatform"
 
-    , scalaVersion := "2.10.4"
+    , scalaVersion := "2.11.1"
     , crossPaths := false
     , autoScalaLibrary := false
 
@@ -52,7 +52,7 @@ trait Dependencies {
   val jodaTime = "joda-time" % "joda-time" % "2.3"
 
   // Json serialization
-  val jackson = "com.fasterxml.jackson.core" % "jackson-databind" % "2.3.2"
+  val jackson = "com.fasterxml.jackson.core" % "jackson-databind" % "2.3.3"
 
   // Logging facade
   val slf4j = "org.slf4j" % "slf4j-api" % "1.7.7"
@@ -65,10 +65,10 @@ trait Dependencies {
   val commonsCodec = "commons-codec" % "commons-codec" % "1.9"
 
   // Amazon Web Services SDK (S3 type)
-  val aws = "com.amazonaws" % "aws-java-sdk" % "1.7.5" % "provided"
+  val aws = "com.amazonaws" % "aws-java-sdk" % "1.7.11" % "provided"
 
   // Akka Actor (contains the Serializer)
-  val akkaActor = "com.typesafe.akka" %% "akka-actor" % "2.3.1" % "provided"
+  val akkaActor = "com.typesafe.akka" %% "akka-actor" % "2.3.3" % "provided"
 
   // Android SDK
   val androidSDK = "com.google.android" % "android" % "4.1.1.4" % "provided"
@@ -76,8 +76,8 @@ trait Dependencies {
   // Testing
   val junit = "junit" % "junit" % "4.11" % "test"
   val jsonAssert = "org.skyscreamer" % "jsonassert" % "1.2.3" % "test"
-  val xmlUnit = "xmlunit" % "xmlunit" % "1.4" % "test"
-  val logback = "ch.qos.logback" % "logback-classic" % "1.1.1" % "test"
+  val xmlUnit = "xmlunit" % "xmlunit" % "1.5" % "test"
+  val logback = "ch.qos.logback" % "logback-classic" % "1.1.2" % "test"
 }
 
 // ----------------------------------------------------------------------------

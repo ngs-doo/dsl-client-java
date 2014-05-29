@@ -6,7 +6,7 @@
 // | See also: Scala IDE downloads (http://download.scala-ide.org/)                     |
 // +------------------------------------------------------------------------------------+
 
-addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "2.4.0")
+addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "2.5.0")
 
 // +-------------------------------------------------------------------------------------+
 // | Dependency graph SBT plugin (https://github.com/jrudolph/sbt-dependency-graph)      |

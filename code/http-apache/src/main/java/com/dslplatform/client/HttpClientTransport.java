@@ -31,11 +31,18 @@ public class HttpClientTransport implements HttpTransport {
     private final String remoteUrl;
     private static final String MIME_TYPE = "application/json";
 
-    private org.apache.http.client.HttpClient createContext() {
+    private org.apache.http.client.HttpClient createContext(
+            String trustStore,
+            String trustStorePassword) {
         try {
+            if (trustStore == null || trustStorePassword == null) {
+                trustStore = "common-cas.jks";
+                trustStorePassword = "common-cas";
+            }
+
             final String storeType = KeyStore.getDefaultType();
             final KeyStore keystore = KeyStore.getInstance(storeType);
-            keystore.load(HttpClient.class.getResourceAsStream("common-cas." + storeType), "common-cas".toCharArray());
+            keystore.load(HttpClient.class.getResourceAsStream(trustStore), trustStorePassword.toCharArray());
             final TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             tmf.init(keystore);
             final TrustManager[] tms = tmf.getTrustManagers();
@@ -52,7 +59,7 @@ public class HttpClientTransport implements HttpTransport {
             final ProjectSettings project,
             final HttpAuthorization httpAuthorization) {
         this.logger = logger;
-        httpClient = createContext();
+        httpClient = createContext(project.get("trustStore"), project.get("trustStorePassword"));
         this.httpAuthorization = httpAuthorization;
         remoteUrl = project.get("api-url");
     }
