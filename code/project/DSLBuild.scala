@@ -23,7 +23,7 @@ trait Default {
 
     , javacOptions in doc := Seq(
         "-encoding", "UTF-8"
-      , "-source", "1.6"
+      , "-source", "1.8"
       ) ++ (sys.env.get("JDK16_HOME") match {
         case Some(jdk16Home) => Seq("-bootclasspath",
             Seq("rt", "jsse")
@@ -49,35 +49,31 @@ trait Default {
 
 trait Dependencies {
   // JodaTime
-  val jodaTime = "joda-time" % "joda-time" % "2.3"
+  val jodaTime = "joda-time" % "joda-time" % "2.4"
 
   // Json serialization
-  val jackson = "com.fasterxml.jackson.core" % "jackson-databind" % "2.3.3"
+  val jackson = "com.fasterxml.jackson.core" % "jackson-databind" % "2.4.1.3"
 
   // Logging facade
   val slf4j = "org.slf4j" % "slf4j-api" % "1.7.7"
 
   // Apache HttpClient
-  val httpClient = "org.apache.httpcomponents" % "httpclient" % "4.3.3"
-
-  // Apache commons
-  val commonsIo = "commons-io" % "commons-io" % "2.4"
-  val commonsCodec = "commons-codec" % "commons-codec" % "1.9"
+  val httpClient = "org.apache.httpcomponents" % "httpclient" % "4.3.5"
 
   // Amazon Web Services SDK (S3 type)
-  val aws = "com.amazonaws" % "aws-java-sdk" % "1.7.11" % "provided"
+  val aws = "com.amazonaws" % "aws-java-sdk" % "1.8.7"
 
   // Akka Actor (contains the Serializer)
-  val akkaActor = "com.typesafe.akka" %% "akka-actor" % "2.3.3" % "provided"
+  val akkaActor = "com.typesafe.akka" %% "akka-actor" % "2.3.4"
 
   // Android SDK
-  val androidSDK = "com.google.android" % "android" % "4.1.1.4" % "provided"
+  val androidSDK = "com.google.android" % "android" % "4.1.1.4"
 
   // Testing
-  val junit = "junit" % "junit" % "4.11" % "test"
-  val jsonAssert = "org.skyscreamer" % "jsonassert" % "1.2.3" % "test"
-  val xmlUnit = "xmlunit" % "xmlunit" % "1.5" % "test"
-  val logback = "ch.qos.logback" % "logback-classic" % "1.1.2" % "test"
+  val junit = "junit" % "junit" % "4.11"
+  val jsonAssert = "org.skyscreamer" % "jsonassert" % "1.2.3"
+  val xmlUnit = "xmlunit" % "xmlunit" % "1.5"
+  val logback = "ch.qos.logback" % "logback-classic" % "1.1.2"
 }
 
 // ----------------------------------------------------------------------------
@@ -93,20 +89,18 @@ object NGSBuild extends Build with Default with Dependencies {
   )
 
   lazy val http = Project(
-    "http"
+    "http-base"
   , file("http")
   , settings = defaultSettings ++ Seq(
       name := "DSL-Client-HTTP"
     , libraryDependencies ++= Seq(
         slf4j
-      , jodaTime
+      //, jodaTime
       , jackson
-      , commonsIo
-      , commonsCodec
-      , junit
-      , jsonAssert
-      , xmlUnit
-      , logback
+      , junit % "test"
+      , jsonAssert % "test"
+      , xmlUnit % "test"
+      , logback % "test"
       )
     )
   ) dependsOn(core)
@@ -139,7 +133,10 @@ object NGSBuild extends Build with Default with Dependencies {
   , file("http-android")
   , settings = defaultSettings ++ Seq(
       name := "DSL-Client-HTTP-Android"
-    , libraryDependencies += androidSDK
+    , libraryDependencies ++= Seq(
+        androidSDK
+      , junit
+      )
     )
   ) dependsOn(http)
 
