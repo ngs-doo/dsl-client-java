@@ -78,6 +78,8 @@ public class Bootstrap {
             locator.register(Logger.class, logger);
         }
         final ProjectSettings project = new ProjectSettings(logger, iniStream);
+        locator.register(ProjectSettings.class, project);
+
         final ExecutorService executorService;
         if (locator.contains(ExecutorService.class)) {
             executorService = locator.resolve(ExecutorService.class);
@@ -89,7 +91,7 @@ public class Bootstrap {
         if (locator.contains(HttpAuthorization.class)) {
             httpAuthorization = locator.resolve(HttpAuthorization.class);
         } else {
-            httpAuthorization = new ProjectAuthorization(project);
+            httpAuthorization = new ProjectSettingsAuthorization(project);
             locator.register(HttpAuthorization.class, httpAuthorization);
         }
         final HttpTransport httpTransport;
@@ -105,7 +107,6 @@ public class Bootstrap {
 
         locator
                 .register(JsonSerialization.class, jsonDeserialization)
-                .register(ProjectSettings.class, project)
                 .register(HttpClient.class, httpClient)
                 .register(ApplicationProxy.class, new HttpApplicationProxy(httpClient))
                 .register(CrudProxy.class, HttpCrudProxy.class)

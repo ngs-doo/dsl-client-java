@@ -37,4 +37,12 @@ public class BootstrapTest {
         assertSame("Logger instance matches.", locator.resolve(Logger.class), logger);
         assertSame("ExecutionService matches.", locator.resolve(ExecutorService.class), newSingleThreadExecutor);
     }
+
+    @Test
+    public void withoutAuthHeaders() throws  Exception {
+        final ServiceLocator locator =
+                Bootstrap.init(getClass().getResourceAsStream("/withoutAuth.ini"));
+        final HttpAuthorization httpAuthorization = locator.resolve(HttpAuthorization.class);
+        assertEquals(0, httpAuthorization.getAuthorizationHeaders().size());
+    }
 }
