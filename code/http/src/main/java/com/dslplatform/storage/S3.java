@@ -1,21 +1,21 @@
 package com.dslplatform.storage;
 
+import com.dslplatform.client.Bootstrap;
+import com.dslplatform.client.ProjectSettings;
+import com.dslplatform.storage.S3Repository;
+import com.dslplatform.patterns.ServiceLocator;
+import com.fasterxml.jackson.annotation.JacksonInject;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-
-import org.apache.commons.io.IOUtils;
-
-import com.dslplatform.client.Bootstrap;
-import com.dslplatform.client.ProjectSettings;
-import com.dslplatform.patterns.ServiceLocator;
-import com.fasterxml.jackson.annotation.JacksonInject;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Data structure for working with S3 binaries.
@@ -73,7 +73,7 @@ public class S3 implements java.io.Serializable {
      */
     public S3(final InputStream stream) throws IOException {
         instanceRepository = null;
-        upload(IOUtils.toByteArray(stream));
+        upload(streamToByteArray(stream));
     }
 
     /**
@@ -259,7 +259,7 @@ public class S3 implements java.io.Serializable {
         } catch (final ExecutionException e) {
             throw new IOException(e);
         }
-        return IOUtils.toByteArray(stream);
+        return streamToByteArray(stream);
     }
 
     /**
@@ -272,7 +272,7 @@ public class S3 implements java.io.Serializable {
      * @throws IOException in case of communication error
      */
     public String upload(final ByteArrayInputStream stream) throws IOException {
-        return upload(IOUtils.toByteArray(stream));
+        return upload(streamToByteArray(stream));
     }
 
     /**
@@ -389,4 +389,17 @@ public class S3 implements java.io.Serializable {
     }
 
     private static final long serialVersionUID = 1L;
+
+    private static byte[] streamToByteArray(final InputStream inputStream) throws IOException {
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final byte[] buffer = new byte[4096];
+
+        while (true) {
+            final int read = inputStream.read(buffer);
+            if (read == -1) break;
+            baos.write(buffer, 0, read);
+        }
+
+        return baos.toByteArray();
+    }
 }

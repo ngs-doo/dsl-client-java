@@ -78,6 +78,8 @@ public class Bootstrap {
             locator.register(Logger.class, logger);
         }
         final ProjectSettings project = new ProjectSettings(logger, iniStream);
+        locator.register(ProjectSettings.class, project);
+
         final ExecutorService executorService;
         if (locator.contains(ExecutorService.class)) {
             executorService = locator.resolve(ExecutorService.class);
@@ -85,27 +87,12 @@ public class Bootstrap {
             executorService = Executors.newCachedThreadPool();
             locator.register(ExecutorService.class, executorService);
         }
-        final HttpAuthorization httpAuthorization;
-        if (locator.contains(HttpAuthorization.class)) {
-            httpAuthorization = locator.resolve(HttpAuthorization.class);
-        } else {
-            httpAuthorization = new ProjectAuthorization(project);
-            locator.register(HttpAuthorization.class, httpAuthorization);
-        }
-        final HttpTransport httpTransport;
-        if (locator.contains(HttpTransport.class)) {
-            httpTransport = locator.resolve(HttpTransport.class);
-        } else {
-            httpTransport = new HttpClientTransport(logger, project, httpAuthorization);
-            locator.register(HttpTransport.class, httpTransport);
-        }
         final HttpClient httpClient =
-                new HttpClient(project, locator, jsonDeserialization, logger, executorService, httpTransport);
+                new HttpClient(project, jsonDeserialization, logger, executorService);
         final DomainProxy domainProxy = new HttpDomainProxy(httpClient);
 
         locator
                 .register(JsonSerialization.class, jsonDeserialization)
-                .register(ProjectSettings.class, project)
                 .register(HttpClient.class, httpClient)
                 .register(ApplicationProxy.class, new HttpApplicationProxy(httpClient))
                 .register(CrudProxy.class, HttpCrudProxy.class)
@@ -185,8 +172,8 @@ public class Bootstrap {
         System.out.println(versionString.replaceAll(".", "-"));
         System.out.println();
 
-        System.out.println("This is the Java version of the DSL Platform client library");
-        System.out.println("and is not indended to be run as a standalone application.");
+        System.out.println("This is the Java (Android) version of the DSL Platform client library");
+        System.out.println("and is not indented to be run as a standalone application.");
         System.out.println();
         System.out.println("For more information, visit https://dsl-platform.com/");
         System.out.println();
