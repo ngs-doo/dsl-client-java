@@ -14,10 +14,7 @@ trait Default {
     Defaults.defaultSettings ++
     eclipseSettings ++
     graphSettings ++ Seq(
-      version := "0.4.15-SNAPSHOT"
-    , organization := "com.dslplatform"
-
-    , scalaVersion := "2.11.1"
+      scalaVersion := "2.11.2"
     , crossPaths := false
     , autoScalaLibrary := false
 
@@ -39,9 +36,6 @@ trait Default {
 
     , unmanagedSourceDirectories in Compile := Seq((javaSource in Compile).value)
     , unmanagedSourceDirectories in Test := Seq((javaSource in Test).value)
-    , EclipseKeys.projectFlavor := EclipseProjectFlavor.Java
-    , EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource
-    , EclipseKeys.eclipseOutput := Some(".target")
     )
 }
 
@@ -49,35 +43,28 @@ trait Default {
 
 trait Dependencies {
   // JodaTime
-  val jodaTime = "joda-time" % "joda-time" % "2.3"
+  val jodaTime = "joda-time" % "joda-time" % "2.4"
 
   // Json serialization
-  val jackson = "com.fasterxml.jackson.core" % "jackson-databind" % "2.3.3"
+  val jackson = "com.fasterxml.jackson.core" % "jackson-databind" % "2.4.1.3"
 
   // Logging facade
   val slf4j = "org.slf4j" % "slf4j-api" % "1.7.7"
 
-  // Apache HttpClient
-  val httpClient = "org.apache.httpcomponents" % "httpclient" % "4.3.3"
-
-  // Apache commons
-  val commonsIo = "commons-io" % "commons-io" % "2.4"
-  val commonsCodec = "commons-codec" % "commons-codec" % "1.9"
-
   // Amazon Web Services SDK (S3 type)
-  val aws = "com.amazonaws" % "aws-java-sdk" % "1.7.11" % "provided"
+  val aws = "com.amazonaws" % "aws-java-sdk" % "1.8.7"
 
   // Akka Actor (contains the Serializer)
-  val akkaActor = "com.typesafe.akka" %% "akka-actor" % "2.3.3" % "provided"
+  val akkaActor = "com.typesafe.akka" %% "akka-actor" % "2.3.4"
 
   // Android SDK
-  val androidSDK = "com.google.android" % "android" % "4.1.1.4" % "provided"
+  val androidSDK = "com.google.android" % "android" % "4.1.1.4"
 
   // Testing
-  val junit = "junit" % "junit" % "4.11" % "test"
-  val jsonAssert = "org.skyscreamer" % "jsonassert" % "1.2.3" % "test"
-  val xmlUnit = "xmlunit" % "xmlunit" % "1.5" % "test"
-  val logback = "ch.qos.logback" % "logback-classic" % "1.1.2" % "test"
+  val junit = "junit" % "junit" % "4.11"
+  val jsonAssert = "org.skyscreamer" % "jsonassert" % "1.2.3"
+  val xmlUnit = "xmlunit" % "xmlunit" % "1.5"
+  val logback = "ch.qos.logback" % "logback-classic" % "1.1.2"
 }
 
 // ----------------------------------------------------------------------------
@@ -99,56 +86,34 @@ object NGSBuild extends Build with Default with Dependencies {
       name := "DSL-Client-HTTP"
     , libraryDependencies ++= Seq(
         slf4j
-      , jodaTime
+      //, jodaTime
+      , akkaActor % "provided"
+      , aws % "provided"
+      , androidSDK % "provided"
       , jackson
-      , commonsIo
-      , commonsCodec
-      , junit
-      , jsonAssert
-      , xmlUnit
-      , logback
+      , junit % "test"
+      , jsonAssert % "test"
+      , xmlUnit % "test"
+      , logback % "test"
       )
     )
   ) dependsOn(core)
 
-  lazy val httpApache = Project(
-    "http-apache"
-  , file("http-apache")
-  , settings = defaultSettings ++ Seq(
-      name := "DSL-Client-HTTP-Apache"
-    , libraryDependencies ++= Seq(
-        httpClient
-      , aws
-      , junit
-      , logback
-      )
-    )
-  ) dependsOn(http)
+  def aggregatedCompile =  ScopeFilter(inProjects(core, http), inConfigurations(Compile))
 
-  lazy val akka = Project(
-    "akka"
-  , file("akka")
-  , settings = defaultSettings ++ Seq(
-      name := "DSL-Client-Akka"
-    , libraryDependencies += akkaActor
-    )
-  ) dependsOn(httpApache)
+  def aggregatedTest = ScopeFilter(inProjects(core, http), inConfigurations(Test))
 
-  lazy val httpAndroid = Project(
-    "http-android"
-  , file("http-android")
-  , settings = defaultSettings ++ Seq(
-      name := "DSL-Client-HTTP-Android"
-    , libraryDependencies += androidSDK
-    )
-  ) dependsOn(http)
+  def aggregatedModules = Seq(
+    sources in Compile                        := sources.all(aggregatedCompile).value.flatten,
+    unmanagedSources in Compile               := unmanagedSources.all(aggregatedCompile).value.flatten,
+    unmanagedSourceDirectories in Compile     := unmanagedSourceDirectories.all(aggregatedCompile).value.flatten,
+    unmanagedResourceDirectories in Compile   := unmanagedResourceDirectories.all(aggregatedCompile).value.flatten,
+    sources in Test                           := sources.all(aggregatedTest).value.flatten,
+    unmanagedSources in Test                  := unmanagedSources.all(aggregatedTest).value.flatten,
+    unmanagedSourceDirectories in Test        := unmanagedSourceDirectories.all(aggregatedTest).value.flatten,
+    unmanagedResourceDirectories in Test      := unmanagedResourceDirectories.all(aggregatedTest).value.flatten,
+    libraryDependencies                       := libraryDependencies.all(aggregatedCompile).value.flatten
+  )
 
-  lazy val root = Project(
-    "root"
-  , file(".")
-  , settings = defaultSettings ++ Seq(
-      name := "DSL-Client"
-    , EclipseKeys.skipProject := true
-    )
-  ) dependsOn(http)
+  lazy val root = (project in file(".")) settings ((defaultSettings ++ aggregatedModules): _*)
 }

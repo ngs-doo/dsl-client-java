@@ -1,5 +1,8 @@
 package com.dslplatform.client;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
@@ -123,5 +126,23 @@ class Utils {
             if (orders.equals(src)) return true;
         }
         return false;
+    }
+
+    static byte[] inputStreamToByteArray(final InputStream inputStream) throws IOException {
+        if (inputStream == null) return null;
+        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        final byte[] buffer = new byte[1024];
+        int len;
+        while ((len = inputStream.read(buffer, 0, 1024)) != -1) {
+            byteArrayOutputStream.write(buffer, 0, len);
+        }
+
+        return byteArrayOutputStream.toByteArray();
+    }
+
+    static final boolean isJVM = checkIsJVM();
+
+    private static boolean checkIsJVM() {
+        return !System.getProperty("java.runtime.name").toLowerCase().contains("android");
     }
 }

@@ -171,7 +171,7 @@ class HttpReportingProxy implements ReportingProxy {
         final Class<?> parentClass = specClass.getDeclaringClass();
         final String domainName = client.getDslName(parentClass);
         return client.sendRawRequest(
-                REPORTING_URI + "templater/" + file + "/" + domainName + "/" + specClass.getSimpleName(),
+                REPORTING_URI + "templater/" + file + "/" + domainName + "?specification=" + specClass.getSimpleName(),
                 "PUT",
                 specification,
                 headers,

@@ -181,7 +181,101 @@ public class JsonSerialization {
         }
     };
 
+    // ----------------------------------------------------------------------------- Android Serialization
+
+
+    private static final JsonSerializer<android.graphics.Point> apointSerializer = new JsonSerializer<android.graphics.Point>() {
+        @Override
+        public void serialize(final android.graphics.Point value, final JsonGenerator gen, final SerializerProvider sP)
+                throws IOException, JsonProcessingException {
+            gen.writeStartObject();
+            gen.writeNumberField("X", value.x);
+            gen.writeNumberField("Y", value.y);
+            gen.writeEndObject();
+        }
+    };
+
+    private static final JsonDeserializer<android.graphics.Point> apointDeserializer = new JsonDeserializer<android.graphics.Point>() {
+        @Override
+        public android.graphics.Point deserialize(final JsonParser parser, final DeserializationContext context) throws IOException,
+                JsonProcessingException {
+            final JsonNode tree = parser.getCodec().readTree(parser);
+            return new android.graphics.Point(tree.get("X").asInt(), tree.get("Y").asInt());
+        }
+    };
+
     // -----------------------------------------------------------------------------
+
+    private static final JsonSerializer<android.graphics.PointF> alocationSerializer = new JsonSerializer<android.graphics.PointF>() {
+        @Override
+        public void serialize(final android.graphics.PointF value, final JsonGenerator gen, final SerializerProvider sP)
+                throws IOException, JsonProcessingException {
+            gen.writeStartObject();
+            gen.writeNumberField("X", value.x);
+            gen.writeNumberField("Y", value.y);
+            gen.writeEndObject();
+        }
+    };
+
+    private static final JsonDeserializer<android.graphics.PointF> alocationDeserializer = new JsonDeserializer<android.graphics.PointF>() {
+        @Override
+        public android.graphics.PointF deserialize(final JsonParser parser, final DeserializationContext context) throws IOException,
+                JsonProcessingException {
+            final JsonNode tree = parser.getCodec().readTree(parser);
+            return new android.graphics.PointF(tree.get("X").floatValue(), tree.get("Y").floatValue());
+        }
+    };
+
+    // -----------------------------------------------------------------------------
+
+    private static final JsonSerializer<android.graphics.RectF> arectangleSerializer = new JsonSerializer<android.graphics.RectF>() {
+        @Override
+        public void serialize(final android.graphics.RectF value, final JsonGenerator gen, final SerializerProvider sP)
+                throws IOException, JsonProcessingException {
+            gen.writeStartObject();
+            gen.writeNumberField("X", value.right);
+            gen.writeNumberField("Y", value.top);
+            gen.writeNumberField("Width", value.width());
+            gen.writeNumberField("Height", value.height());
+            gen.writeEndObject();
+        }
+    };
+
+    private static final JsonDeserializer<android.graphics.RectF> arectangleDeserializer = new JsonDeserializer<android.graphics.RectF>() {
+        @Override
+        public android.graphics.RectF deserialize(final JsonParser parser, final DeserializationContext context)
+                throws IOException, JsonProcessingException {
+            final JsonNode tree = parser.getCodec().readTree(parser);
+            final float top = tree.get("X").floatValue();
+            final float left = tree.get("Y").floatValue();
+            final float width = tree.get("Width").floatValue();
+            final float height = tree.get("Height").floatValue();
+            return new android.graphics.RectF(top - height, left, left + width, top);
+        }
+    };
+
+    // -----------------------------------------------------------------------------
+
+    private static final JsonSerializer<android.graphics.Bitmap> aimageSerializer = new JsonSerializer<android.graphics.Bitmap>() {
+        @Override
+        public void serialize(final android.graphics.Bitmap value, final JsonGenerator gen, final SerializerProvider sP)
+                throws IOException, JsonProcessingException {
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            value.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, baos);
+            gen.writeBinary(baos.toByteArray());
+        }
+    };
+
+    private static final JsonDeserializer<android.graphics.Bitmap> aimageDeserializer = new JsonDeserializer<android.graphics.Bitmap>() {
+        @Override
+        public android.graphics.Bitmap deserialize(final JsonParser parser, final DeserializationContext context)
+                throws IOException, JsonProcessingException {
+            final InputStream is = new ByteArrayInputStream(parser.getBinaryValue());
+            return android.graphics.BitmapFactory.decodeStream(is);
+        }
+    };
+
+    // -----------------------------------------------------------------------------/Android Serialization
 
     private static final JsonSerializer<Element> xmlSerializer = new JsonSerializer<Element>() {
         @Override
@@ -306,12 +400,9 @@ public class JsonSerialization {
     /**
      * Recursively builds an XML document subtree
      *
-     * @param doc
-     *          the document to be built up
-     * @param subtreeRootElement
-     *          the root of the subtree
-     * @param elementContent
-     *          the value of the subtree
+     * @param doc                the document to be built up
+     * @param subtreeRootElement the root of the subtree
+     * @param elementContent     the value of the subtree
      */
     @SuppressWarnings("unchecked")
     private static void buildXmlFromHashMap(
@@ -399,15 +490,11 @@ public class JsonSerialization {
      * <code>listHeadElementName</code>. The head element need be created before
      * this method call.
      *
-     * @param doc
-     *          The parent document
-     * @param listHeadNode
-     *          The first node of the list, needs to be created before this method
-     *          call
-     * @param listHeadElementName
-     *          The name of the list's head element
-     * @param elementContentList
-     *          The actual list contents
+     * @param doc                 The parent document
+     * @param listHeadNode        The first node of the list, needs to be created before this method
+     *                            call
+     * @param listHeadElementName The name of the list's head element
+     * @param elementContentList  The actual list contents
      */
     private static void buildXmlFromJsonArray(
             final Document doc,
@@ -468,13 +555,9 @@ public class JsonSerialization {
 
     private static final SimpleModule serializationModule =
             new SimpleModule("SerializationModule", new Version(0, 0, 0, "SNAPSHOT", "com.dslplatform", "dsl-client"))
-            .addSerializer(LocalDate.class, dateSerializer)
-            .addSerializer(DateTime.class, timestampSerializer)
-            .addSerializer(Point.class, pointSerializer)
-            .addSerializer(Point2D.class, locationSerializer)
-            .addSerializer(Rectangle2D.class, rectangleSerializer)
-            .addSerializer(BufferedImage.class, imageSerializer)
-            .addSerializer(Element.class, xmlSerializer);
+                    .addSerializer(LocalDate.class, dateSerializer)
+                    .addSerializer(Element.class, xmlSerializer)
+                    .addSerializer(DateTime.class, timestampSerializer);
 
     private static final ObjectMapper serializationMapper = new ObjectMapper()
             .registerModule(serializationModule)
@@ -521,13 +604,9 @@ public class JsonSerialization {
 
     private static final SimpleModule deserializationModule =
             new SimpleModule("DeserializationModule", new Version(0, 0, 0, "SNAPSHOT", "com.dslplatform", "dsl-client"))
-            .addDeserializer(LocalDate.class, dateDeserializer)
-            .addDeserializer(DateTime.class, timestampDeserializer)
-            .addDeserializer(Point.class, pointDeserializer)
-            .addDeserializer(Point2D.class, locationDeserializer)
-            .addDeserializer(Rectangle2D.class, rectangleDeserializer)
-            .addDeserializer(BufferedImage.class, imageDeserializer)
-            .addDeserializer(Element.class, xmlDeserializer);
+                    .addDeserializer(LocalDate.class, dateDeserializer)
+                    .addDeserializer(DateTime.class, timestampDeserializer)
+                    .addDeserializer(Element.class, xmlDeserializer);
 
     private static ObjectMapper makeDeserializationObjectMapper(final ServiceLocator locator) {
         return new ObjectMapper()
@@ -539,4 +618,42 @@ public class JsonSerialization {
     public static <T> T deserialize(final JavaType type, final String data, final ServiceLocator locator) throws IOException {
         return makeDeserializationObjectMapper(locator).readValue(data, type);
     }
+
+    static {
+        addPlatformDependentDeserializerModules(deserializationModule);
+        addPlatformDependentSerializerModules(serializationModule);
+    }
+
+    private static void addPlatformDependentSerializerModules(final SimpleModule serializationModule) {
+        if (Utils.isJVM) {
+            serializationModule
+                    .addSerializer(Point.class, pointSerializer)
+                    .addSerializer(Point2D.class, locationSerializer)
+                    .addSerializer(Rectangle2D.class, rectangleSerializer)
+                    .addSerializer(BufferedImage.class, imageSerializer);
+        } else {
+            serializationModule
+                    .addSerializer(android.graphics.Point.class, apointSerializer)
+                    .addSerializer(android.graphics.PointF.class, alocationSerializer)
+                    .addSerializer(android.graphics.RectF.class, arectangleSerializer)
+                    .addSerializer(android.graphics.Bitmap.class, aimageSerializer);
+        }
+    }
+
+    private static void addPlatformDependentDeserializerModules(final SimpleModule deserializationModule) {
+        if (Utils.isJVM) {
+            deserializationModule
+                    .addDeserializer(Point.class, pointDeserializer)
+                    .addDeserializer(Point2D.class, locationDeserializer)
+                    .addDeserializer(Rectangle2D.class, rectangleDeserializer)
+                    .addDeserializer(BufferedImage.class, imageDeserializer);
+        } else {
+            deserializationModule
+                    .addDeserializer(android.graphics.Point.class, apointDeserializer)
+                    .addDeserializer(android.graphics.PointF.class, alocationDeserializer)
+                    .addDeserializer(android.graphics.RectF.class, arectangleDeserializer)
+                    .addDeserializer(android.graphics.Bitmap.class, aimageDeserializer);
+        }
+    }
+
 }
