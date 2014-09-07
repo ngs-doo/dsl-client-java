@@ -625,7 +625,7 @@ public class JsonSerialization {
     }
 
     private static void addPlatformDependentSerializerModules(final SimpleModule serializationModule) {
-        if (Utils.isJVM) {
+        if (!Utils.isAndroid) {
             serializationModule
                     .addSerializer(Point.class, pointSerializer)
                     .addSerializer(Point2D.class, locationSerializer)
@@ -641,7 +641,7 @@ public class JsonSerialization {
     }
 
     private static void addPlatformDependentDeserializerModules(final SimpleModule deserializationModule) {
-        if (Utils.isJVM) {
+        if (!Utils.isAndroid) {
             deserializationModule
                     .addDeserializer(Point.class, pointDeserializer)
                     .addDeserializer(Point2D.class, locationDeserializer)
