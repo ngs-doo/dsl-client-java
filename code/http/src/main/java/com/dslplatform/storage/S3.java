@@ -113,7 +113,7 @@ public class S3 implements java.io.Serializable {
 
     /**
      * Bucket under which data will be saved.
-     * By default bucket is defined in the project.ini file under s3-bucket key
+     * By default bucket is defined in the dsl-project.properties file under s3-bucket key
      *
      * @return bucket to remote server
      */

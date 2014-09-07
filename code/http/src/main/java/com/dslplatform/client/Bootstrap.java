@@ -38,37 +38,51 @@ public class Bootstrap {
 	}
 
 	/**
-	 * Initialize service locator using provided project.ini stream and
-	 * components specified in initialComponents param. Use this constructor
+	 * Initialize service locator using provided dsl-project.properties stream
+	 * and components specified in initialComponents param. Use this constructor
 	 * if you want to inject arbitrary instance of org.slf4j.Logger, and(or)
 	 * java.util.concurrent.ExecutorService.
 	 *
-	 * @param iniStream         stream for project.ini
-	 * @param initialComponents components to initialize with
+	 * @param properties		project settings
+	 * @param initialComponents	components to initialize with
 	 * @return                  initialized service locator
-	 * @throws IOException      in case of failure to read stream
+	 * @throws IOException		in case of failure to read stream
 	 */
 	public static ServiceLocator init(
-			final InputStream iniStream,
+			final Properties properties,
 			final Map<Class<?>, Object> initialComponents) throws IOException {
-		return init(iniStream, new MapServiceLocator(initialComponents));
+		return init(properties, new MapServiceLocator(initialComponents));
 	}
 
 	/**
-	 * Initialize service locator using provided project.ini stream.
+	 * Initialize service locator using provided dsl-project.properties stream.
 	 *
-	 * @param iniStream	stream for project.ini
-	 * @return initialized service locator
+	 * @param properties   project settings
+	 * @return             initialized service locator
 	 * @throws IOException in case of failure to read stream
 	 */
-	public static ServiceLocator init(final InputStream iniStream) throws IOException {
-		if (iniStream == null) throw new IOException("Provided input stream was null.");
-		return init(iniStream, new MapServiceLocator());
+	public static ServiceLocator init(final Properties properties) throws IOException {
+		return init(properties, new MapServiceLocator());
+	}
+
+	/**
+	 * Initialize service locator using provided dsl-project.properties stream.
+	 *
+	 * @param propertiesStream stream for dsl-project.properties
+	 * @return                 initialized service locator
+	 * @throws IOException     in case of failure to read stream
+	 */
+	public static ServiceLocator init(final InputStream propertiesStream) throws IOException {
+		if (propertiesStream == null) throw new IOException("Provided input stream was null.");
+		final Properties properties = new Properties();
+		properties.load(propertiesStream);
+		return init(properties, new MapServiceLocator());
 	}
 
 	private static ServiceLocator init(
-			final InputStream iniStream,
+			final Properties properties,
 			final MapServiceLocator locator) throws IOException {
+		if (properties == null) throw new IOException("Provided properties was null.");
 		final JsonSerialization jsonDeserialization = new JsonSerialization(locator);
 		final Logger logger;
 		if (locator.contains(Logger.class)) {
@@ -77,7 +91,7 @@ public class Bootstrap {
 			logger = LoggerFactory.getLogger("dsl-client-http");
 			locator.register(Logger.class, logger);
 		}
-		final ProjectSettings project = new ProjectSettings(logger, iniStream);
+		final ProjectSettings project = new ProjectSettings(logger, properties);
 		locator.register(ProjectSettings.class, project);
 
 		final ExecutorService executorService;
@@ -113,14 +127,15 @@ public class Bootstrap {
 	}
 
 	/**
-	 * Initialize service locator using provided project.ini path.
+	 * Initialize service locator using provided dsl-project.properties path.
 	 *
-	 * @param iniPath	  path to project.ini
-	 * @return			 initialized service locator
-	 * @throws IOException in case of failure to read project.ini
+	 * @param propertiesPath  path to dsl-project.properties
+	 * @return initialized service locator
+	 * @throws IOException in case of failure to read dsl-project.properties
 	 */
-	public static ServiceLocator init(final String iniPath) throws IOException {
-		final InputStream iniStream = new FileInputStream(iniPath);
+	public static ServiceLocator init(final String propertiesPath) throws IOException {
+		if (propertiesPath == null) throw new IOException("Provided path to properties file was null.");
+		final InputStream iniStream = new FileInputStream(propertiesPath);
 		try {
 			return init(iniStream);
 		} finally {

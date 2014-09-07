@@ -43,7 +43,7 @@ class AmazonS3Repository implements S3Repository {
     private void checkBucket(final String name) throws IOException {
         if (name == null || name.isEmpty())
             throw new IOException(
-                    "Bucket not specified. If you wish to use default bucket name, add it as s3-bucket to project.ini");
+                    "Bucket not specified. If you wish to use default bucket name, add it as s3-bucket to dsl-project.properties");
     }
 
     @Override
