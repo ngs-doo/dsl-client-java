@@ -43,10 +43,10 @@ public class Bootstrap {
 	 * if you want to inject arbitrary instance of org.slf4j.Logger, and(or)
 	 * java.util.concurrent.ExecutorService.
 	 *
-	 * @param iniStream				stream for project.ini
-	 * @param initialComponents		components to initialize with
-	 * @return						 initialized service locator
-	 * @throws IOException			 in case of failure to read stream
+	 * @param iniStream         stream for project.ini
+	 * @param initialComponents components to initialize with
+	 * @return                  initialized service locator
+	 * @throws IOException      in case of failure to read stream
 	 */
 	public static ServiceLocator init(
 			final InputStream iniStream,
@@ -58,7 +58,7 @@ public class Bootstrap {
 	 * Initialize service locator using provided project.ini stream.
 	 *
 	 * @param iniStream	stream for project.ini
-	 * @return			 initialized service locator
+	 * @return initialized service locator
 	 * @throws IOException in case of failure to read stream
 	 */
 	public static ServiceLocator init(final InputStream iniStream) throws IOException {
@@ -135,7 +135,7 @@ public class Bootstrap {
 	private static final String getVersionInfo(final String section) {
 		if (versionInfo.isEmpty()) {
 			try {
-				versionInfo.load(Bootstrap.class.getResourceAsStream("dsl-client.ini"));
+				versionInfo.load(Bootstrap.class.getResourceAsStream("dsl-client.properties"));
 			} catch (final Throwable t) {
 				t.printStackTrace();
 			}
@@ -179,7 +179,7 @@ public class Bootstrap {
 		System.out.println(versionString.replaceAll(".", "-"));
 		System.out.println();
 
-		System.out.println("This is the Java (Android) version of the DSL Platform client library");
+		System.out.println("This is the Java version of the DSL Platform client library");
 		System.out.println("and is not indented to be run as a standalone application.");
 		System.out.println();
 		System.out.println("For more information, visit https://dsl-platform.com/");

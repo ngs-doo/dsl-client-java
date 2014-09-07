@@ -1,10 +1,7 @@
 import sbt._
 import Keys._
 
-// Eclipse plugin
 import com.typesafe.sbteclipse.plugin.EclipsePlugin._
-
-// Dependency graph plugin
 import net.virtualvoid.sbt.graph.Plugin._
 
 // ----------------------------------------------------------------------------
@@ -33,9 +30,10 @@ trait Default {
       , "-Xlint"
       , "-target", "1.6"
       ) ++ (javacOptions in doc).value
-
     , unmanagedSourceDirectories in Compile := Seq((javaSource in Compile).value)
-    , unmanagedSourceDirectories in Test := Seq((javaSource in Test).value)
+    , EclipseKeys.eclipseOutput := Some(".target")
+    , EclipseKeys.executionEnvironment := Some(EclipseExecutionEnvironment.JavaSE16)
+    , EclipseKeys.projectFlavor := EclipseProjectFlavor.Java
     )
 }
 
@@ -52,10 +50,10 @@ trait Dependencies {
   val slf4j = "org.slf4j" % "slf4j-api" % "1.7.7"
 
   // Amazon Web Services SDK (S3 type)
-  val aws = "com.amazonaws" % "aws-java-sdk" % "1.8.7"
+  val aws = "com.amazonaws" % "aws-java-sdk" % "1.8.9.1"
 
   // Akka Actor (contains the Serializer)
-  val akkaActor = "com.typesafe.akka" %% "akka-actor" % "2.3.4"
+  val akkaActor = "com.typesafe.akka" %% "akka-actor" % "2.3.6"
 
   // Android SDK
   val androidSDK = "com.google.android" % "android" % "4.1.1.4"
@@ -74,8 +72,11 @@ object NGSBuild extends Build with Default with Dependencies {
     "core"
   , file("core")
   , settings = defaultSettings ++ Seq(
-      name := "DSL-Client-Core"
-    , libraryDependencies += jodaTime
+      name := "dsl-client-core"
+    , libraryDependencies ++= Seq(
+        jodaTime
+      )
+    , unmanagedSourceDirectories in Test := Nil
     )
   )
 
@@ -83,23 +84,40 @@ object NGSBuild extends Build with Default with Dependencies {
     "http"
   , file("http")
   , settings = defaultSettings ++ Seq(
-      name := "DSL-Client-HTTP"
+      name := "dsl-client-http"
     , libraryDependencies ++= Seq(
         slf4j
-      //, jodaTime
-      , akkaActor % "provided"
-      , aws % "provided"
-      , androidSDK % "provided"
       , jackson
-      , junit % "test"
+      , akkaActor % "provided"
+      , androidSDK % "provided" intransitive()
+      , aws % "provided"
       , jsonAssert % "test"
-      , xmlUnit % "test"
+      , junit % "test"
       , logback % "test"
+      , xmlUnit % "test"
       )
+    , unmanagedSourceDirectories in Test := Seq((javaSource in Test).value)
+    , EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource
+    , createVersionProperties
     )
   ) dependsOn(core)
 
-  def aggregatedCompile =  ScopeFilter(inProjects(core, http), inConfigurations(Compile))
+  private val createVersionProperties =
+    onLoad := {
+      val body = "version=%s\ndate=%s" format (version.value, org.joda.time.LocalDate.now)
+
+      val propertiesPath = (
+        baseDirectory.value
+        / "src" / "main" / "resources"
+        / "com" / "dslplatform" / "client"
+        / "dsl-client.properties"
+      )
+
+      org.apache.commons.io.FileUtils.writeStringToFile(propertiesPath, body, "UTF-8")
+      onLoad.value
+    }
+
+  def aggregatedCompile = ScopeFilter(inProjects(core, http), inConfigurations(Compile))
 
   def aggregatedTest = ScopeFilter(inProjects(core, http), inConfigurations(Test))
 
