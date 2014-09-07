@@ -8,7 +8,7 @@ import java.util.concurrent.Future;
  * Service for searching and counting domain objects.
  * Search can be performed using {@link Specification specification},
  * paged using limit and offset arguments.
- * Custom sort can be provided using list of property->direction pairs.
+ * Custom sort can be provided using list of property-&gt;direction pairs.
  * <p>
  * Specification can be declared in DSL or custom search can be built on client
  * and sent to server.

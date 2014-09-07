@@ -8,7 +8,7 @@ import java.util.Properties;
 import org.slf4j.Logger;
 
 /**
- * Project.ini key->value pairs
+ * Project.ini key-&gt;value pairs
  */
 public class ProjectSettings {
     private final Properties properties;

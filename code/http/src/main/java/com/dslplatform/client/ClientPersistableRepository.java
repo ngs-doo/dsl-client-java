@@ -26,7 +26,7 @@ import com.dslplatform.patterns.ServiceLocator;
  * module Todo {
  *   aggregate Task;
  * }
- * </blockquote></pre>
+ * </pre></blockquote>
  * Java usage:
  * <pre>
  * ServiceLocator locator;
