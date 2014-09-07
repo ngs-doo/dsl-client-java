@@ -27,8 +27,8 @@ import com.dslplatform.patterns.Specification;
  *
  *   report LoadData {
  *     int maxUnfinished;
- *     List&lt;Task&gt; unfinishedTasks 'it => it.finishedAt == null' LIMIT maxUnfinished ORDER BY createdAt;
- *     List&lt;Task&gt; recentlyFinishedTasks 'it => it.finishedAt != null' LIMIT 10 ORDER BY finishedAt DESC;
+ *     List&lt;Task&gt; unfinishedTasks 'it =&gt; it.finishedAt == null' LIMIT maxUnfinished ORDER BY createdAt;
+ *     List&lt;Task&gt; recentlyFinishedTasks 'it =&gt; it.finishedAt != null' LIMIT 10 ORDER BY finishedAt DESC;
  *   }
  * }
  * </pre></blockquote>
@@ -51,7 +51,7 @@ public interface ReportingProxy {
      * <blockquote><pre>
      * module Todo {
      *   report LoadData {
-     *     List&lt;Task&gt; unfinishedTasks 'it => it.finishedAt == null' ORDER BY createdAt;
+     *     List&lt;Task&gt; unfinishedTasks 'it =&gt; it.finishedAt == null' ORDER BY createdAt;
      *     templater createDocument 'Tasks.docx' pdf;
      *   }
      * }

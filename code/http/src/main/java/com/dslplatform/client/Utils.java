@@ -140,9 +140,14 @@ class Utils {
         return byteArrayOutputStream.toByteArray();
     }
 
-    static final boolean isJVM = checkIsJVM();
+    static final boolean isAndroid;
+    static {
+        isAndroid = System.getProperty("java.runtime.name").toLowerCase().contains("android");
+    }
 
-    private static boolean checkIsJVM() {
-        return !System.getProperty("java.runtime.name").toLowerCase().contains("android");
+    static String base64Encode(final byte[] body) {
+        return isAndroid
+                ? android.util.Base64.encodeToString(body, android.util.Base64.NO_WRAP)
+                : javax.xml.bind.DatatypeConverter.printBase64Binary(body);
     }
 }

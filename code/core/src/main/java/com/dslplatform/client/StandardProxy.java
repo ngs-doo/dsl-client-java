@@ -70,7 +70,7 @@ public interface StandardProxy {
             final Iterable<Map.Entry<String, Boolean>> order);
 
     /**
-     * Execute remote service (server implementation for IServerService<TArgument, TResult>)
+     * Execute remote service (server implementation for IServerService&lt;TArgument, TResult&gt;)
      * Send message with serialized argument to remote service and deserialize response.
      *
      * @param manifest deserialize result into provided type

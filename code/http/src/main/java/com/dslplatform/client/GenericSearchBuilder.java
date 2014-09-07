@@ -207,7 +207,7 @@ public class GenericSearchBuilder<T extends Searchable> {
     }
 
     /**
-     * Define less then (<) condition for specification.
+     * Define less then (&lt;) condition for specification.
      * Server will return only results that satisfy this and every other specified condition.
      *
      * @param property name of property to compare
@@ -219,7 +219,7 @@ public class GenericSearchBuilder<T extends Searchable> {
     }
 
     /**
-     * Define less then or equal (<=) condition for specification.
+     * Define less then or equal (&lt;=) condition for specification.
      * Server will return only results that satisfy this and every other specified condition.
      *
      * @param property name of property to compare
@@ -231,7 +231,7 @@ public class GenericSearchBuilder<T extends Searchable> {
     }
 
     /**
-     * Define greater then (>) condition for specification.
+     * Define greater then (&gt;) condition for specification.
      * Server will return only results that satisfy this and every other specified condition.
      *
      * @param property name of property to compare
@@ -243,7 +243,7 @@ public class GenericSearchBuilder<T extends Searchable> {
     }
 
     /**
-     * Define greater then or equal (>=) condition for specification.
+     * Define greater then or equal (&gt;=) condition for specification.
      * Server will return only results that satisfy this and every other specified condition.
      *
      * @param property name of property to compare

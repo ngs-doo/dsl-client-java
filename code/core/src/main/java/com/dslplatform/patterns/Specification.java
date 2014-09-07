@@ -16,7 +16,7 @@ package com.dslplatform.patterns;
  *   aggregate Task {
  *       Timestamp createdOn;
  *       specification findBetween
- *           'it => it.createdOn >= after && it.createdOn <= before'  {
+ *           'it =&gt; it.createdOn &gt;= after &amp;&amp; it.createdOn &lt;= before' {
  *         Date after;
  *         Date before;
  *       }

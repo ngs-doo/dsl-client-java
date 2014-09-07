@@ -4,7 +4,7 @@ version in ThisBuild              := "0.4.17-19-SNAPSHOT"
 
 organization in ThisBuild         := "com.dslplatform"
 
-publishTo in ThisBuild            := Some(if (version.value endsWith "SNAPSHOT") Opts.resolver.sonatypeSnapshots else Opts.resolver.sonatypeStaging)
+publishTo in ThisBuild            := Some(if (version.value endsWith "-SNAPSHOT") Opts.resolver.sonatypeSnapshots else Opts.resolver.sonatypeStaging)
 
 licenses in ThisBuild             += ("BSD-style", url("http://opensource.org/licenses/BSD-3-Clause"))
 
@@ -19,6 +19,3 @@ publishMavenStyle in ThisBuild    := true
 pomIncludeRepository in ThisBuild := { _ => false }
 
 homepage in ThisBuild             := Some(url("https://dsl-platform.com/"))
-
-credentials in ThisBuild          += Credentials(Path.userHome / ".config" / "sonatype" / "element.credentials")
-
