@@ -1,8 +1,6 @@
 package com.dslplatform.storage;
 
 import com.dslplatform.client.Bootstrap;
-import com.dslplatform.client.ProjectSettings;
-import com.dslplatform.storage.S3Repository;
 import com.dslplatform.patterns.ServiceLocator;
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -14,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
@@ -101,7 +100,7 @@ public class S3 implements java.io.Serializable {
 
     private final S3Repository instanceRepository;
     private final static S3Repository staticRepository = Bootstrap.getLocator().resolve(S3Repository.class);
-    private final static String bucketName = Bootstrap.getLocator().resolve(ProjectSettings.class).get("s3-bucket");
+    private final static String bucketName = Bootstrap.getLocator().resolve(Properties.class).getProperty("s3-bucket");
 
     private S3Repository getRepository() {
         return instanceRepository != null

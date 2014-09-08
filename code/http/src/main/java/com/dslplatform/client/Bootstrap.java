@@ -91,8 +91,7 @@ public class Bootstrap {
 			logger = LoggerFactory.getLogger("dsl-client-http");
 			locator.register(Logger.class, logger);
 		}
-		final ProjectSettings project = new ProjectSettings(logger, properties);
-		locator.register(ProjectSettings.class, project);
+		locator.register(Properties.class, properties);
 
 		final ExecutorService executorService;
 		if (locator.contains(ExecutorService.class)) {
@@ -105,11 +104,11 @@ public class Bootstrap {
 		if (locator.contains(HttpHeaderProvider.class)) {
 			headerProvider = locator.resolve(HttpHeaderProvider.class);
 		} else {
-			headerProvider = new SettingsHeaderProvider(project);
+			headerProvider = new SettingsHeaderProvider(properties);
 			locator.register(HttpHeaderProvider.class, headerProvider);
 		}
 		final HttpClient httpClient =
-				new HttpClient(project, jsonDeserialization, logger, headerProvider, executorService);
+				new HttpClient(properties, jsonDeserialization, logger, headerProvider, executorService);
 		final DomainProxy domainProxy = new HttpDomainProxy(httpClient);
 
 		locator

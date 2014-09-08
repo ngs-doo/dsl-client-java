@@ -5,5 +5,6 @@ target
 .history
 .target
 .cache
+.idea
 *.orig
 *~

@@ -3,6 +3,7 @@ package com.dslplatform.client;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -34,9 +35,9 @@ class AmazonS3Repository implements S3Repository {
         return s3Client;
     }
 
-    public AmazonS3Repository(final ProjectSettings settings, final ExecutorService executorService) {
-        s3AccessKey = settings.get("s3-user");
-        s3SecretKey = settings.get("s3-secret");
+    public AmazonS3Repository(final Properties properties, final ExecutorService executorService) {
+        s3AccessKey = properties.getProperty("s3-user");
+        s3SecretKey = properties.getProperty("s3-secret");
         this.executorService = executorService;
     }
 

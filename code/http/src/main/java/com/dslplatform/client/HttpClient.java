@@ -57,7 +57,7 @@ class HttpClient {
 	private int currentUrl;
 
 	public HttpClient(
-			final ProjectSettings project,
+			final Properties properties,
 			final JsonSerialization jsonDeserialization,
 			final Logger logger,
 			final HttpHeaderProvider headerProvider,
@@ -65,11 +65,11 @@ class HttpClient {
 		this.logger = logger;
 		this.jsonDeserialization = jsonDeserialization;
 		this.executorService = executorService;
-		this.remoteUrls = project.get("api-url").split(",\\s+");
+		this.remoteUrls = properties.getProperty("api-url").split(",\\s+");
 
-		SSL_SOCKET_FACTORY = createSSLSocketFactory(project);
+		SSL_SOCKET_FACTORY = createSSLSocketFactory(properties);
 
-		domainPrefix = project.get("package-name");
+		domainPrefix = properties.getProperty("package-name");
 		domainPrefixLength = domainPrefix.length() + 1;
 
 		this.headerProvider = headerProvider;
@@ -78,9 +78,9 @@ class HttpClient {
 	// -----------------------------------------------------------------------------
 
 	private SSLSocketFactory createSSLSocketFactory(
-			final ProjectSettings project) {
-		final String trustStore = project.get("trustStore");
-		final String trustStorePassword = project.get("trustStorePassword");
+			final Properties properties) {
+		final String trustStore = properties.getProperty("trustStore");
+		final String trustStorePassword = properties.getProperty("trustStorePassword");
 		if (trustStore != null && trustStorePassword != null)
 			return createSSLSocketFactory(trustStore, trustStorePassword);
 		else {
