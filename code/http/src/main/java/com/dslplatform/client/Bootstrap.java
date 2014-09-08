@@ -186,7 +186,7 @@ public class Bootstrap {
 	 */
 	public static void main(final String[] args) {
 		final String versionString =
-				String.format("dsl-client-%s.jar (released on: %s)", getVersion(), getReleaseDate());
+				String.format("dsl-client-java-%s.jar (released on: %s)", getVersion(), getReleaseDate());
 
 		System.out.println();
 		System.out.println(versionString);

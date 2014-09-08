@@ -22,7 +22,7 @@ trait Default {
         case Some(jdk16Home) => Seq("-bootclasspath",
             Seq("rt", "jsse")
              .map(jdk16Home + "/jre/lib/" + _ + ".jar")
-             .mkString(";"))
+             .mkString(java.io.File.pathSeparator))
         case _ => Nil
       })
     , javacOptions := Seq(
