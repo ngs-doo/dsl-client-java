@@ -14,27 +14,42 @@ trait Default {
       scalaVersion := "2.11.2"
     , crossPaths := false
     , autoScalaLibrary := false
-
     , javacOptions in doc := Seq(
         "-encoding", "UTF-8"
-      , "-source", "1.6"
-      ) ++ (sys.env.get("JDK16_HOME") match {
-        case Some(jdk16Home) => Seq("-bootclasspath",
-            Seq("rt", "jsse")
-             .map(jdk16Home + "/jre/lib/" + _ + ".jar")
-             .mkString(java.io.File.pathSeparator))
-        case _ => Nil
-      })
+      )
     , javacOptions := Seq(
         "-deprecation"
       , "-Xlint"
-      , "-target", "1.6"
       ) ++ (javacOptions in doc).value
     , unmanagedSourceDirectories in Compile := Seq((javaSource in Compile).value)
     , EclipseKeys.eclipseOutput := Some(".target")
     , EclipseKeys.executionEnvironment := Some(EclipseExecutionEnvironment.JavaSE16)
     , EclipseKeys.projectFlavor := EclipseProjectFlavor.Java
-    )
+    ) ++ (sys.env.get("JDK16_HOME") match {
+      case Some(jdk16Home) =>
+        Seq(
+          javacOptions in doc ++= Seq(
+            "-bootclasspath"
+            , Seq("rt", "jsse").map(jdk16Home + "/jre/lib/" + _ + ".jar").mkString(java.io.File.pathSeparator)
+            , "-source", "1.6"
+          )
+          , javacOptions ++= Seq("-target", "1.6")
+        )
+      case _ =>
+        Nil
+    })
+
+  def checkByteCode(jar: File): File = {
+    val zipis = new java.util.zip.ZipInputStream(new java.io.FileInputStream(jar))
+
+    Stream.continually(zipis.getNextEntry).takeWhile(null !=).filter(_.getName.endsWith(".class")).foreach{
+      entry =>
+        J2SEVersionCheck(readIS(zipis), J2SEVersion.`6` == _)
+      }
+    def readIS(is: java.io.InputStream) = Stream.continually(is.read).takeWhile(-1 !=).map(_.toByte).toArray
+    jar
+  }
+
 }
 
 // ----------------------------------------------------------------------------
@@ -121,7 +136,7 @@ object NGSBuild extends Build with Default with Dependencies {
 
   def aggregatedTest = ScopeFilter(inProjects(core, http), inConfigurations(Test))
 
-  def aggregatedModules = Seq(
+  def rootSettings = Seq(
     sources in Compile                        := sources.all(aggregatedCompile).value.flatten,
     unmanagedSources in Compile               := unmanagedSources.all(aggregatedCompile).value.flatten,
     unmanagedSourceDirectories in Compile     := unmanagedSourceDirectories.all(aggregatedCompile).value.flatten,
@@ -130,8 +145,9 @@ object NGSBuild extends Build with Default with Dependencies {
     unmanagedSources in Test                  := unmanagedSources.all(aggregatedTest).value.flatten,
     unmanagedSourceDirectories in Test        := unmanagedSourceDirectories.all(aggregatedTest).value.flatten,
     unmanagedResourceDirectories in Test      := unmanagedResourceDirectories.all(aggregatedTest).value.flatten,
-    libraryDependencies                       := libraryDependencies.all(aggregatedCompile).value.flatten
+    libraryDependencies                       := libraryDependencies.all(aggregatedCompile).value.flatten,
+    packageBin in Compile                     := (packageBin in Compile).map{checkByteCode}.value
   )
 
-  lazy val root = (project in file(".")) settings ((defaultSettings ++ aggregatedModules): _*)
+  lazy val root = (project in file(".")) settings ((defaultSettings ++ rootSettings): _*)
 }
