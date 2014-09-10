@@ -102,7 +102,7 @@ public interface DomainProxy {
      * @param order    custom ordering
      * @return         future to found domain objects
      */
-    public <T extends Searchable> Future<List<T>> findAll(
+    public <T extends Searchable> Future<List<T>> search(
             final Class<T> manifest,
             final Integer limit,
             final Integer offset,
@@ -118,7 +118,7 @@ public interface DomainProxy {
      * @param offset   number of results to be skipped
      * @return         future to found domain objects
      */
-    public <T extends Searchable> Future<List<T>> findAll(
+    public <T extends Searchable> Future<List<T>> search(
             final Class<T> manifest,
             final Integer limit,
             final Integer offset);
@@ -129,7 +129,7 @@ public interface DomainProxy {
      * @param manifest domain object class
      * @return         future to found domain objects
      */
-    public <T extends Searchable> Future<List<T>> findAll(
+    public <T extends Searchable> Future<List<T>> search(
             final Class<T> manifest);
 
     /**

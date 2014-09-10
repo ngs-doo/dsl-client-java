@@ -132,7 +132,7 @@ public class SearchBuilder<T extends Searchable> {
      */
     public Future<List<T>> search() {
         return specification == null
-                ? repository.findAll(limit, offset, order)
+                ? repository.search(limit, offset, order)
                 : repository.search(specification, limit, offset, order);
     }
 }

@@ -77,7 +77,7 @@ public interface SearchableRepository<T extends Searchable> {
      * @param order  custom ordering
      * @return       future to found domain objects
      */
-    public Future<List<T>> findAll(
+    public Future<List<T>> search(
             final Integer limit,
             final Integer offset,
             final Iterable<Map.Entry<String, Boolean>> order);
@@ -91,14 +91,14 @@ public interface SearchableRepository<T extends Searchable> {
      * @param offset number of results to be skipped
      * @return       future to found domain objects
      */
-    public Future<List<T>> findAll(final Integer limit, final Integer offset);
+    public Future<List<T>> search(final Integer limit, final Integer offset);
 
     /**
      * Returns a list of all domain objects
      *
      * @return future found domain objects
      */
-    public Future<List<T>> findAll();
+    public Future<List<T>> search();
 
     /**
      * Returns a number of elements satisfying provided specification.
@@ -113,7 +113,7 @@ public interface SearchableRepository<T extends Searchable> {
      *
      * @return future to number of domain objects
      */
-    public Future<Long> countAll();
+    public Future<Long> count();
 
     /**
      * Returns an instance of {@link SearchBuilder search builder} for this repository.

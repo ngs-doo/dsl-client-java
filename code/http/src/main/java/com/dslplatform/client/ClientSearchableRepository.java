@@ -72,21 +72,21 @@ public abstract class ClientSearchableRepository<T extends Searchable> implement
     }
 
     @Override
-    public Future<List<T>> findAll(
+    public Future<List<T>> search(
             final Integer limit,
             final Integer offset,
             final Iterable<Map.Entry<String, Boolean>> order) {
-        return domainProxy.findAll(manifest, limit, offset, order);
+        return domainProxy.search(manifest, limit, offset, order);
     }
 
     @Override
-    public Future<List<T>> findAll(final Integer limit, final Integer offset) {
-        return domainProxy.findAll(manifest, limit, offset);
+    public Future<List<T>> search(final Integer limit, final Integer offset) {
+        return domainProxy.search(manifest, limit, offset);
     }
 
     @Override
-    public Future<List<T>> findAll() {
-        return domainProxy.findAll(manifest);
+    public Future<List<T>> search() {
+        return domainProxy.search(manifest);
     }
 
     @Override
@@ -95,7 +95,7 @@ public abstract class ClientSearchableRepository<T extends Searchable> implement
     }
 
     @Override
-    public Future<Long> countAll() {
+    public Future<Long> count() {
         return domainProxy.count(manifest);
     }
 

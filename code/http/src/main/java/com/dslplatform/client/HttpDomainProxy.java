@@ -102,7 +102,7 @@ class HttpDomainProxy implements DomainProxy {
     }
 
     @Override
-    public <T extends Searchable> Future<List<T>> findAll(
+    public <T extends Searchable> Future<List<T>> search(
             final Class<T> manifest,
             final Integer limit,
             final Integer offset,
@@ -119,16 +119,16 @@ class HttpDomainProxy implements DomainProxy {
     }
 
     @Override
-    public <T extends Searchable> Future<List<T>> findAll(
+    public <T extends Searchable> Future<List<T>> search(
             final Class<T> manifest,
             final Integer limit,
             final Integer offset) {
-        return findAll(manifest, limit, offset, null);
+        return search(manifest, limit, offset, null);
     }
 
     @Override
-    public <T extends Searchable> Future<List<T>> findAll(final Class<T> manifest) {
-        return findAll(manifest, null, null, null);
+    public <T extends Searchable> Future<List<T>> search(final Class<T> manifest) {
+        return search(manifest, null, null, null);
     }
 
     @Override
