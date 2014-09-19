@@ -89,7 +89,7 @@ class HttpClient {
 			if (trustStoreEnv != null && trustStorePasswordEnv != null)
 				return createSSLSocketFactory(trustStoreEnv, trustStorePasswordEnv);
 			else
-				return createSSLSocketFactory("common-cas.jks", "common-cas");
+				return null;
 		}
 	}
 
