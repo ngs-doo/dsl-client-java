@@ -32,7 +32,7 @@ trait Default {
             "-bootclasspath"
             , Seq("rt", "jsse").map(jdk16Home + "/jre/lib/" + _ + ".jar").mkString(java.io.File.pathSeparator)
             , "-source", "1.6"
-          )
+        )
           , javacOptions ++= Seq("-target", "1.6")
         )
       case _ =>
