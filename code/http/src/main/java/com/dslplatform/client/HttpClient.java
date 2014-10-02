@@ -12,6 +12,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import javax.net.ssl.*;
 
+import com.dslplatform.client.exceptions.HttpException;
+import com.dslplatform.client.exceptions.HttpSecurityException;
+import com.dslplatform.client.exceptions.HttpServerErrorException;
+import com.dslplatform.client.exceptions.HttpUnexpectedCodeException;
 import org.slf4j.Logger;
 
 import com.fasterxml.jackson.databind.JavaType;
@@ -28,10 +32,14 @@ class HttpClient {
 	static class Response {
 		public final int code;
 		public final byte[] body;
+		public final HttpURLConnection connection;
 
-		public Response(final int code, final byte[] body) {
-			this.code = code;
-			this.body = body;
+		public Response(final HttpURLConnection connection) throws IOException {
+			this.code = connection.getResponseCode();
+			body = code < 400
+					? Utils.inputStreamToByteArray(connection.getInputStream())
+					: Utils.inputStreamToByteArray(connection.getErrorStream());
+			this.connection = connection;
 		}
 
 		public String bodyToString() {
@@ -42,8 +50,6 @@ class HttpClient {
 			}
 		}
 	}
-
-// -----------------------------------------------------------------------------
 
 	private final Logger logger;
 	private final JsonSerialization jsonDeserialization;
@@ -74,8 +80,6 @@ class HttpClient {
 
 		this.headerProvider = headerProvider;
 	}
-
-	// -----------------------------------------------------------------------------
 
 	private SSLSocketFactory createSSLSocketFactory(
 			final Properties properties) {
@@ -117,8 +121,6 @@ class HttpClient {
 		}
 	}
 
-	//-----------------------------------------------------------------------------
-
 	public String getDslName(final Class<?> clazz) {
 		final String domainObjectName = clazz.getName();
 		if (domainObjectName.startsWith(domainPrefix)) return domainObjectName.substring(domainPrefixLength);
@@ -132,9 +134,7 @@ class HttpClient {
 		return false;
 	}
 
-	//-----------------------------------------------------------------------------
-
-	private <TArgument> Response doRawRequest(
+	private <TArgument> byte[] doRawRequest(
 			final String service,
 			final List<Map.Entry<String, String>> headers,
 			final String method,
@@ -150,15 +150,14 @@ class HttpClient {
 				logger.debug("Sending request [{}]: {}", method, service);
 			}
 		} else {
-			final String jsonBody = JsonSerialization.serialize(content);
-			body = jsonBody.getBytes("UTF-8");
+			body = JsonSerialization.serializeBytes(content);
 
 			if (logger.isDebugEnabled()) {
-				logger.debug("Sending request [{}]: {}, content size: {} bytes", method, service, jsonBody.length());
+				logger.debug("Sending request [{}]: {}, content size: {} bytes", method, service, body.length);
 			}
 		}
 
-		final Response response = transmit(service, headers, method, body);
+		final Response response = transmit(service, headers, method, body, 2);
 
 		if (logger.isDebugEnabled()) {
 			final long time = System.currentTimeMillis() - start;
@@ -169,12 +168,17 @@ class HttpClient {
 			}
 		}
 
-		if (expected != null && !contains(expected, response.code))
-			throw new IOException("Unexpected return code: " + response.code + ", response: " + response.bodyToString());
+		if (response.code == HttpURLConnection.HTTP_FORBIDDEN || response.code == HttpURLConnection.HTTP_UNAUTHORIZED) {
+			throw new HttpSecurityException(response.bodyToString(), response.code, response.connection.getHeaderFields());
+		} else if (response.code >= HttpURLConnection.HTTP_INTERNAL_ERROR) {
+			throw new HttpServerErrorException(response.bodyToString(), response.code, response.connection.getHeaderFields());
+		} else if (expected != null && !contains(expected, response.code)) {
+			throw new HttpUnexpectedCodeException(response.bodyToString(), expected, response.code, response.connection.getHeaderFields());
+		} else if (expected == null && response.code >= HttpURLConnection.HTTP_BAD_REQUEST) {
+			throw new HttpException(response.bodyToString(), response.code, response.connection.getHeaderFields());
+		}
 
-		if (expected == null && response.code >= 300) throw new IOException(response.bodyToString());
-
-		return response;
+		return response.body;
 	}
 
 	private static final List<Map.Entry<String, String>> emptyHeaders =
@@ -192,7 +196,7 @@ class HttpClient {
 		return executorService.submit(new Callable<byte[]>() {
 			@Override
 			public byte[] call() throws IOException {
-				return doRawRequest(service, headers, method, content, expected, start).body;
+				return doRawRequest(service, headers, method, content, expected, start);
 			}
 		});
 	}
@@ -210,9 +214,9 @@ class HttpClient {
 			@SuppressWarnings("unchecked")
 			@Override
 			public TResult call() throws IOException {
-				final Response response = doRawRequest(service, emptyHeaders, method, content, expected, start);
+				final byte[] response = doRawRequest(service, emptyHeaders, method, content, expected, start);
 				return type != null
-						? (TResult) jsonDeserialization.deserialize(type, response.bodyToString())
+						? (TResult) jsonDeserialization.deserialize(type, response)
 						: null;
 			}
 		});
@@ -222,23 +226,31 @@ class HttpClient {
 			final String service,
 			final List<Map.Entry<String, String>> headers,
 			final String method,
-			final byte[] payload
-	) throws IOException {
+			final byte[] payload, //TODO: should use OutputStream instead
+			final int retriesOnConflictOrConnectionError) throws IOException {
 		IOException error = null;
 		final int maxLen = remoteUrls.length + currentUrl;
 		for (int i = currentUrl; i < maxLen; i++) {
-			URL url = new URL(remoteUrls[i % remoteUrls.length] + service);
 			try {
+				URL url = new URL(remoteUrls[i % remoteUrls.length] + service);
 				final HttpClient.Response response = transmit(url, headers, method, payload);
-				if (response.code < 500) return response;
+				if (response.code == HttpURLConnection.HTTP_CONFLICT && retriesOnConflictOrConnectionError > 0) {
+					return transmit(service, headers, method, payload, retriesOnConflictOrConnectionError - 1);
+				}
+				if (response.code < HttpURLConnection.HTTP_INTERNAL_ERROR) {
+					return response;
+				}
 				logger.error("At {} [{}] {}", url, response.code, response.bodyToString());
 				logger.error("Error connecting to {}. Trying next server if exists...", url);
 				error = new IOException(response.bodyToString());
 			} catch (java.net.ConnectException ce) {
-				logger.error("At {} {}", url, ce.getMessage());
+				if (retriesOnConflictOrConnectionError > 0) {
+					return transmit(service, headers, method, payload, retriesOnConflictOrConnectionError - 1);
+				}
+				logger.error("At {} {}. Trying next server if exists...", service, ce.getMessage());
 				error = ce;
 			} catch (IOException ex) {
-				logger.error("IOException {} to {}. Trying next server if exists...", ex.getMessage(), url);
+				logger.error("IOException {} to {}. Trying next server if exists...", ex.getMessage(), service);
 				error = ex;
 			}
 			currentUrl++;
@@ -281,22 +293,12 @@ class HttpClient {
 		if (payload != null) {
 			conn.setDoOutput(true);
 			if (logger.isTraceEnabled()) logger.trace("Adding payload: {}", new String(payload, "UTF-8"));
+			//conn.setFixedLengthStreamingMode(payload.length); //TODO: enable when changed to stream
 			conn.setRequestProperty("Content-Length", Integer.toString(payload.length));
 			conn.getOutputStream().write(payload);
 			conn.getOutputStream().close();
 		}
 
-		try {
-			final int responseCode = conn.getResponseCode();
-			final byte[] responseBody = responseCode < 400
-					? Utils.inputStreamToByteArray(conn.getInputStream())
-					: Utils.inputStreamToByteArray(conn.getErrorStream());
-			return new Response(responseCode, responseBody);
-		} catch (IOException e) {
-			logger.error(e.getMessage());
-			final byte[] bytes = Utils.inputStreamToByteArray(conn.getErrorStream());
-			if (bytes != null && logger.isDebugEnabled()) logger.debug(new String(bytes, "UTF-8"));
-			throw e;
-		}
+		return new Response(conn);
 	}
 }

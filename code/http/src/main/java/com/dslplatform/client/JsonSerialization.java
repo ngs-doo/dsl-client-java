@@ -4,10 +4,7 @@ import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -47,613 +44,606 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 public class JsonSerialization {
-    /* Constants for XML deserialization */
-    private static final String textNodeTag = "#text";
-    private static final String commentNodeTag = "#comment";
-    private static final String cDataNodeTag = "#cdata-section";
-    private static final String whitespaceNodeTag = "#whitespace";
-    private static final String significantWhitespaceNodeTag = "#significant-whitespace";
+	private static final String TEXT_NODE_TAG = "#text";
+	private static final String COMMENT_NODE_TAG = "#comment";
+	private static final String CDATA_NODE_TAG = "#cdata-section";
+	private static final String WHITESPACE_NODE_TAG = "#whitespace";
+	private static final String SIGNIFICANT_WHITESPACE_NODE_TAG = "#significant-whitespace";
 
-    private static final JsonSerializer<LocalDate> dateSerializer = new JsonSerializer<LocalDate>() {
-        @Override
-        public void serialize(final LocalDate value, final JsonGenerator generator, final SerializerProvider x)
-                throws IOException, JsonProcessingException {
-            generator.writeString(value.toString());
-        }
-    };
+	private static final JsonSerializer<LocalDate> dateSerializer = new JsonSerializer<LocalDate>() {
+		@Override
+		public void serialize(final LocalDate value, final JsonGenerator generator, final SerializerProvider x)
+				throws IOException {
+			generator.writeString(value.toString());
+		}
+	};
 
-    private static final JsonDeserializer<LocalDate> dateDeserializer = new JsonDeserializer<LocalDate>() {
-        @Override
-        public LocalDate deserialize(final JsonParser parser, final DeserializationContext context) throws IOException,
-                JsonProcessingException {
-            return new DateTime(parser.getValueAsString()).toLocalDate();
-        }
-    };
+	private static final JsonDeserializer<LocalDate> dateDeserializer = new JsonDeserializer<LocalDate>() {
+		@Override
+		public LocalDate deserialize(final JsonParser parser, final DeserializationContext context) throws IOException {
+			return new DateTime(parser.getValueAsString()).toLocalDate();
+		}
+	};
 
-    // -----------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------
 
-    private static final JsonSerializer<DateTime> timestampSerializer = new JsonSerializer<DateTime>() {
-        @Override
-        public void serialize(final DateTime value, final JsonGenerator gen, final SerializerProvider sP)
-                throws IOException, JsonProcessingException {
-            gen.writeString(value.toString());
-        }
-    };
+	private static final JsonSerializer<DateTime> timestampSerializer = new JsonSerializer<DateTime>() {
+		@Override
+		public void serialize(final DateTime value, final JsonGenerator gen, final SerializerProvider sP)
+				throws IOException {
+			gen.writeString(value.toString());
+		}
+	};
 
-    private static final JsonDeserializer<DateTime> timestampDeserializer = new JsonDeserializer<DateTime>() {
-        @Override
-        public DateTime deserialize(final JsonParser parser, final DeserializationContext context) throws IOException,
-                JsonProcessingException {
-            return new DateTime(parser.getValueAsString());
-        }
-    };
+	private static final JsonDeserializer<DateTime> timestampDeserializer = new JsonDeserializer<DateTime>() {
+		@Override
+		public DateTime deserialize(final JsonParser parser, final DeserializationContext context) throws IOException {
+			return new DateTime(parser.getValueAsString());
+		}
+	};
 
-    // -----------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------
 
-    private static final JsonSerializer<Point> pointSerializer = new JsonSerializer<Point>() {
-        @Override
-        public void serialize(final Point value, final JsonGenerator gen, final SerializerProvider sP)
-                throws IOException, JsonProcessingException {
-            gen.writeStartObject();
-            gen.writeNumberField("X", value.x);
-            gen.writeNumberField("Y", value.y);
-            gen.writeEndObject();
-        }
-    };
+	private static final JsonSerializer<Point> pointSerializer = new JsonSerializer<Point>() {
+		@Override
+		public void serialize(final Point value, final JsonGenerator gen, final SerializerProvider sP)
+				throws IOException {
+			gen.writeStartObject();
+			gen.writeNumberField("X", value.x);
+			gen.writeNumberField("Y", value.y);
+			gen.writeEndObject();
+		}
+	};
 
-    private static final JsonDeserializer<Point> pointDeserializer = new JsonDeserializer<Point>() {
-        @Override
-        public Point deserialize(final JsonParser parser, final DeserializationContext context) throws IOException,
-                JsonProcessingException {
-            final JsonNode tree = parser.getCodec().readTree(parser);
-            return new Point(tree.get("X").asInt(), tree.get("Y").asInt());
-        }
-    };
+	private static final JsonDeserializer<Point> pointDeserializer = new JsonDeserializer<Point>() {
+		@Override
+		public Point deserialize(final JsonParser parser, final DeserializationContext context) throws IOException {
+			final JsonNode tree = parser.getCodec().readTree(parser);
+			return new Point(tree.get("X").asInt(), tree.get("Y").asInt());
+		}
+	};
 
-    // -----------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------
 
-    private static final JsonSerializer<Point2D> locationSerializer = new JsonSerializer<Point2D>() {
-        @Override
-        public void serialize(final Point2D value, final JsonGenerator gen, final SerializerProvider sP)
-                throws IOException, JsonProcessingException {
-            gen.writeStartObject();
-            gen.writeNumberField("X", value.getX());
-            gen.writeNumberField("Y", value.getY());
-            gen.writeEndObject();
-        }
-    };
+	private static final JsonSerializer<Point2D> locationSerializer = new JsonSerializer<Point2D>() {
+		@Override
+		public void serialize(final Point2D value, final JsonGenerator gen, final SerializerProvider sP)
+				throws IOException {
+			gen.writeStartObject();
+			gen.writeNumberField("X", value.getX());
+			gen.writeNumberField("Y", value.getY());
+			gen.writeEndObject();
+		}
+	};
 
-    private static final JsonDeserializer<Point2D> locationDeserializer = new JsonDeserializer<Point2D>() {
-        @Override
-        public Point2D deserialize(final JsonParser parser, final DeserializationContext context) throws IOException,
-                JsonProcessingException {
-            final JsonNode tree = parser.getCodec().readTree(parser);
-            return new Point2D.Double(tree.get("X").asDouble(), tree.get("Y").asDouble());
-        }
-    };
+	private static final JsonDeserializer<Point2D> locationDeserializer = new JsonDeserializer<Point2D>() {
+		@Override
+		public Point2D deserialize(final JsonParser parser, final DeserializationContext context) throws IOException {
+			final JsonNode tree = parser.getCodec().readTree(parser);
+			return new Point2D.Double(tree.get("X").asDouble(), tree.get("Y").asDouble());
+		}
+	};
 
-    // -----------------------------------------------------------------------------
+	private static final JsonSerializer<Rectangle2D> rectangleSerializer = new JsonSerializer<Rectangle2D>() {
+		@Override
+		public void serialize(final Rectangle2D value, final JsonGenerator gen, final SerializerProvider sP)
+				throws IOException {
+			gen.writeStartObject();
+			gen.writeNumberField("X", value.getX());
+			gen.writeNumberField("Y", value.getY());
+			gen.writeNumberField("Width", value.getWidth());
+			gen.writeNumberField("Height", value.getHeight());
+			gen.writeEndObject();
+		}
+	};
 
-    private static final JsonSerializer<Rectangle2D> rectangleSerializer = new JsonSerializer<Rectangle2D>() {
-        @Override
-        public void serialize(final Rectangle2D value, final JsonGenerator gen, final SerializerProvider sP)
-                throws IOException, JsonProcessingException {
-            gen.writeStartObject();
-            gen.writeNumberField("X", value.getX());
-            gen.writeNumberField("Y", value.getY());
-            gen.writeNumberField("Width", value.getWidth());
-            gen.writeNumberField("Height", value.getHeight());
-            gen.writeEndObject();
-        }
-    };
+	private static final JsonDeserializer<Rectangle2D> rectangleDeserializer = new JsonDeserializer<Rectangle2D>() {
+		@Override
+		public Rectangle2D deserialize(final JsonParser parser, final DeserializationContext context)
+				throws IOException {
+			final JsonNode tree = parser.getCodec().readTree(parser);
+			return new Rectangle2D.Double(
+					tree.get("X").asDouble(),
+					tree.get("Y").asDouble(),
+					tree.get("Width").asDouble(),
+					tree.get("Height").asDouble());
+		}
+	};
 
-    private static final JsonDeserializer<Rectangle2D> rectangleDeserializer = new JsonDeserializer<Rectangle2D>() {
-        @Override
-        public Rectangle2D deserialize(final JsonParser parser, final DeserializationContext context)
-                throws IOException, JsonProcessingException {
-            final JsonNode tree = parser.getCodec().readTree(parser);
-            return new Rectangle2D.Double(
-                    tree.get("X").asDouble(),
-                    tree.get("Y").asDouble(),
-                    tree.get("Width").asDouble(),
-                    tree.get("Height").asDouble());
-        }
-    };
+	private static final JsonSerializer<BufferedImage> imageSerializer = new JsonSerializer<BufferedImage>() {
+		@Override
+		public void serialize(final BufferedImage value, final JsonGenerator gen, final SerializerProvider sP)
+				throws IOException {
+			final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ImageIO.write(value, "png", baos);
+			gen.writeBinary(baos.toByteArray());
+		}
+	};
 
-    // -----------------------------------------------------------------------------
+	private static final JsonDeserializer<BufferedImage> imageDeserializer = new JsonDeserializer<BufferedImage>() {
+		@Override
+		public BufferedImage deserialize(final JsonParser parser, final DeserializationContext context)
+				throws IOException {
+			final InputStream is = new ByteArrayInputStream(parser.getBinaryValue());
+			return ImageIO.read(is);
+		}
+	};
 
-    private static final JsonSerializer<BufferedImage> imageSerializer = new JsonSerializer<BufferedImage>() {
-        @Override
-        public void serialize(final BufferedImage value, final JsonGenerator gen, final SerializerProvider sP)
-                throws IOException, JsonProcessingException {
-            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(value, "png", baos);
-            gen.writeBinary(baos.toByteArray());
-        }
-    };
+	private static final JsonSerializer<android.graphics.Point> apointSerializer = new JsonSerializer<android.graphics.Point>() {
+		@Override
+		public void serialize(final android.graphics.Point value, final JsonGenerator gen, final SerializerProvider sP)
+				throws IOException {
+			gen.writeStartObject();
+			gen.writeNumberField("X", value.x);
+			gen.writeNumberField("Y", value.y);
+			gen.writeEndObject();
+		}
+	};
 
-    private static final JsonDeserializer<BufferedImage> imageDeserializer = new JsonDeserializer<BufferedImage>() {
-        @Override
-        public BufferedImage deserialize(final JsonParser parser, final DeserializationContext context)
-                throws IOException, JsonProcessingException {
-            final InputStream is = new ByteArrayInputStream(parser.getBinaryValue());
-            return ImageIO.read(is);
-        }
-    };
+	private static final JsonDeserializer<android.graphics.Point> apointDeserializer = new JsonDeserializer<android.graphics.Point>() {
+		@Override
+		public android.graphics.Point deserialize(final JsonParser parser, final DeserializationContext context) throws IOException {
+			final JsonNode tree = parser.getCodec().readTree(parser);
+			return new android.graphics.Point(tree.get("X").asInt(), tree.get("Y").asInt());
+		}
+	};
 
-    // ----------------------------------------------------------------------------- Android Serialization
+	// -----------------------------------------------------------------------------
 
+	private static final JsonSerializer<android.graphics.PointF> alocationSerializer = new JsonSerializer<android.graphics.PointF>() {
+		@Override
+		public void serialize(final android.graphics.PointF value, final JsonGenerator gen, final SerializerProvider sP)
+				throws IOException {
+			gen.writeStartObject();
+			gen.writeNumberField("X", value.x);
+			gen.writeNumberField("Y", value.y);
+			gen.writeEndObject();
+		}
+	};
 
-    private static final JsonSerializer<android.graphics.Point> apointSerializer = new JsonSerializer<android.graphics.Point>() {
-        @Override
-        public void serialize(final android.graphics.Point value, final JsonGenerator gen, final SerializerProvider sP)
-                throws IOException, JsonProcessingException {
-            gen.writeStartObject();
-            gen.writeNumberField("X", value.x);
-            gen.writeNumberField("Y", value.y);
-            gen.writeEndObject();
-        }
-    };
+	private static final JsonDeserializer<android.graphics.PointF> alocationDeserializer = new JsonDeserializer<android.graphics.PointF>() {
+		@Override
+		public android.graphics.PointF deserialize(final JsonParser parser, final DeserializationContext context) throws IOException {
+			final JsonNode tree = parser.getCodec().readTree(parser);
+			return new android.graphics.PointF(tree.get("X").floatValue(), tree.get("Y").floatValue());
+		}
+	};
 
-    private static final JsonDeserializer<android.graphics.Point> apointDeserializer = new JsonDeserializer<android.graphics.Point>() {
-        @Override
-        public android.graphics.Point deserialize(final JsonParser parser, final DeserializationContext context) throws IOException,
-                JsonProcessingException {
-            final JsonNode tree = parser.getCodec().readTree(parser);
-            return new android.graphics.Point(tree.get("X").asInt(), tree.get("Y").asInt());
-        }
-    };
+	// -----------------------------------------------------------------------------
 
-    // -----------------------------------------------------------------------------
+	private static final JsonSerializer<android.graphics.RectF> arectangleSerializer = new JsonSerializer<android.graphics.RectF>() {
+		@Override
+		public void serialize(final android.graphics.RectF value, final JsonGenerator gen, final SerializerProvider sP)
+				throws IOException {
+			gen.writeStartObject();
+			gen.writeNumberField("X", value.right);
+			gen.writeNumberField("Y", value.top);
+			gen.writeNumberField("Width", value.width());
+			gen.writeNumberField("Height", value.height());
+			gen.writeEndObject();
+		}
+	};
 
-    private static final JsonSerializer<android.graphics.PointF> alocationSerializer = new JsonSerializer<android.graphics.PointF>() {
-        @Override
-        public void serialize(final android.graphics.PointF value, final JsonGenerator gen, final SerializerProvider sP)
-                throws IOException, JsonProcessingException {
-            gen.writeStartObject();
-            gen.writeNumberField("X", value.x);
-            gen.writeNumberField("Y", value.y);
-            gen.writeEndObject();
-        }
-    };
+	private static final JsonDeserializer<android.graphics.RectF> arectangleDeserializer = new JsonDeserializer<android.graphics.RectF>() {
+		@Override
+		public android.graphics.RectF deserialize(final JsonParser parser, final DeserializationContext context)
+				throws IOException {
+			final JsonNode tree = parser.getCodec().readTree(parser);
+			final float top = tree.get("X").floatValue();
+			final float left = tree.get("Y").floatValue();
+			final float width = tree.get("Width").floatValue();
+			final float height = tree.get("Height").floatValue();
+			return new android.graphics.RectF(left, top, left + width, top - height);
+		}
+	};
 
-    private static final JsonDeserializer<android.graphics.PointF> alocationDeserializer = new JsonDeserializer<android.graphics.PointF>() {
-        @Override
-        public android.graphics.PointF deserialize(final JsonParser parser, final DeserializationContext context) throws IOException,
-                JsonProcessingException {
-            final JsonNode tree = parser.getCodec().readTree(parser);
-            return new android.graphics.PointF(tree.get("X").floatValue(), tree.get("Y").floatValue());
-        }
-    };
+	private static final JsonSerializer<android.graphics.Bitmap> aimageSerializer = new JsonSerializer<android.graphics.Bitmap>() {
+		@Override
+		public void serialize(final android.graphics.Bitmap value, final JsonGenerator gen, final SerializerProvider sP)
+				throws IOException {
+			final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			value.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, baos);
+			gen.writeBinary(baos.toByteArray());
+		}
+	};
 
-    // -----------------------------------------------------------------------------
+	private static final JsonDeserializer<android.graphics.Bitmap> aimageDeserializer = new JsonDeserializer<android.graphics.Bitmap>() {
+		@Override
+		public android.graphics.Bitmap deserialize(final JsonParser parser, final DeserializationContext context)
+				throws IOException {
+			final InputStream is = new ByteArrayInputStream(parser.getBinaryValue());
+			return android.graphics.BitmapFactory.decodeStream(is);
+		}
+	};
 
-    private static final JsonSerializer<android.graphics.RectF> arectangleSerializer = new JsonSerializer<android.graphics.RectF>() {
-        @Override
-        public void serialize(final android.graphics.RectF value, final JsonGenerator gen, final SerializerProvider sP)
-                throws IOException, JsonProcessingException {
-            gen.writeStartObject();
-            gen.writeNumberField("X", value.right);
-            gen.writeNumberField("Y", value.top);
-            gen.writeNumberField("Width", value.width());
-            gen.writeNumberField("Height", value.height());
-            gen.writeEndObject();
-        }
-    };
-
-    private static final JsonDeserializer<android.graphics.RectF> arectangleDeserializer = new JsonDeserializer<android.graphics.RectF>() {
-        @Override
-        public android.graphics.RectF deserialize(final JsonParser parser, final DeserializationContext context)
-                throws IOException, JsonProcessingException {
-            final JsonNode tree = parser.getCodec().readTree(parser);
-            final float top = tree.get("X").floatValue();
-            final float left = tree.get("Y").floatValue();
-            final float width = tree.get("Width").floatValue();
-            final float height = tree.get("Height").floatValue();
-            return new android.graphics.RectF(top - height, left, left + width, top);
-        }
-    };
-
-    // -----------------------------------------------------------------------------
-
-    private static final JsonSerializer<android.graphics.Bitmap> aimageSerializer = new JsonSerializer<android.graphics.Bitmap>() {
-        @Override
-        public void serialize(final android.graphics.Bitmap value, final JsonGenerator gen, final SerializerProvider sP)
-                throws IOException, JsonProcessingException {
-            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            value.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, baos);
-            gen.writeBinary(baos.toByteArray());
-        }
-    };
-
-    private static final JsonDeserializer<android.graphics.Bitmap> aimageDeserializer = new JsonDeserializer<android.graphics.Bitmap>() {
-        @Override
-        public android.graphics.Bitmap deserialize(final JsonParser parser, final DeserializationContext context)
-                throws IOException, JsonProcessingException {
-            final InputStream is = new ByteArrayInputStream(parser.getBinaryValue());
-            return android.graphics.BitmapFactory.decodeStream(is);
-        }
-    };
-
-    // -----------------------------------------------------------------------------/Android Serialization
-
-    private static final JsonSerializer<Element> xmlSerializer = new JsonSerializer<Element>() {
-        @Override
-        public void serialize(final Element value, final JsonGenerator gen, final SerializerProvider sP)
-                throws IOException, JsonProcessingException {
-            /*
+	private static final JsonSerializer<Element> xmlSerializer = new JsonSerializer<Element>() {
+		@Override
+		public void serialize(final Element value, final JsonGenerator gen, final SerializerProvider sP)
+				throws IOException  {
+			/*
              * The Xml needs to be cleaned from whitespace text nodes, otherwise the
              * converted document won't match Json.Net's conversion
              */
-            trimWhitespaceTextNodes(value);
+			trimWhitespaceTextNodes(value);
 
             /* If the node is null, write nothing */
-            if (value == null) return;
+			if (value == null) return;
 
-            value.getChildNodes();
-            final HashMap<String, Object> hm = new HashMap<String, Object>();
+			value.getChildNodes();
+			final HashMap<String, Object> hm = new HashMap<String, Object>();
 
-            hm.put(value.getNodeName(), buildFromXml(value));
+			hm.put(value.getNodeName(), buildFromXml(value));
 
-            gen.writeObject(hm);
-        }
-    };
+			gen.writeObject(hm);
+		}
+	};
 
-    private static void trimWhitespaceTextNodes(final org.w3c.dom.Node node) {
-        if (node != null && node.hasChildNodes()) {
-            for (int i = 0; i < node.getChildNodes().getLength(); i++) {
-                final org.w3c.dom.Node child = node.getChildNodes().item(i);
-                if (child.getNodeType() == org.w3c.dom.Node.TEXT_NODE && child.getNodeValue().trim().length() == 0) {
-                    node.removeChild(child);
-                }
-                trimWhitespaceTextNodes(node.getChildNodes().item(i));
-            }
-        }
-    }
+	private static void trimWhitespaceTextNodes(final org.w3c.dom.Node node) {
+		if (node != null && node.hasChildNodes()) {
+			for (int i = 0; i < node.getChildNodes().getLength(); i++) {
+				final org.w3c.dom.Node child = node.getChildNodes().item(i);
+				if (child.getNodeType() == org.w3c.dom.Node.TEXT_NODE && child.getNodeValue().trim().length() == 0) {
+					node.removeChild(child);
+				}
+				trimWhitespaceTextNodes(node.getChildNodes().item(i));
+			}
+		}
+	}
 
-    /**
-     * Recursively builds a JSON object from the given root element
-     */
-    private static Object buildFromXml(final Element el) {
-        final NodeList cn = el.getChildNodes();
-        final int childLen = cn.getLength();
+	/**
+	 * Recursively builds a JSON object from the given root element
+	 */
+	private static Object buildFromXml(final Element el) {
+		final NodeList cn = el.getChildNodes();
+		final int childLen = cn.getLength();
 
-        final LinkedHashMap<String, LinkedList<Node>> childrenByName = new LinkedHashMap<String, LinkedList<Node>>();
+		final LinkedHashMap<String, LinkedList<Node>> childrenByName = new LinkedHashMap<String, LinkedList<Node>>();
 
         /* Sort the nodes in the hash map by children names */
-        for (int i = 0; i < childLen; i++) {
-            final Node n = cn.item(i);
-            final String name = n.getNodeName();
-            if (!childrenByName.containsKey(name)) {
-                childrenByName.put(name, new LinkedList<Node>());
-            }
-            childrenByName.get(name).add(n);
-        }
+		for (int i = 0; i < childLen; i++) {
+			final Node n = cn.item(i);
+			final String name = n.getNodeName();
+			if (!childrenByName.containsKey(name)) {
+				childrenByName.put(name, new LinkedList<Node>());
+			}
+			childrenByName.get(name).add(n);
+		}
 
         /*
          * If there are no children, and no attributes, just return the node's text
          * content value
          */
-        if (childLen == 0 && el.getAttributes().getLength() == 0) return el.getTextContent() != ""
-                ? el.getTextContent()
-                : null;
+		if (childLen == 0 && el.getAttributes().getLength() == 0) {
+			return !"".equals(el.getTextContent()) ? el.getTextContent() : null;
+		}
 
         /* Put all the element's attributes into a hash map */
-        final LinkedHashMap<String, Object> jsonHashMap = new LinkedHashMap<String, Object>();
-        final int attLen = el.getAttributes().getLength();
-        for (int i = 0; i < attLen; i++) {
-            final Node a = el.getAttributes().item(i);
-            jsonHashMap.put("@" + a.getNodeName(), a.getNodeValue());
-        }
+		final LinkedHashMap<String, Object> jsonHashMap = new LinkedHashMap<String, Object>();
+		final int attLen = el.getAttributes().getLength();
+		for (int i = 0; i < attLen; i++) {
+			final Node a = el.getAttributes().item(i);
+			jsonHashMap.put("@" + a.getNodeName(), a.getNodeValue());
+		}
 
         /*
          * Put the child nodes to the hash map; Nodes are sorted by name, nodes
          * having the same name are put together into an array
          */
-        for (final Map.Entry<String, LinkedList<Node>> name_ChildrenHavingName : childrenByName.entrySet()) {
+		for (final Map.Entry<String, LinkedList<Node>> name_ChildrenHavingName : childrenByName.entrySet()) {
             /* For all nodes having the current name */
-            final Object[] items = new Object[name_ChildrenHavingName.getValue().size()];
-            for (int i = 0; i < items.length; i++) {
-                final Node n = name_ChildrenHavingName.getValue().get(i);
+			final Object[] items = new Object[name_ChildrenHavingName.getValue().size()];
+			for (int i = 0; i < items.length; i++) {
+				final Node n = name_ChildrenHavingName.getValue().get(i);
                 /*
                  * If the node is an XML element, recursively convert it's tree to an
                  * Object
                  */
-                if (n instanceof Element) {
-                    items[i] = buildFromXml((Element) n);
-                }
+				if (n instanceof Element) {
+					items[i] = buildFromXml((Element) n);
+				}
                 /* Otherwise use the text value */
-                else {
-                    items[i] = n.getNodeValue() != ""
-                            ? n.getNodeValue()
-                            : null;
-                }
-            }
+				else {
+					items[i] = n.getNodeValue() != ""
+							? n.getNodeValue()
+							: null;
+				}
+			}
             /* Put the resulting object array / single object to the hash map */
-            jsonHashMap.put(name_ChildrenHavingName.getKey(), items.length > 1
-                    ? items
-                    : items[0]);
-        }
+			jsonHashMap.put(name_ChildrenHavingName.getKey(), items.length > 1 ? items : items[0]);
+		}
 
         /* If the element has a single child */
-        if (jsonHashMap.size() == 1 && childrenByName.keySet().iterator().hasNext()) {
+		if (jsonHashMap.size() == 1 && childrenByName.keySet().iterator().hasNext()) {
             /* Get the single child's name */
-            final String name = childrenByName.keySet().iterator().next();
+			final String name = childrenByName.keySet().iterator().next();
 
             /* If it's a text node, the converted object is it's value */
-            if (name.equals(textNodeTag)) return jsonHashMap.get(name);
-            else {
-                // Cleanup? If the single child has a single child with the same
-                // name, return the grandchild?
-                final Object parent = jsonHashMap.get(name);
-                if (parent instanceof HashMap) {
-                    @SuppressWarnings("unchecked")
-                    final HashMap<String, Object> parentHm = (HashMap<String, Object>) parent;
-                    if (parentHm.size() == 1 && parentHm.containsKey(name)) return parentHm;
-                }
-            }
-        }
+			if (name.equals(TEXT_NODE_TAG)) return jsonHashMap.get(name);
+			else {
+				// Cleanup? If the single child has a single child with the same
+				// name, return the grandchild?
+				final Object parent = jsonHashMap.get(name);
+				if (parent instanceof HashMap) {
+					@SuppressWarnings("unchecked")
+					final HashMap<String, Object> parentHm = (HashMap<String, Object>) parent;
+					if (parentHm.size() == 1 && parentHm.containsKey(name)) return parentHm;
+				}
+			}
+		}
 
-        return jsonHashMap;
-    }
+		return jsonHashMap;
+	}
 
-    /**
-     * Recursively builds an XML document subtree
-     *
-     * @param doc                the document to be built up
-     * @param subtreeRootElement the root of the subtree
-     * @param elementContent     the value of the subtree
-     */
-    @SuppressWarnings("unchecked")
-    private static void buildXmlFromHashMap(
-            final Document doc,
-            final Element subtreeRootElement,
-            final Object elementContent) {
-        if (elementContent instanceof HashMap) {
-            final HashMap<String, Object> elementContentMap = (HashMap<String, Object>) elementContent;
-            for (final Map.Entry<String, Object> childEntry : elementContentMap.entrySet()) {
-                if (childEntry.getKey().startsWith("@")) {
-                    subtreeRootElement.setAttribute(childEntry.getKey().substring(1), childEntry.getValue().toString());
-                } else if (childEntry.getKey().startsWith("#")) {
-                    if (childEntry.getKey().equals(textNodeTag)) {
-                        if (childEntry.getValue() instanceof List) {
-                            buildTextNodeList(doc, subtreeRootElement, (List<String>) childEntry.getValue());
-                        } else {
-                            final Node textNode = doc.createTextNode(childEntry.getValue().toString());
-                            subtreeRootElement.appendChild(textNode);
-                        }
-                    } else if (childEntry.getKey().equals(cDataNodeTag)) {
-                        if (childEntry.getValue() instanceof List) {
-                            buildCDataList(doc, subtreeRootElement, (List<String>) childEntry.getValue());
-                        } else {
-                            final Node cDataNode = doc.createCDATASection(childEntry.getValue().toString());
-                            subtreeRootElement.appendChild(cDataNode);
-                        }
-                    } else if (childEntry.getKey().equals(commentNodeTag)) {
-                        if (childEntry.getValue() instanceof List) {
-                            buildCommentList(doc, subtreeRootElement, (List<String>) childEntry.getValue());
-                        } else {
-                            final Node commentNode = doc.createComment(childEntry.getValue().toString());
-                            subtreeRootElement.appendChild(commentNode);
-                        }
-                    } else if (childEntry.getKey().equals(whitespaceNodeTag)
-                            || childEntry.getKey().equals(significantWhitespaceNodeTag)) {
-                        // Ignore
-                    } else {
+	/**
+	 * Recursively builds an XML document subtree
+	 *
+	 * @param doc                the document to be built up
+	 * @param subtreeRootElement the root of the subtree
+	 * @param elementContent     the value of the subtree
+	 */
+	@SuppressWarnings("unchecked")
+	private static void buildXmlFromHashMap(
+			final Document doc,
+			final Element subtreeRootElement,
+			final Object elementContent) {
+		if (elementContent instanceof HashMap) {
+			final HashMap<String, Object> elementContentMap = (HashMap<String, Object>) elementContent;
+			for (final Map.Entry<String, Object> childEntry : elementContentMap.entrySet()) {
+				final String key = childEntry.getKey();
+				if (key.startsWith("@")) {
+					subtreeRootElement.setAttribute(key.substring(1), childEntry.getValue().toString());
+				} else if (key.startsWith("#")) {
+					if (key.equals(TEXT_NODE_TAG)) {
+						if (childEntry.getValue() instanceof List) {
+							buildTextNodeList(doc, subtreeRootElement, (List<String>) childEntry.getValue());
+						} else {
+							final Node textNode = doc.createTextNode(childEntry.getValue().toString());
+							subtreeRootElement.appendChild(textNode);
+						}
+					} else if (key.equals(CDATA_NODE_TAG)) {
+						if (childEntry.getValue() instanceof List) {
+							buildCDataList(doc, subtreeRootElement, (List<String>) childEntry.getValue());
+						} else {
+							final Node cDataNode = doc.createCDATASection(childEntry.getValue().toString());
+							subtreeRootElement.appendChild(cDataNode);
+						}
+					} else if (key.equals(COMMENT_NODE_TAG)) {
+						if (childEntry.getValue() instanceof List) {
+							buildCommentList(doc, subtreeRootElement, (List<String>) childEntry.getValue());
+						} else {
+							final Node commentNode = doc.createComment(childEntry.getValue().toString());
+							subtreeRootElement.appendChild(commentNode);
+						}
+					} else if (key.equals(WHITESPACE_NODE_TAG)
+							|| key.equals(SIGNIFICANT_WHITESPACE_NODE_TAG)) {
+						// Ignore
+					} else {
                         /*
                          * All other nodes whose name starts with a '#' are invalid XML
                          * nodes, and thus ignored:
                          */
-                    }
-                } else {
-                    final Element newElement = doc.createElement(childEntry.getKey());
-                    subtreeRootElement.appendChild(newElement);
-                    buildXmlFromHashMap(doc, newElement, childEntry.getValue());
-                }
-            }
-        } else if (elementContent instanceof List) {
-            buildXmlFromJsonArray(doc, subtreeRootElement, (List<Object>) elementContent);
-        } else {
-            if (elementContent != null) {
-                subtreeRootElement.setTextContent(elementContent.toString());
-            }
-        }
-    }
+					}
+				} else {
+					final Element newElement = doc.createElement(key);
+					subtreeRootElement.appendChild(newElement);
+					buildXmlFromHashMap(doc, newElement, childEntry.getValue());
+				}
+			}
+		} else if (elementContent instanceof List) {
+			buildXmlFromJsonArray(doc, subtreeRootElement, (List<Object>) elementContent);
+		} else {
+			if (elementContent != null) {
+				subtreeRootElement.setTextContent(elementContent.toString());
+			}
+		}
+	}
 
-    private static void buildTextNodeList(final Document doc, final Node subtreeRoot, final List<String> nodeValues) {
+	private static void buildTextNodeList(final Document doc, final Node subtreeRoot, final List<String> nodeValues) {
+		final StringBuilder sb = new StringBuilder();
+		for (final String nodeValue : nodeValues) {
+			sb.append(nodeValue);
+		}
+		subtreeRoot.appendChild(doc.createTextNode(sb.toString()));
+	}
 
-        final StringBuffer singleTextNodeValue = new StringBuffer();
+	private static void buildCDataList(final Document doc, final Node subtreeRoot, final List<String> nodeValues) {
+		for (final String nodeValue : nodeValues) {
+			subtreeRoot.appendChild(doc.createCDATASection(nodeValue));
+		}
+	}
 
-        for (final String nodeValue : nodeValues) {
-            singleTextNodeValue.append(nodeValue);
-            // subtreeRoot.appendChild(doc.createTextNode(nodeValue));
-        }
+	private static void buildCommentList(final Document doc, final Node subtreeRoot, final List<String> nodeValues) {
+		for (final String nodeValue : nodeValues) {
+			subtreeRoot.appendChild(doc.createComment(nodeValue));
+		}
+	}
 
-        subtreeRoot.appendChild(doc.createTextNode(singleTextNodeValue.toString()));
-    }
+	/**
+	 * Builds an XML subtree out of a list and a head element. The list elements
+	 * are serialized into a series of nodes whose title is
+	 * <code>listHeadElementName</code>. The head element need be created before
+	 * this method call.
+	 *
+	 * @param doc                 The parent document
+	 * @param listHeadNode        The first node of the list, needs to be created before this method
+	 *                            call
+	 * @param elementContentList  The actual list contents
+	 */
+	private static void buildXmlFromJsonArray(
+			final Document doc,
+			final Node listHeadNode,
+			final List<Object> elementContentList) {
 
-    private static void buildCDataList(final Document doc, final Node subtreeRoot, final List<String> nodeValues) {
-        for (final String nodeValue : nodeValues) {
-            subtreeRoot.appendChild(doc.createCDATASection(nodeValue));
-        }
-    }
-
-    private static void buildCommentList(final Document doc, final Node subtreeRoot, final List<String> nodeValues) {
-        for (final String nodeValue : nodeValues) {
-            subtreeRoot.appendChild(doc.createComment(nodeValue));
-        }
-    }
-
-    /**
-     * Builds an XML subtree out of a list and a head element. The list elements
-     * are serialized into a series of nodes whose title is
-     * <code>listHeadElementName</code>. The head element need be created before
-     * this method call.
-     *
-     * @param doc                 The parent document
-     * @param listHeadNode        The first node of the list, needs to be created before this method
-     *                            call
-     * @param listHeadElementName The name of the list's head element
-     * @param elementContentList  The actual list contents
-     */
-    private static void buildXmlFromJsonArray(
-            final Document doc,
-            final Node listHeadNode,
-            final List<Object> elementContentList) {
-
-        final Node subtreeRootNode = listHeadNode.getParentNode();
+		final Node subtreeRootNode = listHeadNode.getParentNode();
         /* The head node (already exists) */
-        buildXmlFromHashMap(doc, (Element) listHeadNode, elementContentList.get(0));
+		buildXmlFromHashMap(doc, (Element) listHeadNode, elementContentList.get(0));
         /* The rest of the list */
-        for (final Object elementContent : elementContentList.subList(1, elementContentList.size())) {
-            final Element newElement = doc.createElement(listHeadNode.getNodeName());
-            subtreeRootNode.appendChild(newElement);
-            buildXmlFromHashMap(doc, newElement, elementContent);
-        }
-    }
+		for (final Object elementContent : elementContentList.subList(1, elementContentList.size())) {
+			final Element newElement = doc.createElement(listHeadNode.getNodeName());
+			subtreeRootNode.appendChild(newElement);
+			buildXmlFromHashMap(doc, newElement, elementContent);
+		}
+	}
 
-    private static final JsonDeserializer<Element> xmlDeserializer = new JsonDeserializer<Element>() {
-        @Override
-        public Element deserialize(final JsonParser parser, final DeserializationContext context) throws IOException,
-                JsonProcessingException {
+	private static final JsonDeserializer<Element> xmlDeserializer = new JsonDeserializer<Element>() {
+		@Override
+		public Element deserialize(final JsonParser parser, final DeserializationContext context) throws IOException,
+				JsonProcessingException {
 
-            @SuppressWarnings("unchecked")
-            final HashMap<String, Object> hm = parser.readValueAs(HashMap.class);
+			@SuppressWarnings("unchecked")
+			final HashMap<String, Object> hm = parser.readValueAs(HashMap.class);
 
-            if (hm == null) return null;
+			if (hm == null) return null;
 
             /* The root is expected to be a single element */
-            final Set<String> xmlRootElementNames = hm.keySet();
+			final Set<String> xmlRootElementNames = hm.keySet();
 
-            if (xmlRootElementNames.size() > 1) throw new IOException("Invalid XML. Expecting root element");
+			if (xmlRootElementNames.size() > 1) throw new IOException("Invalid XML. Expecting root element");
 
-            final String rootName = xmlRootElementNames.iterator().next();
+			final String rootName = xmlRootElementNames.iterator().next();
 
-            final Document document;
-            final Element rootElement;
+			final Document document;
+			final Element rootElement;
 
             /* Initialise the document with a root element */
-            try {
-                synchronized (this) {
-                    final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                    final DocumentBuilder builder = factory.newDocumentBuilder();
-                    document = builder.newDocument();
-                    rootElement = document.createElement(rootName);
-                    document.appendChild(rootElement);
-                }
-            } catch (final Exception e) {
-                throw new IOException(e);
-            }
+			try {
+				synchronized (this) {
+					final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+					final DocumentBuilder builder = factory.newDocumentBuilder();
+					document = builder.newDocument();
+					rootElement = document.createElement(rootName);
+					document.appendChild(rootElement);
+				}
+			} catch (final Exception e) {
+				throw new IOException(e);
+			}
 
-            buildXmlFromHashMap(document, rootElement, hm.get(rootName));
-            return rootElement;
+			buildXmlFromHashMap(document, rootElement, hm.get(rootName));
+			return rootElement;
 
-        }
-    };
+		}
+	};
 
-    // -----------------------------------------------------------------------------
+	private static final SimpleModule serializationModule =
+			new SimpleModule("SerializationModule", new Version(0, 0, 0, "SNAPSHOT", "com.dslplatform", "dsl-client"))
+					.addSerializer(LocalDate.class, dateSerializer)
+					.addSerializer(Element.class, xmlSerializer)
+					.addSerializer(DateTime.class, timestampSerializer);
 
-    private static final SimpleModule serializationModule =
-            new SimpleModule("SerializationModule", new Version(0, 0, 0, "SNAPSHOT", "com.dslplatform", "dsl-client"))
-                    .addSerializer(LocalDate.class, dateSerializer)
-                    .addSerializer(Element.class, xmlSerializer)
-                    .addSerializer(DateTime.class, timestampSerializer);
+	private static final ObjectMapper serializationMapper = new ObjectMapper()
+			.registerModule(serializationModule)
+			.setSerializationInclusion(Include.NON_NULL)
+			.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
 
-    private static final ObjectMapper serializationMapper = new ObjectMapper()
-            .registerModule(serializationModule)
-            .setSerializationInclusion(Include.NON_NULL)
-            .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+	private static final TypeFactory typeFactory = serializationMapper.getTypeFactory();
 
-    private static final TypeFactory typeFactory = serializationMapper.getTypeFactory();
+	public static JavaType buildType(final Class<?> simple) {
+		return typeFactory.constructType(simple);
+	}
 
-    public static JavaType buildType(final Class<?> simple) {
-        return typeFactory.constructType(simple);
-    }
+	public static JavaType buildGenericType(final Class<?> containerType, final Class<?>... element) {
+		return typeFactory.constructParametricType(containerType, element);
+	}
 
-    public static JavaType buildGenericType(final Class<?> containerType, final Class<?>... element) {
-        return typeFactory.constructParametricType(containerType, element);
-    }
+	@SuppressWarnings("rawtypes")
+	public static JavaType buildCollectionType(final Class<? extends Collection> collection, final JavaType element) {
+		return typeFactory.constructCollectionType(collection, element);
+	}
 
-    @SuppressWarnings("rawtypes")
-    public static JavaType buildCollectionType(final Class<? extends Collection> collection, final JavaType element) {
-        return typeFactory.constructCollectionType(collection, element);
-    }
+	@SuppressWarnings("rawtypes")
+	public static JavaType buildCollectionType(final Class<? extends Collection> collection, final Class<?> element) {
+		return typeFactory.constructCollectionType(collection, element);
+	}
 
-    @SuppressWarnings("rawtypes")
-    public static JavaType buildCollectionType(final Class<? extends Collection> collection, final Class<?> element) {
-        return typeFactory.constructCollectionType(collection, element);
-    }
+	private final ObjectMapper deserializationMapper;
 
-    // -----------------------------------------------------------------------------
+	JsonSerialization(final ServiceLocator locator) {
+		deserializationMapper = makeDeserializationObjectMapper(locator);
+	}
 
-    private final ObjectMapper deserializationMapper;
+	public <T> T deserialize(final JavaType type, final String data) throws IOException {
+		return deserializationMapper.readValue(data, type);
+	}
 
-    JsonSerialization(final ServiceLocator locator) {
-        deserializationMapper = makeDeserializationObjectMapper(locator);
-    }
+	public <T> T deserialize(final JavaType type, final byte[] data) throws IOException {
+		return deserializationMapper.readValue(data, type);
+	}
 
-    public <T> T deserialize(final JavaType type, final String data) throws IOException {
-        return deserializationMapper.readValue(data, type);
-    }
+	public <T> T deserialize(final JavaType type, final InputStream stream) throws IOException {
+		return deserializationMapper.readValue(stream, type);
+	}
 
-    // -----------------------------------------------------------------------------
+	public static String serialize(final Object data) throws IOException {
+		return serializationMapper.writer().writeValueAsString(data);
+	}
 
-    public static <T> String serialize(final T data) throws IOException {
-        return serializationMapper.writer().writeValueAsString(data);
-    }
+	public static byte[] serializeBytes(final Object data) throws IOException {
+		return serializationMapper.writer().writeValueAsBytes(data);
+	}
 
-    private static final SimpleModule deserializationModule =
-            new SimpleModule("DeserializationModule", new Version(0, 0, 0, "SNAPSHOT", "com.dslplatform", "dsl-client"))
-                    .addDeserializer(LocalDate.class, dateDeserializer)
-                    .addDeserializer(DateTime.class, timestampDeserializer)
-                    .addDeserializer(Element.class, xmlDeserializer);
+	public static void serialize(final OutputStream stream, final Object data) throws IOException {
+		serializationMapper.writer().writeValue(stream, data);
+	}
 
-    private static ObjectMapper makeDeserializationObjectMapper(final ServiceLocator locator) {
-        return new ObjectMapper()
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .registerModule(deserializationModule)
-                .setInjectableValues(new InjectableValues.Std().addValue("_serviceLocator", locator));
-    }
+	private static final SimpleModule deserializationModule =
+			new SimpleModule("DeserializationModule", new Version(0, 0, 0, "SNAPSHOT", "com.dslplatform", "dsl-client"))
+					.addDeserializer(LocalDate.class, dateDeserializer)
+					.addDeserializer(DateTime.class, timestampDeserializer)
+					.addDeserializer(Element.class, xmlDeserializer);
 
-    public static <T> T deserialize(final JavaType type, final String data, final ServiceLocator locator) throws IOException {
-        return makeDeserializationObjectMapper(locator).readValue(data, type);
-    }
+	private static ObjectMapper makeDeserializationObjectMapper(final ServiceLocator locator) {
+		return new ObjectMapper()
+				.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+				.registerModule(deserializationModule)
+				.setInjectableValues(new InjectableValues.Std().addValue("_serviceLocator", locator));
+	}
 
-    static {
-        addPlatformDependentDeserializerModules(deserializationModule);
-        addPlatformDependentSerializerModules(serializationModule);
-    }
+	public static <T> T deserialize(final JavaType type, final String data, final ServiceLocator locator) throws IOException {
+		return makeDeserializationObjectMapper(locator).readValue(data, type);
+	}
 
-    private static void addPlatformDependentSerializerModules(final SimpleModule serializationModule) {
-        if (!Utils.isAndroid) {
-            serializationModule
-                    .addSerializer(Point.class, pointSerializer)
-                    .addSerializer(Point2D.class, locationSerializer)
-                    .addSerializer(Rectangle2D.class, rectangleSerializer)
-                    .addSerializer(BufferedImage.class, imageSerializer);
-        } else {
-            serializationModule
-                    .addSerializer(android.graphics.Point.class, apointSerializer)
-                    .addSerializer(android.graphics.PointF.class, alocationSerializer)
-                    .addSerializer(android.graphics.RectF.class, arectangleSerializer)
-                    .addSerializer(android.graphics.Bitmap.class, aimageSerializer);
-        }
-    }
+	public static <T> T deserialize(final JavaType type, final byte[] data, final ServiceLocator locator) throws IOException {
+		return makeDeserializationObjectMapper(locator).readValue(data, type);
+	}
 
-    private static void addPlatformDependentDeserializerModules(final SimpleModule deserializationModule) {
-        if (!Utils.isAndroid) {
-            deserializationModule
-                    .addDeserializer(Point.class, pointDeserializer)
-                    .addDeserializer(Point2D.class, locationDeserializer)
-                    .addDeserializer(Rectangle2D.class, rectangleDeserializer)
-                    .addDeserializer(BufferedImage.class, imageDeserializer);
-        } else {
-            deserializationModule
-                    .addDeserializer(android.graphics.Point.class, apointDeserializer)
-                    .addDeserializer(android.graphics.PointF.class, alocationDeserializer)
-                    .addDeserializer(android.graphics.RectF.class, arectangleDeserializer)
-                    .addDeserializer(android.graphics.Bitmap.class, aimageDeserializer);
-        }
-    }
+	public static <T> T deserialize(final JavaType type, final InputStream stream, final ServiceLocator locator) throws IOException {
+		return makeDeserializationObjectMapper(locator).readValue(stream, type);
+	}
 
+	static {
+		addPlatformDependentDeserializerModules(deserializationModule);
+		addPlatformDependentSerializerModules(serializationModule);
+	}
+
+	private static void addPlatformDependentSerializerModules(final SimpleModule serializationModule) {
+		if (!Utils.isAndroid) {
+			serializationModule
+					.addSerializer(Point.class, pointSerializer)
+					.addSerializer(Point2D.class, locationSerializer)
+					.addSerializer(Rectangle2D.class, rectangleSerializer)
+					.addSerializer(BufferedImage.class, imageSerializer);
+		} else {
+			serializationModule
+					.addSerializer(android.graphics.Point.class, apointSerializer)
+					.addSerializer(android.graphics.PointF.class, alocationSerializer)
+					.addSerializer(android.graphics.RectF.class, arectangleSerializer)
+					.addSerializer(android.graphics.Bitmap.class, aimageSerializer);
+		}
+	}
+
+	private static void addPlatformDependentDeserializerModules(final SimpleModule deserializationModule) {
+		if (!Utils.isAndroid) {
+			deserializationModule
+					.addDeserializer(Point.class, pointDeserializer)
+					.addDeserializer(Point2D.class, locationDeserializer)
+					.addDeserializer(Rectangle2D.class, rectangleDeserializer)
+					.addDeserializer(BufferedImage.class, imageDeserializer);
+		} else {
+			deserializationModule
+					.addDeserializer(android.graphics.Point.class, apointDeserializer)
+					.addDeserializer(android.graphics.PointF.class, alocationDeserializer)
+					.addDeserializer(android.graphics.RectF.class, arectangleDeserializer)
+					.addDeserializer(android.graphics.Bitmap.class, aimageDeserializer);
+		}
+	}
 }

@@ -18,7 +18,7 @@ import com.dslplatform.patterns.ServiceLocator;
 public class BootstrapTest {
     @Test
     public void withDefaultLoggerAndEC() throws Exception {
-        final ServiceLocator locator = Bootstrap.init(getClass().getResourceAsStream("/mockproject.ini"));
+        final ServiceLocator locator = Bootstrap.init(getClass().getResourceAsStream("/projectprops/mockproject.properties"));
         final Properties ps = locator.resolve(Properties.class);
         assertEquals("Project id matches", ps.getProperty("project-id"), "0e13d168-1e2d-6ced-82f0-b9e693acde3e");
     }
@@ -33,7 +33,7 @@ public class BootstrapTest {
         initialComponents.put(Logger.class, logger);
 
 		Properties p = new Properties();
-		p.load(getClass().getResourceAsStream("/mockproject.ini"));
+		p.load(getClass().getResourceAsStream("/projectprops/mockproject.properties"));
         final ServiceLocator locator = Bootstrap.init(p, initialComponents);
 
         assertSame("Logger instance matches.", locator.resolve(Logger.class), logger);
