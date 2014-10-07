@@ -1,7 +1,17 @@
 package com.dslplatform.client;
 
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilder;
@@ -41,27 +51,27 @@ public class JsonSerialization {
 
 	private static final JsonSerializer<LocalDate> dateSerializer = new JsonSerializer<LocalDate>() {
 		@Override
-		public void serialize(final LocalDate value, final JsonGenerator jg, SerializerProvider _) throws IOException {
+		public void serialize(final LocalDate value, final JsonGenerator jg, final SerializerProvider _unused) throws IOException {
 			jg.writeString(value.toString());
 		}
 	};
 	private static final JsonDeserializer<LocalDate> dateDeserializer = new JsonDeserializer<LocalDate>() {
 		@Override
-		public LocalDate deserialize(final JsonParser parser, DeserializationContext _) throws IOException {
+		public LocalDate deserialize(final JsonParser parser, final DeserializationContext _unused) throws IOException {
 			return new DateTime(parser.getValueAsString()).toLocalDate();
 		}
 	};
 
 	private static final JsonSerializer<DateTime> timestampSerializer = new JsonSerializer<DateTime>() {
 		@Override
-		public void serialize(final DateTime value, final JsonGenerator jg, SerializerProvider _) throws IOException {
+		public void serialize(final DateTime value, final JsonGenerator jg, final SerializerProvider _unused) throws IOException {
 			jg.writeString(value.toString());
 		}
 	};
 
 	private static final JsonDeserializer<DateTime> timestampDeserializer = new JsonDeserializer<DateTime>() {
 		@Override
-		public DateTime deserialize(final JsonParser parser, DeserializationContext _) throws IOException {
+		public DateTime deserialize(final JsonParser parser, final DeserializationContext _unused) throws IOException {
 			return new DateTime(parser.getValueAsString());
 		}
 	};
@@ -70,7 +80,7 @@ public class JsonSerialization {
 		private static void initJavaSerializers(final SimpleModule module) {
 			module.addSerializer(java.awt.Point.class, new JsonSerializer<java.awt.Point>() {
 				@Override
-				public void serialize(final java.awt.Point value, final JsonGenerator jg, SerializerProvider _) throws IOException {
+				public void serialize(final java.awt.Point value, final JsonGenerator jg, final SerializerProvider _unused) throws IOException {
 					jg.writeStartObject();
 					jg.writeNumberField("X", value.x);
 					jg.writeNumberField("Y", value.y);
@@ -79,7 +89,7 @@ public class JsonSerialization {
 			});
 			module.addSerializer(java.awt.geom.Point2D.class, new JsonSerializer<java.awt.geom.Point2D>() {
 				@Override
-				public void serialize(final java.awt.geom.Point2D value, final JsonGenerator jg, SerializerProvider _) throws IOException {
+				public void serialize(final java.awt.geom.Point2D value, final JsonGenerator jg, final SerializerProvider _unused) throws IOException {
 					jg.writeStartObject();
 					jg.writeNumberField("X", value.getX());
 					jg.writeNumberField("Y", value.getY());
@@ -88,7 +98,7 @@ public class JsonSerialization {
 			});
 			module.addSerializer(java.awt.geom.Rectangle2D.class, new JsonSerializer<java.awt.geom.Rectangle2D>() {
 				@Override
-				public void serialize(final java.awt.geom.Rectangle2D rect, final JsonGenerator jg, SerializerProvider _) throws IOException {
+				public void serialize(final java.awt.geom.Rectangle2D rect, final JsonGenerator jg, final SerializerProvider _unused) throws IOException {
 					jg.writeStartObject();
 					jg.writeNumberField("X", rect.getX());
 					jg.writeNumberField("Y", rect.getY());
@@ -99,7 +109,7 @@ public class JsonSerialization {
 			});
 			module.addSerializer(java.awt.image.BufferedImage.class, new JsonSerializer<java.awt.image.BufferedImage>() {
 				@Override
-				public void serialize(final java.awt.image.BufferedImage image, final JsonGenerator jg, SerializerProvider _) throws IOException {
+				public void serialize(final java.awt.image.BufferedImage image, final JsonGenerator jg, final SerializerProvider _unused) throws IOException {
 					final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 					ImageIO.write(image, "png", baos);
 					jg.writeBinary(baos.toByteArray());
@@ -110,21 +120,21 @@ public class JsonSerialization {
 		private static void initJavaDeserializers(final SimpleModule module) {
 			module.addDeserializer(java.awt.Point.class, new JsonDeserializer<java.awt.Point>() {
 				@Override
-				public java.awt.Point deserialize(final JsonParser parser, DeserializationContext _) throws IOException {
+				public java.awt.Point deserialize(final JsonParser parser, final DeserializationContext _unused) throws IOException {
 					final JsonNode tree = parser.getCodec().readTree(parser);
 					return new java.awt.Point(tree.get("X").asInt(), tree.get("Y").asInt());
 				}
 			});
 			module.addDeserializer(java.awt.geom.Point2D.class, new JsonDeserializer<java.awt.geom.Point2D>() {
 				@Override
-				public java.awt.geom.Point2D deserialize(final JsonParser parser, DeserializationContext _) throws IOException {
+				public java.awt.geom.Point2D deserialize(final JsonParser parser, final DeserializationContext _unused) throws IOException {
 					final JsonNode tree = parser.getCodec().readTree(parser);
 					return new java.awt.geom.Point2D.Double(tree.get("X").asDouble(), tree.get("Y").asDouble());
 				}
 			});
 			module.addDeserializer(java.awt.geom.Rectangle2D.class, new JsonDeserializer<java.awt.geom.Rectangle2D>() {
 				@Override
-				public java.awt.geom.Rectangle2D deserialize(final JsonParser parser, DeserializationContext _) throws IOException {
+				public java.awt.geom.Rectangle2D deserialize(final JsonParser parser, final DeserializationContext _unused) throws IOException {
 					final JsonNode tree = parser.getCodec().readTree(parser);
 					return new java.awt.geom.Rectangle2D.Double(
 							tree.get("X").asDouble(),
@@ -135,7 +145,7 @@ public class JsonSerialization {
 			});
 			module.addDeserializer(java.awt.image.BufferedImage.class, new JsonDeserializer<java.awt.image.BufferedImage>() {
 				@Override
-				public java.awt.image.BufferedImage deserialize(final JsonParser parser, DeserializationContext _) throws IOException {
+				public java.awt.image.BufferedImage deserialize(final JsonParser parser, final DeserializationContext _unused) throws IOException {
 					final InputStream is = new ByteArrayInputStream(parser.getBinaryValue());
 					return ImageIO.read(is);
 				}
@@ -147,7 +157,7 @@ public class JsonSerialization {
 		private static void initAndroidSerializers(final SimpleModule module) {
 			module.addSerializer(android.graphics.Point.class, new JsonSerializer<android.graphics.Point>() {
 				@Override
-				public void serialize(final android.graphics.Point value, final JsonGenerator gen, SerializerProvider _) throws IOException {
+				public void serialize(final android.graphics.Point value, final JsonGenerator gen, final SerializerProvider _unused) throws IOException {
 					gen.writeStartObject();
 					gen.writeNumberField("X", value.x);
 					gen.writeNumberField("Y", value.y);
@@ -156,7 +166,7 @@ public class JsonSerialization {
 			});
 			module.addSerializer(android.graphics.PointF.class, new JsonSerializer<android.graphics.PointF>() {
 				@Override
-				public void serialize(final android.graphics.PointF value, final JsonGenerator gen, SerializerProvider _) throws IOException {
+				public void serialize(final android.graphics.PointF value, final JsonGenerator gen, final SerializerProvider _unused) throws IOException {
 					gen.writeStartObject();
 					gen.writeNumberField("X", value.x);
 					gen.writeNumberField("Y", value.y);
@@ -165,7 +175,7 @@ public class JsonSerialization {
 			});
 			module.addSerializer(android.graphics.RectF.class, new JsonSerializer<android.graphics.RectF>() {
 				@Override
-				public void serialize(final android.graphics.RectF value, final JsonGenerator gen, SerializerProvider _) throws IOException {
+				public void serialize(final android.graphics.RectF value, final JsonGenerator gen, final SerializerProvider _unused) throws IOException {
 					gen.writeStartObject();
 					gen.writeNumberField("X", value.right);
 					gen.writeNumberField("Y", value.top);
@@ -176,7 +186,7 @@ public class JsonSerialization {
 			});
 			module.addSerializer(android.graphics.Bitmap.class, new JsonSerializer<android.graphics.Bitmap>() {
 				@Override
-				public void serialize(final android.graphics.Bitmap value, final JsonGenerator gen, SerializerProvider _) throws IOException {
+				public void serialize(final android.graphics.Bitmap value, final JsonGenerator gen, final SerializerProvider _unused) throws IOException {
 					final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 					value.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, baos);
 					gen.writeBinary(baos.toByteArray());
@@ -187,21 +197,21 @@ public class JsonSerialization {
 		private static void initAndroidDeserializers(final SimpleModule module) {
 			module.addDeserializer(android.graphics.Point.class, new JsonDeserializer<android.graphics.Point>() {
 				@Override
-				public android.graphics.Point deserialize(final JsonParser parser, DeserializationContext _) throws IOException {
+				public android.graphics.Point deserialize(final JsonParser parser, final DeserializationContext _unused) throws IOException {
 					final JsonNode tree = parser.getCodec().readTree(parser);
 					return new android.graphics.Point(tree.get("X").asInt(), tree.get("Y").asInt());
 				}
 			});
 			module.addDeserializer(android.graphics.PointF.class, new JsonDeserializer<android.graphics.PointF>() {
 				@Override
-				public android.graphics.PointF deserialize(final JsonParser parser, DeserializationContext _) throws IOException {
+				public android.graphics.PointF deserialize(final JsonParser parser, final DeserializationContext _unused) throws IOException {
 					final JsonNode tree = parser.getCodec().readTree(parser);
 					return new android.graphics.PointF(tree.get("X").floatValue(), tree.get("Y").floatValue());
 				}
 			});
 			module.addDeserializer(android.graphics.RectF.class, new JsonDeserializer<android.graphics.RectF>() {
 				@Override
-				public android.graphics.RectF deserialize(final JsonParser parser, DeserializationContext _) throws IOException {
+				public android.graphics.RectF deserialize(final JsonParser parser, final DeserializationContext _unused) throws IOException {
 					final JsonNode tree = parser.getCodec().readTree(parser);
 					final float top = tree.get("X").floatValue();
 					final float left = tree.get("Y").floatValue();
@@ -212,7 +222,7 @@ public class JsonSerialization {
 			});
 			module.addDeserializer(android.graphics.Bitmap.class, new JsonDeserializer<android.graphics.Bitmap>() {
 				@Override
-				public android.graphics.Bitmap deserialize(final JsonParser parser, DeserializationContext _)
+				public android.graphics.Bitmap deserialize(final JsonParser parser, final DeserializationContext _unused)
 						throws IOException {
 					final InputStream is = new ByteArrayInputStream(parser.getBinaryValue());
 					return android.graphics.BitmapFactory.decodeStream(is);

@@ -12,6 +12,7 @@ public class HttpSecurityException extends HttpException {
 		this.receivedCode = receivedCode;
 	}
 
+	@Override
 	public int getReceivedCode() {
 		return receivedCode;
 	}

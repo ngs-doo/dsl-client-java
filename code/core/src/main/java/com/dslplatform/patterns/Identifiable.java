@@ -7,11 +7,11 @@ package com.dslplatform.patterns;
  * While entity does not implement Identifiable, aggregate root does.
  */
 public interface Identifiable extends Searchable {
-    /**
-     * Domain object identity.
-     * This identity can be used to lookup domain object
-     *
-     * @return domain object identity
-     */
-    public String getURI();
+	/**
+	 * Domain object identity.
+	 * This identity can be used to lookup domain object
+	 *
+	 * @return domain object identity
+	 */
+	public String getURI();
 }

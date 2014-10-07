@@ -19,33 +19,33 @@ import java.util.List;
  * @param <T> aggregate root type
  */
 public final class History<T extends AggregateRoot> implements Identifiable {
-    private final List<Snapshot<T>> Snapshots;
+	private final List<Snapshot<T>> Snapshots;
 
-    @SuppressWarnings("unused")
-    private History() {
-        this.Snapshots = null;
-    }
+	@SuppressWarnings("unused")
+	private History() {
+		this.Snapshots = null;
+	}
 
-    public History(final List<Snapshot<T>> Snapshots) {
-        this.Snapshots = Snapshots;
-    }
+	public History(final List<Snapshot<T>> Snapshots) {
+		this.Snapshots = Snapshots;
+	}
 
-    /**
-     * {@link AggregateRoot aggregate root} identity
-     *
-     * @return URI found in first snapshot
-     */
-    @Override
-    public String getURI() {
-        return Snapshots.get(0).getURI();
-    }
+	/**
+	 * {@link AggregateRoot aggregate root} identity
+	 *
+	 * @return URI found in first snapshot
+	 */
+	@Override
+	public String getURI() {
+		return Snapshots.get(0).getURI();
+	}
 
-    /**
-     * Sequence of persisted snapshots.
-     *
-     * @return List of snapshots captured for provided {@link AggregateRoot aggregate root}.
-     */
-    public List<Snapshot<T>> getSnapshots() {
-        return Snapshots;
-    }
+	/**
+	 * Sequence of persisted snapshots.
+	 *
+	 * @return List of snapshots captured for provided {@link AggregateRoot aggregate root}.
+	 */
+	public List<Snapshot<T>> getSnapshots() {
+		return Snapshots;
+	}
 }

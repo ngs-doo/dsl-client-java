@@ -29,33 +29,33 @@ import com.dslplatform.patterns.ServiceLocator;
  * @param <T> domain object type
  */
 public abstract class ClientRepository<T extends Identifiable>
-        extends ClientSearchableRepository<T>
-        implements Repository<T> {
-    protected final CrudProxy crudProxy;
+		extends ClientSearchableRepository<T>
+		implements Repository<T> {
+	protected final CrudProxy crudProxy;
 
-    /**
-     * Generated class will provide class manifest and locator
-     *
-     * @param manifest domain object type
-     * @param locator  context in which domain object lives
-     */
-    public ClientRepository(final Class<T> manifest, final ServiceLocator locator) {
-        super(manifest, locator);
-        crudProxy = locator.resolve(CrudProxy.class);
-    }
+	/**
+	 * Generated class will provide class manifest and locator
+	 *
+	 * @param manifest domain object type
+	 * @param locator  context in which domain object lives
+	 */
+	public ClientRepository(final Class<T> manifest, final ServiceLocator locator) {
+		super(manifest, locator);
+		crudProxy = locator.resolve(CrudProxy.class);
+	}
 
-    @Override
-    public Future<List<T>> find(final Iterable<String> uris) {
-        return domainProxy.find(manifest, uris);
-    }
+	@Override
+	public Future<List<T>> find(final Iterable<String> uris) {
+		return domainProxy.find(manifest, uris);
+	}
 
-    @Override
-    public Future<List<T>> find(final String[] uris) {
-        return find(Arrays.asList(uris));
-    }
+	@Override
+	public Future<List<T>> find(final String[] uris) {
+		return find(Arrays.asList(uris));
+	}
 
-    @Override
-    public Future<T> find(final String uri) {
-        return crudProxy.read(manifest, uri);
-    }
+	@Override
+	public Future<T> find(final String uri) {
+		return crudProxy.read(manifest, uri);
+	}
 }

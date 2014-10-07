@@ -5,8 +5,6 @@ import static com.dslplatform.client.HttpClient.encode;
 import java.util.concurrent.Future;
 
 import com.dslplatform.patterns.AggregateRoot;
-import com.dslplatform.patterns.Either;
-import com.dslplatform.patterns.EitherCallback;
 import com.dslplatform.patterns.Identifiable;
 
 class HttpCrudProxy implements CrudProxy {

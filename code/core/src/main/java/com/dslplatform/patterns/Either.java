@@ -4,7 +4,7 @@ public class Either<T> {
 	private final T value;
 	private final Throwable error;
 
-	private Either(T value, Throwable error) {
+	private Either(final T value, final Throwable error) {
 		this.value = value;
 		this.error = error;
 	}

@@ -19,107 +19,107 @@ import java.util.concurrent.Future;
  * @param <T> domain object type.
  */
 public interface SearchableRepository<T extends Searchable> {
-    /**
-     * Returns a list of domain objects satisfying {@link Specification specification}
-     * with up to <code>limit</code> results.
-     * <code>offset</code> can be used to skip initial results.
-     * <code>order</code> should be given as a list of pairs of
-     * <code>{@literal <String, Boolean>}</code>
-     * where first is a property name and second is whether it should be sorted
-     * ascending over this property.
-     *
-     * @param specification search predicate
-     * @param limit         maximum number of results
-     * @param offset        number of results to be skipped
-     * @param order         custom ordering
-     * @return              future to domain objects which satisfy search predicate
-     */
-    public Future<List<T>> search(
-            final Specification<T> specification,
-            final Integer limit,
-            final Integer offset,
-            final Iterable<Map.Entry<String, Boolean>> order);
+	/**
+	 * Returns a list of domain objects satisfying {@link Specification specification}
+	 * with up to <code>limit</code> results.
+	 * <code>offset</code> can be used to skip initial results.
+	 * <code>order</code> should be given as a list of pairs of
+	 * <code>{@literal <String, Boolean>}</code>
+	 * where first is a property name and second is whether it should be sorted
+	 * ascending over this property.
+	 *
+	 * @param specification search predicate
+	 * @param limit         maximum number of results
+	 * @param offset        number of results to be skipped
+	 * @param order         custom ordering
+	 * @return              future to domain objects which satisfy search predicate
+	 */
+	public Future<List<T>> search(
+			final Specification<T> specification,
+			final Integer limit,
+			final Integer offset,
+			final Iterable<Map.Entry<String, Boolean>> order);
 
-    /**
-     * Returns a list of domain objects satisfying {@link Specification specification}
-     * with up to <code>limit</code> results.
-     * <code>offset</code> can be used to skip initial results.
-     *
-     * @param specification search predicate
-     * @param limit         maximum number of results
-     * @param offset        number of results to be skipped
-     * @return              future to domain objects which satisfy search predicate
-     */
-    public Future<List<T>> search(
-            final Specification<T> specification,
-            final Integer limit,
-            final Integer offset);
+	/**
+	 * Returns a list of domain objects satisfying {@link Specification specification}
+	 * with up to <code>limit</code> results.
+	 * <code>offset</code> can be used to skip initial results.
+	 *
+	 * @param specification search predicate
+	 * @param limit         maximum number of results
+	 * @param offset        number of results to be skipped
+	 * @return              future to domain objects which satisfy search predicate
+	 */
+	public Future<List<T>> search(
+			final Specification<T> specification,
+			final Integer limit,
+			final Integer offset);
 
-    /**
-     * Returns a list of domain objects satisfying {@link Specification specification}
-     *
-     * @param specification search predicate
-     * @return              future to domain objects which satisfy search predicate
-     */
-    public Future<List<T>> search(final Specification<T> specification);
+	/**
+	 * Returns a list of domain objects satisfying {@link Specification specification}
+	 *
+	 * @param specification search predicate
+	 * @return              future to domain objects which satisfy search predicate
+	 */
+	public Future<List<T>> search(final Specification<T> specification);
 
-    /**
-     * Returns a list of all domain objects
-     * with up to <code>limit</code> results.
-     * <code>offset</code> can be used to skip initial results.
-     * <code>order</code> should be given as a list of pairs of
-     * <code>{@literal <String, Boolean>}</code>
-     * where first is a property name and second is whether it should be sorted
-     * ascending over this property.
-     *
-     * @param limit  maximum number of results
-     * @param offset number of results to be skipped
-     * @param order  custom ordering
-     * @return       future to found domain objects
-     */
-    public Future<List<T>> search(
-            final Integer limit,
-            final Integer offset,
-            final Iterable<Map.Entry<String, Boolean>> order);
+	/**
+	 * Returns a list of all domain objects
+	 * with up to <code>limit</code> results.
+	 * <code>offset</code> can be used to skip initial results.
+	 * <code>order</code> should be given as a list of pairs of
+	 * <code>{@literal <String, Boolean>}</code>
+	 * where first is a property name and second is whether it should be sorted
+	 * ascending over this property.
+	 *
+	 * @param limit  maximum number of results
+	 * @param offset number of results to be skipped
+	 * @param order  custom ordering
+	 * @return       future to found domain objects
+	 */
+	public Future<List<T>> search(
+			final Integer limit,
+			final Integer offset,
+			final Iterable<Map.Entry<String, Boolean>> order);
 
-    /**
-     * Returns a list of all domain objects
-     * with up to <code>limit</code> results.
-     * <code>offset</code> can be used to skip initial results.
-     *
-     * @param limit  maximum number of results
-     * @param offset number of results to be skipped
-     * @return       future to found domain objects
-     */
-    public Future<List<T>> search(final Integer limit, final Integer offset);
+	/**
+	 * Returns a list of all domain objects
+	 * with up to <code>limit</code> results.
+	 * <code>offset</code> can be used to skip initial results.
+	 *
+	 * @param limit  maximum number of results
+	 * @param offset number of results to be skipped
+	 * @return       future to found domain objects
+	 */
+	public Future<List<T>> search(final Integer limit, final Integer offset);
 
-    /**
-     * Returns a list of all domain objects
-     *
-     * @return future found domain objects
-     */
-    public Future<List<T>> search();
+	/**
+	 * Returns a list of all domain objects
+	 *
+	 * @return future found domain objects
+	 */
+	public Future<List<T>> search();
 
-    /**
-     * Returns a number of elements satisfying provided specification.
-     *
-     * @param specification search predicate
-     * @return              future to number of domain objects which satisfy specification
-     */
-    public Future<Long> count(final Specification<T> specification);
+	/**
+	 * Returns a number of elements satisfying provided specification.
+	 *
+	 * @param specification search predicate
+	 * @return              future to number of domain objects which satisfy specification
+	 */
+	public Future<Long> count(final Specification<T> specification);
 
-    /**
-     * Returns a total number of domain objects.
-     *
-     * @return future to number of domain objects
-     */
-    public Future<Long> count();
+	/**
+	 * Returns a total number of domain objects.
+	 *
+	 * @return future to number of domain objects
+	 */
+	public Future<Long> count();
 
-    /**
-     * Returns an instance of {@link SearchBuilder search builder} for this repository.
-     * Search builder is helper class with fluent API for building search.
-     *
-     * @return utility class for building a search.
-     */
-    public SearchBuilder<T> builder();
+	/**
+	 * Returns an instance of {@link SearchBuilder search builder} for this repository.
+	 * Search builder is helper class with fluent API for building search.
+	 *
+	 * @return utility class for building a search.
+	 */
+	public SearchBuilder<T> builder();
 }

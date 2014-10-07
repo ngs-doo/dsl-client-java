@@ -10,11 +10,11 @@ package com.dslplatform.patterns;
  * Custom classes can be resolved if their dependencies can be satisfied.
  */
 public interface ServiceLocator {
-    /**
-     * Resolve a service registered in the locator.
-     *
-     * @param clazz class or interface
-     * @return      registered implementation
-     */
-    public <T> T resolve(final Class<T> clazz);
+	/**
+	 * Resolve a service registered in the locator.
+	 *
+	 * @param clazz class or interface
+	 * @return      registered implementation
+	 */
+	public <T> T resolve(final Class<T> clazz);
 }

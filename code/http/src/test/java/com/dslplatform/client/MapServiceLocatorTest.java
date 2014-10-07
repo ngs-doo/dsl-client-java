@@ -13,17 +13,17 @@ import org.slf4j.LoggerFactory;
 
 public class MapServiceLocatorTest {
 
-    @Test
-    public void withDefaultLoggerAndEC() throws Exception {
-        final Map<Class<?>, Object> initialComponents = new HashMap<Class<?>, Object>();
-        final ExecutorService executorService = Executors.newSingleThreadExecutor();
-        initialComponents.put(ExecutorService.class, executorService);
-        final Logger logger = LoggerFactory.getLogger("test-logger");
-        initialComponents.put(Logger.class, logger);
+	@Test
+	public void withDefaultLoggerAndEC() throws Exception {
+		final Map<Class<?>, Object> initialComponents = new HashMap<Class<?>, Object>();
+		final ExecutorService executorService = Executors.newSingleThreadExecutor();
+		initialComponents.put(ExecutorService.class, executorService);
+		final Logger logger = LoggerFactory.getLogger("test-logger");
+		initialComponents.put(Logger.class, logger);
 
-        final MapServiceLocator mapServiceLocator = new MapServiceLocator(initialComponents);
-        assertSame("Executor matches", executorService, mapServiceLocator.resolve(ExecutorService.class));
-        assertSame("Logger matches", logger, mapServiceLocator.resolve(Logger.class));
-    }
+		final MapServiceLocator mapServiceLocator = new MapServiceLocator(initialComponents);
+		assertSame("Executor matches", executorService, mapServiceLocator.resolve(ExecutorService.class));
+		assertSame("Logger matches", logger, mapServiceLocator.resolve(Logger.class));
+	}
 
 }

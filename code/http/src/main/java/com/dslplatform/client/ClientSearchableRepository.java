@@ -33,74 +33,74 @@ import com.dslplatform.patterns.Specification;
  * @param <T> domain object type
  */
 public abstract class ClientSearchableRepository<T extends Searchable> implements SearchableRepository<T> {
-    protected final Class<T> manifest;
-    protected final DomainProxy domainProxy;
+	protected final Class<T> manifest;
+	protected final DomainProxy domainProxy;
 
-    /**
-     * Generated class will provide class manifest and locator
-     *
-     * @param manifest domain object type
-     * @param locator  context in which domain object lives
-     */
-    public ClientSearchableRepository(
-            final Class<T> manifest,
-            final ServiceLocator locator) {
-        this.manifest = manifest;
-        domainProxy = locator.resolve(DomainProxy.class);
-    }
+	/**
+	 * Generated class will provide class manifest and locator
+	 *
+	 * @param manifest domain object type
+	 * @param locator  context in which domain object lives
+	 */
+	public ClientSearchableRepository(
+			final Class<T> manifest,
+			final ServiceLocator locator) {
+		this.manifest = manifest;
+		domainProxy = locator.resolve(DomainProxy.class);
+	}
 
-    @Override
-    public Future<List<T>> search(
-            final Specification<T> specification,
-            final Integer limit,
-            final Integer offset,
-            final Iterable<Map.Entry<String, Boolean>> order) {
-        return domainProxy.search(specification, limit, offset, order);
-    }
+	@Override
+	public Future<List<T>> search(
+			final Specification<T> specification,
+			final Integer limit,
+			final Integer offset,
+			final Iterable<Map.Entry<String, Boolean>> order) {
+		return domainProxy.search(specification, limit, offset, order);
+	}
 
-    @Override
-    public Future<List<T>> search(
-            final Specification<T> specification,
-            final Integer limit,
-            final Integer offset) {
-        return domainProxy.search(specification, limit, offset);
-    }
+	@Override
+	public Future<List<T>> search(
+			final Specification<T> specification,
+			final Integer limit,
+			final Integer offset) {
+		return domainProxy.search(specification, limit, offset);
+	}
 
-    @Override
-    public Future<List<T>> search(final Specification<T> specification) {
-        return domainProxy.search(specification);
-    }
+	@Override
+	public Future<List<T>> search(final Specification<T> specification) {
+		return domainProxy.search(specification);
+	}
 
-    @Override
-    public Future<List<T>> search(
-            final Integer limit,
-            final Integer offset,
-            final Iterable<Map.Entry<String, Boolean>> order) {
-        return domainProxy.search(manifest, limit, offset, order);
-    }
+	@Override
+	public Future<List<T>> search(
+			final Integer limit,
+			final Integer offset,
+			final Iterable<Map.Entry<String, Boolean>> order) {
+		return domainProxy.search(manifest, limit, offset, order);
+	}
 
-    @Override
-    public Future<List<T>> search(final Integer limit, final Integer offset) {
-        return domainProxy.search(manifest, limit, offset);
-    }
+	@Override
+	public Future<List<T>> search(final Integer limit, final Integer offset) {
+		return domainProxy.search(manifest, limit, offset);
+	}
 
-    @Override
-    public Future<List<T>> search() {
-        return domainProxy.search(manifest);
-    }
+	@Override
+	public Future<List<T>> search() {
+		return domainProxy.search(manifest);
+	}
 
-    @Override
-    public Future<Long> count(final Specification<T> specification) {
-        return domainProxy.count(specification);
-    }
+	@Override
+	public Future<Long> count(final Specification<T> specification) {
+		return domainProxy.count(specification);
+	}
 
-    @Override
-    public Future<Long> count() {
-        return domainProxy.count(manifest);
-    }
+	@Override
+	public Future<Long> count() {
+		return domainProxy.count(manifest);
+	}
 
-    @Override
-    public SearchBuilder<T> builder() {
-        return new SearchBuilder<T>(this);
-    }
+	@Override
+	public SearchBuilder<T> builder() {
+		return new SearchBuilder<T>(this);
+	}
 }

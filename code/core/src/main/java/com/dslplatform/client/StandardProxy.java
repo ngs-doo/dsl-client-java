@@ -15,71 +15,71 @@ import com.dslplatform.patterns.Specification;
  * It is preferred to use domain patterns instead of this proxy service.
  */
 public interface StandardProxy {
-    /**
-     * Apply local changes to the remote server.
-     *
-     * @param inserts new aggregate roots
-     * @param updates pairs for updating old aggregate to new state
-     * @param deletes aggregate roots which will be deleted
-     * @return        future uris of newly created aggregates
-     */
-    public <TAggregate extends AggregateRoot> Future<List<String>> persist(
-            final Iterable<TAggregate> inserts,
-            final Iterable<Map.Entry<TAggregate, TAggregate>> updates,
-            final Iterable<TAggregate> deletes);
+	/**
+	 * Apply local changes to the remote server.
+	 *
+	 * @param inserts new aggregate roots
+	 * @param updates pairs for updating old aggregate to new state
+	 * @param deletes aggregate roots which will be deleted
+	 * @return        future uris of newly created aggregates
+	 */
+	public <TAggregate extends AggregateRoot> Future<List<String>> persist(
+			final Iterable<TAggregate> inserts,
+			final Iterable<Map.Entry<TAggregate, TAggregate>> updates,
+			final Iterable<TAggregate> deletes);
 
-    /**
-     * Perform data analysis on specified data source.
-     * Data source is filtered using provided specification.
-     * Analysis is performed by grouping data by dimensions
-     * and aggregating information using specified facts.
-     *
-     * @param manifest      deserialize result into provided type collection
-     * @param cubeName      olap cube name
-     * @param specification filter data source
-     * @param dimensions    group by dimensions
-     * @param facts         analyze using facts
-     * @param order         custom order for result
-     * @return              future with deserialized collection from analysis result
-     */
-    public <TDomainObject extends Searchable, TResult> Future<List<TResult>> olapCube(
-            final Class<TResult> manifest,
-            final String cubeName,
-            final Specification<TDomainObject> specification,
-            final Iterable<String> dimensions,
-            final Iterable<String> facts,
-            final Iterable<Map.Entry<String, Boolean>> order);
+	/**
+	 * Perform data analysis on specified data source.
+	 * Data source is filtered using provided specification.
+	 * Analysis is performed by grouping data by dimensions
+	 * and aggregating information using specified facts.
+	 *
+	 * @param manifest      deserialize result into provided type collection
+	 * @param cubeName      olap cube name
+	 * @param specification filter data source
+	 * @param dimensions    group by dimensions
+	 * @param facts         analyze using facts
+	 * @param order         custom order for result
+	 * @return              future with deserialized collection from analysis result
+	 */
+	public <TDomainObject extends Searchable, TResult> Future<List<TResult>> olapCube(
+			final Class<TResult> manifest,
+			final String cubeName,
+			final Specification<TDomainObject> specification,
+			final Iterable<String> dimensions,
+			final Iterable<String> facts,
+			final Iterable<Map.Entry<String, Boolean>> order);
 
-    /**
-     * Perform data analysis on specified data source.
-     * Analysis is performed by grouping data by dimensions
-     * and aggregating information using specified facts.
-     *
-     * @param manifest      deserialize result into provided type collection
-     * @param cubeName      olap cube name
-     * @param dimensions    group by dimensions
-     * @param facts         analyze using facts
-     * @param order         custom order for result
-     * @return              future with deserialized collection from analysis result
-     */
-    public <TResult> Future<List<TResult>> olapCube(
-            final Class<TResult> manifest,
-            final String cubeName,
-            final Iterable<String> dimensions,
-            final Iterable<String> facts,
-            final Iterable<Map.Entry<String, Boolean>> order);
+	/**
+	 * Perform data analysis on specified data source.
+	 * Analysis is performed by grouping data by dimensions
+	 * and aggregating information using specified facts.
+	 *
+	 * @param manifest      deserialize result into provided type collection
+	 * @param cubeName      olap cube name
+	 * @param dimensions    group by dimensions
+	 * @param facts         analyze using facts
+	 * @param order         custom order for result
+	 * @return              future with deserialized collection from analysis result
+	 */
+	public <TResult> Future<List<TResult>> olapCube(
+			final Class<TResult> manifest,
+			final String cubeName,
+			final Iterable<String> dimensions,
+			final Iterable<String> facts,
+			final Iterable<Map.Entry<String, Boolean>> order);
 
-    /**
-     * Execute remote service (server implementation for IServerService&lt;TArgument, TResult&gt;)
-     * Send message with serialized argument to remote service and deserialize response.
-     *
-     * @param manifest deserialize result into provided type
-     * @param command  remote service name
-     * @param argument remote service argument
-     * @return         future with deserialized result
-     */
-    public <TArgument, TResult> Future<TResult> execute(
-            final Class<TResult> manifest,
-            final String command,
-            final TArgument argument);
+	/**
+	 * Execute remote service (server implementation for IServerService&lt;TArgument, TResult&gt;)
+	 * Send message with serialized argument to remote service and deserialize response.
+	 *
+	 * @param manifest deserialize result into provided type
+	 * @param command  remote service name
+	 * @param argument remote service argument
+	 * @return         future with deserialized result
+	 */
+	public <TArgument, TResult> Future<TResult> execute(
+			final Class<TResult> manifest,
+			final String command,
+			final TArgument argument);
 }

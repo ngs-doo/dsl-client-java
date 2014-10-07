@@ -6,18 +6,25 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.security.KeyStore;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import javax.net.ssl.*;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+
+import org.slf4j.Logger;
 
 import com.dslplatform.client.exceptions.HttpException;
 import com.dslplatform.client.exceptions.HttpSecurityException;
 import com.dslplatform.client.exceptions.HttpServerErrorException;
 import com.dslplatform.client.exceptions.HttpUnexpectedCodeException;
-import org.slf4j.Logger;
-
 import com.fasterxml.jackson.databind.JavaType;
 
 class HttpClient {
@@ -98,8 +105,8 @@ class HttpClient {
 	}
 
 	private SSLSocketFactory createSSLSocketFactory(
-			String trustStore,
-			String trustStorePassword) {
+			final String trustStore,
+			final String trustStorePassword) {
 
 		final String storeType = KeyStore.getDefaultType();
 
@@ -116,7 +123,7 @@ class HttpClient {
 			} else {
 				return null;
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -232,7 +239,7 @@ class HttpClient {
 		final int maxLen = remoteUrls.length + currentUrl;
 		for (int i = currentUrl; i < maxLen; i++) {
 			try {
-				URL url = new URL(remoteUrls[i % remoteUrls.length] + service);
+				final URL url = new URL(remoteUrls[i % remoteUrls.length] + service);
 				final HttpClient.Response response = transmit(url, headers, method, payload);
 				if (response.code == HttpURLConnection.HTTP_CONFLICT && retriesOnConflictOrConnectionError > 0) {
 					return transmit(service, headers, method, payload, retriesOnConflictOrConnectionError - 1);
@@ -243,13 +250,13 @@ class HttpClient {
 				logger.error("At {} [{}] {}", url, response.code, response.bodyToString());
 				logger.error("Error connecting to {}. Trying next server if exists...", url);
 				error = new IOException(response.bodyToString());
-			} catch (java.net.ConnectException ce) {
+			} catch (final java.net.ConnectException ce) {
 				if (retriesOnConflictOrConnectionError > 0) {
 					return transmit(service, headers, method, payload, retriesOnConflictOrConnectionError - 1);
 				}
 				logger.error("At {} {}. Trying next server if exists...", service, ce.getMessage());
 				error = ce;
-			} catch (IOException ex) {
+			} catch (final IOException ex) {
 				logger.error("IOException {} to {}. Trying next server if exists...", ex.getMessage(), service);
 				error = ex;
 			}
