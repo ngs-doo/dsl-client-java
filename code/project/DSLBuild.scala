@@ -49,23 +49,22 @@ trait Default {
     def readIS(is: java.io.InputStream) = Stream.continually(is.read).takeWhile(-1 !=).map(_.toByte).toArray
     jar
   }
-
 }
 
 // ----------------------------------------------------------------------------
 
 trait Dependencies {
   // JodaTime
-  val jodaTime = "joda-time" % "joda-time" % "2.4"
+  val jodaTime = "joda-time" % "joda-time" % "2.5"
 
   // Json serialization
-  val jackson = "com.fasterxml.jackson.core" % "jackson-databind" % "2.4.1.3"
+  val jackson = "com.fasterxml.jackson.core" % "jackson-databind" % "2.4.3"
 
   // Logging facade
   val slf4j = "org.slf4j" % "slf4j-api" % "1.7.7"
 
   // Amazon Web Services SDK (S3 type)
-  val aws = "com.amazonaws" % "aws-java-sdk" % "1.8.9.1"
+  val aws = "com.amazonaws" % "aws-java-sdk" % "1.8.11"
 
   // Akka Actor (contains the Serializer)
   val akkaActor = "com.typesafe.akka" %% "akka-actor" % "2.3.6"
