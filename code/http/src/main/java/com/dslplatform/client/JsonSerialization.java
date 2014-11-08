@@ -1,17 +1,7 @@
 package com.dslplatform.client;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.io.*;
+import java.util.*;
 
 import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilder;
@@ -555,6 +545,10 @@ public class JsonSerialization {
 
 	public static void serialize(final OutputStream stream, final Object data) throws IOException {
 		serializationMapper.writer().writeValue(stream, data);
+	}
+
+	public static void serialize(final Writer writer, final Object data) throws IOException {
+		serializationMapper.writer().writeValue(writer, data);
 	}
 
 	private static final SimpleModule deserializationModule =
