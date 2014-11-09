@@ -7,11 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
-import com.dslplatform.patterns.AggregateRoot;
-import com.dslplatform.patterns.History;
-import com.dslplatform.patterns.Identifiable;
-import com.dslplatform.patterns.Searchable;
-import com.dslplatform.patterns.Specification;
+import com.dslplatform.patterns.*;
 
 class HttpReportingProxy implements ReportingProxy {
 	private final static String REPORTING_URI = "Reporting.svc/";
@@ -24,9 +20,11 @@ class HttpReportingProxy implements ReportingProxy {
 	}
 
 	@Override
-	public <TReport> Future<TReport> populate(final TReport report) {
-		final Class<?> manifest = report.getClass();
-		final String domainName = client.getDslName(manifest);
+	public <TReport extends Report<TResult>, TResult> Future<TResult> populate(
+			final Class<TResult> result,
+			final TReport report) {
+		final String domainName = client.getDslName(report.getClass());
+		final Class<?> manifest = result.getClass();
 		return client.sendRequest(
 				JsonSerialization.buildType(manifest),
 				REPORTING_URI + "report/" + domainName,
@@ -36,13 +34,15 @@ class HttpReportingProxy implements ReportingProxy {
 	}
 
 	@Override
-	public <TReport> Future<byte[]> createReport(final TReport report, final String templater) {
+	public <TReport extends Report<TResult>, TResult> Future<byte[]> createReport(
+			final TReport report,
+			final String templater) {
 		final String domainName = client.getDslName(report.getClass());
-		return client.sendRequest(
-				JsonSerialization.buildType(byte[].class),
+		return client.sendRawRequest(
 				REPORTING_URI + "report/" + domainName + "/" + templater,
 				"PUT",
 				report,
+				Utils.acceptAs("application/octet-stream"),
 				new int[] { 201 });
 	}
 
@@ -59,11 +59,11 @@ class HttpReportingProxy implements ReportingProxy {
 		final Class<?> specClass = specification.getClass();
 		final String parentName = client.getDslName(specClass.getDeclaringClass());
 		final String specName = parentName.equals(cubeName) ? parentName + "/" : "";
-		return client.sendRequest(
-				JsonSerialization.buildType(byte[].class),
+		return client.sendRawRequest(
 				REPORTING_URI + "olap/" + cubeName + '/' + specName + specClass.getSimpleName() + '/' + templater + args,
 				"PUT",
 				specification,
+				Utils.acceptAs("application/octet-stream"),
 				new int[] { 200 });
 	}
 
@@ -75,11 +75,11 @@ class HttpReportingProxy implements ReportingProxy {
 			final Iterable<String> facts,
 			final Iterable<Map.Entry<String, Boolean>> order) {
 		final String args = Utils.buildOlapArguments(dimensions, facts, order);
-		return client.sendRequest(
-				JsonSerialization.buildType(byte[].class),
+		return client.sendRawRequest(
 				REPORTING_URI + "olap/" + cubeName + '/' + templater + args,
 				"GET",
 				null,
+				Utils.acceptAs("application/octet-stream"),
 				new int[] { 200 });
 	}
 
@@ -127,17 +127,11 @@ class HttpReportingProxy implements ReportingProxy {
 		if (uri.isEmpty()) throw new IllegalArgumentException("uri not specified");
 		final String domainName = client.getDslName(manifest);
 
-		@SuppressWarnings("unchecked")
-		final List<Map.Entry<String, String>> headers =
-				Arrays.asList((Map.Entry<String, String>) new AbstractMap.SimpleEntry<String, String>(
-						"Accept",
-						toPdf ? "application/pdf" : "application/octet-stream"));
-
 		return client.sendRawRequest(
 				REPORTING_URI + "templater/" + file + "/" + domainName + "?uri=" + HttpClient.encode(uri),
 				"GET",
 				null,
-				headers,
+				toPdf ? Utils.acceptAs("application/pdf") : Utils.acceptAs("application/octet-stream"),
 				new int[] { 200 });
 	}
 
@@ -151,12 +145,6 @@ class HttpReportingProxy implements ReportingProxy {
 		if (specification == null && manifest == null)
 			throw new IllegalArgumentException("specification or manifest must be provided");
 
-		@SuppressWarnings("unchecked")
-		final List<Map.Entry<String, String>> headers =
-				Arrays.asList((Map.Entry<String, String>) new AbstractMap.SimpleEntry<String, String>(
-						"Accept",
-						toPdf ? "application/pdf" : "application/octet-stream"));
-
 		// Branching if null!
 		if (specification == null) {
 			final String domainName = client.getDslName(manifest);
@@ -164,7 +152,7 @@ class HttpReportingProxy implements ReportingProxy {
 					REPORTING_URI + "templater/" + file + "/" + domainName,
 					"GET",
 					null,
-					headers,
+					toPdf ? Utils.acceptAs("application/pdf") : Utils.acceptAs("application/octet-stream"),
 					new int[] { 200 });
 		}
 		final Class<?> specClass = specification.getClass();
@@ -174,7 +162,7 @@ class HttpReportingProxy implements ReportingProxy {
 				REPORTING_URI + "templater/" + file + "/" + domainName + "?specification=" + specClass.getSimpleName(),
 				"PUT",
 				specification,
-				headers,
+				toPdf ? Utils.acceptAs("application/pdf") : Utils.acceptAs("application/octet-stream"),
 				new int[] { 200 });
 	}
 }

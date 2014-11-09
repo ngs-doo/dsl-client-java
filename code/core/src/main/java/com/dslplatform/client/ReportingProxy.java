@@ -4,11 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
-import com.dslplatform.patterns.AggregateRoot;
-import com.dslplatform.patterns.History;
-import com.dslplatform.patterns.Identifiable;
-import com.dslplatform.patterns.Searchable;
-import com.dslplatform.patterns.Specification;
+import com.dslplatform.patterns.*;
 
 /**
  * Proxy service to reporting operations such as document generation,
@@ -36,12 +32,14 @@ import com.dslplatform.patterns.Specification;
 public interface ReportingProxy {
 	/**
 	 * Populate report. Send message to server with serialized report specification.
-	 * TODO: API change. New version has TReport and TResult
 	 *
+	 * @param result result class
 	 * @param report specification
 	 * @return       future to populated results
 	 */
-	public <TReport> Future<TReport> populate(final TReport report);
+	public <TReport extends Report<TResult>, TResult> Future<TResult> populate(
+			final Class<TResult> result,
+			final TReport report);
 
 	/**
 	 * Create document from report. Send message to server with serialized report specification.
@@ -60,7 +58,7 @@ public interface ReportingProxy {
 	 * @param templater templater name
 	 * @return          future to document content
 	 */
-	public <TReport> Future<byte[]> createReport(
+	public <TReport extends Report<TResult>, TResult> Future<byte[]> createReport(
 			final TReport report,
 			final String templater);
 

@@ -153,15 +153,11 @@ class HttpClient {
 		if (content == null) {
 			body = null;
 
-			if (logger.isDebugEnabled()) {
-				logger.debug("Sending request [{}]: {}", method, service);
-			}
+			logger.debug("Sending request [{}]: {}", method, service);
 		} else {
 			body = JsonSerialization.serializeBytes(content);
 
-			if (logger.isDebugEnabled()) {
-				logger.debug("Sending request [{}]: {}, content size: {} bytes", method, service, body.length);
-			}
+			logger.debug("Sending request [{}]: {}, content size: {} bytes", method, service, body.length);
 		}
 
 		final Response response = transmit(service, headers, method, body, 2);

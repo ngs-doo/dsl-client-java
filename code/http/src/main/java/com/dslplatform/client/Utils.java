@@ -3,9 +3,7 @@ package com.dslplatform.client;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 class Utils {
 	public static <T> ArrayList<T> toArrayList(final Iterable<T> iterable) {
@@ -14,6 +12,12 @@ class Utils {
 			copy.add(t);
 		}
 		return copy;
+	}
+
+	public static List<Map.Entry<String, String>> acceptAs(final String mimeType) {
+		return Arrays.asList((Map.Entry<String, String>) new AbstractMap.SimpleEntry<String, String>(
+				"Accept",
+				mimeType));
 	}
 
 	private static void appendOrder(
