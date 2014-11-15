@@ -1,8 +1,10 @@
 package com.dslplatform.client.json;
 
+import com.dslplatform.patterns.ServiceLocator;
+
 import java.io.IOException;
 import java.io.Writer;
 
 public interface JsonObject {
-	void serialize(Writer writer, boolean minimal) throws IOException;
+	void serialize(final Writer writer, final boolean minimal) throws IOException;
 }

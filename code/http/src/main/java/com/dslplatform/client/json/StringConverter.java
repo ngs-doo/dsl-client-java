@@ -2,16 +2,17 @@ package com.dslplatform.client.json;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
 
 public class StringConverter {
-	public static void serializeNullable(String value, Writer sw) throws IOException {
+	public static void serializeNullable(final String value, final Writer sw) throws IOException {
 		if (value == null) 
 			sw.write("null");
 		else
 			serialize(value, sw);
 	}
 
-	public static void serialize(String value, Writer sw) throws IOException {
+	public static void serialize(final String value, final Writer sw) throws IOException {
 		sw.write('"');
 		char c;
 		for (int i = 0; i < value.length(); i++) {
@@ -55,5 +56,24 @@ public class StringConverter {
 			}
 		}
 		sw.write('"');
+	}
+
+	public static String deserialize(final JsonReader reader) throws IOException {
+		return reader.readString();
+	}
+
+	private static JsonReader.ReadObject<String> Reader = new JsonReader.ReadObject<String>() {
+		@Override
+		public String read(JsonReader reader) throws IOException {
+			return deserialize(reader);
+		}
+	};
+
+	public static ArrayList<String> deserializeCollection(final JsonReader reader) throws IOException {
+		return reader.deserializeCollection(Reader);
+	}
+
+	public static ArrayList<String> deserializeNullableCollection(final JsonReader reader) throws IOException {
+		return reader.deserializeNullableCollection(Reader);
 	}
 }

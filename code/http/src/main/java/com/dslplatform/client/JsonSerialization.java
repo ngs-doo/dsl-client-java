@@ -535,6 +535,14 @@ public class JsonSerialization {
 		return deserializationMapper.readValue(stream, type);
 	}
 
+	public static <T> T deserialize(final Class<T> clazz, final String data) throws IOException {
+		return staticDeserializationMapper.readValue(data, clazz);
+	}
+
+	public static <T> ArrayList<T> deserializeCollection(final Class<T> clazz, final String data) throws IOException {
+		return staticDeserializationMapper.readValue(data, typeFactory.constructCollectionType(ArrayList.class, clazz));
+	}
+
 	public static String serialize(final Object data) throws IOException {
 		return serializationMapper.writer().writeValueAsString(data);
 	}
@@ -563,6 +571,11 @@ public class JsonSerialization {
 				.registerModule(deserializationModule)
 				.setInjectableValues(new InjectableValues.Std().addValue("_serviceLocator", locator));
 	}
+
+	private static ObjectMapper staticDeserializationMapper =
+			new ObjectMapper()
+					.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+					.registerModule(deserializationModule);
 
 	public static <T> T deserialize(final JavaType type, final String data, final ServiceLocator locator) throws IOException {
 		return makeDeserializationObjectMapper(locator).readValue(data, type);

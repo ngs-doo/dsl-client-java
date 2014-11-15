@@ -1,23 +1,26 @@
 package com.dslplatform.client.json;
 
+import org.joda.time.LocalDate;
+
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 
 public class MapConverter {
-	public static void serializeNullable(Map<String, String> value, Writer sw) throws IOException {
+	public static void serializeNullable(final Map<String, String> value, final Writer sw) throws IOException {
 		if (value == null) 
 			sw.write("null");
 		else
 			serialize(value, sw);
 	}
 
-	public static void serialize(Map<String, String> value, Writer sw) throws IOException {
+	public static void serialize(final Map<String, String> value, final Writer sw) throws IOException {
 		sw.write('{');
-		int size = value.size();
+		final int size = value.size();
 		if (size > 0) {
-			Iterator<Map.Entry<String, String>> iterator = value.entrySet().iterator();
+			final Iterator<Map.Entry<String, String>> iterator = value.entrySet().iterator();
 			Map.Entry<String, String> kv;
 			for (int i = 0; i < size; i++) {
 				kv = iterator.next();
@@ -32,5 +35,24 @@ public class MapConverter {
 			StringConverter.serializeNullable(kv.getValue(), sw);
 		}
 		sw.write('}');
+	}
+
+	public static Map<String, String> deserialize(final JsonReader reader) throws IOException {
+		return null;
+	}
+
+	private static JsonReader.ReadObject<Map<String, String>> MapReader = new JsonReader.ReadObject<Map<String, String>>() {
+		@Override
+		public Map<String, String> read(JsonReader reader) throws IOException {
+			return deserialize(reader);
+		}
+	};
+
+	public static ArrayList<Map<String, String>> deserializeCollection(final JsonReader reader) throws IOException {
+		return reader.deserializeCollection(MapReader);
+	}
+
+	public static ArrayList<Map<String, String>> deserializeNullableCollection(final JsonReader reader) throws IOException {
+		return reader.deserializeNullableCollection(MapReader);
 	}
 }
