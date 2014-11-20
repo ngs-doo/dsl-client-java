@@ -3,6 +3,7 @@ package com.dslplatform.client.json;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collection;
 
 public class BoolConverter {
 	public static void serializeNullable(final Boolean value, final Writer sw) throws IOException {
@@ -41,7 +42,15 @@ public class BoolConverter {
 		return reader.deserializeCollection(BooleanReader);
 	}
 
+	public static void deserializeCollection(final JsonReader reader, final Collection<Boolean> res) throws IOException {
+		reader.deserializeCollection(BooleanReader, res);
+	}
+
 	public static ArrayList<Boolean> deserializeNullableCollection(final JsonReader reader) throws IOException {
 		return reader.deserializeNullableCollection(BooleanReader);
+	}
+
+	public static void deserializeNullableCollection(final JsonReader reader, final Collection<Boolean> res) throws IOException {
+		reader.deserializeNullableCollection(BooleanReader, res);
 	}
 }

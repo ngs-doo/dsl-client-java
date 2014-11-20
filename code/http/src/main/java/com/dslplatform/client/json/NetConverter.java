@@ -5,6 +5,7 @@ import java.io.Writer;
 import java.net.InetAddress;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 
 public class NetConverter {
@@ -34,8 +35,16 @@ public class NetConverter {
 		return reader.deserializeCollection(UriReader);
 	}
 
+	public static void deserializeUriCollection(final JsonReader reader, final Collection<URI> res) throws IOException {
+		reader.deserializeCollection(UriReader, res);
+	}
+
 	public static ArrayList<URI> deserializeUriNullableCollection(final JsonReader reader) throws IOException {
 		return reader.deserializeNullableCollection(UriReader);
+	}
+
+	public static void deserializeUriNullableCollection(final JsonReader reader, final Collection<URI> res) throws IOException {
+		reader.deserializeNullableCollection(UriReader, res);
 	}
 
 	public static void serializeNullable(final InetAddress value, final Writer sw) throws IOException {
@@ -64,7 +73,15 @@ public class NetConverter {
 		return reader.deserializeCollection(AddressReader);
 	}
 
+	public static void deserializeIpCollection(final JsonReader reader, final Collection<InetAddress> res) throws IOException {
+		reader.deserializeCollection(AddressReader, res);
+	}
+
 	public static ArrayList<InetAddress> deserializeIpNullableCollection(final JsonReader reader) throws IOException {
 		return reader.deserializeNullableCollection(AddressReader);
+	}
+
+	public static void deserializeIpNullableCollection(final JsonReader reader, final Collection<InetAddress> res) throws IOException {
+		reader.deserializeNullableCollection(AddressReader, res);
 	}
 }

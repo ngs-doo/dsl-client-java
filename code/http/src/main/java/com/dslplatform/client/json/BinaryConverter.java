@@ -3,6 +3,7 @@ package com.dslplatform.client.json;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collection;
 
 public class BinaryConverter {
 	static final boolean isAndroid;
@@ -53,7 +54,11 @@ public class BinaryConverter {
 		return reader.deserializeCollection(Base64Reader);
 	}
 
-	public static ArrayList<byte[]> deserializeNullableCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeNullableCollection(Base64Reader);
+	public static void deserializeCollection(final JsonReader reader, final Collection<byte[]> res) throws IOException {
+		reader.deserializeCollection(Base64Reader, res);
+	}
+
+	public static void deserializeNullableCollection(final JsonReader reader, final Collection<byte[]> res) throws IOException {
+		reader.deserializeNullableCollection(Base64Reader, res);
 	}
 }

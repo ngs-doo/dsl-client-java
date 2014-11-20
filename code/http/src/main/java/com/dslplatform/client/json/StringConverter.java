@@ -3,6 +3,7 @@ package com.dslplatform.client.json;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collection;
 
 public class StringConverter {
 	public static void serializeNullable(final String value, final Writer sw) throws IOException {
@@ -62,6 +63,14 @@ public class StringConverter {
 		return reader.readString();
 	}
 
+	public static String deserializeNullable(final JsonReader reader) throws IOException {
+		if (reader.last() == 'n') {
+			if (!reader.wasNull()) throw new IOException("Expecting 'null' at position " + reader.positionInStream() + ". Found " + (char)reader.last());
+			return null;
+		}
+		return reader.readString();
+	}
+
 	private static JsonReader.ReadObject<String> Reader = new JsonReader.ReadObject<String>() {
 		@Override
 		public String read(JsonReader reader) throws IOException {
@@ -73,7 +82,15 @@ public class StringConverter {
 		return reader.deserializeCollection(Reader);
 	}
 
+	public static void deserializeCollection(final JsonReader reader, final Collection<String> res) throws IOException {
+		reader.deserializeCollection(Reader, res);
+	}
+
 	public static ArrayList<String> deserializeNullableCollection(final JsonReader reader) throws IOException {
 		return reader.deserializeNullableCollection(Reader);
+	}
+
+	public static void deserializeNullableCollection(final JsonReader reader, final Collection<String> res) throws IOException {
+		reader.deserializeNullableCollection(Reader, res);
 	}
 }

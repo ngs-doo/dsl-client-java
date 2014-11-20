@@ -531,6 +531,10 @@ public class JsonSerialization {
 		return deserializationMapper.readValue(data, type);
 	}
 
+	public <T> T deserialize(final Class<T> clazz, final byte[] data) throws IOException {
+		return deserializationMapper.readValue(data, clazz);
+	}
+
 	public <T> T deserialize(final JavaType type, final InputStream stream) throws IOException {
 		return deserializationMapper.readValue(stream, type);
 	}
