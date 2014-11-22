@@ -17,7 +17,7 @@ class HttpApplicationProxy implements ApplicationProxy {
 			final String command,
 			final int[] expectedStatus) {
 		return client.sendRequest(
-				JsonSerialization.buildType(manifest),
+				manifest,
 				APPLICATION_URI + command,
 				"GET",
 				null,
@@ -31,7 +31,7 @@ class HttpApplicationProxy implements ApplicationProxy {
 			final TArgument argument,
 			final int[] expectedStatus) {
 		return client.sendRequest(
-				JsonSerialization.buildType(manifest),
+				manifest,
 				APPLICATION_URI + command,
 				"POST",
 				argument,

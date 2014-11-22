@@ -1,22 +1,30 @@
 package com.dslplatform.client;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import com.dslplatform.patterns.*;
+import com.fasterxml.jackson.databind.JavaType;
 
 class HttpReportingProxy implements ReportingProxy {
 	private final static String REPORTING_URI = "Reporting.svc/";
 	private final static String APPLICATION_URI = "RestApplication.svc/";
 
 	private final HttpClient client;
+	private final ExecutorService executorService;
+	private final JsonSerialization jsonSerialization;
 
-	public HttpReportingProxy(final HttpClient client) {
+	public HttpReportingProxy(
+			final HttpClient client,
+			final ExecutorService executorService,
+			final JsonSerialization jsonSerialization) {
 		this.client = client;
+		this.executorService = executorService;
+		this.jsonSerialization = jsonSerialization;
 	}
 
 	@Override
@@ -24,13 +32,12 @@ class HttpReportingProxy implements ReportingProxy {
 			final Class<TResult> result,
 			final TReport report) {
 		final String domainName = client.getDslName(report.getClass());
-		final Class<?> manifest = result.getClass();
 		return client.sendRequest(
-				JsonSerialization.buildType(manifest),
+				result,
 				REPORTING_URI + "report/" + domainName,
 				"PUT",
 				report,
-				new int[] { 200 });
+				new int[]{200});
 	}
 
 	@Override
@@ -43,7 +50,7 @@ class HttpReportingProxy implements ReportingProxy {
 				"PUT",
 				report,
 				Utils.acceptAs("application/octet-stream"),
-				new int[] { 201 });
+				new int[]{201});
 	}
 
 	@Override
@@ -64,7 +71,7 @@ class HttpReportingProxy implements ReportingProxy {
 				"PUT",
 				specification,
 				Utils.acceptAs("application/octet-stream"),
-				new int[] { 200 });
+				new int[]{200});
 	}
 
 	@Override
@@ -80,7 +87,7 @@ class HttpReportingProxy implements ReportingProxy {
 				"GET",
 				null,
 				Utils.acceptAs("application/octet-stream"),
-				new int[] { 200 });
+				new int[]{200});
 	}
 
 	private static class HistoryArg {
@@ -107,14 +114,22 @@ class HttpReportingProxy implements ReportingProxy {
 			final Iterable<String> uris) {
 		final String domainName = client.getDslName(manifest);
 
-		return client.sendRequest(
-				JsonSerialization.buildCollectionType(
-						ArrayList.class,
-						JsonSerialization.buildGenericType(History.class, manifest)),
-				APPLICATION_URI + "GetRootHistory",
-				"POST",
-				new HistoryArg(domainName, uris),
-				new int[] { 200 });
+		return executorService.submit(new Callable<List<History<T>>>() {
+			@Override
+			public List<History<T>> call() throws Exception {
+				final byte[] result = client.sendRawRequest(
+						APPLICATION_URI + "GetRootHistory",
+						"POST",
+						new HistoryArg(domainName, uris),
+						Utils.acceptAs("application/json"),
+						new int[]{200}).get();
+				final JavaType ht =
+						JsonSerialization.buildCollectionType(
+							ArrayList.class,
+							JsonSerialization.buildGenericType(History.class, manifest));
+				return jsonSerialization.deserialize(ht, result);
+			}
+		});
 	}
 
 	@Override
@@ -132,7 +147,7 @@ class HttpReportingProxy implements ReportingProxy {
 				"GET",
 				null,
 				toPdf ? Utils.acceptAs("application/pdf") : Utils.acceptAs("application/octet-stream"),
-				new int[] { 200 });
+				new int[]{200});
 	}
 
 	@Override
@@ -153,7 +168,7 @@ class HttpReportingProxy implements ReportingProxy {
 					"GET",
 					null,
 					toPdf ? Utils.acceptAs("application/pdf") : Utils.acceptAs("application/octet-stream"),
-					new int[] { 200 });
+					new int[]{200});
 		}
 		final Class<?> specClass = specification.getClass();
 		final Class<?> parentClass = specClass.getDeclaringClass();
@@ -163,6 +178,6 @@ class HttpReportingProxy implements ReportingProxy {
 				"PUT",
 				specification,
 				toPdf ? Utils.acceptAs("application/pdf") : Utils.acceptAs("application/octet-stream"),
-				new int[] { 200 });
+				new int[]{200});
 	}
 }

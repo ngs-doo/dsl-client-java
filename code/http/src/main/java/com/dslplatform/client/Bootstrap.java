@@ -108,7 +108,7 @@ public class Bootstrap {
 			locator.register(HttpHeaderProvider.class, headerProvider);
 		}
 		final HttpClient httpClient =
-				new HttpClient(properties, jsonDeserialization, logger, headerProvider, executorService);
+				new HttpClient(properties, jsonDeserialization, locator, logger, headerProvider, executorService);
 		final DomainProxy domainProxy = new HttpDomainProxy(httpClient);
 
 		locator
@@ -118,7 +118,7 @@ public class Bootstrap {
 				.register(CrudProxy.class, HttpCrudProxy.class)
 				.register(DomainProxy.class, domainProxy)
 				.register(StandardProxy.class, new HttpStandardProxy(httpClient, executorService))
-				.register(ReportingProxy.class, new HttpReportingProxy(httpClient))
+				.register(ReportingProxy.class, new HttpReportingProxy(httpClient, executorService, jsonDeserialization))
 				.register(DomainEventStore.class, new ClientDomainEventStore(domainProxy));
 //				.register(S3Repository.class, new AmazonS3Repository(project))
 

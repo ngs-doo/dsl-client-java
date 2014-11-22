@@ -1,17 +1,17 @@
 package com.dslplatform.client;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.security.KeyStore;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -19,13 +19,15 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
+import com.dslplatform.client.json.JsonObject;
+import com.dslplatform.client.json.JsonReader;
+import com.dslplatform.patterns.ServiceLocator;
 import org.slf4j.Logger;
 
 import com.dslplatform.client.exceptions.HttpException;
 import com.dslplatform.client.exceptions.HttpSecurityException;
 import com.dslplatform.client.exceptions.HttpServerErrorException;
 import com.dslplatform.client.exceptions.HttpUnexpectedCodeException;
-import com.fasterxml.jackson.databind.JavaType;
 
 class HttpClient {
 	static String encode(final String param) {
@@ -43,9 +45,18 @@ class HttpClient {
 
 		public Response(final HttpURLConnection connection) throws IOException {
 			this.code = connection.getResponseCode();
-			body = code < 400
-					? Utils.inputStreamToByteArray(connection.getInputStream())
-					: Utils.inputStreamToByteArray(connection.getErrorStream());
+			int len = connection.getContentLength();
+			if (code < 300 && len >= 0) {
+				body = new byte[len];
+				int pos = 0;
+				while (pos < body.length) {
+					pos += connection.getInputStream().read(body, pos, body.length - pos);
+				}
+			} else {
+				body = code < 400
+						? Utils.inputStreamToByteArray(connection.getInputStream())
+						: Utils.inputStreamToByteArray(connection.getErrorStream());
+			}
 			this.connection = connection;
 		}
 
@@ -60,6 +71,7 @@ class HttpClient {
 
 	private final Logger logger;
 	private final JsonSerialization jsonDeserialization;
+	private final ServiceLocator locator;
 	private final HttpHeaderProvider headerProvider;
 	private final ExecutorService executorService;
 	private final String domainPrefix;
@@ -72,17 +84,22 @@ class HttpClient {
 	public HttpClient(
 			final Properties properties,
 			final JsonSerialization jsonDeserialization,
+			final ServiceLocator locator,
 			final Logger logger,
 			final HttpHeaderProvider headerProvider,
 			final ExecutorService executorService) {
 		this.logger = logger;
 		this.jsonDeserialization = jsonDeserialization;
+		this.locator = locator;
 		this.executorService = executorService;
 		this.remoteUrls = properties.getProperty("api-url").split(",\\s+");
 
 		SSL_SOCKET_FACTORY = createSSLSocketFactory(properties);
 
 		domainPrefix = properties.getProperty("package-name");
+		if (domainPrefix == null) {
+			throw new IllegalArgumentException("package-name is missing from provided configuration. It is used to specify root namespace");
+		}
 		domainPrefixLength = domainPrefix.length() + 1;
 
 		this.headerProvider = headerProvider;
@@ -155,7 +172,15 @@ class HttpClient {
 
 			logger.debug("Sending request [{}]: {}", method, service);
 		} else {
-			body = JsonSerialization.serializeBytes(content);
+			if (content instanceof JsonObject) {
+				StringWriter sw = new StringWriter();
+				JsonObject jo = (JsonObject)content;
+				jo.serialize(sw, true);
+				sw.flush();
+				body = sw.toString().getBytes("UTF-8");
+			} else {
+				body = JsonSerialization.serializeBytes(content);
+			}
 
 			logger.debug("Sending request [{}]: {}, content size: {} bytes", method, service, body.length);
 		}
@@ -204,8 +229,25 @@ class HttpClient {
 		});
 	}
 
+	private static final ConcurrentHashMap<Class<?>, JsonReader.ReadJsonObject<JsonObject>> jsonReaderes =
+			new ConcurrentHashMap<Class<?>, JsonReader.ReadJsonObject<JsonObject>>();
+
+	@SuppressWarnings("unchecked")
+	private static JsonReader.ReadJsonObject<JsonObject> getReader(final Class<?> manifest) {
+		try {
+			JsonReader.ReadJsonObject<JsonObject> reader = jsonReaderes.get(manifest);
+			if (reader == null) {
+				reader = (JsonReader.ReadJsonObject<JsonObject>) manifest.getField("JSON_READER").get(null);
+				jsonReaderes.putIfAbsent(manifest, reader);
+			}
+			return reader;
+		}catch (Exception ignore) {
+			return null;
+		}
+	}
+
 	public <TArgument, TResult> Future<TResult> sendRequest(
-			final JavaType type,
+			final Class<TResult> manifest,
 			final String service,
 			final String method,
 			final TArgument content,
@@ -218,9 +260,47 @@ class HttpClient {
 			@Override
 			public TResult call() throws IOException {
 				final byte[] response = doRawRequest(service, emptyHeaders, method, content, expected, start);
-				return type != null
-						? (TResult) jsonDeserialization.deserialize(type, response)
-						: null;
+				if (JsonObject.class.isAssignableFrom(manifest)) {
+					JsonReader.ReadJsonObject<JsonObject> reader = getReader(manifest);
+					if (reader != null) {
+						JsonReader json = new JsonReader(response, locator);
+						if (json.getNextToken() == '{') {
+							return (TResult) reader.deserialize(json, locator);
+						}
+					}
+				}
+				return jsonDeserialization.deserialize(manifest, response);
+			}
+		});
+	}
+
+	public <TArgument, TResult> Future<List<TResult>> sendCollectionRequest(
+			final Class<TResult> manifest,
+			final String service,
+			final String method,
+			final TArgument content,
+			final int[] expected) {
+
+		final long start = System.currentTimeMillis();
+
+		return executorService.submit(new Callable<List<TResult>>() {
+			@SuppressWarnings("unchecked")
+			@Override
+			public List<TResult> call() throws IOException {
+				final byte[] response = doRawRequest(service, emptyHeaders, method, content, expected, start);
+				if (JsonObject.class.isAssignableFrom(manifest)) {
+					JsonReader.ReadJsonObject<JsonObject> reader = getReader(manifest);
+					if (reader != null) {
+						final JsonReader json = new JsonReader(response, locator);
+						if (json.getNextToken() == '[') {
+							if (json.getNextToken() == ']') {
+								return new ArrayList<TResult>();
+							}
+							return (List<TResult>) json.deserializeCollection(reader);
+						}
+					}
+				}
+				return jsonDeserialization.deserialize(JsonSerialization.buildCollectionType(ArrayList.class, manifest), response);
 			}
 		});
 	}
@@ -229,7 +309,7 @@ class HttpClient {
 			final String service,
 			final List<Map.Entry<String, String>> headers,
 			final String method,
-			final byte[] payload, //TODO: should use OutputStream instead
+			final byte[] payload,
 			final int retriesOnConflictOrConnectionError) throws IOException {
 		IOException error = null;
 		final int maxLen = remoteUrls.length + currentUrl;

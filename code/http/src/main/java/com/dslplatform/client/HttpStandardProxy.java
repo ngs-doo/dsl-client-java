@@ -77,7 +77,6 @@ class HttpStandardProxy implements StandardProxy {
 			final Iterable<T> deletes) {
 
 		return executorService.submit(new Callable<List<String>>() {
-			@SuppressWarnings("unchecked")
 			@Override
 			public List<String> call() throws Exception {
 				Class<?> clazz = null;
@@ -119,8 +118,8 @@ class HttpStandardProxy implements StandardProxy {
 
 				final String domainName = client.getDslName(clazz);
 
-				return (List<String>) client.sendRequest(
-						JsonSerialization.buildCollectionType(ArrayList.class, String.class),
+				return client.sendCollectionRequest(
+						String.class,
 						APPLICATION_URI + "PersistAggregateRoot",
 						"POST",
 						new PersistArg(domainName, toInsert, toUpdate, toDelete),
@@ -146,8 +145,8 @@ class HttpStandardProxy implements StandardProxy {
 
 		final String args = Utils.buildOlapArguments(dimensions, facts, order, specificationName);
 
-		return client.sendRequest(
-				JsonSerialization.buildCollectionType(java.util.List.class, manifest),
+		return client.sendCollectionRequest(
+				manifest,
 				STANDARD_URI + "olap/" + cubeName + args,
 				"PUT",
 				specification,
@@ -163,8 +162,8 @@ class HttpStandardProxy implements StandardProxy {
 			final Iterable<Map.Entry<String, Boolean>> order) {
 		final String args = Utils.buildOlapArguments(dimensions, facts, order);
 
-		return client.sendRequest(
-				JsonSerialization.buildCollectionType(java.util.List.class, manifest),
+		return client.sendCollectionRequest(
+				manifest,
 				STANDARD_URI + "olap/" + cubeName + args,
 				"GET",
 				null,
@@ -177,7 +176,7 @@ class HttpStandardProxy implements StandardProxy {
 			final String command,
 			final TArgument argument) {
 		return client.sendRequest(
-				JsonSerialization.buildType(manifest),
+				manifest,
 				STANDARD_URI + "execute/" + command,
 				"POST",
 				argument,

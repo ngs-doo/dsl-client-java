@@ -12,11 +12,16 @@ public class SettingsHeaderProvider implements HttpHeaderProvider {
 	private final List<Map.Entry<String, String>> headers = new ArrayList<Map.Entry<String, String>>();
 
 	public SettingsHeaderProvider(final Properties properties) {
-		final String auth = properties.getProperty("basic-auth");
-		if (auth != null) {
-			headers.add(new AbstractMap.SimpleEntry<String, String>("Authorization", "Basic " + auth));
-		}
-		else {
+		final String basicAuth = properties.getProperty("basic-auth");
+		final String hashAuth = properties.getProperty("hash-auth");
+		final String authorization = properties.getProperty("authorization");
+		if (basicAuth != null) {
+			headers.add(new AbstractMap.SimpleEntry<String, String>("Authorization", "Basic " + basicAuth));
+		} else if (hashAuth != null) {
+			headers.add(new AbstractMap.SimpleEntry<String, String>("Authorization", "Hash " + hashAuth));
+		} else if (authorization != null) {
+			headers.add(new AbstractMap.SimpleEntry<String, String>("Authorization", authorization));
+		} else {
 			final String username = properties.getProperty("username");
 			//TODO: remove this legacy
 			final String password = properties.getProperty("project-id");

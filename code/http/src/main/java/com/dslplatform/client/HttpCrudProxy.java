@@ -21,7 +21,7 @@ class HttpCrudProxy implements CrudProxy {
 		if (uri == null) throw new IllegalArgumentException("uri can't be null.");
 		final String domainName = client.getDslName(manifest);
 		return client.sendRequest(
-				JsonSerialization.buildType(manifest),
+				manifest,
 				CRUD_URI + domainName + "?uri=" + encode(uri),
 				"GET",
 				null,
@@ -30,10 +30,11 @@ class HttpCrudProxy implements CrudProxy {
 
 	@Override
 	public <TAggregate extends AggregateRoot> Future<TAggregate> create(final TAggregate aggregate) {
-		final Class<?> manifest = aggregate.getClass();
+		@SuppressWarnings("unchecked")
+		final Class<TAggregate> manifest = (Class<TAggregate>) aggregate.getClass();
 		final String domainName = client.getDslName(manifest);
 		return client.sendRequest(
-				JsonSerialization.buildType(manifest),
+				manifest,
 				CRUD_URI + domainName,
 				"POST",
 				aggregate,
@@ -44,10 +45,11 @@ class HttpCrudProxy implements CrudProxy {
 	public <TAggregate extends AggregateRoot> Future<TAggregate> update(final TAggregate aggregate) {
 		final String uri = aggregate.getURI();
 		if (uri == null) throw new IllegalArgumentException("uri can't be null.");
-		final Class<?> manifest = aggregate.getClass();
+		@SuppressWarnings("unchecked")
+		final Class<TAggregate> manifest = (Class<TAggregate>) aggregate.getClass();
 		final String domainName = client.getDslName(manifest);
 		return client.sendRequest(
-				JsonSerialization.buildType(manifest),
+				manifest,
 				CRUD_URI + domainName + "?uri=" + encode(uri),
 				"PUT",
 				aggregate,
@@ -61,7 +63,7 @@ class HttpCrudProxy implements CrudProxy {
 		if (uri == null) throw new IllegalArgumentException("uri can't be null.");
 		final String domainName = client.getDslName(manifest);
 		return client.sendRequest(
-				JsonSerialization.buildType(manifest),
+				manifest,
 				CRUD_URI + domainName + "?uri=" + encode(uri),
 				"DELETE",
 				null,

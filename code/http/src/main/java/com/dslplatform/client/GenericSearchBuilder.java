@@ -134,8 +134,8 @@ public class GenericSearchBuilder<T extends Searchable> {
 	public Future<List<T>> search() {
 		final String url = Utils.appendLimitOffsetOrder(domainName, limit, offset, order, false);
 
-		return httpClient.sendRequest(
-				JsonSerialization.buildCollectionType(ArrayList.class, manifest),
+		return httpClient.sendCollectionRequest(
+				manifest,
 				"Domain.svc/search-generic/" + url,
 				"PUT",
 				filters,

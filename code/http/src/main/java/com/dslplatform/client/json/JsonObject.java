@@ -1,7 +1,5 @@
 package com.dslplatform.client.json;
 
-import com.dslplatform.patterns.ServiceLocator;
-
 import java.io.IOException;
 import java.io.Writer;
 
