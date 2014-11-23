@@ -68,13 +68,16 @@ public class JsonReader {
 		if (last != '"')
 			throw new IOException("Expecting '\"' at position " + positionInStream() + ". Found " + (char) last);
 		int start = currentIndex;
-		do {
-			read();
-		} while (last != '"');
-		return new String(buffer, start, currentIndex - start - 1, "ISO-8859-1");
+		int i = start;
+		for(; i < buffer.length && buffer[i] != '"'; i++) {
+			tmp[i - start] = (char)buffer[i];
+		}
+		currentIndex = i + 1;
+		last = '"';
+		return new String(tmp, 0, i - start);
 	}
 
-	public String readString() throws UnsupportedEncodingException, IOException {
+	public String readString() throws IOException {
 
 		final int startIndex = currentIndex;
 		// At this point, buffer cannot be empty or null, it is safe to read first character
@@ -340,19 +343,15 @@ public class JsonReader {
 	}
 
 	public byte[] readBase64() throws IOException {
-		if (getNextToken() != '"')
-			throw new IOException("Expecting '\"' at position " + positionInStream() + ". Found " + (char) last);
+		if (last != '"')
+			throw new IOException("Expecting '\"' at position " + positionInStream() + " at base64 start. Found " + (char) last);
 		final int start = currentIndex;
-		int i = currentIndex;
-		while (i < buffer.length && buffer[i] != '"') i++;
-		last = buffer[i];
-		currentIndex = i;
-		if (last != ']') {
-			if (currentIndex >= length) throw new IOException("Unexpected end of json in collection.");
-			else throw new IOException("Expecting ']' at position " + positionInStream() + ". Found " + (char) last);
+		currentIndex = Base64.findEnd(buffer, start);
+		last = buffer[currentIndex++];
+		if (last != '"') {
+			throw new IOException("Expecting '\"' at position " + positionInStream() + " at base64 end. Found " + (char) last);
 		}
-		//TODO: convert
-		return null;
+		return Base64.decodeFast(buffer, start, currentIndex - 1);
 	}
 
 	public static interface ReadObject<T> {
@@ -408,7 +407,7 @@ public class JsonReader {
 
 	public <T> void deserializeCollection(final ReadObject<T> readObject, final Collection<T> res) throws IOException {
 		res.add(readObject.read(this));
-		while (moveToNextToken() == ',') {
+		while (getNextToken() == ',') {
 			getNextToken();
 			res.add(readObject.read(this));
 		}
@@ -430,7 +429,7 @@ public class JsonReader {
 		} else {
 			res.add(readObject.read(this));
 		}
-		while (moveToNextToken() == ',') {
+		while (getNextToken() == ',') {
 			getNextToken();
 			if (wasNull()) {
 				res.add(null);
