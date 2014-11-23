@@ -14,6 +14,7 @@ class Utils {
 		return copy;
 	}
 
+	@SuppressWarnings("unchecked")
 	public static List<Map.Entry<String, String>> acceptAs(final String mimeType) {
 		return Arrays.asList((Map.Entry<String, String>) new AbstractMap.SimpleEntry<String, String>(
 				"Accept",

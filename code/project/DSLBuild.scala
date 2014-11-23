@@ -11,32 +11,29 @@ trait Default {
     Defaults.defaultSettings ++
     eclipseSettings ++
     graphSettings ++ Seq(
-      scalaVersion := "2.11.2"
+      scalaVersion := "2.11.4"
     , crossPaths := false
     , autoScalaLibrary := false
+    , unmanagedSourceDirectories in Compile := Seq((javaSource in Compile).value)
+    , EclipseKeys.eclipseOutput := Some(".target")
+    , EclipseKeys.executionEnvironment := Some(EclipseExecutionEnvironment.JavaSE16)
+    , EclipseKeys.projectFlavor := EclipseProjectFlavor.Java
     , javacOptions in doc := Seq(
         "-encoding", "UTF-8"
       )
     , javacOptions := Seq(
         "-deprecation"
       , "-Xlint"
+      , "-source", "1.6"
+      , "-target", "1.6"
       ) ++ (javacOptions in doc).value
-    , unmanagedSourceDirectories in Compile := Seq((javaSource in Compile).value)
-    , EclipseKeys.eclipseOutput := Some(".target")
-    , EclipseKeys.executionEnvironment := Some(EclipseExecutionEnvironment.JavaSE16)
-    , EclipseKeys.projectFlavor := EclipseProjectFlavor.Java
-    ) ++ (sys.env.get("JDK16_HOME") match {
-      case Some(jdk16Home) =>
-        Seq(
-          javacOptions in doc ++= Seq(
-            "-bootclasspath"
-            , Seq("rt", "jsse").map(jdk16Home + "/jre/lib/" + _ + ".jar").mkString(java.io.File.pathSeparator)
-            , "-source", "1.6"
-        )
-          , javacOptions ++= Seq("-target", "1.6")
-        )
-      case _ =>
-        Nil
+    ) ++ (sys.env.get("JDK16_HOME") map { jdk16Home =>
+      javacOptions in doc ++= Seq(
+        "-bootclasspath"
+      , Seq("rt", "jsse")
+          map(jdk16Home + "/jre/lib/" + _ + ".jar")
+          mkString(java.io.File.pathSeparator)
+      )
     })
 
   def checkByteCode(jar: File): File = {
