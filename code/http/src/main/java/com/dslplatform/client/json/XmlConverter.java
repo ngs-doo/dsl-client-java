@@ -16,7 +16,6 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.UUID;
 
 public class XmlConverter {
 
@@ -67,18 +66,18 @@ public class XmlConverter {
 	};
 
 	public static ArrayList<Element> deserializeCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeCollection(Reader);
+		return reader.deserializeCollectionWithGet(Reader);
 	}
 
 	public static void deserializeCollection(final JsonReader reader, final Collection<Element> res) throws IOException {
-		reader.deserializeCollection(Reader, res);
+		reader.deserializeCollectionWithGet(Reader, res);
 	}
 
 	public static ArrayList<Element> deserializeNullableCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeNullableCollection(Reader);
+		return reader.deserializeNullableCollectionWithGet(Reader);
 	}
 
 	public static void deserializeNullableCollection(final JsonReader reader, final Collection<Element> res) throws IOException {
-		reader.deserializeNullableCollection(Reader, res);
+		reader.deserializeNullableCollectionWithGet(Reader, res);
 	}
 }

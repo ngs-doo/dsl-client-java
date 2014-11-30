@@ -1,11 +1,8 @@
 package com.dslplatform.client.json;
 
-import sun.misc.FloatingDecimal;
-
 import java.io.IOException;
 import java.io.Writer;
 import java.math.BigDecimal;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -36,6 +33,13 @@ public class NumberConverter {
 			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
 	};
 
+	static void write2(final int value, final char[] buf, final int pos) throws IOException {
+		int q = value / 100;
+		int r = value - ((q << 6) + (q << 5) + (q << 2));
+		buf [pos] = DigitTens[r];
+		buf [pos + 1] = DigitOnes[r];
+	}
+
 	public static void serializeNullable(final Double value, final Writer sw) throws IOException {
 		if (value == null) {
 			sw.write("null");
@@ -45,12 +49,7 @@ public class NumberConverter {
 	}
 
 	public static void serialize(final double value, final Writer sw) throws IOException {
-		if (sw instanceof JsonWriter) {
-			final FloatingDecimal fd = new FloatingDecimal(value);
-			fd.appendTo(((JsonWriter)sw).buffer);
-		} else {
-			sw.write(Double.toString(value));
-		}
+		sw.write(Double.toString(value));
 	}
 
 	public static Double deserializeDouble(final JsonReader reader) throws IOException {
@@ -65,19 +64,19 @@ public class NumberConverter {
 	};
 
 	public static ArrayList<Double> deserializeDoubleCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeCollection(DoubleReader);
+		return reader.deserializeCollectionWithMove(DoubleReader);
 	}
 
 	public static void deserializeDoubleCollection(final JsonReader reader, final Collection<Double> res) throws IOException {
-		reader.deserializeCollection(DoubleReader, res);
+		reader.deserializeCollectionWithMove(DoubleReader, res);
 	}
 
 	public static ArrayList<Double> deserializeDoubleNullableCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeNullableCollection(DoubleReader);
+		return reader.deserializeNullableCollectionWithMove(DoubleReader);
 	}
 
 	public static void deserializeDoubleNullableCollection(final JsonReader reader, final Collection<Double> res) throws IOException {
-		reader.deserializeNullableCollection(DoubleReader, res);
+		reader.deserializeNullableCollectionWithMove(DoubleReader, res);
 	}
 
 	public static void serializeNullable(final Float value, final Writer sw) throws IOException {
@@ -89,12 +88,7 @@ public class NumberConverter {
 	}
 
 	public static void serialize(final float value, final Writer sw) throws IOException {
-		if (sw instanceof JsonWriter) {
-			final FloatingDecimal fd = new FloatingDecimal(value);
-			fd.appendTo(((JsonWriter)sw).buffer);
-		} else {
-			sw.write(Float.toString(value));
-		}
+		sw.write(Float.toString(value));
 	}
 
 	public static Float deserializeFloat(final JsonReader reader) throws IOException {
@@ -109,19 +103,19 @@ public class NumberConverter {
 	};
 
 	public static ArrayList<Float> deserializeFloatCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeCollection(FloatReader);
+		return reader.deserializeCollectionWithMove(FloatReader);
 	}
 
 	public static void deserializeFloatCollection(final JsonReader reader, Collection<Float> res) throws IOException {
-		reader.deserializeCollection(FloatReader, res);
+		reader.deserializeCollectionWithMove(FloatReader, res);
 	}
 
 	public static ArrayList<Float> deserializeFloatNullableCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeNullableCollection(FloatReader);
+		return reader.deserializeNullableCollectionWithMove(FloatReader);
 	}
 
 	public static void deserializeFloatNullableCollection(final JsonReader reader, final Collection<Float> res) throws IOException {
-		reader.deserializeNullableCollection(FloatReader, res);
+		reader.deserializeNullableCollectionWithMove(FloatReader, res);
 	}
 
 	public static void serializeNullable(final Integer value, final Writer sw) throws IOException {
@@ -143,7 +137,7 @@ public class NumberConverter {
 		}
 	}
 
-	static void serialize(final int value, final JsonWriter sw) throws IOException {
+	public static void serialize(final int value, final JsonWriter sw) throws IOException {
 		int q, r;
 		int charPos = 10;
 		char[] buf = sw.tmp;
@@ -192,19 +186,19 @@ public class NumberConverter {
 	};
 
 	public static ArrayList<Integer> deserializeIntCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeCollection(IntReader);
+		return reader.deserializeCollectionWithMove(IntReader);
 	}
 
 	public static void deserializeIntCollection(final JsonReader reader, final Collection<Integer> res) throws IOException {
-		reader.deserializeCollection(IntReader, res);
+		reader.deserializeCollectionWithMove(IntReader, res);
 	}
 
 	public static ArrayList<Integer> deserializeIntNullableCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeNullableCollection(IntReader);
+		return reader.deserializeNullableCollectionWithMove(IntReader);
 	}
 
 	public static void deserializeIntNullableCollection(final JsonReader reader, final Collection<Integer> res) throws IOException {
-		reader.deserializeNullableCollection(IntReader, res);
+		reader.deserializeNullableCollectionWithMove(IntReader, res);
 	}
 
 	public static void serializeNullable(final Long value, final Writer sw) throws IOException {
@@ -261,7 +255,7 @@ public class NumberConverter {
 			ch = buf[i];
 			if (ch >= '0' && ch <= '9') {
 				value = value * 10 + ch - 48;
-			} else return Integer.parseInt(new String(buf, 0, len));
+			} else return Long.parseLong(new String(buf, 0, len));
 		}
 		//TODO: leading zero...
 		return start == 0 ? value : -value;
@@ -275,19 +269,19 @@ public class NumberConverter {
 	};
 
 	public static ArrayList<Long> deserializeLongCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeCollection(LongReader);
+		return reader.deserializeCollectionWithMove(LongReader);
 	}
 
 	public static void deserializeLongCollection(final JsonReader reader, final Collection<Long> res) throws IOException {
-		reader.deserializeCollection(LongReader, res);
+		reader.deserializeCollectionWithMove(LongReader, res);
 	}
 
 	public static ArrayList<Long> deserializeLongNullableCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeNullableCollection(LongReader);
+		return reader.deserializeNullableCollectionWithMove(LongReader);
 	}
 
 	public static void deserializeLongNullableCollection(final JsonReader reader, final Collection<Long> res) throws IOException {
-		reader.deserializeNullableCollection(LongReader, res);
+		reader.deserializeNullableCollectionWithMove(LongReader, res);
 	}
 
 	public static void serializeNullable(final BigDecimal value, final Writer sw) throws IOException {
@@ -315,18 +309,18 @@ public class NumberConverter {
 	};
 
 	public static ArrayList<BigDecimal> deserializeDecimalCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeCollection(DecimalReader);
+		return reader.deserializeCollectionWithMove(DecimalReader);
 	}
 
 	public static void deserializeDecimalCollection(final JsonReader reader, final Collection<BigDecimal> res) throws IOException {
-		reader.deserializeCollection(DecimalReader, res);
+		reader.deserializeCollectionWithMove(DecimalReader, res);
 	}
 
 	public static ArrayList<BigDecimal> deserializeDecimalNullableCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeNullableCollection(DecimalReader);
+		return reader.deserializeNullableCollectionWithMove(DecimalReader);
 	}
 
 	public static void deserializeDecimalNullableCollection(final JsonReader reader, final Collection<BigDecimal> res) throws IOException {
-		reader.deserializeNullableCollection(DecimalReader, res);
+		reader.deserializeNullableCollectionWithMove(DecimalReader, res);
 	}
 }

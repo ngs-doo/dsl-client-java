@@ -406,13 +406,19 @@ public class JsonReader {
 		return false;
 	}
 
-	public <T> ArrayList<T> deserializeCollection(final ReadObject<T> readObject) throws IOException {
+	public <T> ArrayList<T> deserializeCollectionWithGet(final ReadObject<T> readObject) throws IOException {
 		ArrayList<T> res = new ArrayList<T>();
-		deserializeCollection(readObject, res);
+		deserializeCollectionWithGet(readObject, res);
 		return res;
 	}
 
-	public <T> void deserializeCollection(final ReadObject<T> readObject, final Collection<T> res) throws IOException {
+	public <T> ArrayList<T> deserializeCollectionWithMove(final ReadObject<T> readObject) throws IOException {
+		ArrayList<T> res = new ArrayList<T>();
+		deserializeCollectionWithMove(readObject, res);
+		return res;
+	}
+
+	public <T> void deserializeCollectionWithGet(final ReadObject<T> readObject, final Collection<T> res) throws IOException {
 		res.add(readObject.read(this));
 		while (getNextToken() == ',') {
 			getNextToken();
@@ -424,13 +430,33 @@ public class JsonReader {
 		}
 	}
 
-	public <T> ArrayList<T> deserializeNullableCollection(final ReadObject<T> readObject) throws IOException {
+	public <T> void deserializeCollectionWithMove(final ReadObject<T> readObject, final Collection<T> res) throws IOException {
+		getNextToken();
+		res.add(readObject.read(this));
+		while (moveToNextToken() == ',') {
+			getNextToken();
+			res.add(readObject.read(this));
+		}
+		if (last != ']') {
+			if (currentIndex >= length) throw new IOException("Unexpected end of json in collection.");
+			else throw new IOException("Expecting ']' at position " + positionInStream() + ". Found " + (char) last);
+		}
+	}
+
+	public <T> ArrayList<T> deserializeNullableCollectionWithGet(final ReadObject<T> readObject) throws IOException {
 		ArrayList<T> res = new ArrayList<T>();
-		deserializeNullableCollection(readObject, res);
+		deserializeNullableCollectionWithGet(readObject, res);
 		return res;
 	}
 
-	public <T> void deserializeNullableCollection(final ReadObject<T> readObject, final Collection<T> res) throws IOException {
+	public <T> ArrayList<T> deserializeNullableCollectionWithMove(final ReadObject<T> readObject) throws IOException {
+		ArrayList<T> res = new ArrayList<T>();
+		deserializeNullableCollectionWithMove(readObject, res);
+		return res;
+	}
+
+	public <T> void deserializeNullableCollectionWithGet(final ReadObject<T> readObject, final Collection<T> res) throws IOException {
+		getNextToken();
 		if (wasNull()) {
 			res.add(null);
 		} else {
@@ -442,6 +468,31 @@ public class JsonReader {
 				res.add(null);
 			} else {
 				res.add(readObject.read(this));
+			}
+		}
+		if (last != ']') {
+			if (currentIndex >= length) throw new IOException("Unexpected end of json in collection.");
+			else throw new IOException("Expecting ']' at position " + positionInStream() + ". Found " + (char) last);
+		}
+	}
+
+	public <T> void deserializeNullableCollectionWithMove(final ReadObject<T> readObject, final Collection<T> res) throws IOException {
+		getNextToken();
+		if (wasNull()) {
+			res.add(null);
+			getNextToken();
+		} else {
+			res.add(readObject.read(this));
+			moveToNextToken();
+		}
+		while (last == ',') {
+			getNextToken();
+			if (wasNull()) {
+				res.add(null);
+				getNextToken();
+			} else {
+				res.add(readObject.read(this));
+				moveToNextToken();
 			}
 		}
 		if (last != ']') {

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -18,16 +19,60 @@ public class DateConverter {
 	private static final DateTimeFormatter localDateParser = ISODateTimeFormat.localDateParser();
 
 	public static void serializeNullable(final DateTime value, final Writer sw) throws IOException {
-		if (value == null) 
+		if (value == null) {
 			sw.write("null");
-		else
+		} else {
 			serialize(value, sw);
+		}
 	}
 
 	public static void serialize(final DateTime value, final Writer sw) throws IOException {
-		sw.write('"');
-		dateTimeFormat.printTo(sw, value);
-		sw.write('"');
+		if (DateTimeZone.UTC.equals(value.getZone()) && sw instanceof JsonWriter) {
+			serialize(value, (JsonWriter) sw);
+		} else {
+			sw.write('"');
+			dateTimeFormat.printTo(sw, value);
+			sw.write('"');
+		}
+	}
+
+	public static void serialize(final DateTime value, final JsonWriter sw) throws IOException {
+		final char[] buf = sw.tmp;
+		buf[0] = '"';
+		final int year = value.getYear();
+		NumberConverter.write2(year / 100, buf, 1);
+		NumberConverter.write2(year, buf, 3);
+		buf[5] = '-';
+		NumberConverter.write2(value.getMonthOfYear(), buf, 6);
+		buf[8] = '-';
+		NumberConverter.write2(value.getDayOfMonth(), buf, 9);
+		buf[11] = 'T';
+		NumberConverter.write2(value.getHourOfDay(), buf, 12);
+		buf[14] = ':';
+		NumberConverter.write2(value.getMinuteOfHour(), buf, 15);
+		buf[17] = ':';
+		NumberConverter.write2(value.getSecondOfMinute(), buf, 18);
+		final int milis = value.getMillisOfSecond();
+		if (milis != 0) {
+			buf[20] = '.';
+			final int hi = milis / 100;
+			final int lo = milis - hi * 100;
+			buf[21] = (char) (hi + 48);
+			if (lo != 0) {
+				NumberConverter.write2(lo, buf, 22);
+				buf[24] = 'Z';
+				buf[25] = '"';
+				sw.buffer.append(buf, 0, 26);
+			} else {
+				buf[22] = 'Z';
+				buf[23] = '"';
+				sw.buffer.append(buf, 0, 24);
+			}
+		} else {
+			buf[20] = 'Z';
+			buf[21] = '"';
+			sw.buffer.append(buf, 0, 22);
+		}
 	}
 
 	public static DateTime deserializeDateTime(final JsonReader reader) throws IOException {
@@ -42,19 +87,19 @@ public class DateConverter {
 	};
 
 	public static ArrayList<DateTime> deserializeDateTimeCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeCollection(DateTimeReader);
+		return reader.deserializeCollectionWithGet(DateTimeReader);
 	}
 
 	public static void deserializeDateTimeCollection(final JsonReader reader, final Collection<DateTime> res) throws IOException {
-		reader.deserializeCollection(DateTimeReader, res);
+		reader.deserializeCollectionWithGet(DateTimeReader, res);
 	}
 
 	public static ArrayList<DateTime> deserializeDateTimeNullableCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeNullableCollection(DateTimeReader);
+		return reader.deserializeNullableCollectionWithGet(DateTimeReader);
 	}
 
 	public static void deserializeDateTimeNullableCollection(final JsonReader reader, final Collection<DateTime> res) throws IOException {
-		reader.deserializeNullableCollection(DateTimeReader, res);
+		reader.deserializeNullableCollectionWithGet(DateTimeReader, res);
 	}
 
 	public static void serializeNullable(final LocalDate value, final Writer sw) throws IOException {
@@ -65,9 +110,27 @@ public class DateConverter {
 	}
 
 	public static void serialize(final LocalDate value, final Writer sw) throws IOException {
-		sw.write('"');
-		localDateFormat.printTo(sw, value);
-		sw.write('"');
+		if (sw instanceof JsonWriter) {
+			serialize(value, (JsonWriter) sw);
+		} else {
+			sw.write('"');
+			localDateFormat.printTo(sw, value);
+			sw.write('"');
+		}
+	}
+
+	public static void serialize(final LocalDate value, final JsonWriter sw) throws IOException {
+		final char[] buf = sw.tmp;
+		buf[0] = '"';
+		final int year = value.getYear();
+		NumberConverter.write2(year / 100, buf, 1);
+		NumberConverter.write2(year, buf, 3);
+		buf[5] = '-';
+		NumberConverter.write2(value.getMonthOfYear(), buf, 6);
+		buf[8] = '-';
+		NumberConverter.write2(value.getDayOfMonth(), buf, 9);
+		buf[11] = '"';
+		sw.buffer.append(buf, 0, 12);
 	}
 
 	public static LocalDate deserializeLocalDate(final JsonReader reader) throws IOException {
@@ -82,18 +145,18 @@ public class DateConverter {
 	};
 
 	public static ArrayList<LocalDate> deserializeLocalDateCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeCollection(LocalDateReader);
+		return reader.deserializeCollectionWithGet(LocalDateReader);
 	}
 
 	public static void deserializeLocalDateCollection(final JsonReader reader, final Collection<LocalDate> res) throws IOException {
-		reader.deserializeCollection(LocalDateReader, res);
+		reader.deserializeCollectionWithGet(LocalDateReader, res);
 	}
 
 	public static ArrayList<LocalDate> deserializeLocalDateNullableCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeNullableCollection(LocalDateReader);
+		return reader.deserializeNullableCollectionWithGet(LocalDateReader);
 	}
 
 	public static void deserializeLocalDateNullableCollection(final JsonReader reader, final Collection<LocalDate> res) throws IOException {
-		reader.deserializeNullableCollection(LocalDateReader, res);
+		reader.deserializeNullableCollectionWithGet(LocalDateReader, res);
 	}
 }

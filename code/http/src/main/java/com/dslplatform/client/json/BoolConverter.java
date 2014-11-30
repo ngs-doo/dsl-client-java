@@ -39,18 +39,18 @@ public class BoolConverter {
 	};
 
 	public static ArrayList<Boolean> deserializeCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeCollection(BooleanReader);
+		return reader.deserializeCollectionWithGet(BooleanReader);
 	}
 
 	public static void deserializeCollection(final JsonReader reader, final Collection<Boolean> res) throws IOException {
-		reader.deserializeCollection(BooleanReader, res);
+		reader.deserializeCollectionWithGet(BooleanReader, res);
 	}
 
 	public static ArrayList<Boolean> deserializeNullableCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeNullableCollection(BooleanReader);
+		return reader.deserializeNullableCollectionWithGet(BooleanReader);
 	}
 
 	public static void deserializeNullableCollection(final JsonReader reader, final Collection<Boolean> res) throws IOException {
-		reader.deserializeNullableCollection(BooleanReader, res);
+		reader.deserializeNullableCollectionWithGet(BooleanReader, res);
 	}
 }

@@ -31,14 +31,14 @@ public class BinaryConverter {
 	};
 
 	public static ArrayList<byte[]> deserializeCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeCollection(Base64Reader);
+		return reader.deserializeCollectionWithGet(Base64Reader);
 	}
 
 	public static void deserializeCollection(final JsonReader reader, final Collection<byte[]> res) throws IOException {
-		reader.deserializeCollection(Base64Reader, res);
+		reader.deserializeCollectionWithGet(Base64Reader, res);
 	}
 
 	public static void deserializeNullableCollection(final JsonReader reader, final Collection<byte[]> res) throws IOException {
-		reader.deserializeNullableCollection(Base64Reader, res);
+		reader.deserializeNullableCollectionWithGet(Base64Reader, res);
 	}
 }

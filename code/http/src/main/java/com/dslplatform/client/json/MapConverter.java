@@ -66,18 +66,18 @@ public class MapConverter {
 	};
 
 	public static ArrayList<Map<String, String>> deserializeCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeCollection(MapReader);
+		return reader.deserializeCollectionWithGet(MapReader);
 	}
 
 	public static void deserializeCollection(final JsonReader reader, Collection<Map<String, String>> res) throws IOException {
-		reader.deserializeCollection(MapReader, res);
+		reader.deserializeCollectionWithGet(MapReader, res);
 	}
 
 	public static ArrayList<Map<String, String>> deserializeNullableCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeNullableCollection(MapReader);
+		return reader.deserializeNullableCollectionWithGet(MapReader);
 	}
 
 	public static void deserializeNullableCollection(final JsonReader reader, Collection<Map<String, String>> res) throws IOException {
-		reader.deserializeNullableCollection(MapReader, res);
+		reader.deserializeNullableCollectionWithGet(MapReader, res);
 	}
 }

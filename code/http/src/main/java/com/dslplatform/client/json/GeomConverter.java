@@ -37,19 +37,19 @@ public class GeomConverter {
 	};
 
 	public static ArrayList<Point2D> deserializeLocationCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeCollection(LocationReader);
+		return reader.deserializeCollectionWithGet(LocationReader);
 	}
 
 	public static void deserializeLocationCollection(final JsonReader reader, final Collection<Point2D> res) throws IOException {
-		reader.deserializeCollection(LocationReader, res);
+		reader.deserializeCollectionWithGet(LocationReader, res);
 	}
 
 	public static ArrayList<Point2D> deserializeLocationNullableCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeNullableCollection(LocationReader);
+		return reader.deserializeNullableCollectionWithGet(LocationReader);
 	}
 
 	public static void deserializeLocationNullableCollection(final JsonReader reader, final Collection<Point2D> res) throws IOException {
-		reader.deserializeNullableCollection(LocationReader, res);
+		reader.deserializeNullableCollectionWithGet(LocationReader, res);
 	}
 
 	public static void serializePointNullable(final Point value, final Writer sw) throws IOException {
@@ -80,19 +80,19 @@ public class GeomConverter {
 	};
 
 	public static ArrayList<Point> deserializePointCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeCollection(PointReader);
+		return reader.deserializeCollectionWithGet(PointReader);
 	}
 
 	public static void deserializePointCollection(final JsonReader reader, final Collection<Point> res) throws IOException {
-		reader.deserializeCollection(PointReader, res);
+		reader.deserializeCollectionWithGet(PointReader, res);
 	}
 
 	public static ArrayList<Point> deserializePointNullableCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeNullableCollection(PointReader);
+		return reader.deserializeNullableCollectionWithGet(PointReader);
 	}
 
 	public static void deserializePointNullableCollection(final JsonReader reader, final Collection<Point> res) throws IOException {
-		reader.deserializeNullableCollection(PointReader, res);
+		reader.deserializeNullableCollectionWithGet(PointReader, res);
 	}
 
 	public static void serializeRectangleNullable(final Rectangle2D value, final Writer sw) throws IOException {
@@ -127,18 +127,18 @@ public class GeomConverter {
 	};
 
 	public static ArrayList<Rectangle2D> deserializeRectangleCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeCollection(RectangleReader);
+		return reader.deserializeCollectionWithGet(RectangleReader);
 	}
 
 	public static void deserializeRectangleCollection(final JsonReader reader, final Collection<Rectangle2D> res) throws IOException {
-		reader.deserializeCollection(RectangleReader, res);
+		reader.deserializeCollectionWithGet(RectangleReader, res);
 	}
 
 	public static ArrayList<Rectangle2D> deserializeRectangleNullableCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeNullableCollection(RectangleReader);
+		return reader.deserializeNullableCollectionWithGet(RectangleReader);
 	}
 
 	public static void deserializeRectangleNullableCollection(final JsonReader reader, final Collection<Rectangle2D> res) throws IOException {
-		reader.deserializeNullableCollection(RectangleReader, res);
+		reader.deserializeNullableCollectionWithGet(RectangleReader, res);
 	}
 }

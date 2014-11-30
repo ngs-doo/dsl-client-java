@@ -32,19 +32,19 @@ public class NetConverter {
 	};
 
 	public static ArrayList<URI> deserializeUriCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeCollection(UriReader);
+		return reader.deserializeCollectionWithGet(UriReader);
 	}
 
 	public static void deserializeUriCollection(final JsonReader reader, final Collection<URI> res) throws IOException {
-		reader.deserializeCollection(UriReader, res);
+		reader.deserializeCollectionWithGet(UriReader, res);
 	}
 
 	public static ArrayList<URI> deserializeUriNullableCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeNullableCollection(UriReader);
+		return reader.deserializeNullableCollectionWithGet(UriReader);
 	}
 
 	public static void deserializeUriNullableCollection(final JsonReader reader, final Collection<URI> res) throws IOException {
-		reader.deserializeNullableCollection(UriReader, res);
+		reader.deserializeNullableCollectionWithGet(UriReader, res);
 	}
 
 	public static void serializeNullable(final InetAddress value, final Writer sw) throws IOException {
@@ -70,18 +70,18 @@ public class NetConverter {
 	};
 
 	public static ArrayList<InetAddress> deserializeIpCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeCollection(AddressReader);
+		return reader.deserializeCollectionWithGet(AddressReader);
 	}
 
 	public static void deserializeIpCollection(final JsonReader reader, final Collection<InetAddress> res) throws IOException {
-		reader.deserializeCollection(AddressReader, res);
+		reader.deserializeCollectionWithGet(AddressReader, res);
 	}
 
 	public static ArrayList<InetAddress> deserializeIpNullableCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeNullableCollection(AddressReader);
+		return reader.deserializeNullableCollectionWithGet(AddressReader);
 	}
 
 	public static void deserializeIpNullableCollection(final JsonReader reader, final Collection<InetAddress> res) throws IOException {
-		reader.deserializeNullableCollection(AddressReader, res);
+		reader.deserializeNullableCollectionWithGet(AddressReader, res);
 	}
 }
