@@ -1,7 +1,6 @@
 package com.dslplatform.client;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -21,6 +20,7 @@ import javax.net.ssl.TrustManagerFactory;
 
 import com.dslplatform.client.json.JsonObject;
 import com.dslplatform.client.json.JsonReader;
+import com.dslplatform.client.json.JsonWriter;
 import com.dslplatform.patterns.ServiceLocator;
 import org.slf4j.Logger;
 
@@ -158,6 +158,12 @@ class HttpClient {
 		return false;
 	}
 
+	private static ThreadLocal perThreadBuffer = new ThreadLocal() {
+		protected synchronized Object initialValue() {
+			return new JsonWriter();
+		}
+	};
+
 	private <TArgument> byte[] doRawRequest(
 			final String service,
 			final List<Map.Entry<String, String>> headers,
@@ -173,11 +179,10 @@ class HttpClient {
 			logger.debug("Sending request [{}]: {}", method, service);
 		} else {
 			if (content instanceof JsonObject) {
-				StringWriter sw = new StringWriter();
+				JsonWriter sw = (JsonWriter)perThreadBuffer.get();
 				JsonObject jo = (JsonObject)content;
 				jo.serialize(sw, true);
-				sw.flush();
-				body = sw.toString().getBytes("UTF-8");
+				body = sw.toBytes();
 			} else {
 				body = JsonSerialization.serializeBytes(content);
 			}
@@ -376,7 +381,6 @@ class HttpClient {
 		if (payload != null) {
 			conn.setDoOutput(true);
 			if (logger.isTraceEnabled()) logger.trace("Adding payload: {}", new String(payload, "UTF-8"));
-			//conn.setFixedLengthStreamingMode(payload.length); //TODO: enable when changed to stream
 			conn.setRequestProperty("Content-Length", Integer.toString(payload.length));
 			conn.getOutputStream().write(payload);
 			conn.getOutputStream().close();

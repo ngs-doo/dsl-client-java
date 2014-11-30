@@ -16,7 +16,14 @@ public class StringConverter {
 	public static void serialize(final String value, final Writer sw) throws IOException {
 		sw.write('"');
 		char c;
-		for (int i = 0; i < value.length(); i++) {
+		int i = 0;
+		for (; i < value.length(); i++) {
+			c = value.charAt(i);
+			if (c < 32 || c == '"' || c == '\\')
+				break;
+		}
+		sw.write(value, 0, i);
+		for (; i < value.length(); i++) {
 			c = value.charAt(i);
 			switch (c) {
 				case 0: sw.write("\\u0000"); break;

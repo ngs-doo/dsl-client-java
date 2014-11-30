@@ -19,9 +19,16 @@ public class JsonReader {
 	private int currentIndex;
 	private byte last;
 
-	public JsonReader(final byte[] buffer, final ServiceLocator locator) {
+	public JsonReader(final byte[] buffer, final ServiceLocator locator) throws IOException { //TODO: it would be nice if there was no IOException
+		this(buffer, buffer.length, locator);
+	}
+
+	public JsonReader(final byte[] buffer, final int length, final ServiceLocator locator) throws IOException {
 		this.buffer = buffer;
-		this.length = buffer.length;
+		this.length = length;
+		if (length > buffer.length) {
+			throw new IOException("length can't be longer than buffer.length");
+		}
 		this.locator = locator;
 		this.currentIndex = 0;
 		last = ' ';
@@ -57,7 +64,7 @@ public class JsonReader {
 		tokenStart = currentIndex - 1;
 		char ch = (char)last;
 		tmp[0] = ch;
-		for (int i = 1; ch != ',' && ch != '}' && ch != ']' && ch != '"' &&  i < tmp.length && currentIndex < buffer.length; i++, currentIndex++) {
+		for (int i = 1; ch != ',' && ch != '}' && ch != ']' && ch != '"' &&  i < tmp.length && currentIndex < length; i++, currentIndex++) {
 			tmp[i] = ch = (char) buffer[currentIndex];
 		}
 		last = (byte)ch;
@@ -69,7 +76,7 @@ public class JsonReader {
 			throw new IOException("Expecting '\"' at position " + positionInStream() + ". Found " + (char) last);
 		int start = currentIndex;
 		int i = start;
-		for(; i < buffer.length && buffer[i] != '"'; i++) {
+		for(; i < length && buffer[i] != '"'; i++) {
 			tmp[i - start] = (char)buffer[i];
 		}
 		currentIndex = i + 1;
@@ -364,7 +371,7 @@ public class JsonReader {
 
 	public boolean wasNull() throws IOException {
 		if (last == 'n') {
-			if (currentIndex + 2 < buffer.length && buffer[currentIndex] == 'u'
+			if (currentIndex + 2 < length && buffer[currentIndex] == 'u'
 					&& buffer[currentIndex + 1] == 'l' && buffer[currentIndex + 2] == 'l') {
 				currentIndex += 3;
 				return true;
@@ -376,7 +383,7 @@ public class JsonReader {
 
 	public boolean wasTrue() throws IOException {
 		if (last == 't') {
-			if (currentIndex + 2 < buffer.length && buffer[currentIndex] == 'r'
+			if (currentIndex + 2 < length && buffer[currentIndex] == 'r'
 					&& buffer[currentIndex + 1] == 'u' && buffer[currentIndex + 2] == 'e') {
 				currentIndex += 3;
 				return true;
@@ -388,7 +395,7 @@ public class JsonReader {
 
 	public boolean wasFalse() throws IOException {
 		if (last == 'f') {
-			if (currentIndex + 3 < buffer.length && buffer[currentIndex] == 'a'
+			if (currentIndex + 3 < length && buffer[currentIndex] == 'a'
 					&& buffer[currentIndex + 1] == 'l' && buffer[currentIndex + 2] == 's'
 					&& buffer[currentIndex + 2] == 'e') {
 				currentIndex += 4;
@@ -484,7 +491,7 @@ public class JsonReader {
 			} else throw new IOException("Expecting '{' at position " + positionInStream() + ". Found " + (char) last);
 		}
 		if (last != ']') {
-			if (currentIndex >= buffer.length) throw new IOException("Unexpected end of json in collection.");
+			if (currentIndex >= length) throw new IOException("Unexpected end of json in collection.");
 			else throw new IOException("Expecting ']' at position " + positionInStream() + ". Found " + (char) last);
 		}
 	}

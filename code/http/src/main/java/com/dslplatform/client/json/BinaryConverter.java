@@ -6,11 +6,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class BinaryConverter {
-	static final boolean isAndroid;
-
-	static {
-		isAndroid = System.getProperty("java.runtime.name").toLowerCase().contains("android");
-	}
 
 	public static void serialize(final byte[] value, final Writer sw) throws IOException {
 		if (value == null) 

@@ -1,5 +1,7 @@
 package com.dslplatform.client.json;
 
+import sun.misc.FloatingDecimal;
+
 import java.io.IOException;
 import java.io.Writer;
 import java.math.BigDecimal;
@@ -8,15 +10,47 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class NumberConverter {
+
+	final static char [] DigitTens = {
+			'0', '0', '0', '0', '0', '0', '0', '0', '0', '0',
+			'1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
+			'2', '2', '2', '2', '2', '2', '2', '2', '2', '2',
+			'3', '3', '3', '3', '3', '3', '3', '3', '3', '3',
+			'4', '4', '4', '4', '4', '4', '4', '4', '4', '4',
+			'5', '5', '5', '5', '5', '5', '5', '5', '5', '5',
+			'6', '6', '6', '6', '6', '6', '6', '6', '6', '6',
+			'7', '7', '7', '7', '7', '7', '7', '7', '7', '7',
+			'8', '8', '8', '8', '8', '8', '8', '8', '8', '8',
+			'9', '9', '9', '9', '9', '9', '9', '9', '9', '9',
+	};
+	final static char [] DigitOnes = {
+			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+	};
+
 	public static void serializeNullable(final Double value, final Writer sw) throws IOException {
-		if (value == null) 
+		if (value == null) {
 			sw.write("null");
-		else 
-			sw.write(value.toString());
+		} else {
+			serialize(value, sw);
+		}
 	}
 
 	public static void serialize(final double value, final Writer sw) throws IOException {
-		sw.write(Double.toString(value));
+		if (sw instanceof JsonWriter) {
+			final FloatingDecimal fd = new FloatingDecimal(value);
+			fd.appendTo(((JsonWriter)sw).buffer);
+		} else {
+			sw.write(Double.toString(value));
+		}
 	}
 
 	public static Double deserializeDouble(final JsonReader reader) throws IOException {
@@ -47,14 +81,20 @@ public class NumberConverter {
 	}
 
 	public static void serializeNullable(final Float value, final Writer sw) throws IOException {
-		if (value == null)
+		if (value == null) {
 			sw.write("null");
-		else
-			sw.write(value.toString());
+		} else {
+			serialize(value, sw);
+		}
 	}
 
 	public static void serialize(final float value, final Writer sw) throws IOException {
-		sw.write(Float.toString(value));
+		if (sw instanceof JsonWriter) {
+			final FloatingDecimal fd = new FloatingDecimal(value);
+			fd.appendTo(((JsonWriter)sw).buffer);
+		} else {
+			sw.write(Float.toString(value));
+		}
 	}
 
 	public static Float deserializeFloat(final JsonReader reader) throws IOException {
@@ -85,14 +125,47 @@ public class NumberConverter {
 	}
 
 	public static void serializeNullable(final Integer value, final Writer sw) throws IOException {
-		if (value == null)
+		if (value == null) {
 			sw.write("null");
-		else
-			sw.write(value.toString());
+		} else {
+			serialize(value, sw);
+		}
 	}
 
 	public static void serialize(final int value, final Writer sw) throws IOException {
-		sw.write(Integer.toString(value));
+		if (value == Integer.MIN_VALUE) {
+			sw.write("-2147483648");
+		}
+		else if (sw instanceof JsonWriter) {
+			serialize(value, (JsonWriter)sw);
+		} else {
+			sw.write(Integer.toString(value));
+		}
+	}
+
+	static void serialize(final int value, final JsonWriter sw) throws IOException {
+		int q, r;
+		int charPos = 10;
+		char[] buf = sw.tmp;
+		int i;
+		final StringBuilder sb = sw.buffer;
+		if (value < 0) {
+			i = -value;
+			sb.append('-');
+		} else {
+			i = value;
+		}
+
+		do {
+			q = i / 100;
+			r = i - ((q << 6) + (q << 5) + (q << 2));
+			i = q;
+			buf [charPos--] = DigitOnes[r];
+			buf [charPos--] = DigitTens[r];
+		} while (i != 0);
+
+		int start = buf[charPos + 1] == '0' ? charPos + 2 : charPos + 1;
+		sb.append(buf, start, 10 - start + 1);
 	}
 
 	public static int deserializeInt(final JsonReader reader) throws IOException {
@@ -135,14 +208,47 @@ public class NumberConverter {
 	}
 
 	public static void serializeNullable(final Long value, final Writer sw) throws IOException {
-		if (value == null)
+		if (value == null) {
 			sw.write("null");
-		else
-			sw.write(value.toString());
+		} else {
+			serialize(value, sw);
+		}
 	}
 
 	public static void serialize(final long value, final Writer sw) throws IOException {
-		sw.write(Long.toString(value));
+		if (value == Long.MIN_VALUE) {
+			sw.write("-9223372036854775808");
+		} else if (sw instanceof JsonWriter) {
+			serialize(value, (JsonWriter)sw);
+		} else {
+			sw.write(Long.toString(value));
+		}
+	}
+
+	public static void serialize(final long value, final JsonWriter sw) throws IOException {
+		long q;
+		int r;
+		int charPos = 20;
+		char[] buf = sw.tmp;
+		long i;
+		final StringBuilder sb = sw.buffer;
+		if (value < 0) {
+			i = -value;
+			sb.append('-');
+		} else {
+			i = value;
+		}
+
+		do {
+			q = i / 100;
+			r = (int)(i - ((q << 6) + (q << 5) + (q << 2)));
+			i = q;
+			buf [charPos--] = DigitOnes[r];
+			buf [charPos--] = DigitTens[r];
+		} while (i != 0);
+
+		int start = buf[charPos + 1] == '0' ? charPos + 2 : charPos + 1;
+		sb.append(buf, start, 20 - start + 1);
 	}
 
 	public static long deserializeLong(final JsonReader reader) throws IOException {
@@ -185,10 +291,11 @@ public class NumberConverter {
 	}
 
 	public static void serializeNullable(final BigDecimal value, final Writer sw) throws IOException {
-		if (value == null)
+		if (value == null) {
 			sw.write("null");
-		else
+		} else {
 			sw.write(value.toString());
+		}
 	}
 
 	public static void serialize(final BigDecimal value, final Writer sw) throws IOException {
