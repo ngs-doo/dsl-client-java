@@ -64,13 +64,14 @@ trait Dependencies {
   val aws = "com.amazonaws" % "aws-java-sdk" % "1.8.11"
 
   // Akka Actor (contains the Serializer)
-  val akkaActor = "com.typesafe.akka" %% "akka-actor" % "2.3.6"
+  val akkaActor = "com.typesafe.akka" %% "akka-actor" % "2.3.7"
 
   // Android SDK
   val androidSDK = "com.google.android" % "android" % "4.1.1.4"
 
   // Testing
   val junit = "junit" % "junit" % "4.11"
+  val junitInterface = "com.novocode" % "junit-interface" % "0.11"
   val jsonAssert = "org.skyscreamer" % "jsonassert" % "1.2.3"
   val xmlUnit = "xmlunit" % "xmlunit" % "1.5"
   val logback = "ch.qos.logback" % "logback-classic" % "1.1.2"
@@ -104,10 +105,12 @@ object NGSBuild extends Build with Default with Dependencies {
       , aws % "provided"
       , jsonAssert % "test"
       , junit % "test"
+      , junitInterface % "test"
       , logback % "test"
       , xmlUnit % "test"
       )
     , unmanagedSourceDirectories in Test := Seq((javaSource in Test).value)
+    , testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v")
     , EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource
     , createVersionProperties
     , unmanagedJars in Test += baseDirectory.value / "test-lib" / "java-client.jar"
