@@ -63,9 +63,6 @@ trait Dependencies {
   // Amazon Web Services SDK (S3 type)
   val aws = "com.amazonaws" % "aws-java-sdk" % "1.8.11"
 
-  // Akka Actor (contains the Serializer)
-  val akkaActor = "com.typesafe.akka" %% "akka-actor" % "2.3.7"
-
   // Android SDK
   val androidSDK = "com.google.android" % "android" % "4.1.1.4"
 
@@ -100,7 +97,6 @@ object NGSBuild extends Build with Default with Dependencies {
     , libraryDependencies ++= Seq(
         slf4j
       , jackson
-      , akkaActor % "provided"
       , androidSDK % "provided" intransitive()
       , aws % "provided"
       , jsonAssert % "test"
