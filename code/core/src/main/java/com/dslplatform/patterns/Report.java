@@ -12,9 +12,9 @@ package com.dslplatform.patterns;
  *     int perPage;
  *     int userID;
  *     date after;
- *     List&lt;Question&gt; popularQuestions 'it => it.date > after' limit perPage;
- *     UserInfo userInfo 'it => it.id == userID';
- *     List&lt;Menu&gt; menu 'it => it.active' order by index;
+ *     List&lt;Question&gt; popularQuestions 'it =&gt; it.date &gt; after' limit perPage;
+ *     UserInfo userInfo 'it =&gt; it.id == userID';
+ *     List&lt;Menu&gt; menu 'it =&gt; it.active' order by index;
  *     count&lt;Question&gt; totalQuestions;
  *   }
  *   aggregate Question {

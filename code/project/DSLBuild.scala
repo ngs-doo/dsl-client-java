@@ -20,21 +20,25 @@ trait Default {
     , EclipseKeys.projectFlavor := EclipseProjectFlavor.Java
     , javacOptions in doc := Seq(
         "-encoding", "UTF-8"
-      )
-    , javacOptions := Seq(
-        "-deprecation"
-      , "-Xlint"
       , "-source", "1.6"
-      , "-target", "1.6"
-      ) ++ (javacOptions in doc).value
-    ) ++ (sys.env.get("JDK16_HOME") map { jdk16Home =>
-      javacOptions in doc ++= Seq(
-        "-bootclasspath"
-      , Seq("rt", "jsse")
-          map(jdk16Home + "/jre/lib/" + _ + ".jar")
-          mkString(java.io.File.pathSeparator)
-      )
-    })
+      ) ++ (sys.props("java.specification.version") match {
+        case x if x >= "1.8" => Seq("-Xdoclint:none")
+        case _ => Nil
+      })
+    , javacOptions in (Compile, compile) := (javacOptions in doc).value ++ Seq(
+        "-target", "1.6"
+      , "-deprecation"
+      , "-Xlint:all"
+      ) ++ (sys.env.get("JDK16_HOME") match { 
+        case Some(jdk16Home) => Seq(
+            "-bootclasspath"
+          , Seq("rt", "jsse")
+              map(jdk16Home + "/jre/lib/" + _ + ".jar")
+              mkString(java.io.File.pathSeparator)
+          )
+        case _ => Nil
+      })
+    )
 
   def checkByteCode(jar: File): File = {
     val zipis = new java.util.zip.ZipInputStream(new java.io.FileInputStream(jar))

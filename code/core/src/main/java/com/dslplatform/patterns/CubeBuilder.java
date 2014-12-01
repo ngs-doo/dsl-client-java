@@ -86,6 +86,7 @@ public class CubeBuilder<T extends Identifiable> {
 	 * skip <code>offset</code> of initial results and <code>order</code>
 	 * by some of this domain objects properties.
 	 *
+	 * @param <T> aggregate root type
 	 * @return  future value of the resulting sequence
 	 */
 	public <TResult> java.util.List<TResult> analyze(final Class<TResult> clazz) throws IOException {

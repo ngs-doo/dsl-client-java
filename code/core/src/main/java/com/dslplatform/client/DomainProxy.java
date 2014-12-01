@@ -22,6 +22,7 @@ public interface DomainProxy {
 	 * Returns a list of domain objects uniquely represented with their URIs.
 	 * Only found objects will be returned (list will be empty if no objects are found).
 	 *
+	 * @param <T> identifiable type
 	 * @param manifest domain object class
 	 * @param uris     array of unique identifiers
 	 * @return         future to found domain objects
@@ -34,6 +35,7 @@ public interface DomainProxy {
 	 * Returns a list of domain objects uniquely represented with their URIs.
 	 * Only found objects will be returned (list will be empty if no objects are found).
 	 *
+	 * @param <T> identifiable type
 	 * @param manifest domain object class
 	 * @param uris     sequence of unique identifiers
 	 * @return         future to found domain objects
@@ -51,6 +53,7 @@ public interface DomainProxy {
 	 * where first is a property name and second is whether it should be sorted
 	 * ascending over this property.
 	 *
+	 * @param <T> searchable type
 	 * @param specification search predicate
 	 * @param limit         maximum number of results
 	 * @param offset        number of results to be skipped
@@ -68,6 +71,7 @@ public interface DomainProxy {
 	 * with up to <code>limit</code> results.
 	 * <code>offset</code> can be used to skip initial results.
 	 *
+	 * @param <T> searchable type
 	 * @param specification search predicate
 	 * @param limit         maximum number of results
 	 * @param offset        number of results to be skipped
@@ -96,6 +100,7 @@ public interface DomainProxy {
 	 * where first is a property name and second is whether it should be sorted
 	 * ascending over this property.
 	 *
+	 * @param <T> searchable type
 	 * @param manifest domain object class
 	 * @param limit    maximum number of results
 	 * @param offset   number of results to be skipped
@@ -113,6 +118,7 @@ public interface DomainProxy {
 	 * with up to <code>limit</code> results.
 	 * <code>offset</code> can be used to skip initial results.
 	 *
+	 * @param <T> searchable type
 	 * @param manifest domain object class
 	 * @param limit    maximum number of results
 	 * @param offset   number of results to be skipped
@@ -126,6 +132,7 @@ public interface DomainProxy {
 	/**
 	 * Returns a list of all domain objects
 	 *
+	 * @param <T> searchable type
 	 * @param manifest domain object class
 	 * @return         future to found domain objects
 	 */
@@ -135,6 +142,7 @@ public interface DomainProxy {
 	/**
 	 * Returns a total number of domain objects.
 	 *
+	 * @param <T> searchable type
 	 * @param manifest domain object class
 	 * @return         future to number of domain objects
 	 */
@@ -144,6 +152,7 @@ public interface DomainProxy {
 	/**
 	 * Returns a number of elements satisfying provided specification.
 	 *
+	 * @param <T> searchable type
 	 * @param specification search predicate
 	 * @return              future to number of domain objects which satisfy specification
 	 */
@@ -154,6 +163,7 @@ public interface DomainProxy {
 	 * Send domain event to the server. Server will return identity under which it was stored.
 	 * Events can't be modified once they are submitted. Only new events can be created.
 	 *
+	 * @param <TEvent> domain event type
 	 * @param domainEvent event to raise
 	 * @return            future containing string value of event URI
 	 */
@@ -164,6 +174,7 @@ public interface DomainProxy {
 	 * Apply domain event to a single aggregate. Server will return modified aggregate root.
 	 * Events can't be modified once they are submitted. Only new events can be created.
 	 *
+	 * @param <TAggregate> aggregate root type
 	 * @param domainEvent event to apply
 	 * @param uri         aggregate root uri
 	 * @return            future containing modified aggregate root
