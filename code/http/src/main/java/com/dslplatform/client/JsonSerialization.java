@@ -237,45 +237,33 @@ public class JsonSerialization {
 	};
 
 	/**
-	 * History delegate used to map HistoryDeserialized to History object.
-	 *
-	 * @param <T>
-	 * @return
+	 * History delegate used to map JSON to History object.
 	 */
-
-	private static class HistoryDeserializable<T extends AggregateRoot> {
-
-		public final List<SnapshotDeserializable<T>> Snapshots;
+	private static class HistoryDelegate<T extends AggregateRoot> {
+		public final List<SnapshotDelegate<T>> Snapshots;
 
 		@SuppressWarnings("unused")
-		private HistoryDeserializable() {
-			this.Snapshots = null;
-		}
-
+		private HistoryDelegate() { this.Snapshots = null; }
 	}
 
-	private static class SnapshotDeserializable<T extends AggregateRoot> {
-		public final String URI;
+	private static class SnapshotDelegate<T extends AggregateRoot> {
 		public final DateTime At;
 		public final String Action;
 		public final T Value;
 
 		@SuppressWarnings("unused")
-		private SnapshotDeserializable() {
-			this(null, null, null, null);
-		}
+		private SnapshotDelegate() { this(null, null, null); }
 
-		public SnapshotDeserializable(
-				final String URI,
+		public SnapshotDelegate(
 				final DateTime At,
 				final String Action,
 				final T Value) {
-			this.URI = URI;
 			this.At = At;
 			this.Action = Action;
 			this.Value = Value;
 		}
 	}
+
 	// ---------------------------------------------------------------------------------------------------------
 
 	private static void trimWhitespaceTextNodes(final org.w3c.dom.Node node) {
@@ -488,7 +476,6 @@ public class JsonSerialization {
 
 			@SuppressWarnings("unchecked")
 			final HashMap<String, Object> hm = parser.readValueAs(HashMap.class);
-
 			if (hm == null) return null;
 
 			/* The root is expected to be a single element */
@@ -573,25 +560,22 @@ public class JsonSerialization {
 		return deserializationMapper.readValue(stream, type);
 	}
 
-	DateTime Jan1970 = new DateTime(1970, 1, 1, 0, 0, 0);
-
 	public <T extends AggregateRoot> List<History<T>> deserializeHistoryList(final Class<T> manifest, final byte[] ba) throws IOException {
 		final JavaType ht =
 				JsonSerialization.buildCollectionType(
 						ArrayList.class,
-						JsonSerialization.buildGenericType(HistoryDeserializable.class, manifest));
+						JsonSerialization.buildGenericType(HistoryDelegate.class, manifest));
 
-		final List<HistoryDeserializable<T>> historyDeserializables = (List<HistoryDeserializable<T>>) deserializationMapper.readValue(ba, ht);
-		final ArrayList<History<T>> historyList = new ArrayList<History<T>>(historyDeserializables.size());
-		for (final HistoryDeserializable historyDeserializable : historyDeserializables) {
-			final List<SnapshotDeserializable<T>> snapshots = (List<SnapshotDeserializable<T>>) historyDeserializable.Snapshots;
+		final List<HistoryDelegate<T>> historyDelegates = deserializationMapper.readValue(ba, ht);
+		final ArrayList<History<T>> historyList = new ArrayList<History<T>>(historyDelegates.size());
+		for (final HistoryDelegate<T> historyDelegate : historyDelegates) {
+			final List<SnapshotDelegate<T>> snapshots = historyDelegate.Snapshots;
 			final ArrayList<Snapshot<T>> snapshotList = new ArrayList<Snapshot<T>>(snapshots.size());
-
-			for (final SnapshotDeserializable<T> snapshotDeserializable : snapshots) {
-				snapshotList.add(new Snapshot<T>(snapshotDeserializable.Value.getURI() + "/" + (snapshotDeserializable.At.getMillis() * 10000 - Jan1970.getMillis()), // todo: wrong
-						snapshotDeserializable.At,
-						snapshotDeserializable.Action,
-						snapshotDeserializable.Value));
+			for (final SnapshotDelegate<T> SnapshotDelegate : snapshots) {
+				snapshotList.add(new Snapshot<T>(
+						SnapshotDelegate.At,
+						SnapshotDelegate.Action,
+						SnapshotDelegate.Value));
 			}
 			historyList.add(new History<T>(snapshotList));
 		}

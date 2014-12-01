@@ -1,6 +1,6 @@
 name                              := "dsl-client-java"
 
-version in ThisBuild              := "1.1.1-SNAPSHOT"
+version in ThisBuild              := "1.1.1"
 
 organization in ThisBuild         := "com.dslplatform"
 

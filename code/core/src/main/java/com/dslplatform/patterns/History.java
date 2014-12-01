@@ -19,15 +19,15 @@ import java.util.List;
  * @param <T> aggregate root type
  */
 public final class History<T extends AggregateRoot> implements Identifiable {
-	private final List<Snapshot<T>> Snapshots;
+	private final List<Snapshot<T>> snapshots;
 
 	@SuppressWarnings("unused")
 	private History() {
-		this.Snapshots = null;
+		this.snapshots = null;
 	}
 
-	public History(final List<Snapshot<T>> Snapshots) {
-		this.Snapshots = Snapshots;
+	public History(final List<Snapshot<T>> snapshots) {
+		this.snapshots = snapshots;
 	}
 
 	/**
@@ -37,7 +37,7 @@ public final class History<T extends AggregateRoot> implements Identifiable {
 	 */
 	@Override
 	public String getURI() {
-		return Snapshots.get(0).getValue().getURI();
+  	return snapshots.get(0).getValue().getURI();
 	}
 
 	/**
@@ -46,6 +46,6 @@ public final class History<T extends AggregateRoot> implements Identifiable {
 	 * @return List of snapshots captured for provided {@link AggregateRoot aggregate root}.
 	 */
 	public List<Snapshot<T>> getSnapshots() {
-		return Snapshots;
+		return snapshots;
 	}
 }
