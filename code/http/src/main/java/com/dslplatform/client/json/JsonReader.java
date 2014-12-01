@@ -3,11 +3,8 @@ package com.dslplatform.client.json;
 import com.dslplatform.patterns.ServiceLocator;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Set;
 
 public class JsonReader {
 	private final byte[] buffer;
@@ -237,7 +234,7 @@ public class JsonReader {
 			case 12:
 			case 13:
 			case 32:
-			/*case 160:
+			/*case 160: FIXME: need check for high UTF-8 bit
 			case 5760:
 			case 8192:
 			case 8193:

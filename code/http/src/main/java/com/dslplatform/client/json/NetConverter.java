@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class NetConverter {
 	public static void serializeNullable(final URI value, final Writer sw) throws IOException {
-		if (value == null) 
+		if (value == null)
 			sw.write("null");
 		else
 			serialize(value, sw);

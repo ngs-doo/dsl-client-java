@@ -8,7 +8,7 @@ import java.util.*;
 
 public class MapConverter {
 	public static void serializeNullable(final Map<String, String> value, final Writer sw) throws IOException {
-		if (value == null) 
+		if (value == null)
 			sw.write("null");
 		else
 			serialize(value, sw);

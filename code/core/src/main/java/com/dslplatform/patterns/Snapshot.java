@@ -7,36 +7,23 @@ import org.joda.time.DateTime;
  *
  * @param <T> type of aggregate root
  */
-public class Snapshot<T extends AggregateRoot> implements Identifiable {
-	private final String URI;
-	private final DateTime At;
-	private final String Action;
-	private final T Value;
+public class Snapshot<T extends AggregateRoot> {
+	private final DateTime at;
+	private final String action;
+	private final T value;
 
 	@SuppressWarnings("unused")
 	private Snapshot() {
-		this(null, null, null, null);
+		this(null, null, null);
 	}
 
 	public Snapshot(
-			final String URI,
-			final DateTime At,
-			final String Action,
-			final T Value) {
-		this.URI = URI;
-		this.At = At;
-		this.Action = Action;
-		this.Value = Value;
-	}
-
-	/**
-	 * Domain object identity.
-	 *
-	 * @return Identity
-	 */
-	@Override
-	public String getURI() {
-		return URI;
+			final DateTime at,
+			final String action,
+			final T value) {
+		this.at = at;
+		this.action = action;
+		this.value = value;
 	}
 
 	/**
@@ -45,7 +32,7 @@ public class Snapshot<T extends AggregateRoot> implements Identifiable {
 	 * @return DateTime of snapshot
 	 */
 	public DateTime getAt() {
-		return At;
+		return at;
 	}
 
 	/**
@@ -54,7 +41,7 @@ public class Snapshot<T extends AggregateRoot> implements Identifiable {
 	 * @return Action type
 	 */
 	public String getAction() {
-		return Action;
+		return action;
 	}
 
 	/**
@@ -63,6 +50,6 @@ public class Snapshot<T extends AggregateRoot> implements Identifiable {
 	 * @return aggregate root snapshot
 	 */
 	public T getValue() {
-		return Value;
+		return value;
 	}
 }

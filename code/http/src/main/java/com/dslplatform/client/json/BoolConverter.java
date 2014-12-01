@@ -7,7 +7,7 @@ import java.util.Collection;
 
 public class BoolConverter {
 	public static void serializeNullable(final Boolean value, final Writer sw) throws IOException {
-		if (value == null) 
+		if (value == null)
 			sw.write("null");
 		else if (value)
 			sw.write("true");

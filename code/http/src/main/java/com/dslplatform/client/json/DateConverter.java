@@ -12,7 +12,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
 public class DateConverter {
-	public static final DateTime MIN_DATE_TIME = DateTime.parse("0001-01-01T00:00:00");
+	public static final DateTime MIN_DATE_TIME = DateTime.parse("0001-01-01T00:00:00Z");
 	public static final LocalDate MIN_LOCAL_DATE = new LocalDate(1, 1, 1);
 	private static final DateTimeFormatter dateTimeFormat = ISODateTimeFormat.dateTime();
 	private static final DateTimeFormatter localDateFormat = ISODateTimeFormat.date();

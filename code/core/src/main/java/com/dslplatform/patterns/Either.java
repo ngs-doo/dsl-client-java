@@ -9,7 +9,7 @@ public class Either<T> {
 		this.error = error;
 	}
 
-	public boolean isSuccess() { return  error == null;	}
+	public boolean isSuccess() { return  error == null; }
 	public T get() { return value; }
 	public Throwable whyNot() { return error; }
 	public String explainError() { return error.getMessage(); }
