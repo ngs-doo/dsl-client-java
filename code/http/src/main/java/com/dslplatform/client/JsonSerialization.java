@@ -7,6 +7,10 @@ import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import com.dslplatform.patterns.*;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer;
+import com.fasterxml.jackson.databind.util.Converter;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.w3c.dom.Document;
@@ -14,21 +18,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.dslplatform.patterns.ServiceLocator;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.InjectableValues;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
@@ -224,7 +217,7 @@ public class JsonSerialization {
 	private static final JsonSerializer<Element> xmlSerializer = new JsonSerializer<Element>() {
 		@Override
 		public void serialize(final Element value, final JsonGenerator gen, final SerializerProvider sP)
-				throws IOException  {
+				throws IOException {
 			/*
 			 * The Xml needs to be cleaned from whitespace text nodes, otherwise the
 			 * converted document won't match Json.Net's conversion
@@ -242,6 +235,48 @@ public class JsonSerialization {
 			gen.writeObject(hm);
 		}
 	};
+
+	/**
+	 * History delegate used to map HistoryDeserialized to History object.
+	 *
+	 * @param <T>
+	 * @return
+	 */
+
+	private static class HistoryDeserializable<T extends AggregateRoot> {
+
+		public final List<SnapshotDeserializable<T>> Snapshots;
+
+		@SuppressWarnings("unused")
+		private HistoryDeserializable() {
+			this.Snapshots = null;
+		}
+
+	}
+
+	private static class SnapshotDeserializable<T extends AggregateRoot> {
+		public final String URI;
+		public final DateTime At;
+		public final String Action;
+		public final T Value;
+
+		@SuppressWarnings("unused")
+		private SnapshotDeserializable() {
+			this(null, null, null, null);
+		}
+
+		public SnapshotDeserializable(
+				final String URI,
+				final DateTime At,
+				final String Action,
+				final T Value) {
+			this.URI = URI;
+			this.At = At;
+			this.Action = Action;
+			this.Value = Value;
+		}
+	}
+	// ---------------------------------------------------------------------------------------------------------
 
 	private static void trimWhitespaceTextNodes(final org.w3c.dom.Node node) {
 		if (node != null && node.hasChildNodes()) {
@@ -539,6 +574,31 @@ public class JsonSerialization {
 		return deserializationMapper.readValue(stream, type);
 	}
 
+	DateTime Jan1970 = new DateTime(1970, 1, 1, 0, 0, 0);
+
+	public <T extends AggregateRoot> List<History<T>> deserializeHistoryList(final Class<T> manifest, final byte[] ba) throws IOException {
+		final JavaType ht =
+				JsonSerialization.buildCollectionType(
+						ArrayList.class,
+						JsonSerialization.buildGenericType(HistoryDeserializable.class, manifest));
+
+		final List<HistoryDeserializable<T>> historyDeserializables = (List<HistoryDeserializable<T>>) deserializationMapper.readValue(ba, ht);
+		final ArrayList<History<T>> historyList = new ArrayList<History<T>>(historyDeserializables.size());
+		for (final HistoryDeserializable historyDeserializable : historyDeserializables) {
+			final List<SnapshotDeserializable<T>> snapshots = (List<SnapshotDeserializable<T>>) historyDeserializable.Snapshots;
+			final ArrayList<Snapshot<T>> snapshotList = new ArrayList<Snapshot<T>>(snapshots.size());
+
+			for (final SnapshotDeserializable<T> snapshotDeserializable : snapshots) {
+				snapshotList.add(new Snapshot<T>(snapshotDeserializable.Value.getURI() + "/" + (snapshotDeserializable.At.getMillis() * 10000 - Jan1970.getMillis()), // todo: wrong
+						snapshotDeserializable.At,
+						snapshotDeserializable.Action,
+						snapshotDeserializable.Value));
+			}
+			historyList.add(new History<T>(snapshotList));
+		}
+		return historyList;
+	}
+
 	public static <T> T deserialize(final Class<T> clazz, final String data) throws IOException {
 		return staticDeserializationMapper.readValue(data, clazz);
 	}
@@ -613,4 +673,5 @@ public class JsonSerialization {
 			JavaConverters.initJavaDeserializers(deserializationModule);
 		}
 	}
+
 }

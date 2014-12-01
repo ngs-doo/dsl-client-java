@@ -123,11 +123,7 @@ class HttpReportingProxy implements ReportingProxy {
 						new HistoryArg(domainName, uris),
 						Utils.acceptAs("application/json"),
 						new int[]{200}).get();
-				final JavaType ht =
-						JsonSerialization.buildCollectionType(
-							ArrayList.class,
-							JsonSerialization.buildGenericType(History.class, manifest));
-				return jsonSerialization.deserialize(ht, result);
+				return jsonSerialization.deserializeHistoryList(manifest, result);
 			}
 		});
 	}

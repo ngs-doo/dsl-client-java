@@ -110,6 +110,7 @@ object NGSBuild extends Build with Default with Dependencies {
     , unmanagedSourceDirectories in Test := Seq((javaSource in Test).value)
     , EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource
     , createVersionProperties
+    , unmanagedJars in Test += baseDirectory.value / "test-lib" / "java-client.jar"
     )
   ) dependsOn(core)
 
@@ -142,6 +143,7 @@ object NGSBuild extends Build with Default with Dependencies {
     unmanagedSourceDirectories in Test        := unmanagedSourceDirectories.all(aggregatedTest).value.flatten,
     unmanagedResourceDirectories in Test      := unmanagedResourceDirectories.all(aggregatedTest).value.flatten,
     libraryDependencies                       := libraryDependencies.all(aggregatedCompile).value.flatten,
+    unmanagedJars in Test                     := unmanagedJars.all(aggregatedTest).value.flatten,
     packageBin in Compile                     := (packageBin in Compile).map{checkByteCode}.value
   )
 

@@ -37,7 +37,7 @@ public final class History<T extends AggregateRoot> implements Identifiable {
 	 */
 	@Override
 	public String getURI() {
-		return Snapshots.get(0).getURI();
+		return Snapshots.get(0).getValue().getURI();
 	}
 
 	/**
