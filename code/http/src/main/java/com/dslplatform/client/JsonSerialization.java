@@ -375,9 +375,9 @@ public class JsonSerialization {
 	/**
 	 * Recursively builds an XML document subtree
 	 *
-	 * @param doc				the document to be built up
+	 * @param doc                the document to be built up
 	 * @param subtreeRootElement the root of the subtree
-	 * @param elementContent	 the value of the subtree
+	 * @param elementContent     the value of the subtree
 	 */
 	@SuppressWarnings("unchecked")
 	private static void buildXmlFromHashMap(
@@ -462,9 +462,8 @@ public class JsonSerialization {
 	 * <code>listHeadElementName</code>. The head element need be created before
 	 * this method call.
 	 *
-	 * @param doc				 The parent document
-	 * @param listHeadNode		The first node of the list, needs to be created before this method
-	 *							call
+	 * @param doc          The parent document
+	 * @param listHeadNode The first node of the list, needs to be created before this method call
 	 * @param elementContentList  The actual list contents
 	 */
 	private static void buildXmlFromJsonArray(
@@ -673,5 +672,4 @@ public class JsonSerialization {
 			JavaConverters.initJavaDeserializers(deserializationModule);
 		}
 	}
-
 }

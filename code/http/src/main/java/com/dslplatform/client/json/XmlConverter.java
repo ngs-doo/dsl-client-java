@@ -31,7 +31,7 @@ public class XmlConverter {
 	}
 
 	public static void serializeNullable(final Element value, final Writer sw) throws IOException {
-		if (value == null) 
+		if (value == null)
 			sw.write("null");
 		else
 			serialize(value, sw);

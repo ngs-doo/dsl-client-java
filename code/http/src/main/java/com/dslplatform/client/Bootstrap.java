@@ -28,7 +28,7 @@ public class Bootstrap {
 	 * and provide instances of locator yourself.
 	 * Calling static service locator should be avoided.
 	 *
-	 * @return	 last service locator which was initialized
+	 * @return last service locator which was initialized
 	 */
 	public static ServiceLocator getLocator() {
 		if (staticLocator == null)
@@ -43,10 +43,10 @@ public class Bootstrap {
 	 * if you want to inject arbitrary instance of org.slf4j.Logger, and(or)
 	 * java.util.concurrent.ExecutorService.
 	 *
-	 * @param properties		project settings
-	 * @param initialComponents	components to initialize with
+	 * @param properties        project settings
+	 * @param initialComponents components to initialize with
 	 * @return                  initialized service locator
-	 * @throws IOException		in case of failure to read stream
+	 * @throws IOException      in case of failure to read stream
 	 */
 	public static ServiceLocator init(
 			final Properties properties,

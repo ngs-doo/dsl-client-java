@@ -8,7 +8,7 @@ import java.util.Collection;
 public class BinaryConverter {
 
 	public static void serialize(final byte[] value, final Writer sw) throws IOException {
-		if (value == null) 
+		if (value == null)
 			sw.write("null");
 		else if (value.length == 0)
 			sw.write("\"\"");
