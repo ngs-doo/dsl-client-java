@@ -76,7 +76,25 @@ public class DateConverter {
 	}
 
 	public static DateTime deserializeDateTime(final JsonReader reader) throws IOException {
-		return DateTime.parse(reader.readSimpleString());
+		char[] tmp = reader.readSimpleQuote();
+		int len = reader.getCurrentIndex() - reader.getTokenStart() - 1;
+		if (len > 18 && len < 25 && tmp[len - 1] == 'Z' && tmp[4] == '-' && tmp[7] == '-'
+				&& (tmp[10] == 'T' || tmp[10] == 't' || tmp[10] == ' ')
+				&& tmp[13] == ':' && tmp[16] == ':') {
+			int year = NumberConverter.read4(tmp, 0);
+			int month = NumberConverter.read2(tmp, 5);
+			int day = NumberConverter.read2(tmp, 8);
+			int hour = NumberConverter.read2(tmp, 11);
+			int min = NumberConverter.read2(tmp, 14);
+			int sec = NumberConverter.read2(tmp, 17);
+			if (tmp[19] == '.') {
+				int milis = NumberConverter.read(tmp, 20, len - 1);
+				return new DateTime(year, month, day, hour, min, sec, milis, DateTimeZone.UTC);
+			}
+			return new DateTime(year, month, day, hour, min, sec, 0, DateTimeZone.UTC);
+		} else {
+			return DateTime.parse(new String(tmp, 0, len));
+		}
 	}
 
 	private static JsonReader.ReadObject<DateTime> DateTimeReader = new JsonReader.ReadObject<DateTime>() {
@@ -134,7 +152,16 @@ public class DateConverter {
 	}
 
 	public static LocalDate deserializeLocalDate(final JsonReader reader) throws IOException {
-		return localDateParser.parseLocalDate(reader.readSimpleString());
+		char[] tmp = reader.readSimpleQuote();
+		int len = reader.getCurrentIndex() - reader.getTokenStart() - 1;
+		if (len == 10 && tmp[4] == '-' && tmp[7] == '-') {
+			int year = NumberConverter.read4(tmp, 0);
+			int month = NumberConverter.read2(tmp, 5);
+			int day = NumberConverter.read2(tmp, 8);
+			return new LocalDate(year, month, day);
+		} else {
+			return localDateParser.parseLocalDate(new String(tmp, 0, len));
+		}
 	}
 
 	private static JsonReader.ReadObject<LocalDate> LocalDateReader = new JsonReader.ReadObject<LocalDate>() {

@@ -84,6 +84,19 @@ public class JsonReader {
 		return new String(tmp, 0, i - start);
 	}
 
+	public char[] readSimpleQuote() throws IOException {
+		if (last != '"')
+			throw new IOException("Expecting '\"' at position " + positionInStream() + ". Found " + (char) last);
+		int start = tokenStart = currentIndex;
+		int i = currentIndex;
+		for(; i < length && buffer[i] != '"'; i++) {
+			tmp[i - start] = (char)buffer[i];
+		}
+		currentIndex = i + 1;
+		last = '"';
+		return tmp;
+	}
+
 	public String readString() throws IOException {
 
 		final int startIndex = currentIndex;
@@ -281,6 +294,19 @@ public class JsonReader {
 		return (int) hash;
 	}
 
+	public int calcHash() throws IOException {
+		if (last != '"')
+			throw new IOException("Expecting '\"' at position " + positionInStream() + ". Found " + (char) last);
+		tokenStart = currentIndex;
+		byte c = read();
+		long hash = 0x811c9dc5;
+		do {
+			hash ^= 0xFF & c;
+			hash *= 0x1000193;
+		} while ((c = read()) != '"');
+		return (int) hash;
+	}
+
 	public boolean wasLastName(final String name) {
 		if (name.length() != currentIndex - tokenStart) {
 			return false;
@@ -291,6 +317,10 @@ public class JsonReader {
 			}
 		}
 		return true;
+	}
+
+	public String getLastName() throws IOException {
+		return new String(buffer, tokenStart, currentIndex - tokenStart - 1, "ISO-8859-1");
 	}
 
 	private byte skipString() throws IOException {
@@ -431,7 +461,6 @@ public class JsonReader {
 	}
 
 	public <T> void deserializeCollectionWithMove(final ReadObject<T> readObject, final Collection<T> res) throws IOException {
-		getNextToken();
 		res.add(readObject.read(this));
 		while (moveToNextToken() == ',') {
 			getNextToken();
@@ -456,7 +485,6 @@ public class JsonReader {
 	}
 
 	public <T> void deserializeNullableCollectionWithGet(final ReadObject<T> readObject, final Collection<T> res) throws IOException {
-		getNextToken();
 		if (wasNull()) {
 			res.add(null);
 		} else {
@@ -477,7 +505,6 @@ public class JsonReader {
 	}
 
 	public <T> void deserializeNullableCollectionWithMove(final ReadObject<T> readObject, final Collection<T> res) throws IOException {
-		getNextToken();
 		if (wasNull()) {
 			res.add(null);
 			getNextToken();

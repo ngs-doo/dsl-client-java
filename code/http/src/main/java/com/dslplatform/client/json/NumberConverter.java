@@ -8,7 +8,7 @@ import java.util.Collection;
 
 public class NumberConverter {
 
-	final static char [] DigitTens = {
+	final static char[] DigitTens = {
 			'0', '0', '0', '0', '0', '0', '0', '0', '0', '0',
 			'1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
 			'2', '2', '2', '2', '2', '2', '2', '2', '2', '2',
@@ -20,7 +20,7 @@ public class NumberConverter {
 			'8', '8', '8', '8', '8', '8', '8', '8', '8', '8',
 			'9', '9', '9', '9', '9', '9', '9', '9', '9', '9',
 	};
-	final static char [] DigitOnes = {
+	final static char[] DigitOnes = {
 			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
 			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
 			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
@@ -36,8 +36,24 @@ public class NumberConverter {
 	static void write2(final int value, final char[] buf, final int pos) throws IOException {
 		int q = value / 100;
 		int r = value - ((q << 6) + (q << 5) + (q << 2));
-		buf [pos] = DigitTens[r];
-		buf [pos + 1] = DigitOnes[r];
+		buf[pos] = DigitTens[r];
+		buf[pos + 1] = DigitOnes[r];
+	}
+
+	static int read2(final char[] buf, final int pos) {
+		return (buf[pos] - 48) * 10 + buf[pos + 1] - 48;
+	}
+
+	static int read(final char[] buf, final int start, int end) {
+		int value = 0;
+		for (int i = start; i < end; i++) {
+			value = value * 10 + buf[i] - 48;
+		}
+		return value;
+	}
+
+	static int read4(final char[] buf, final int pos) {
+		return (buf[pos] - 48) * 1000 + (buf[pos + 1] - 48) * 100 + (buf[pos + 2] - 48) * 10 + buf[pos + 3] - 48;
 	}
 
 	public static void serializeNullable(final Double value, final Writer sw) throws IOException {
@@ -129,9 +145,8 @@ public class NumberConverter {
 	public static void serialize(final int value, final Writer sw) throws IOException {
 		if (value == Integer.MIN_VALUE) {
 			sw.write("-2147483648");
-		}
-		else if (sw instanceof JsonWriter) {
-			serialize(value, (JsonWriter)sw);
+		} else if (sw instanceof JsonWriter) {
+			serialize(value, (JsonWriter) sw);
 		} else {
 			sw.write(Integer.toString(value));
 		}
@@ -154,8 +169,8 @@ public class NumberConverter {
 			q = i / 100;
 			r = i - ((q << 6) + (q << 5) + (q << 2));
 			i = q;
-			buf [charPos--] = DigitOnes[r];
-			buf [charPos--] = DigitTens[r];
+			buf[charPos--] = DigitOnes[r];
+			buf[charPos--] = DigitTens[r];
 		} while (i != 0);
 
 		int start = buf[charPos + 1] == '0' ? charPos + 2 : charPos + 1;
@@ -168,7 +183,7 @@ public class NumberConverter {
 		int len = reader.getCurrentIndex() - reader.getTokenStart() - 1;
 		char ch;
 		int start = buf[0] == '-' ? 1 : 0;
-		for(int i = start; i < len && i < buf.length; i++) {
+		for (int i = start; i < len && i < buf.length; i++) {
 			ch = buf[i];
 			if (ch >= '0' && ch <= '9') {
 				value = value * 10 + ch - 48;
@@ -213,7 +228,7 @@ public class NumberConverter {
 		if (value == Long.MIN_VALUE) {
 			sw.write("-9223372036854775808");
 		} else if (sw instanceof JsonWriter) {
-			serialize(value, (JsonWriter)sw);
+			serialize(value, (JsonWriter) sw);
 		} else {
 			sw.write(Long.toString(value));
 		}
@@ -235,10 +250,10 @@ public class NumberConverter {
 
 		do {
 			q = i / 100;
-			r = (int)(i - ((q << 6) + (q << 5) + (q << 2)));
+			r = (int) (i - ((q << 6) + (q << 5) + (q << 2)));
 			i = q;
-			buf [charPos--] = DigitOnes[r];
-			buf [charPos--] = DigitTens[r];
+			buf[charPos--] = DigitOnes[r];
+			buf[charPos--] = DigitTens[r];
 		} while (i != 0);
 
 		int start = buf[charPos + 1] == '0' ? charPos + 2 : charPos + 1;
@@ -251,7 +266,7 @@ public class NumberConverter {
 		int len = reader.getCurrentIndex() - reader.getTokenStart() - 1;
 		char ch;
 		int start = buf[0] == '-' ? 1 : 0;
-		for(int i = 0; i < len && i < buf.length; i++) {
+		for (int i = 0; i < len && i < buf.length; i++) {
 			ch = buf[i];
 			if (ch >= '0' && ch <= '9') {
 				value = value * 10 + ch - 48;

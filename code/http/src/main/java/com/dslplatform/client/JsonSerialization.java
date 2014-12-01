@@ -48,7 +48,7 @@ public class JsonSerialization {
 	private static final JsonDeserializer<LocalDate> dateDeserializer = new JsonDeserializer<LocalDate>() {
 		@Override
 		public LocalDate deserialize(final JsonParser parser, final DeserializationContext _unused) throws IOException {
-			return new DateTime(parser.getValueAsString()).toLocalDate();
+			return DateTime.parse(parser.getValueAsString()).toLocalDate();
 		}
 	};
 
@@ -62,7 +62,7 @@ public class JsonSerialization {
 	private static final JsonDeserializer<DateTime> timestampDeserializer = new JsonDeserializer<DateTime>() {
 		@Override
 		public DateTime deserialize(final JsonParser parser, final DeserializationContext _unused) throws IOException {
-			return new DateTime(parser.getValueAsString());
+			return DateTime.parse(parser.getValueAsString());
 		}
 	};
 

@@ -158,8 +158,8 @@ class HttpClient {
 		return false;
 	}
 
-	private static ThreadLocal perThreadBuffer = new ThreadLocal() {
-		protected synchronized Object initialValue() {
+	private static ThreadLocal<JsonWriter> perThreadBuffer = new ThreadLocal<JsonWriter>() {
+		protected synchronized JsonWriter initialValue() {
 			return new JsonWriter();
 		}
 	};
@@ -179,7 +179,7 @@ class HttpClient {
 			logger.debug("Sending request [{}]: {}", method, service);
 		} else {
 			if (content instanceof JsonObject) {
-				JsonWriter sw = (JsonWriter)perThreadBuffer.get();
+				JsonWriter sw = perThreadBuffer.get();
 				JsonObject jo = (JsonObject)content;
 				jo.serialize(sw, true);
 				body = sw.toBytes();
