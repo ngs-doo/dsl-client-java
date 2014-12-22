@@ -21,6 +21,7 @@ import org.w3c.dom.NodeList;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -615,6 +616,7 @@ public class JsonSerialization {
 	private static ObjectMapper makeDeserializationObjectMapper(final ServiceLocator locator) {
 		return new ObjectMapper()
 				.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+				.configure(Feature.ALLOW_NON_NUMERIC_NUMBERS, true)
 				.registerModule(deserializationModule)
 				.setInjectableValues(new InjectableValues.Std().addValue("_serviceLocator", locator));
 	}
@@ -622,6 +624,7 @@ public class JsonSerialization {
 	private static ObjectMapper staticDeserializationMapper =
 			new ObjectMapper()
 					.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+					.configure(Feature.ALLOW_NON_NUMERIC_NUMBERS, true)
 					.registerModule(deserializationModule);
 
 	public static <T> T deserialize(final JavaType type, final String data, final ServiceLocator locator) throws IOException {
