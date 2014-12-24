@@ -424,9 +424,9 @@ public class JsonReader {
 		if (last == 'f') {
 			if (currentIndex + 3 < length && buffer[currentIndex] == 'a'
 					&& buffer[currentIndex + 1] == 'l' && buffer[currentIndex + 2] == 's'
-					&& buffer[currentIndex + 2] == 'e') {
+					&& buffer[currentIndex + 3] == 'e') {
 				currentIndex += 4;
-				return false;
+				return true;
 			}
 			throw new IOException("Invalid boolean value found at: " + currentIndex);
 		}
