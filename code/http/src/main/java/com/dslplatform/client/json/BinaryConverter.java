@@ -38,6 +38,10 @@ public class BinaryConverter {
 		reader.deserializeCollectionWithGet(Base64Reader, res);
 	}
 
+	public static ArrayList<byte[]> deserializeNullableCollection(final JsonReader reader) throws IOException {
+		return reader.deserializeNullableCollectionWithGet(Base64Reader);
+	}
+
 	public static void deserializeNullableCollection(final JsonReader reader, final Collection<byte[]> res) throws IOException {
 		reader.deserializeNullableCollectionWithGet(Base64Reader, res);
 	}
