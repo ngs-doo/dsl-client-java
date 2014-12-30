@@ -17,6 +17,7 @@ public class DateConverter {
 	private static final DateTimeFormatter dateTimeFormat = ISODateTimeFormat.dateTime();
 	private static final DateTimeFormatter localDateFormat = ISODateTimeFormat.date();
 	private static final DateTimeFormatter localDateParser = ISODateTimeFormat.localDateParser();
+	private static final DateTimeZone utcZone = DateTimeZone.UTC;
 
 	public static void serializeNullable(final DateTime value, final Writer sw) throws IOException {
 		if (value == null) {
@@ -27,7 +28,7 @@ public class DateConverter {
 	}
 
 	public static void serialize(final DateTime value, final Writer sw) throws IOException {
-		if (DateTimeZone.UTC.equals(value.getZone()) && sw instanceof JsonWriter) {
+		if (utcZone.equals(value.getZone()) && sw instanceof JsonWriter) {
 			serialize(value, (JsonWriter) sw);
 		} else {
 			sw.write('"');
@@ -62,16 +63,16 @@ public class DateConverter {
 				NumberConverter.write2(lo, buf, 22);
 				buf[24] = 'Z';
 				buf[25] = '"';
-				sw.buffer.append(buf, 0, 26);
+				sw.write(buf, 0, 26);
 			} else {
 				buf[22] = 'Z';
 				buf[23] = '"';
-				sw.buffer.append(buf, 0, 24);
+				sw.write(buf, 0, 24);
 			}
 		} else {
 			buf[20] = 'Z';
 			buf[21] = '"';
-			sw.buffer.append(buf, 0, 22);
+			sw.write(buf, 0, 22);
 		}
 	}
 
@@ -89,9 +90,9 @@ public class DateConverter {
 			int sec = NumberConverter.read2(tmp, 17);
 			if (tmp[19] == '.') {
 				int milis = NumberConverter.read(tmp, 20, len - 1);
-				return new DateTime(year, month, day, hour, min, sec, milis, DateTimeZone.UTC);
+				return new DateTime(year, month, day, hour, min, sec, milis, utcZone);
 			}
-			return new DateTime(year, month, day, hour, min, sec, 0, DateTimeZone.UTC);
+			return new DateTime(year, month, day, hour, min, sec, 0, utcZone);
 		} else {
 			return DateTime.parse(new String(tmp, 0, len));
 		}
@@ -148,7 +149,7 @@ public class DateConverter {
 		buf[8] = '-';
 		NumberConverter.write2(value.getDayOfMonth(), buf, 9);
 		buf[11] = '"';
-		sw.buffer.append(buf, 0, 12);
+		sw.write(buf, 0, 12);
 	}
 
 	public static LocalDate deserializeLocalDate(final JsonReader reader) throws IOException {

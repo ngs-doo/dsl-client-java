@@ -157,10 +157,9 @@ public class NumberConverter {
 		int charPos = 10;
 		char[] buf = sw.tmp;
 		int i;
-		final StringBuilder sb = sw.buffer;
 		if (value < 0) {
 			i = -value;
-			sb.append('-');
+			sw.write('-');
 		} else {
 			i = value;
 		}
@@ -174,7 +173,7 @@ public class NumberConverter {
 		} while (i != 0);
 
 		int start = buf[charPos + 1] == '0' ? charPos + 2 : charPos + 1;
-		sb.append(buf, start, 10 - start + 1);
+		sw.write(buf, start, 10 - start + 1);
 	}
 
 	public static int deserializeInt(final JsonReader reader) throws IOException {
@@ -240,10 +239,9 @@ public class NumberConverter {
 		int charPos = 20;
 		char[] buf = sw.tmp;
 		long i;
-		final StringBuilder sb = sw.buffer;
 		if (value < 0) {
 			i = -value;
-			sb.append('-');
+			sw.write('-');
 		} else {
 			i = value;
 		}
@@ -257,7 +255,7 @@ public class NumberConverter {
 		} while (i != 0);
 
 		int start = buf[charPos + 1] == '0' ? charPos + 2 : charPos + 1;
-		sb.append(buf, start, 20 - start + 1);
+		sw.write(buf, start, 20 - start + 1);
 	}
 
 	public static long deserializeLong(final JsonReader reader) throws IOException {
