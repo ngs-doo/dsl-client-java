@@ -28,7 +28,7 @@ public class DateConverter {
 	}
 
 	public static void serialize(final DateTime value, final Writer sw) throws IOException {
-		if (utcZone.equals(value.getZone()) && sw instanceof JsonWriter) {
+		if (sw instanceof JsonWriter) {
 			serialize(value, (JsonWriter) sw);
 		} else {
 			sw.write('"');
@@ -61,18 +61,32 @@ public class DateConverter {
 			buf[21] = (char) (hi + 48);
 			if (lo != 0) {
 				NumberConverter.write2(lo, buf, 22);
-				buf[24] = 'Z';
-				buf[25] = '"';
-				sw.write(buf, 0, 26);
+				writeTimezone(buf, 24, value, sw);
 			} else {
-				buf[22] = 'Z';
-				buf[23] = '"';
-				sw.write(buf, 0, 24);
+				writeTimezone(buf, 22, value, sw);
 			}
 		} else {
-			buf[20] = 'Z';
-			buf[21] = '"';
-			sw.write(buf, 0, 22);
+			writeTimezone(buf, 20, value, sw);
+		}
+	}
+
+	private static void writeTimezone(final char[] buf, final int position, final DateTime dt, final JsonWriter sw) throws IOException {
+		DateTimeZone zone = dt.getZone();
+		if (utcZone.equals(zone) || zone == null) {
+			buf[position] = 'Z';
+			buf[position + 1] = '"';
+			sw.write(buf, 0, position + 2);
+		} else {
+			final long ms = dt.getMillis();
+			final int off = zone.getOffset(ms);
+			final int hours = off / 3600000;
+			final int remainder = off - hours * 3600000;
+			buf[position] = off < 0 ? '-' : '+';
+			NumberConverter.write2(hours, buf, position + 1);
+			buf[position + 3] = ':';
+			NumberConverter.write2(remainder / 60000, buf, position + 4);
+			buf[position + 6] = '"';
+			sw.write(buf, 0, position + 7);
 		}
 	}
 
