@@ -13,22 +13,22 @@ public class JsonReader {
 	private final char[] tmp = new char[48];
 
 	private int tokenStart;
-	private int currentIndex;
-	private byte last;
+	private int currentIndex = 0;
+	private byte last = ' ';
 
-	public JsonReader(final byte[] buffer, final ServiceLocator locator) throws IOException { //TODO: it would be nice if there was no IOException
-		this(buffer, buffer.length, locator);
+	public JsonReader(final byte[] buffer, final ServiceLocator locator) {
+		this.buffer = buffer;
+		this.length = buffer.length;
+		this.locator = locator;
 	}
 
 	public JsonReader(final byte[] buffer, final int length, final ServiceLocator locator) throws IOException {
 		this.buffer = buffer;
 		this.length = length;
+		this.locator = locator;
 		if (length > buffer.length) {
 			throw new IOException("length can't be longer than buffer.length");
 		}
-		this.locator = locator;
-		this.currentIndex = 0;
-		last = ' ';
 	}
 
 	public byte read() throws IOException {

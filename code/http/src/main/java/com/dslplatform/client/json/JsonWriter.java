@@ -77,6 +77,9 @@ public class JsonWriter extends Writer {
 			this.content = content;
 			this.length = length;
 		}
+        public byte[] toTrimmedByteArray() {
+            return Arrays.copyOf(this.content, this.length);
+        }
 	}
 
 	public Bytes toBytes() {
