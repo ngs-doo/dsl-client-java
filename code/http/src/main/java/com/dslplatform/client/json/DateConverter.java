@@ -14,10 +14,15 @@ import org.joda.time.format.ISODateTimeFormat;
 public class DateConverter {
 	public static final DateTime MIN_DATE_TIME = DateTime.parse("0001-01-01T00:00:00Z");
 	public static final LocalDate MIN_LOCAL_DATE = new LocalDate(1, 1, 1);
-	private static final DateTimeFormatter dateTimeFormat = ISODateTimeFormat.dateTime();
-	private static final DateTimeFormatter localDateFormat = ISODateTimeFormat.date();
 	private static final DateTimeFormatter localDateParser = ISODateTimeFormat.localDateParser();
+	private static final DateTimeFormatter dateTimeParser = ISODateTimeFormat.dateTimeParser().withOffsetParsed();
 	private static final DateTimeZone utcZone = DateTimeZone.UTC;
+
+	private static ThreadLocal<char[]> perThreadBuffer = new ThreadLocal<char[]>() {
+		protected synchronized char[] initialValue() {
+			return new char[48];
+		}
+	};
 
 	public static void serializeNullable(final DateTime value, final Writer sw) throws IOException {
 		if (value == null) {
@@ -28,17 +33,7 @@ public class DateConverter {
 	}
 
 	public static void serialize(final DateTime value, final Writer sw) throws IOException {
-		if (sw instanceof JsonWriter) {
-			serialize(value, (JsonWriter) sw);
-		} else {
-			sw.write('"');
-			dateTimeFormat.printTo(sw, value);
-			sw.write('"');
-		}
-	}
-
-	public static void serialize(final DateTime value, final JsonWriter sw) throws IOException {
-		final char[] buf = sw.tmp;
+		final char[] buf = sw instanceof JsonWriter ? ((JsonWriter)sw).tmp : perThreadBuffer.get();
 		buf[0] = '"';
 		final int year = value.getYear();
 		NumberConverter.write2(year / 100, buf, 1);
@@ -70,18 +65,23 @@ public class DateConverter {
 		}
 	}
 
-	private static void writeTimezone(final char[] buf, final int position, final DateTime dt, final JsonWriter sw) throws IOException {
-		DateTimeZone zone = dt.getZone();
+	private static void writeTimezone(final char[] buf, final int position, final DateTime dt, final Writer sw) throws IOException {
+		final DateTimeZone zone = dt.getZone();
 		if (utcZone.equals(zone) || zone == null) {
 			buf[position] = 'Z';
 			buf[position + 1] = '"';
 			sw.write(buf, 0, position + 2);
 		} else {
 			final long ms = dt.getMillis();
-			final int off = zone.getOffset(ms);
+			int off = zone.getOffset(ms);
+			if (off < 0) {
+				buf[position] = '-';
+				off = -off;
+			} else {
+				buf[position] = '+';
+			}
 			final int hours = off / 3600000;
 			final int remainder = off - hours * 3600000;
-			buf[position] = off < 0 ? '-' : '+';
 			NumberConverter.write2(hours, buf, position + 1);
 			buf[position + 3] = ':';
 			NumberConverter.write2(remainder / 60000, buf, position + 4);
@@ -91,24 +91,24 @@ public class DateConverter {
 	}
 
 	public static DateTime deserializeDateTime(final JsonReader reader) throws IOException {
-		char[] tmp = reader.readSimpleQuote();
-		int len = reader.getCurrentIndex() - reader.getTokenStart() - 1;
+		final char[] tmp = reader.readSimpleQuote();
+		final int len = reader.getCurrentIndex() - reader.getTokenStart() - 1;
 		if (len > 18 && len < 25 && tmp[len - 1] == 'Z' && tmp[4] == '-' && tmp[7] == '-'
 				&& (tmp[10] == 'T' || tmp[10] == 't' || tmp[10] == ' ')
 				&& tmp[13] == ':' && tmp[16] == ':') {
-			int year = NumberConverter.read4(tmp, 0);
-			int month = NumberConverter.read2(tmp, 5);
-			int day = NumberConverter.read2(tmp, 8);
-			int hour = NumberConverter.read2(tmp, 11);
-			int min = NumberConverter.read2(tmp, 14);
-			int sec = NumberConverter.read2(tmp, 17);
+			final int year = NumberConverter.read4(tmp, 0);
+			final int month = NumberConverter.read2(tmp, 5);
+			final int day = NumberConverter.read2(tmp, 8);
+			final int hour = NumberConverter.read2(tmp, 11);
+			final int min = NumberConverter.read2(tmp, 14);
+			final int sec = NumberConverter.read2(tmp, 17);
 			if (tmp[19] == '.') {
-				int milis = NumberConverter.read(tmp, 20, len - 1);
+				final int milis = NumberConverter.read(tmp, 20, len - 1);
 				return new DateTime(year, month, day, hour, min, sec, milis, utcZone);
 			}
 			return new DateTime(year, month, day, hour, min, sec, 0, utcZone);
 		} else {
-			return DateTime.parse(new String(tmp, 0, len));
+			return dateTimeParser.parseDateTime(new String(tmp, 0, len));
 		}
 	}
 
@@ -136,24 +136,15 @@ public class DateConverter {
 	}
 
 	public static void serializeNullable(final LocalDate value, final Writer sw) throws IOException {
-		if (value == null)
+		if (value == null) {
 			sw.write("null");
-		else
-			serialize(value, sw);
-	}
-
-	public static void serialize(final LocalDate value, final Writer sw) throws IOException {
-		if (sw instanceof JsonWriter) {
-			serialize(value, (JsonWriter) sw);
 		} else {
-			sw.write('"');
-			localDateFormat.printTo(sw, value);
-			sw.write('"');
+			serialize(value, sw);
 		}
 	}
 
-	public static void serialize(final LocalDate value, final JsonWriter sw) throws IOException {
-		final char[] buf = sw.tmp;
+	public static void serialize(final LocalDate value, final Writer sw) throws IOException {
+		final char[] buf = sw instanceof JsonWriter ? ((JsonWriter)sw).tmp : perThreadBuffer.get();
 		buf[0] = '"';
 		final int year = value.getYear();
 		NumberConverter.write2(year / 100, buf, 1);
@@ -167,12 +158,12 @@ public class DateConverter {
 	}
 
 	public static LocalDate deserializeLocalDate(final JsonReader reader) throws IOException {
-		char[] tmp = reader.readSimpleQuote();
-		int len = reader.getCurrentIndex() - reader.getTokenStart() - 1;
+		final char[] tmp = reader.readSimpleQuote();
+		final int len = reader.getCurrentIndex() - reader.getTokenStart() - 1;
 		if (len == 10 && tmp[4] == '-' && tmp[7] == '-') {
-			int year = NumberConverter.read4(tmp, 0);
-			int month = NumberConverter.read2(tmp, 5);
-			int day = NumberConverter.read2(tmp, 8);
+			final int year = NumberConverter.read4(tmp, 0);
+			final int month = NumberConverter.read2(tmp, 5);
+			final int day = NumberConverter.read2(tmp, 8);
 			return new LocalDate(year, month, day);
 		} else {
 			return localDateParser.parseLocalDate(new String(tmp, 0, len));

@@ -33,6 +33,12 @@ public class NumberConverter {
 			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
 	};
 
+	private static ThreadLocal<char[]> perThreadBuffer = new ThreadLocal<char[]>() {
+		protected synchronized char[] initialValue() {
+			return new char[48];
+		}
+	};
+
 	static void write2(final int value, final char[] buf, final int pos) throws IOException {
 		int q = value / 100;
 		int r = value - ((q << 6) + (q << 5) + (q << 2));
@@ -145,43 +151,37 @@ public class NumberConverter {
 	public static void serialize(final int value, final Writer sw) throws IOException {
 		if (value == Integer.MIN_VALUE) {
 			sw.write("-2147483648");
-		} else if (sw instanceof JsonWriter) {
-			serialize(value, (JsonWriter) sw);
 		} else {
-			sw.write(Integer.toString(value));
+			final char[] buf = sw instanceof JsonWriter ? ((JsonWriter) sw).tmp : perThreadBuffer.get();
+			int q, r;
+			int charPos = 10;
+			int i;
+			if (value < 0) {
+				i = -value;
+				sw.write('-');
+			} else {
+				i = value;
+			}
+
+			do {
+				q = i / 100;
+				r = i - ((q << 6) + (q << 5) + (q << 2));
+				i = q;
+				buf[charPos--] = DigitOnes[r];
+				buf[charPos--] = DigitTens[r];
+			} while (i != 0);
+
+			final int start = buf[charPos + 1] == '0' ? charPos + 2 : charPos + 1;
+			sw.write(buf, start, 10 - start + 1);
 		}
-	}
-
-	public static void serialize(final int value, final JsonWriter sw) throws IOException {
-		int q, r;
-		int charPos = 10;
-		char[] buf = sw.tmp;
-		int i;
-		if (value < 0) {
-			i = -value;
-			sw.write('-');
-		} else {
-			i = value;
-		}
-
-		do {
-			q = i / 100;
-			r = i - ((q << 6) + (q << 5) + (q << 2));
-			i = q;
-			buf[charPos--] = DigitOnes[r];
-			buf[charPos--] = DigitTens[r];
-		} while (i != 0);
-
-		int start = buf[charPos + 1] == '0' ? charPos + 2 : charPos + 1;
-		sw.write(buf, start, 10 - start + 1);
 	}
 
 	public static int deserializeInt(final JsonReader reader) throws IOException {
-		char[] buf = reader.readNumber();
+		final char[] buf = reader.readNumber();
 		int value = 0;
-		int len = reader.getCurrentIndex() - reader.getTokenStart() - 1;
+		final int len = reader.getCurrentIndex() - reader.getTokenStart() - 1;
 		char ch;
-		int start = buf[0] == '-' ? 1 : 0;
+		final int start = buf[0] == '-' ? 1 : 0;
 		for (int i = start; i < len && i < buf.length; i++) {
 			ch = buf[i];
 			if (ch >= '0' && ch <= '9') {
@@ -226,44 +226,38 @@ public class NumberConverter {
 	public static void serialize(final long value, final Writer sw) throws IOException {
 		if (value == Long.MIN_VALUE) {
 			sw.write("-9223372036854775808");
-		} else if (sw instanceof JsonWriter) {
-			serialize(value, (JsonWriter) sw);
 		} else {
-			sw.write(Long.toString(value));
+			final char[] buf = sw instanceof JsonWriter ? ((JsonWriter) sw).tmp : perThreadBuffer.get();
+			long q;
+			int r;
+			int charPos = 20;
+			long i;
+			if (value < 0) {
+				i = -value;
+				sw.write('-');
+			} else {
+				i = value;
+			}
+
+			do {
+				q = i / 100;
+				r = (int) (i - ((q << 6) + (q << 5) + (q << 2)));
+				i = q;
+				buf[charPos--] = DigitOnes[r];
+				buf[charPos--] = DigitTens[r];
+			} while (i != 0);
+
+			final int start = buf[charPos + 1] == '0' ? charPos + 2 : charPos + 1;
+			sw.write(buf, start, 20 - start + 1);
 		}
-	}
-
-	public static void serialize(final long value, final JsonWriter sw) throws IOException {
-		long q;
-		int r;
-		int charPos = 20;
-		char[] buf = sw.tmp;
-		long i;
-		if (value < 0) {
-			i = -value;
-			sw.write('-');
-		} else {
-			i = value;
-		}
-
-		do {
-			q = i / 100;
-			r = (int) (i - ((q << 6) + (q << 5) + (q << 2)));
-			i = q;
-			buf[charPos--] = DigitOnes[r];
-			buf[charPos--] = DigitTens[r];
-		} while (i != 0);
-
-		int start = buf[charPos + 1] == '0' ? charPos + 2 : charPos + 1;
-		sw.write(buf, start, 20 - start + 1);
 	}
 
 	public static long deserializeLong(final JsonReader reader) throws IOException {
-		char[] buf = reader.readNumber();
+		final char[] buf = reader.readNumber();
 		long value = 0;
-		int len = reader.getCurrentIndex() - reader.getTokenStart() - 1;
+		final int len = reader.getCurrentIndex() - reader.getTokenStart() - 1;
 		char ch;
-		int start = buf[0] == '-' ? 1 : 0;
+		final int start = buf[0] == '-' ? 1 : 0;
 		for (int i = 0; i < len && i < buf.length; i++) {
 			ch = buf[i];
 			if (ch >= '0' && ch <= '9') {
@@ -310,7 +304,7 @@ public class NumberConverter {
 	}
 
 	public static BigDecimal deserializeDecimal(final JsonReader reader) throws IOException {
-		char[] buf = reader.readNumber();
+		final char[] buf = reader.readNumber();
 		return new BigDecimal(buf, 0, reader.getCurrentIndex() - reader.getTokenStart() - 1);
 	}
 

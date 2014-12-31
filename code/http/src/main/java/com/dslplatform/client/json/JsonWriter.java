@@ -16,22 +16,22 @@ public class JsonWriter extends Writer {
 	public final char[] tmp = new char[48];
 	private byte[] result;
 	private int position;
+	private ByteBuffer resultBuffer;
 
 	private final CharsetEncoder encoder = Charset.forName("UTF-8").newEncoder();
 
 	public JsonWriter() {
-		buffer = new char[512];
-		result = new byte[2048];
+		this(512);
 	}
 
 	public JsonWriter(final int size) {
-		buffer = new char[size];
-		result = new byte[size * 4];
+		this(new char[size], new byte[size * 4]);
 	}
 
 	public JsonWriter(final char[] buffer, final byte[] result) {
 		this.buffer = buffer;
 		this.result = result;
+		this.resultBuffer = ByteBuffer.wrap(result);
 	}
 
 	@Override
@@ -77,34 +77,42 @@ public class JsonWriter extends Writer {
 			this.content = content;
 			this.length = length;
 		}
-        public byte[] toTrimmedByteArray() {
-            return Arrays.copyOf(this.content, this.length);
-        }
 	}
 
-	public Bytes toBytes() {
+	private int convertToBytes() {
 		if (result.length < position * 4) {
 			result = Arrays.copyOf(result, position * 4);
+			resultBuffer = ByteBuffer.wrap(result);
+		} else {
+			resultBuffer.rewind();
 		}
-		final ByteBuffer bb = ByteBuffer.wrap(result);
 		final CharBuffer cb = CharBuffer.wrap(buffer, 0, position);
-
 		position = 0;
 
 		try {
 			encoder.reset();
-			CoderResult cr = encoder.encode(cb, bb, true);
+			CoderResult cr = encoder.encode(cb, resultBuffer, true);
 			if (!cr.isUnderflow()) {
 				cr.throwException();
 			}
-			cr = encoder.flush(bb);
+			cr = encoder.flush(resultBuffer);
 			if (!cr.isUnderflow()) {
 				cr.throwException();
 			}
-			return new Bytes(result, bb.position());
+			return resultBuffer.position();
 		} catch (CharacterCodingException x) {
 			throw new Error(x);
 		}
+	}
+
+	public Bytes toBytes() {
+		final int len = convertToBytes();
+		return new Bytes(result, len);
+	}
+
+	public byte[] toByteArray() {
+		final int len = convertToBytes();
+		return Arrays.copyOf(result, len);
 	}
 
 	@Override
