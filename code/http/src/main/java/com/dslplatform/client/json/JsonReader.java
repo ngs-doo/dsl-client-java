@@ -59,12 +59,12 @@ public class JsonReader {
 
 	public char[] readNumber() {
 		tokenStart = currentIndex - 1;
-		char ch = (char)last;
+		char ch = (char) last;
 		tmp[0] = ch;
-		for (int i = 1; ch != ',' && ch != '}' && ch != ']' && ch != '"' &&  i < tmp.length && currentIndex < length; i++, currentIndex++) {
+		for (int i = 1; ch != ',' && ch != '}' && ch != ']' && ch != '"' && i < tmp.length && currentIndex < length; i++, currentIndex++) {
 			tmp[i] = ch = (char) buffer[currentIndex];
 		}
-		last = (byte)ch;
+		last = (byte) ch;
 		return tmp;
 	}
 
@@ -73,8 +73,8 @@ public class JsonReader {
 			throw new IOException("Expecting '\"' at position " + positionInStream() + ". Found " + (char) last);
 		int start = currentIndex;
 		int i = start;
-		for(; i < length && buffer[i] != '"'; i++) {
-			tmp[i - start] = (char)buffer[i];
+		for (; i < length && buffer[i] != '"'; i++) {
+			tmp[i - start] = (char) buffer[i];
 		}
 		currentIndex = i + 1;
 		last = '"';
@@ -86,8 +86,8 @@ public class JsonReader {
 			throw new IOException("Expecting '\"' at position " + positionInStream() + ". Found " + (char) last);
 		int start = tokenStart = currentIndex;
 		int i = currentIndex;
-		for(; i < length && buffer[i] != '"'; i++) {
-			tmp[i - start] = (char)buffer[i];
+		for (; i < length && buffer[i] != '"'; i++) {
+			tmp[i - start] = (char) buffer[i];
 		}
 		currentIndex = i + 1;
 		last = '"';
@@ -102,6 +102,24 @@ public class JsonReader {
 			throw new IOException("JSON string must start with a double quote! Instead found: " + byteDetails(buffer[currentIndex - 1]));
 		}
 
+		byte bb = 0;
+		for (int pos = 0; pos < tmp.length; pos++) {
+			if (currentIndex >= length) {
+				throw new IOException("JSON string was not closed with a double quote!");
+			}
+			bb = buffer[currentIndex++];
+			if (bb == '"') {
+				last = '"';
+				return new String(tmp, 0, pos);
+			}
+			// If we encounter a backslash, which is a beginning of an escape sequence
+			// or a high bit was set - indicating an UTF-8 encoded multibyte character,
+			// there is no chance that we can decode the string without instantiating
+			// a temporary buffer, so quit this loop
+			if ((bb ^ '\\') < 1) break;
+			tmp[pos] = (char) bb;
+		}
+
 		// If the buffer contains an ASCII string (no high bit set) without any escape codes "\n", "\t", etc...,
 		// there is no need to instantiate any temporary buffers, we just decode the original buffer directly
 		// via ISO-8859-1 encoding since it is the fastest encoding which is guaranteed to retain all ASCII characters
@@ -109,18 +127,16 @@ public class JsonReader {
 			if (currentIndex >= length) {
 				throw new IOException("JSON string was not closed with a double quote!");
 			}
-
-			final byte bc = buffer[currentIndex++];
-			if (bc == '"') {
-				last = '"';
-				return new String(buffer, startIndex, currentIndex - startIndex - 1, "ISO-8859-1");
-			}
-
 			// If we encounter a backslash, which is a beginning of an escape sequence
 			// or a high bit was set - indicating an UTF-8 encoded multibyte character,
 			// there is no chance that we can decode the string without instantiating
 			// a temporary buffer, so quit this loop
-			if ((bc ^ '\\') < 1) break;
+			if ((bb ^ '\\') < 1) break;
+			bb = buffer[currentIndex++];
+			if (bb == '"') {
+				last = '"';
+				return new String(buffer, startIndex, currentIndex - startIndex - 1, "ISO-8859-1");
+			}
 		}
 
 		// temporary buffer, will resize if need be
