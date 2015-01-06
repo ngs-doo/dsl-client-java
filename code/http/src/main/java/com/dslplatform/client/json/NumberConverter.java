@@ -33,12 +33,6 @@ public class NumberConverter {
 			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
 	};
 
-	private static ThreadLocal<char[]> perThreadBuffer = new ThreadLocal<char[]>() {
-		protected synchronized char[] initialValue() {
-			return new char[48];
-		}
-	};
-
 	static void write2(final int value, final char[] buf, final int pos) throws IOException {
 		int q = value / 100;
 		int r = value - ((q << 6) + (q << 5) + (q << 2));
@@ -156,7 +150,7 @@ public class NumberConverter {
 		if (value == Integer.MIN_VALUE) {
 			sw.write("-2147483648");
 		} else {
-			final char[] buf = sw instanceof JsonWriter ? ((JsonWriter) sw).tmp : perThreadBuffer.get();
+			final char[] buf = sw instanceof JsonWriter ? ((JsonWriter) sw).tmp : new char[12];
 			int q, r;
 			int charPos = 10;
 			int i;
@@ -231,7 +225,7 @@ public class NumberConverter {
 		if (value == Long.MIN_VALUE) {
 			sw.write("-9223372036854775808");
 		} else {
-			final char[] buf = sw instanceof JsonWriter ? ((JsonWriter) sw).tmp : perThreadBuffer.get();
+			final char[] buf = sw instanceof JsonWriter ? ((JsonWriter) sw).tmp : new char[22];
 			long q;
 			int r;
 			int charPos = 20;

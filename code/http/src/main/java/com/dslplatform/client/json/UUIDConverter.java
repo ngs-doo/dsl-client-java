@@ -10,12 +10,6 @@ public class UUIDConverter {
 
 	public static final UUID MIN_UUID = new java.util.UUID(0L, 0L);
 
-	private static ThreadLocal<char[]> perThreadBuffer = new ThreadLocal<char[]>() {
-		protected synchronized char[] initialValue() {
-			return new char[48];
-		}
-	};
-
 	private static final char[] LookupFirst;
 	private static final char[] LookupSecond;
 	private static final byte[] Values;
@@ -56,7 +50,7 @@ public class UUIDConverter {
 		final int hi2 = (int) hi;
 		final int lo1 = (int) (lo >> 32);
 		final int lo2 = (int) lo;
-		final char[] buf = sw instanceof JsonWriter ? ((JsonWriter) sw).tmp : perThreadBuffer.get();
+		final char[] buf = sw instanceof JsonWriter ? ((JsonWriter) sw).tmp : new char[38];
 		buf[0] = '"';
 		int v = (hi1 >> 24) & 255;
 		buf[1] = LookupFirst[v];
