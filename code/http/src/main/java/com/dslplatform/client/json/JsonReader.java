@@ -43,10 +43,14 @@ public class JsonReader {
 	}
 
 	public String readShortValue() throws IOException {
-		int start = currentIndex - 1;
-		while (last != ',' && last != '}' && last != ']')
-			read();
-		return new String(buffer, start, currentIndex - start - 1, "ISO-8859-1");
+		char ch = (char) last;
+		tmp[0] = ch;
+		int i = 1;
+		for (; ch != ',' && ch != '}' && ch != ']' && ch != '"' && i < tmp.length && currentIndex < length; i++, currentIndex++) {
+			tmp[i] = ch = (char) buffer[currentIndex];
+		}
+		last = (byte) ch;
+		return new String(tmp, 0, i - 1);
 	}
 
 	public int getTokenStart() {
@@ -242,50 +246,62 @@ public class JsonReader {
 		return "'" + ((char) c) + "'" + "(" + c + ")";
 	}
 
-	private boolean isWhiteSpace(byte c) {
-		switch (c) {
+	private boolean wasWhiteSpace() {
+		switch (last) {
 			case 9:
 			case 10:
 			case 11:
 			case 12:
 			case 13:
 			case 32:
-			/*case 160: FIXME: need check for high UTF-8 bit
-			case 5760:
-			case 8192:
-			case 8193:
-			case 8194:
-			case 8195:
-			case 8196:
-			case 8197:
-			case 8198:
-			case 8199:
-			case 8200:
-			case 8201:
-			case 8202:
-			case 8232:
-			case 8233:
-			case 8239:
-			case 8287:
-			case 12288:*/
+			case -96:
 				return true;
+			case -31:
+				return currentIndex + 2 < length && buffer[currentIndex + 1] == -102 && buffer[currentIndex + 2] == -128;
+			case -30:
+				if (currentIndex + 2 < length) {
+					final byte b1 = buffer[currentIndex + 1];
+					final byte b2 = buffer[currentIndex + 2];
+					if (b1 == -127 && b2 == -97) return true;
+					if (b1 != -128) return false;
+					switch (b2) {
+						case -128:
+						case -127:
+						case -126:
+						case -125:
+						case -124:
+						case -123:
+						case -122:
+						case -121:
+						case -120:
+						case -119:
+						case -118:
+						case -88:
+						case -87:
+						case -81:
+							return true;
+						default:
+							return false;
+					}
+				} else {
+					return false;
+				}
+			case -29:
+				return currentIndex + 2 < length && buffer[currentIndex + 1] == -128 && buffer[currentIndex + 2] == -128;
 			default:
 				return false;
 		}
 	}
 
 	public byte getNextToken() throws IOException {
-		byte c = read();
-		while (isWhiteSpace(c))
-			c = read();
-		return c;
+		read();
+		return moveToNextToken();
 	}
 
 	public byte moveToNextToken() throws IOException {
-		byte c = last;
-		while (isWhiteSpace(c))
-			c = read();
-		return c;
+		while (wasWhiteSpace())
+			read();
+		return last;
 	}
 
 	public long positionInStream() {

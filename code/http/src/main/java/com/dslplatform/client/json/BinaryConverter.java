@@ -8,12 +8,13 @@ import java.util.Collection;
 public class BinaryConverter {
 
 	public static void serialize(final byte[] value, final Writer sw) throws IOException {
-		if (value == null)
+		if (value == null) {
 			sw.write("null");
-		else if (value.length == 0)
+		} else if (value.length == 0) {
 			sw.write("\"\"");
-		else {
+		} else {
 			sw.write('"');
+			//TODO: can be improved... no need for new char[] allocation
 			sw.write(Base64.encodeToChar(value));
 			sw.write('"');
 		}

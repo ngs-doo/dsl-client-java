@@ -71,10 +71,12 @@ public class NumberConverter {
 	}
 
 	public static void serialize(final double value, final Writer sw) throws IOException {
+		//TODO: better implementation required
 		sw.write(Double.toString(value));
 	}
 
 	public static Double deserializeDouble(final JsonReader reader) throws IOException {
+		//TODO: better implementation required
 		return Double.parseDouble(reader.readShortValue());
 	}
 
@@ -110,10 +112,12 @@ public class NumberConverter {
 	}
 
 	public static void serialize(final float value, final Writer sw) throws IOException {
+		//TODO: better implementation required
 		sw.write(Float.toString(value));
 	}
 
 	public static Float deserializeFloat(final JsonReader reader) throws IOException {
+		//TODO: better implementation required
 		return Float.parseFloat(reader.readShortValue());
 	}
 
