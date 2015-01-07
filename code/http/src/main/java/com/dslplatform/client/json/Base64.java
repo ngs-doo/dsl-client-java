@@ -92,9 +92,7 @@ class Base64 {
 	 */
 	public final static char[] encodeToChar(byte[] sArr) {
 		// Check special case
-		int sLen = sArr != null ? sArr.length : 0;
-		if (sLen == 0)
-			return new char[0];
+		int sLen = sArr.length;
 
 		int eLen = (sLen / 3) * 3;              // Length of even 24-bits.
 		int cCnt = ((sLen - 1) / 3 + 1) << 2;   // Returned character count

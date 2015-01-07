@@ -7,10 +7,11 @@ import java.util.Collection;
 
 public class StringConverter {
 	public static void serializeNullable(final String value, final Writer sw) throws IOException {
-		if (value == null)
+		if (value == null) {
 			sw.write("null");
-		else
+		} else {
 			serialize(value, sw);
+		}
 	}
 
 	public static void serialize(final String value, final Writer sw) throws IOException {

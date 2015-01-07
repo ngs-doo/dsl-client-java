@@ -1,6 +1,7 @@
 package com.dslplatform.client;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -42,18 +43,18 @@ class HttpClient {
 		public final int size;
 		public final HttpURLConnection connection;
 
-		public Response(final HttpURLConnection connection) throws IOException {
+		public Response(final HttpURLConnection connection, final byte[] buffer) throws IOException {
 			this.code = connection.getResponseCode();
 			size = connection.getContentLength();
 			if (code < 300 && size >= 0) {
-				byte[] bytes = perThreadResult.get();
+				byte[] bytes = buffer;
 				if (bytes.length < size) {
 					bytes = Arrays.copyOf(bytes, size);
-					perThreadResult.set(bytes);
 				}
 				int pos = 0;
+				final InputStream stream = connection.getInputStream();
 				while (pos < size) {
-					pos += connection.getInputStream().read(bytes, pos, size - pos);
+					pos += stream.read(bytes, pos, size - pos);
 				}
 				body = bytes;
 			} else {
@@ -84,6 +85,8 @@ class HttpClient {
 	private final SSLSocketFactory SSL_SOCKET_FACTORY;
 	private static final String MIME_TYPE = "application/json";
 	private int currentUrl;
+	private final BlockingQueue<JsonWriter> jsonWriters;
+	private final BlockingQueue<byte[]> resultBuffers;
 
 	public HttpClient(
 			final Properties properties,
@@ -97,6 +100,14 @@ class HttpClient {
 		this.locator = locator;
 		this.executorService = executorService;
 		this.remoteUrls = properties.getProperty("api-url").split(",\\s+");
+
+		int totalWriters = Runtime.getRuntime().availableProcessors() * 2;
+		jsonWriters = new ArrayBlockingQueue<JsonWriter>(totalWriters);
+		resultBuffers = new ArrayBlockingQueue<byte[]>(totalWriters);
+		for (int i = 0;i < totalWriters; i++) {
+			jsonWriters.add(new JsonWriter());
+			resultBuffers.add(new byte[1024]);
+		}
 
 		SSL_SOCKET_FACTORY = createSSLSocketFactory(properties);
 
@@ -162,25 +173,14 @@ class HttpClient {
 		return false;
 	}
 
-	private static ThreadLocal<JsonWriter> perThreadWriter = new ThreadLocal<JsonWriter>() {
-		protected synchronized JsonWriter initialValue() {
-			return new JsonWriter();
-		}
-	};
-
-	private static ThreadLocal<byte[]> perThreadResult = new ThreadLocal<byte[]>() {
-		protected synchronized byte[] initialValue() {
-			return new byte[1024];
-		}
-	};
-
 	private <TArgument> Response doRawRequest(
 			final String service,
 			final List<Map.Entry<String, String>> headers,
 			final String method,
 			final TArgument content,
 			final int[] expected,
-			final long start) throws IOException {
+			final byte[] buffer,
+			final long start) throws IOException, InterruptedException {
 
 		final byte[] bodyContent;
 		final int bodySize;
@@ -191,12 +191,13 @@ class HttpClient {
 			logger.debug("Sending request [{}]: {}", method, service);
 		} else {
 			if (content instanceof JsonObject) {
-				JsonWriter sw = perThreadWriter.get();
+				JsonWriter sw = jsonWriters.take();
 				JsonObject jo = (JsonObject)content;
 				jo.serialize(sw, true);
 				JsonWriter.Bytes bytes = sw.toBytes();
 				bodyContent = bytes.content;
 				bodySize = bytes.length;
+				jsonWriters.put(sw);
 			} else {
 				bodyContent = JsonSerialization.serializeBytes(content);
 				bodySize = bodyContent.length;
@@ -205,7 +206,7 @@ class HttpClient {
 			logger.debug("Sending request [{}]: {}, content size: {} bytes", method, service, bodySize);
 		}
 
-		final Response response = transmit(service, headers, method, bodyContent, bodySize, 2);
+		final Response response = transmit(service, headers, method, bodyContent, bodySize, buffer, 2);
 
 		if (logger.isDebugEnabled()) {
 			final long time = System.currentTimeMillis() - start;
@@ -243,23 +244,31 @@ class HttpClient {
 
 		return executorService.submit(new Callable<byte[]>() {
 			@Override
-			public byte[] call() throws IOException {
-				final Response response = doRawRequest(service, headers, method, content, expected, start);
-				return response.code < 300 ? Arrays.copyOf(response.body, response.size) : response.body;
+			public byte[] call() throws IOException, InterruptedException {
+				final byte[] buffer = resultBuffers.take();
+				final Response response = doRawRequest(service, headers, method, content, expected, buffer, start);
+				if (response.code < 300) {
+					final byte[] result = Arrays.copyOf(response.body, response.size);
+					resultBuffers.put(response.body);
+					return result;
+				} else {
+					resultBuffers.put(buffer);
+					return response.body;
+				}
 			}
 		});
 	}
 
-	private static final ConcurrentHashMap<Class<?>, JsonReader.ReadJsonObject<JsonObject>> jsonReaderes =
+	private static final ConcurrentHashMap<Class<?>, JsonReader.ReadJsonObject<JsonObject>> jsonReaders =
 			new ConcurrentHashMap<Class<?>, JsonReader.ReadJsonObject<JsonObject>>();
 
 	@SuppressWarnings("unchecked")
 	private static JsonReader.ReadJsonObject<JsonObject> getReader(final Class<?> manifest) {
 		try {
-			JsonReader.ReadJsonObject<JsonObject> reader = jsonReaderes.get(manifest);
+			JsonReader.ReadJsonObject<JsonObject> reader = jsonReaders.get(manifest);
 			if (reader == null) {
 				reader = (JsonReader.ReadJsonObject<JsonObject>) manifest.getField("JSON_READER").get(null);
-				jsonReaderes.putIfAbsent(manifest, reader);
+				jsonReaders.putIfAbsent(manifest, reader);
 			}
 			return reader;
 		}catch (Exception ignore) {
@@ -279,18 +288,23 @@ class HttpClient {
 		return executorService.submit(new Callable<TResult>() {
 			@SuppressWarnings("unchecked")
 			@Override
-			public TResult call() throws IOException {
-				final Response response = doRawRequest(service, emptyHeaders, method, content, expected, start);
+			public TResult call() throws IOException, InterruptedException {
+				final byte[] buffer = resultBuffers.take();
+				final Response response = doRawRequest(service, emptyHeaders, method, content, expected, buffer, start);
 				if (JsonObject.class.isAssignableFrom(manifest)) {
 					JsonReader.ReadJsonObject<JsonObject> reader = getReader(manifest);
 					if (reader != null) {
 						JsonReader json = new JsonReader(response.body, response.size, locator);
 						if (json.getNextToken() == '{') {
-							return (TResult) reader.deserialize(json, locator);
+							final TResult result = (TResult) reader.deserialize(json, locator);
+							resultBuffers.put(response.body);
+							return result;
 						}
 					}
 				}
-				return jsonDeserialization.deserialize(manifest, response.body, response.size);
+				final TResult result = jsonDeserialization.deserialize(manifest, response.body, response.size);
+				resultBuffers.put(response.body);
+				return result;
 			}
 		});
 	}
@@ -307,22 +321,28 @@ class HttpClient {
 		return executorService.submit(new Callable<List<TResult>>() {
 			@SuppressWarnings("unchecked")
 			@Override
-			public List<TResult> call() throws IOException {
-				final Response response = doRawRequest(service, emptyHeaders, method, content, expected, start);
+			public List<TResult> call() throws IOException, InterruptedException {
+				final byte[] buffer = resultBuffers.take();
+				final Response response = doRawRequest(service, emptyHeaders, method, content, expected, buffer, start);
 				if (JsonObject.class.isAssignableFrom(manifest)) {
 					JsonReader.ReadJsonObject<JsonObject> reader = getReader(manifest);
 					if (reader != null) {
 						final JsonReader json = new JsonReader(response.body, response.size, locator);
 						if (json.getNextToken() == '[') {
 							if (json.getNextToken() == ']') {
+								resultBuffers.put(response.body);
 								return new ArrayList<TResult>();
 							}
-							return (List<TResult>) json.deserializeCollection(reader);
+							final List<TResult> result = (List<TResult>)json.deserializeCollection(reader);
+							resultBuffers.put(response.body);
+							return result;
 						}
 					}
 				}
 				final JavaType type = JsonSerialization.buildCollectionType(ArrayList.class, manifest);
-				return jsonDeserialization.deserialize(type, response.body, response.size);
+				final List<TResult> result = jsonDeserialization.deserialize(type, response.body, response.size);
+				resultBuffers.put(response.body);
+				return result;
 			}
 		});
 	}
@@ -333,15 +353,16 @@ class HttpClient {
 			final String method,
 			final byte[] payload,
 			final int size,
+			final byte[] buffer,
 			final int retriesOnConflictOrConnectionError) throws IOException {
 		IOException error = null;
 		final int maxLen = remoteUrls.length + currentUrl;
 		for (int i = currentUrl; i < maxLen; i++) {
 			try {
 				final URL url = new URL(remoteUrls[i % remoteUrls.length] + service);
-				final HttpClient.Response response = transmit(url, headers, method, payload, size);
+				final HttpClient.Response response = transmit(url, headers, method, payload, size, buffer);
 				if (response.code == HttpURLConnection.HTTP_CONFLICT && retriesOnConflictOrConnectionError > 0) {
-					return transmit(service, headers, method, payload, size, retriesOnConflictOrConnectionError - 1);
+					return transmit(service, headers, method, payload, size, buffer, retriesOnConflictOrConnectionError - 1);
 				}
 				if (response.code < HttpURLConnection.HTTP_INTERNAL_ERROR) {
 					return response;
@@ -351,7 +372,7 @@ class HttpClient {
 				error = new IOException(response.bodyToString());
 			} catch (final java.net.ConnectException ce) {
 				if (retriesOnConflictOrConnectionError > 0) {
-					return transmit(service, headers, method, payload, size, retriesOnConflictOrConnectionError - 1);
+					return transmit(service, headers, method, payload, size, buffer, retriesOnConflictOrConnectionError - 1);
 				}
 				logger.error("At {} {}. Trying next server if exists...", service, ce.getMessage());
 				error = ce;
@@ -370,7 +391,8 @@ class HttpClient {
 			final List<Map.Entry<String, String>> headers,
 			final String method,
 			final byte[] payload,
-			final int size) throws IOException {
+			final int size,
+			final byte[] buffer) throws IOException {
 
 		final HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
@@ -405,6 +427,6 @@ class HttpClient {
 			conn.getOutputStream().close();
 		}
 
-		return new Response(conn);
+		return new Response(conn, buffer);
 	}
 }

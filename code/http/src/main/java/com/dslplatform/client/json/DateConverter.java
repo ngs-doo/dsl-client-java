@@ -18,12 +18,6 @@ public class DateConverter {
 	private static final DateTimeFormatter dateTimeParser = ISODateTimeFormat.dateTimeParser().withOffsetParsed();
 	private static final DateTimeZone utcZone = DateTimeZone.UTC;
 
-	private static ThreadLocal<char[]> perThreadBuffer = new ThreadLocal<char[]>() {
-		protected synchronized char[] initialValue() {
-			return new char[48];
-		}
-	};
-
 	public static void serializeNullable(final DateTime value, final Writer sw) throws IOException {
 		if (value == null) {
 			sw.write("null");
@@ -33,7 +27,7 @@ public class DateConverter {
 	}
 
 	public static void serialize(final DateTime value, final Writer sw) throws IOException {
-		final char[] buf = sw instanceof JsonWriter ? ((JsonWriter)sw).tmp : perThreadBuffer.get();
+		final char[] buf = sw instanceof JsonWriter ? ((JsonWriter)sw).tmp : new char[32];
 		buf[0] = '"';
 		final int year = value.getYear();
 		NumberConverter.write2(year / 100, buf, 1);
@@ -144,7 +138,7 @@ public class DateConverter {
 	}
 
 	public static void serialize(final LocalDate value, final Writer sw) throws IOException {
-		final char[] buf = sw instanceof JsonWriter ? ((JsonWriter)sw).tmp : perThreadBuffer.get();
+		final char[] buf = sw instanceof JsonWriter ? ((JsonWriter)sw).tmp : new char[12];
 		buf[0] = '"';
 		final int year = value.getYear();
 		NumberConverter.write2(year / 100, buf, 1);

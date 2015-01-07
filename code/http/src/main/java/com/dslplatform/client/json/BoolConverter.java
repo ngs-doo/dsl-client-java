@@ -7,19 +7,21 @@ import java.util.Collection;
 
 public class BoolConverter {
 	public static void serializeNullable(final Boolean value, final Writer sw) throws IOException {
-		if (value == null)
+		if (value == null) {
 			sw.write("null");
-		else if (value)
+		} else if (value) {
 			sw.write("true");
-		else
+		} else {
 			sw.write("false");
+		}
 	}
 
 	public static void serialize(final boolean value, final Writer sw) throws IOException {
-		if (value)
+		if (value) {
 			sw.write("true");
-		else
+		} else {
 			sw.write("false");
+		}
 	}
 
 	public static boolean deserialize(final JsonReader reader) throws IOException {
