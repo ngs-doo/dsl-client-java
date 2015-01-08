@@ -6,21 +6,25 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class BoolConverter {
-	public static void serializeNullable(final Boolean value, final Writer sw) throws IOException {
+
+	private static final char[] TRUE = new char[] { 't', 'r', 'u', 'e' };
+	private static final char[] FALSE = new char[] { 'f', 'a', 'l', 's', 'e' };
+
+	public static void serializeNullable(final Boolean value, final JsonWriter sw) {
 		if (value == null) {
-			sw.write("null");
+			sw.writeNull();
 		} else if (value) {
-			sw.write("true");
+			sw.writeAscii(TRUE, 0, 4);
 		} else {
-			sw.write("false");
+			sw.writeAscii(FALSE, 0, 5);
 		}
 	}
 
-	public static void serialize(final boolean value, final Writer sw) throws IOException {
+	public static void serialize(final boolean value, final JsonWriter sw) {
 		if (value) {
-			sw.write("true");
+			sw.writeAscii(TRUE, 0, 4);
 		} else {
-			sw.write("false");
+			sw.writeAscii(FALSE, 0 , 5);
 		}
 	}
 

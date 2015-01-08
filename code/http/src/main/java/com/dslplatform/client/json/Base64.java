@@ -80,27 +80,14 @@ class Base64 {
 		IA['='] = 0;
 	}
 
-	// ****************************************************************************************
-	// *  char[] version
-	// ****************************************************************************************
+	static int encodeToChar(byte[] sArr, char[] dArr, final int start) {
+		final int sLen = sArr.length;
 
-	/** Encodes a raw byte array into a BASE64 <code>char[]</code> representation i accordance with RFC 2045.
-	 * @param sArr The bytes to convert. If <code>null</code> or length 0 an empty array will be returned.
-	 * No line separator will be in breach of RFC 2045 which specifies max 76 per line but will be a
-	 * little faster.
-	 * @return A BASE64 encoded array. Never <code>null</code>.
-	 */
-	public final static char[] encodeToChar(byte[] sArr) {
-		// Check special case
-		int sLen = sArr.length;
-
-		int eLen = (sLen / 3) * 3;              // Length of even 24-bits.
-		int cCnt = ((sLen - 1) / 3 + 1) << 2;   // Returned character count
-		int dLen = cCnt; // Length of returned array
-		char[] dArr = new char[dLen];
+		final int eLen = (sLen / 3) * 3;              // Length of even 24-bits.
+		final int dLen = ((sLen - 1) / 3 + 1) << 2;   // Returned character count
 
 		// Encode even 24-bits
-		for (int s = 0, d = 0, cc = 0; s < eLen;) {
+		for (int s = 0, d = start; s < eLen;) {
 			// Copy next three bytes into lower 24 bits of int, paying attension to sign.
 			int i = (sArr[s++] & 0xff) << 16 | (sArr[s++] & 0xff) << 8 | (sArr[s++] & 0xff);
 
@@ -118,15 +105,16 @@ class Base64 {
 			int i = ((sArr[eLen] & 0xff) << 10) | (left == 2 ? ((sArr[sLen - 1] & 0xff) << 2) : 0);
 
 			// Set last four chars
-			dArr[dLen - 4] = CA[i >> 12];
-			dArr[dLen - 3] = CA[(i >>> 6) & 0x3f];
-			dArr[dLen - 2] = left == 2 ? CA[i & 0x3f] : '=';
-			dArr[dLen - 1] = '=';
+			dArr[start + dLen - 4] = CA[i >> 12];
+			dArr[start + dLen - 3] = CA[(i >>> 6) & 0x3f];
+			dArr[start + dLen - 2] = left == 2 ? CA[i & 0x3f] : '=';
+			dArr[start + dLen - 1] = '=';
 		}
-		return dArr;
+
+		return dLen;
 	}
 
-	public static int findEnd(final byte[] sArr, final int start) {
+	static int findEnd(final byte[] sArr, final int start) {
 		for (int i = start; i < sArr.length; i++)
 			if (IA[sArr[i] & 0xff] < 0)
 				return i;
@@ -135,16 +123,7 @@ class Base64 {
 
 	private final static byte[] EMPTY_ARRAY = new byte[0];
 
-	/** Decodes a BASE64 encoded byte array that is known to be resonably well formatted. The method is about twice as
-	 * fast as {@link #decode(byte[])}. The preconditions are:<br>
-	 * + The array must have a line length of 76 chars OR no line separators at all (one line).<br>
-	 * + Line separator must be "\r\n", as specified in RFC 2045
-	 * + The array must not contain illegal characters within the encoded string<br>
-	 * + The array CAN have illegal characters at the beginning and end, those will be dealt with appropriately.<br>
-	 * @param sArr The source array. Length 0 will return an empty array. <code>null</code> will throw an exception.
-	 * @return The decoded array of bytes. May be of length 0.
-	 */
-	public final static byte[] decodeFast(final byte[] sArr, final int start, final int end) {
+	static byte[] decodeFast(final byte[] sArr, final int start, final int end) {
 		// Check special case
 		int sLen = end - start;
 		if (sLen == 0)

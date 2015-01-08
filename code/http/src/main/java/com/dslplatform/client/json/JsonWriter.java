@@ -14,8 +14,8 @@ public class JsonWriter extends Writer {
 
 	private char[] buffer;
 	public final char[] tmp = new char[48];
-	private byte[] result;
-	private int position;
+	protected byte[] result;
+	protected int position;
 	private ByteBuffer resultBuffer;
 
 	private final CharsetEncoder encoder = Charset.forName("UTF-8").newEncoder();
@@ -34,16 +34,28 @@ public class JsonWriter extends Writer {
 		this.resultBuffer = ByteBuffer.wrap(result);
 	}
 
-	@Override
-	public void write(final int c) throws IOException {
+	private static final char[] NULL = new char[] { 'n', 'u', 'l', 'l' };
+	public static final byte OBJECT_START = '{';
+	public static final byte OBJECT_END = '}';
+	public static final byte ARRAY_START = '[';
+	public static final byte ARRAY_END = ']';
+	public static final byte COMMA = ',';
+	public static final byte SEMI = ':';
+	public static final byte QUOTE = '"';
+
+	public final void writeNull() {
+		System.arraycopy(NULL, 0, buffer, position, 4);
+		position += 4;
+	}
+
+	public final void writeByte(final byte c) {
 		if (position == buffer.length) {
 			buffer = Arrays.copyOf(buffer, buffer.length + buffer.length / 2);
 		}
 		buffer[position++] = (char)c;
 	}
 
-	@Override
-	public void write(final char[] buf, final int off, final int len) throws IOException {
+	public final void writeChars(final char[] buf, final int off, final int len) {
 		if (position + len >= buffer.length) {
 			buffer = Arrays.copyOf(buffer, buffer.length + buffer.length / 2 + len);
 		}
@@ -51,19 +63,34 @@ public class JsonWriter extends Writer {
 		position += len;
 	}
 
-	@Override
-	public void write(final String str, final int off, final int len) throws IOException {
+	public final void writeString(final String str, final int off, final int len) {
 		if (position + len >= buffer.length) {
 			buffer = Arrays.copyOf(buffer, buffer.length + buffer.length / 2 + len);
 		}
-		final int total = off + len;
-		for(int i = off; i < total; i++) {
-			buffer[position++] = str.charAt(i);
-		}
+		str.getChars(off, off + len, buffer, position);
+		position += len;
 	}
 
-	@Override
-	public void flush() {}
+	public final void writeAscii(final char[] buf, final int off, final int len) {
+		writeChars(buf, off, len);
+	}
+
+	public final void writeAscii(final String str) {
+		if (position + str.length() >= buffer.length) {
+			buffer = Arrays.copyOf(buffer, buffer.length + buffer.length / 2 + str.length());
+		}
+		str.getChars(0, str.length(), buffer, position);
+		position += str.length();
+	}
+
+	public final void writeBinary(final byte[] buf) {
+		if (position + buf.length * 2 + 2 >= buffer.length) {
+			buffer = Arrays.copyOf(buffer, buffer.length + buffer.length / 2 + buf.length * 2 + 2);
+		}
+		buffer[position++] = '"';
+		position += Base64.encodeToChar(buf, buffer, position);
+		buffer[position++] = '"';
+	}
 
 	@Override
 	public String toString() {
@@ -116,7 +143,30 @@ public class JsonWriter extends Writer {
 	}
 
 	@Override
-	public void close() {
+	public void write(int c) throws IOException {
+		tmp[0] = (char)c;
+		writeChars(tmp, 0, 1);
+	}
+
+	@Override
+	public void write(char[] cbuf, int off, int len) {
+		writeChars(cbuf, off, len);
+	}
+
+	@Override
+	public void write(String str, int off, int len) {
+		if (position + len >= buffer.length) {
+			buffer = Arrays.copyOf(buffer, buffer.length + buffer.length / 2 + len);
+		}
+		str.getChars(off, off + len, buffer, position);
+		position += len;
+	}
+
+	@Override
+	public void flush() throws IOException { }
+
+	@Override
+	public void close() throws IOException {
 		position = 0;
 	}
 }
