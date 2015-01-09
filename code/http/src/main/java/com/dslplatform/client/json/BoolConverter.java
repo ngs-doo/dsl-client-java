@@ -7,24 +7,21 @@ import java.util.Collection;
 
 public class BoolConverter {
 
-	private static final char[] TRUE = new char[] { 't', 'r', 'u', 'e' };
-	private static final char[] FALSE = new char[] { 'f', 'a', 'l', 's', 'e' };
-
 	public static void serializeNullable(final Boolean value, final JsonWriter sw) {
 		if (value == null) {
 			sw.writeNull();
 		} else if (value) {
-			sw.writeAscii(TRUE, 0, 4);
+			sw.writeAscii("true");
 		} else {
-			sw.writeAscii(FALSE, 0, 5);
+			sw.writeAscii("false");
 		}
 	}
 
 	public static void serialize(final boolean value, final JsonWriter sw) {
 		if (value) {
-			sw.writeAscii(TRUE, 0, 4);
+			sw.writeAscii("true");
 		} else {
-			sw.writeAscii(FALSE, 0 , 5);
+			sw.writeAscii("false");
 		}
 	}
 

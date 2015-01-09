@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class JsonReader {
+public final class JsonReader {
 	private final byte[] buffer;
 	private final int length;
 	private final ServiceLocator locator;
@@ -31,18 +31,18 @@ public class JsonReader {
 		}
 	}
 
-	public byte read() throws IOException {
+	public final byte read() throws IOException {
 		if (currentIndex >= length) {
 			throw new IOException("end of stream");
 		}
 		return last = buffer[currentIndex++];
 	}
 
-	public byte last() {
+	public final byte last() {
 		return last;
 	}
 
-	public String readShortValue() throws IOException {
+	public final String readShortValue() throws IOException {
 		char ch = (char) last;
 		tmp[0] = ch;
 		int i = 1;
@@ -53,15 +53,15 @@ public class JsonReader {
 		return new String(tmp, 0, i - 1);
 	}
 
-	public int getTokenStart() {
+	public final int getTokenStart() {
 		return tokenStart;
 	}
 
-	public int getCurrentIndex() {
+	public final int getCurrentIndex() {
 		return currentIndex;
 	}
 
-	public char[] readNumber() {
+	public final char[] readNumber() {
 		tokenStart = currentIndex - 1;
 		char ch = (char) last;
 		tmp[0] = ch;
@@ -72,7 +72,7 @@ public class JsonReader {
 		return tmp;
 	}
 
-	public String readSimpleString() throws IOException {
+	public final String readSimpleString() throws IOException {
 		if (last != '"')
 			throw new IOException("Expecting '\"' at position " + positionInStream() + ". Found " + (char) last);
 		int start = currentIndex;
@@ -85,7 +85,7 @@ public class JsonReader {
 		return new String(tmp, 0, i - start);
 	}
 
-	public char[] readSimpleQuote() throws IOException {
+	public final char[] readSimpleQuote() throws IOException {
 		if (last != '"')
 			throw new IOException("Expecting '\"' at position " + positionInStream() + ". Found " + (char) last);
 		int start = tokenStart = currentIndex;
@@ -98,7 +98,7 @@ public class JsonReader {
 		return tmp;
 	}
 
-	public String readString() throws IOException {
+	public final String readString() throws IOException {
 
 		final int startIndex = currentIndex;
 		// At this point, buffer cannot be empty or null, it is safe to read first character
@@ -293,22 +293,24 @@ public class JsonReader {
 		}
 	}
 
-	public byte getNextToken() throws IOException {
+	public final byte getNextToken() throws IOException {
 		read();
-		return moveToNextToken();
-	}
-
-	public byte moveToNextToken() throws IOException {
 		while (wasWhiteSpace())
 			read();
 		return last;
 	}
 
-	public long positionInStream() {
+	public final byte moveToNextToken() throws IOException {
+		while (wasWhiteSpace())
+			read();
+		return last;
+	}
+
+	public final long positionInStream() {
 		return currentIndex;
 	}
 
-	public int fillName() throws IOException {
+	public final int fillName() throws IOException {
 		if (last != '"')
 			throw new IOException("Expecting '\"' at position " + positionInStream() + ". Found " + (char) last);
 		tokenStart = currentIndex;
@@ -323,7 +325,7 @@ public class JsonReader {
 		return (int) hash;
 	}
 
-	public int calcHash() throws IOException {
+	public final int calcHash() throws IOException {
 		if (last != '"')
 			throw new IOException("Expecting '\"' at position " + positionInStream() + ". Found " + (char) last);
 		tokenStart = currentIndex;
@@ -336,7 +338,7 @@ public class JsonReader {
 		return (int) hash;
 	}
 
-	public boolean wasLastName(final String name) {
+	public final boolean wasLastName(final String name) {
 		if (name.length() != currentIndex - tokenStart) {
 			return false;
 		}
@@ -348,7 +350,7 @@ public class JsonReader {
 		return true;
 	}
 
-	public String getLastName() throws IOException {
+	public final String getLastName() throws IOException {
 		return new String(buffer, tokenStart, currentIndex - tokenStart - 1, "ISO-8859-1");
 	}
 
@@ -362,7 +364,7 @@ public class JsonReader {
 		return getNextToken();
 	}
 
-	public byte skip() throws IOException {
+	public final byte skip() throws IOException {
 		if (last == '"') return skipString();
 		else if (last == '{') {
 			byte nextToken = getNextToken();
@@ -404,11 +406,13 @@ public class JsonReader {
 		}
 	}
 
-	public String readNext() {
-		return "";
+	public final String readNext() throws IOException {
+		final int start = currentIndex - 1;
+		skip();
+		return new String(buffer, start, currentIndex - start - 1, "UTF-8");
 	}
 
-	public byte[] readBase64() throws IOException {
+	public final byte[] readBase64() throws IOException {
 		if (last != '"')
 			throw new IOException("Expecting '\"' at position " + positionInStream() + " at base64 start. Found " + (char) last);
 		final int start = currentIndex;
@@ -428,7 +432,7 @@ public class JsonReader {
 		T deserialize(final JsonReader reader, final ServiceLocator locator) throws IOException;
 	}
 
-	public boolean wasNull() throws IOException {
+	public final boolean wasNull() throws IOException {
 		if (last == 'n') {
 			if (currentIndex + 2 < length && buffer[currentIndex] == 'u'
 					&& buffer[currentIndex + 1] == 'l' && buffer[currentIndex + 2] == 'l') {
@@ -440,7 +444,7 @@ public class JsonReader {
 		return false;
 	}
 
-	public boolean wasTrue() throws IOException {
+	public final boolean wasTrue() throws IOException {
 		if (last == 't') {
 			if (currentIndex + 2 < length && buffer[currentIndex] == 'r'
 					&& buffer[currentIndex + 1] == 'u' && buffer[currentIndex + 2] == 'e') {
@@ -452,7 +456,7 @@ public class JsonReader {
 		return false;
 	}
 
-	public boolean wasFalse() throws IOException {
+	public final boolean wasFalse() throws IOException {
 		if (last == 'f') {
 			if (currentIndex + 3 < length && buffer[currentIndex] == 'a'
 					&& buffer[currentIndex + 1] == 'l' && buffer[currentIndex + 2] == 's'
@@ -465,19 +469,19 @@ public class JsonReader {
 		return false;
 	}
 
-	public <T> ArrayList<T> deserializeCollectionWithGet(final ReadObject<T> readObject) throws IOException {
+	public final <T> ArrayList<T> deserializeCollectionWithGet(final ReadObject<T> readObject) throws IOException {
 		ArrayList<T> res = new ArrayList<T>();
 		deserializeCollectionWithGet(readObject, res);
 		return res;
 	}
 
-	public <T> ArrayList<T> deserializeCollectionWithMove(final ReadObject<T> readObject) throws IOException {
+	public final <T> ArrayList<T> deserializeCollectionWithMove(final ReadObject<T> readObject) throws IOException {
 		ArrayList<T> res = new ArrayList<T>();
 		deserializeCollectionWithMove(readObject, res);
 		return res;
 	}
 
-	public <T> void deserializeCollectionWithGet(final ReadObject<T> readObject, final Collection<T> res) throws IOException {
+	public final <T> void deserializeCollectionWithGet(final ReadObject<T> readObject, final Collection<T> res) throws IOException {
 		res.add(readObject.read(this));
 		while (getNextToken() == ',') {
 			getNextToken();
@@ -489,7 +493,7 @@ public class JsonReader {
 		}
 	}
 
-	public <T> void deserializeCollectionWithMove(final ReadObject<T> readObject, final Collection<T> res) throws IOException {
+	public final <T> void deserializeCollectionWithMove(final ReadObject<T> readObject, final Collection<T> res) throws IOException {
 		res.add(readObject.read(this));
 		while (moveToNextToken() == ',') {
 			getNextToken();
@@ -501,19 +505,19 @@ public class JsonReader {
 		}
 	}
 
-	public <T> ArrayList<T> deserializeNullableCollectionWithGet(final ReadObject<T> readObject) throws IOException {
+	public final <T> ArrayList<T> deserializeNullableCollectionWithGet(final ReadObject<T> readObject) throws IOException {
 		ArrayList<T> res = new ArrayList<T>();
 		deserializeNullableCollectionWithGet(readObject, res);
 		return res;
 	}
 
-	public <T> ArrayList<T> deserializeNullableCollectionWithMove(final ReadObject<T> readObject) throws IOException {
+	public final <T> ArrayList<T> deserializeNullableCollectionWithMove(final ReadObject<T> readObject) throws IOException {
 		ArrayList<T> res = new ArrayList<T>();
 		deserializeNullableCollectionWithMove(readObject, res);
 		return res;
 	}
 
-	public <T> void deserializeNullableCollectionWithGet(final ReadObject<T> readObject, final Collection<T> res) throws IOException {
+	public final <T> void deserializeNullableCollectionWithGet(final ReadObject<T> readObject, final Collection<T> res) throws IOException {
 		if (wasNull()) {
 			res.add(null);
 		} else {
@@ -533,7 +537,7 @@ public class JsonReader {
 		}
 	}
 
-	public <T> void deserializeNullableCollectionWithMove(final ReadObject<T> readObject, final Collection<T> res) throws IOException {
+	public final <T> void deserializeNullableCollectionWithMove(final ReadObject<T> readObject, final Collection<T> res) throws IOException {
 		if (wasNull()) {
 			res.add(null);
 			getNextToken();
@@ -557,13 +561,13 @@ public class JsonReader {
 		}
 	}
 
-	public <T extends JsonObject> ArrayList<T> deserializeCollection(final ReadJsonObject<T> readObject) throws IOException {
+	public final <T extends JsonObject> ArrayList<T> deserializeCollection(final ReadJsonObject<T> readObject) throws IOException {
 		ArrayList<T> res = new ArrayList<T>();
 		deserializeCollection(readObject, res);
 		return res;
 	}
 
-	public <T extends JsonObject> void deserializeCollection(final ReadJsonObject<T> readObject, final Collection<T> res) throws IOException {
+	public final <T extends JsonObject> void deserializeCollection(final ReadJsonObject<T> readObject, final Collection<T> res) throws IOException {
 		if (last == '{') {
 			res.add(readObject.deserialize(this, locator));
 		} else throw new IOException("Expecting '{' at position " + positionInStream() + ". Found " + (char) last);
@@ -578,13 +582,13 @@ public class JsonReader {
 		}
 	}
 
-	public <T extends JsonObject> ArrayList<T> deserializeNullableCollection(final ReadJsonObject<T> readObject) throws IOException {
+	public final <T extends JsonObject> ArrayList<T> deserializeNullableCollection(final ReadJsonObject<T> readObject) throws IOException {
 		ArrayList<T> res = new ArrayList<T>();
 		deserializeNullableCollection(readObject, res);
 		return res;
 	}
 
-	public <T extends JsonObject> void deserializeNullableCollection(final ReadJsonObject<T> readObject, final Collection<T> res) throws IOException {
+	public final <T extends JsonObject> void deserializeNullableCollection(final ReadJsonObject<T> readObject, final Collection<T> res) throws IOException {
 		if (last == '{') {
 			res.add(readObject.deserialize(this, locator));
 		} else if (wasNull()) {

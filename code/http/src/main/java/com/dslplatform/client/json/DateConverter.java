@@ -63,7 +63,7 @@ public class DateConverter {
 		if (utcZone.equals(zone) || zone == null) {
 			buf[position] = 'Z';
 			buf[position + 1] = '"';
-			sw.writeAscii(buf, 0, position + 2);
+			sw.writeBuffer(position + 2);
 		} else {
 			final long ms = dt.getMillis();
 			int off = zone.getOffset(ms);
@@ -79,13 +79,14 @@ public class DateConverter {
 			buf[position + 3] = ':';
 			NumberConverter.write2(remainder / 60000, buf, position + 4);
 			buf[position + 6] = '"';
-			sw.writeAscii(buf, 0, position + 7);
+			sw.writeBuffer(position + 7);
 		}
 	}
 
 	public static DateTime deserializeDateTime(final JsonReader reader) throws IOException {
 		final char[] tmp = reader.readSimpleQuote();
 		final int len = reader.getCurrentIndex() - reader.getTokenStart() - 1;
+		//TODO: non utc
 		if (len > 18 && len < 25 && tmp[len - 1] == 'Z' && tmp[4] == '-' && tmp[7] == '-'
 				&& (tmp[10] == 'T' || tmp[10] == 't' || tmp[10] == ' ')
 				&& tmp[13] == ':' && tmp[16] == ':') {
@@ -96,7 +97,18 @@ public class DateConverter {
 			final int min = NumberConverter.read2(tmp, 14);
 			final int sec = NumberConverter.read2(tmp, 17);
 			if (tmp[19] == '.') {
-				final int milis = NumberConverter.read(tmp, 20, len - 1);
+				final int milis;
+				switch (len) {
+					case 22:
+						milis = 100 * (tmp[20] - 48);
+						break;
+					case 23:
+						milis = 100 * (tmp[20] - 48) + 10 * (tmp[21] - 48);
+						break;
+					default:
+						milis = 100 * (tmp[20] - 48) + 10 * (tmp[21] - 48) + tmp[22] - 48;
+						break;
+				}
 				return new DateTime(year, month, day, hour, min, sec, milis, utcZone);
 			}
 			return new DateTime(year, month, day, hour, min, sec, 0, utcZone);
@@ -147,7 +159,7 @@ public class DateConverter {
 		buf[8] = '-';
 		NumberConverter.write2(value.getDayOfMonth(), buf, 9);
 		buf[11] = '"';
-		sw.writeAscii(buf, 0, 12);
+		sw.writeBuffer(12);
 	}
 
 	public static LocalDate deserializeLocalDate(final JsonReader reader) throws IOException {

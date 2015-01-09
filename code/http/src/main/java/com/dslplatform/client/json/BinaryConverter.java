@@ -6,13 +6,11 @@ import java.util.Collection;
 
 public class BinaryConverter {
 
-	private static final char[] EMPTY = new char[] { '"', '"' };
-
 	public static void serialize(final byte[] value, final JsonWriter sw) {
 		if (value == null) {
 			sw.writeNull();
 		} else if (value.length == 0) {
-			sw.writeAscii(EMPTY, 0, 2);
+			sw.writeAscii("\"\"");
 		} else {
 			sw.writeBinary(value);
 		}

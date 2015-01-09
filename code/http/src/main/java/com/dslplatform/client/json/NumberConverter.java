@@ -59,7 +59,7 @@ public class NumberConverter {
 		if (value == null) {
 			sw.writeNull();
 		} else {
-			serialize(value, sw);
+			sw.writeAscii(Double.toString(value));
 		}
 	}
 
@@ -100,7 +100,7 @@ public class NumberConverter {
 		if (value == null) {
 			sw.writeNull();
 		} else {
-			serialize(value, sw);
+			sw.writeAscii(Float.toString(value));
 		}
 	}
 
@@ -171,7 +171,7 @@ public class NumberConverter {
 			} while (i != 0);
 
 			final int start = buf[charPos + 1] == '0' ? charPos + 2 : charPos + 1;
-			sw.writeAscii(buf, start, 10 - start + 1);
+			sw.writeBuffer(start, 11);
 		}
 	}
 
@@ -247,7 +247,7 @@ public class NumberConverter {
 			} while (i != 0);
 
 			final int start = buf[charPos + 1] == '0' ? charPos + 2 : charPos + 1;
-			sw.writeAscii(buf, start, 20 - start + 1);
+			sw.writeBuffer(start, 21);
 		}
 	}
 

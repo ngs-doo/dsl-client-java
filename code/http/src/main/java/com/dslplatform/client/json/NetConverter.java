@@ -16,7 +16,7 @@ public class NetConverter {
 	}
 
 	public static void serialize(final URI value, final JsonWriter sw) {
-		StringConverter.serialize(value.toString(), sw);
+		StringConverter.serializeShort(value.toString(), sw);
 	}
 
 	public static URI deserializeUri(final JsonReader reader) throws IOException {

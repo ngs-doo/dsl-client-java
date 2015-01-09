@@ -16,16 +16,12 @@ public class GeomConverter {
 		}
 	}
 
-	private static final char[] X_PARAM = new char[] { '{', '"', 'X', '"', ':' };
-	private static final char[] Y_PARAM = new char[] { ',', '"', 'Y', '"', ':' };
-	private static final char[] END = new char[] { '}', '"' };
-
 	public static void serializeLocation(final Point2D value, final JsonWriter sw) {
-		sw.writeAscii(X_PARAM, 0, 5);
+		sw.writeAscii("{\"X\":");
 		NumberConverter.serialize(value.getX(), sw);
-		sw.writeAscii(Y_PARAM, 0, 5);
+		sw.writeAscii(",\"Y\":");
 		NumberConverter.serialize(value.getY(), sw);
-		sw.writeAscii(END, 0, 2);
+		sw.writeByte(JsonWriter.OBJECT_END);
 	}
 
 	public static Point2D deserializeLocation(final JsonReader reader) throws IOException {
@@ -64,11 +60,11 @@ public class GeomConverter {
 	}
 
 	public static void serializePoint(final Point value, final JsonWriter sw) {
-		sw.writeAscii(X_PARAM, 0, 5);
+		sw.writeAscii("{\"X\":");
 		NumberConverter.serialize(value.x, sw);
-		sw.writeAscii(Y_PARAM, 0, 5);
+		sw.writeAscii(",\"Y\":");
 		NumberConverter.serialize(value.y, sw);
-		sw.writeAscii(END, 0, 2);
+		sw.writeByte(JsonWriter.OBJECT_END);
 	}
 
 	public static Point deserializePoint(final JsonReader reader) throws IOException {
@@ -107,14 +103,14 @@ public class GeomConverter {
 	}
 
 	public static void serializeRectangle(final Rectangle2D value, final JsonWriter sw) {
-		sw.writeAscii(X_PARAM, 0, 5);
+		sw.writeAscii("{\"X\":");
 		NumberConverter.serialize(value.getX(), sw);
-		sw.writeAscii(Y_PARAM, 0, 5);
+		sw.writeAscii(",\"Y\":");
 		NumberConverter.serialize(value.getY(), sw);
 		sw.writeAscii(",\"Width\":");
-		sw.writeAscii(Double.toString(value.getWidth()));
+		NumberConverter.serialize(value.getWidth(), sw);
 		sw.writeAscii(",\"Height\":");
-		sw.writeAscii(Double.toString(value.getHeight()));
+		NumberConverter.serialize(value.getHeight(), sw);
 		sw.writeByte(JsonWriter.OBJECT_END);
 	}
 

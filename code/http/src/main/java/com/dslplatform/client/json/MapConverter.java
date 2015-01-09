@@ -19,13 +19,13 @@ public class MapConverter {
 		if (size > 0) {
 			final Iterator<Map.Entry<String, String>> iterator = value.entrySet().iterator();
 			Map.Entry<String, String> kv = iterator.next();
-			StringConverter.serialize(kv.getKey(), sw);
+			StringConverter.serializeShort(kv.getKey(), sw);
 			sw.writeByte(JsonWriter.SEMI);
 			StringConverter.serializeNullable(kv.getValue(), sw);
 			for (int i = 1; i < size; i++) {
 				sw.writeByte(JsonWriter.COMMA);
 				kv = iterator.next();
-				StringConverter.serialize(kv.getKey(), sw);
+				StringConverter.serializeShort(kv.getKey(), sw);
 				sw.writeByte(JsonWriter.SEMI);
 				StringConverter.serializeNullable(kv.getValue(), sw);
 			}

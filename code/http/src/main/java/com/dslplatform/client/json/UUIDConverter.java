@@ -104,7 +104,7 @@ public class UUIDConverter {
 		buf[35] = LookupFirst[v];
 		buf[36] = LookupSecond[v];
 		buf[37] = '"';
-		sw.writeAscii(buf, 0, 38);
+		sw.writeBuffer(38);
 	}
 
 	public static UUID deserialize(final JsonReader reader) throws IOException {
