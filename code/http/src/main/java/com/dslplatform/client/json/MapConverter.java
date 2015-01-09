@@ -1,38 +1,36 @@
 package com.dslplatform.client.json;
 
-import org.joda.time.LocalDate;
-
 import java.io.IOException;
-import java.io.Writer;
 import java.util.*;
 
 public class MapConverter {
-	public static void serializeNullable(final Map<String, String> value, final Writer sw) throws IOException {
+
+	public static void serializeNullable(final Map<String, String> value, final JsonWriter sw) {
 		if (value == null) {
-			sw.write("null");
+			sw.writeNull();
 		} else {
 			serialize(value, sw);
 		}
 	}
 
-	public static void serialize(final Map<String, String> value, final Writer sw) throws IOException {
-		sw.write('{');
+	public static void serialize(final Map<String, String> value, final JsonWriter sw) {
+		sw.writeByte(JsonWriter.OBJECT_START);
 		final int size = value.size();
 		if (size > 0) {
 			final Iterator<Map.Entry<String, String>> iterator = value.entrySet().iterator();
 			Map.Entry<String, String> kv = iterator.next();
-			StringConverter.serialize(kv.getKey(), sw);
-			sw.write(':');
+			StringConverter.serializeShort(kv.getKey(), sw);
+			sw.writeByte(JsonWriter.SEMI);
 			StringConverter.serializeNullable(kv.getValue(), sw);
 			for (int i = 1; i < size; i++) {
-				sw.write(',');
+				sw.writeByte(JsonWriter.COMMA);
 				kv = iterator.next();
-				StringConverter.serialize(kv.getKey(), sw);
-				sw.write(':');
+				StringConverter.serializeShort(kv.getKey(), sw);
+				sw.writeByte(JsonWriter.SEMI);
 				StringConverter.serializeNullable(kv.getValue(), sw);
 			}
 		}
-		sw.write('}');
+		sw.writeByte(JsonWriter.OBJECT_END);
 	}
 
 	public static Map<String, String> deserialize(final JsonReader reader) throws IOException {

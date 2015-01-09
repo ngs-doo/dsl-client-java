@@ -4,25 +4,24 @@ import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 
 public class GeomConverter {
-	public static void serializeLocationNullable(final Point2D value, final Writer sw) throws IOException {
+	public static void serializeLocationNullable(final Point2D value, final JsonWriter sw) {
 		if (value == null) {
-			sw.write("null");
+			sw.writeNull();
 		} else {
 			serializeLocation(value, sw);
 		}
 	}
 
-	public static void serializeLocation(final Point2D value, final Writer sw) throws IOException {
-		sw.write("{\"X\":");
-		sw.write(Double.toString(value.getX()));
-		sw.write(",\"Y\":");
-		sw.write(Double.toString(value.getY()));
-		sw.write("}");
+	public static void serializeLocation(final Point2D value, final JsonWriter sw) {
+		sw.writeAscii("{\"X\":");
+		NumberConverter.serialize(value.getX(), sw);
+		sw.writeAscii(",\"Y\":");
+		NumberConverter.serialize(value.getY(), sw);
+		sw.writeByte(JsonWriter.OBJECT_END);
 	}
 
 	public static Point2D deserializeLocation(final JsonReader reader) throws IOException {
@@ -52,20 +51,20 @@ public class GeomConverter {
 		reader.deserializeNullableCollectionWithGet(LocationReader, res);
 	}
 
-	public static void serializePointNullable(final Point value, final Writer sw) throws IOException {
+	public static void serializePointNullable(final Point value, final JsonWriter sw) {
 		if (value == null) {
-			sw.write("null");
+			sw.writeNull();
 		} else {
 			serializePoint(value, sw);
 		}
 	}
 
-	public static void serializePoint(final Point value, final Writer sw) throws IOException {
-		sw.write("{\"X\":");
-		sw.write(Integer.toString(value.x));
-		sw.write(",\"Y\":");
-		sw.write(Integer.toString(value.y));
-		sw.write("}");
+	public static void serializePoint(final Point value, final JsonWriter sw) {
+		sw.writeAscii("{\"X\":");
+		NumberConverter.serialize(value.x, sw);
+		sw.writeAscii(",\"Y\":");
+		NumberConverter.serialize(value.y, sw);
+		sw.writeByte(JsonWriter.OBJECT_END);
 	}
 
 	public static Point deserializePoint(final JsonReader reader) throws IOException {
@@ -95,24 +94,24 @@ public class GeomConverter {
 		reader.deserializeNullableCollectionWithGet(PointReader, res);
 	}
 
-	public static void serializeRectangleNullable(final Rectangle2D value, final Writer sw) throws IOException {
+	public static void serializeRectangleNullable(final Rectangle2D value, final JsonWriter sw) {
 		if (value == null) {
-			sw.write("null");
+			sw.writeNull();
 		} else {
 			serializeRectangle(value, sw);
 		}
 	}
 
-	public static void serializeRectangle(final Rectangle2D value, final Writer sw) throws IOException {
-		sw.write("{\"X\":");
-		sw.write(Double.toString(value.getX()));
-		sw.write(",\"Y\":");
-		sw.write(Double.toString(value.getY()));
-		sw.write(",\"Width\":");
-		sw.write(Double.toString(value.getWidth()));
-		sw.write(",\"Height\":");
-		sw.write(Double.toString(value.getHeight()));
-		sw.write("}");
+	public static void serializeRectangle(final Rectangle2D value, final JsonWriter sw) {
+		sw.writeAscii("{\"X\":");
+		NumberConverter.serialize(value.getX(), sw);
+		sw.writeAscii(",\"Y\":");
+		NumberConverter.serialize(value.getY(), sw);
+		sw.writeAscii(",\"Width\":");
+		NumberConverter.serialize(value.getWidth(), sw);
+		sw.writeAscii(",\"Height\":");
+		NumberConverter.serialize(value.getHeight(), sw);
+		sw.writeByte(JsonWriter.OBJECT_END);
 	}
 
 	public static Rectangle2D deserializeRectangle(final JsonReader reader) throws IOException {

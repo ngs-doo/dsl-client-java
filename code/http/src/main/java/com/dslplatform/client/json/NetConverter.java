@@ -1,23 +1,22 @@
 package com.dslplatform.client.json;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.net.InetAddress;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
 
 public class NetConverter {
-	public static void serializeNullable(final URI value, final Writer sw) throws IOException {
-		if (value == null)
-			sw.write("null");
-		else
+	public static void serializeNullable(final URI value, final JsonWriter sw) {
+		if (value == null) {
+			sw.writeNull();
+		} else {
 			serialize(value, sw);
+		}
 	}
 
-	public static void serialize(final URI value, final Writer sw) throws IOException {
-		StringConverter.serialize(value.toString(), sw);
+	public static void serialize(final URI value, final JsonWriter sw) {
+		StringConverter.serializeShort(value.toString(), sw);
 	}
 
 	public static URI deserializeUri(final JsonReader reader) throws IOException {
@@ -47,15 +46,18 @@ public class NetConverter {
 		reader.deserializeNullableCollectionWithGet(UriReader, res);
 	}
 
-	public static void serializeNullable(final InetAddress value, final Writer sw) throws IOException {
-		if (value == null)
-			sw.write("null");
-		else
+	public static void serializeNullable(final InetAddress value, final JsonWriter sw) {
+		if (value == null) {
+			sw.writeNull();
+		} else {
 			serialize(value, sw);
+		}
 	}
 
-	public static void serialize(final InetAddress value, final Writer sw) throws IOException {
-		StringConverter.serialize(value.toString(), sw);
+	public static void serialize(final InetAddress value, final JsonWriter sw) {
+		sw.writeByte(JsonWriter.QUOTE);
+		sw.writeAscii(value.toString());
+		sw.writeByte(JsonWriter.QUOTE);
 	}
 
 	public static InetAddress deserializeIp(final JsonReader reader) throws IOException {

@@ -1,22 +1,18 @@
 package com.dslplatform.client.json;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 
 public class BinaryConverter {
 
-	public static void serialize(final byte[] value, final Writer sw) throws IOException {
+	public static void serialize(final byte[] value, final JsonWriter sw) {
 		if (value == null) {
-			sw.write("null");
+			sw.writeNull();
 		} else if (value.length == 0) {
-			sw.write("\"\"");
+			sw.writeAscii("\"\"");
 		} else {
-			sw.write('"');
-			//TODO: can be improved... no need for new char[] allocation
-			sw.write(Base64.encodeToChar(value));
-			sw.write('"');
+			sw.writeBinary(value);
 		}
 	}
 

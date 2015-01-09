@@ -1,7 +1,6 @@
 package com.dslplatform.client.json;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
@@ -35,22 +34,22 @@ public class UUIDConverter {
 		}
 	}
 
-	public static void serializeNullable(final UUID value, final Writer sw) throws IOException {
+	public static void serializeNullable(final UUID value, final JsonWriter sw) {
 		if (value == null) {
-			sw.write("null");
+			sw.writeNull();
 		} else {
 			serialize(value, sw);
 		}
 	}
 
-	public static void serialize(final UUID value, final Writer sw) throws IOException {
+	public static void serialize(final UUID value, final JsonWriter sw) {
 		final long hi = value.getMostSignificantBits();
 		final long lo = value.getLeastSignificantBits();
 		final int hi1 = (int) (hi >> 32);
 		final int hi2 = (int) hi;
 		final int lo1 = (int) (lo >> 32);
 		final int lo2 = (int) lo;
-		final char[] buf = sw instanceof JsonWriter ? ((JsonWriter) sw).tmp : new char[38];
+		final char[] buf = sw.tmp;
 		buf[0] = '"';
 		int v = (hi1 >> 24) & 255;
 		buf[1] = LookupFirst[v];
@@ -105,7 +104,7 @@ public class UUIDConverter {
 		buf[35] = LookupFirst[v];
 		buf[36] = LookupSecond[v];
 		buf[37] = '"';
-		sw.write(buf, 0, 38);
+		sw.writeBuffer(38);
 	}
 
 	public static UUID deserialize(final JsonReader reader) throws IOException {

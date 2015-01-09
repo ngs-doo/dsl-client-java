@@ -6,21 +6,22 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class BoolConverter {
-	public static void serializeNullable(final Boolean value, final Writer sw) throws IOException {
+
+	public static void serializeNullable(final Boolean value, final JsonWriter sw) {
 		if (value == null) {
-			sw.write("null");
+			sw.writeNull();
 		} else if (value) {
-			sw.write("true");
+			sw.writeAscii("true");
 		} else {
-			sw.write("false");
+			sw.writeAscii("false");
 		}
 	}
 
-	public static void serialize(final boolean value, final Writer sw) throws IOException {
+	public static void serialize(final boolean value, final JsonWriter sw) {
 		if (value) {
-			sw.write("true");
+			sw.writeAscii("true");
 		} else {
-			sw.write("false");
+			sw.writeAscii("false");
 		}
 	}
 

@@ -13,7 +13,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -30,14 +29,14 @@ public class XmlConverter {
 		}
 	}
 
-	public static void serializeNullable(final Element value, final Writer sw) throws IOException {
+	public static void serializeNullable(final Element value, final JsonWriter sw) {
 		if (value == null)
-			sw.write("null");
+			sw.writeNull();
 		else
 			serialize(value, sw);
 	}
 
-	public static void serialize(final Element value, final Writer sw) throws IOException {
+	public static void serialize(final Element value, final JsonWriter sw) {
 		Document document = value.getOwnerDocument();
 		DOMImplementationLS domImplLS = (DOMImplementationLS) document.getImplementation();
 		LSSerializer serializer = domImplLS.createLSSerializer();

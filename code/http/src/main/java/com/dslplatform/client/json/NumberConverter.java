@@ -1,7 +1,6 @@
 package com.dslplatform.client.json;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,7 +32,7 @@ public class NumberConverter {
 			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
 	};
 
-	static void write2(final int value, final char[] buf, final int pos) throws IOException {
+	static void write2(final int value, final char[] buf, final int pos) {
 		int q = value / 100;
 		int r = value - ((q << 6) + (q << 5) + (q << 2));
 		buf[pos] = DigitTens[r];
@@ -56,17 +55,17 @@ public class NumberConverter {
 		return (buf[pos] - 48) * 1000 + (buf[pos + 1] - 48) * 100 + (buf[pos + 2] - 48) * 10 + buf[pos + 3] - 48;
 	}
 
-	public static void serializeNullable(final Double value, final Writer sw) throws IOException {
+	public static void serializeNullable(final Double value, final JsonWriter sw) {
 		if (value == null) {
-			sw.write("null");
+			sw.writeNull();
 		} else {
-			serialize(value, sw);
+			sw.writeAscii(Double.toString(value));
 		}
 	}
 
-	public static void serialize(final double value, final Writer sw) throws IOException {
+	public static void serialize(final double value, final JsonWriter sw) {
 		//TODO: better implementation required
-		sw.write(Double.toString(value));
+		sw.writeAscii(Double.toString(value));
 	}
 
 	public static Double deserializeDouble(final JsonReader reader) throws IOException {
@@ -97,17 +96,17 @@ public class NumberConverter {
 		reader.deserializeNullableCollectionWithMove(DoubleReader, res);
 	}
 
-	public static void serializeNullable(final Float value, final Writer sw) throws IOException {
+	public static void serializeNullable(final Float value, final JsonWriter sw) {
 		if (value == null) {
-			sw.write("null");
+			sw.writeNull();
 		} else {
-			serialize(value, sw);
+			sw.writeAscii(Float.toString(value));
 		}
 	}
 
-	public static void serialize(final float value, final Writer sw) throws IOException {
+	public static void serialize(final float value, final JsonWriter sw) {
 		//TODO: better implementation required
-		sw.write(Float.toString(value));
+		sw.writeAscii(Float.toString(value));
 	}
 
 	public static Float deserializeFloat(final JsonReader reader) throws IOException {
@@ -138,25 +137,27 @@ public class NumberConverter {
 		reader.deserializeNullableCollectionWithMove(FloatReader, res);
 	}
 
-	public static void serializeNullable(final Integer value, final Writer sw) throws IOException {
+	public static void serializeNullable(final Integer value, final JsonWriter sw) {
 		if (value == null) {
-			sw.write("null");
+			sw.writeNull();
 		} else {
 			serialize(value, sw);
 		}
 	}
 
-	public static void serialize(final int value, final Writer sw) throws IOException {
+	private static final byte MINUS = '-';
+
+	public static void serialize(final int value, final JsonWriter sw) {
 		if (value == Integer.MIN_VALUE) {
-			sw.write("-2147483648");
+			sw.writeAscii("-2147483648");
 		} else {
-			final char[] buf = sw instanceof JsonWriter ? ((JsonWriter) sw).tmp : new char[12];
+			final char[] buf = sw.tmp;
 			int q, r;
 			int charPos = 10;
 			int i;
 			if (value < 0) {
 				i = -value;
-				sw.write('-');
+				sw.writeByte(MINUS);
 			} else {
 				i = value;
 			}
@@ -170,7 +171,7 @@ public class NumberConverter {
 			} while (i != 0);
 
 			final int start = buf[charPos + 1] == '0' ? charPos + 2 : charPos + 1;
-			sw.write(buf, start, 10 - start + 1);
+			sw.writeBuffer(start, 11);
 		}
 	}
 
@@ -213,26 +214,26 @@ public class NumberConverter {
 		reader.deserializeNullableCollectionWithMove(IntReader, res);
 	}
 
-	public static void serializeNullable(final Long value, final Writer sw) throws IOException {
+	public static void serializeNullable(final Long value, final JsonWriter sw) {
 		if (value == null) {
-			sw.write("null");
+			sw.writeNull();
 		} else {
 			serialize(value, sw);
 		}
 	}
 
-	public static void serialize(final long value, final Writer sw) throws IOException {
+	public static void serialize(final long value, final JsonWriter sw) {
 		if (value == Long.MIN_VALUE) {
-			sw.write("-9223372036854775808");
+			sw.writeAscii("-9223372036854775808");
 		} else {
-			final char[] buf = sw instanceof JsonWriter ? ((JsonWriter) sw).tmp : new char[22];
+			final char[] buf = sw.tmp;
 			long q;
 			int r;
 			int charPos = 20;
 			long i;
 			if (value < 0) {
 				i = -value;
-				sw.write('-');
+				sw.writeByte(MINUS);
 			} else {
 				i = value;
 			}
@@ -246,7 +247,7 @@ public class NumberConverter {
 			} while (i != 0);
 
 			final int start = buf[charPos + 1] == '0' ? charPos + 2 : charPos + 1;
-			sw.write(buf, start, 20 - start + 1);
+			sw.writeBuffer(start, 21);
 		}
 	}
 
@@ -289,16 +290,16 @@ public class NumberConverter {
 		reader.deserializeNullableCollectionWithMove(LongReader, res);
 	}
 
-	public static void serializeNullable(final BigDecimal value, final Writer sw) throws IOException {
+	public static void serializeNullable(final BigDecimal value, final JsonWriter sw) {
 		if (value == null) {
-			sw.write("null");
+			sw.writeNull();
 		} else {
-			sw.write(value.toString());
+			sw.writeAscii(value.toString());
 		}
 	}
 
-	public static void serialize(final BigDecimal value, final Writer sw) throws IOException {
-		sw.write(value.toString());
+	public static void serialize(final BigDecimal value, final JsonWriter sw) {
+		sw.writeAscii(value.toString());
 	}
 
 	public static BigDecimal deserializeDecimal(final JsonReader reader) throws IOException {
