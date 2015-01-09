@@ -247,6 +247,9 @@ public final class JsonReader {
 	}
 
 	private boolean wasWhiteSpace() {
+		if (last == '"' || last == ',') {
+			return false;
+		}
 		switch (last) {
 			case 9:
 			case 10:
@@ -257,12 +260,21 @@ public final class JsonReader {
 			case -96:
 				return true;
 			case -31:
-				return currentIndex + 2 < length && buffer[currentIndex + 1] == -102 && buffer[currentIndex + 2] == -128;
+				if (currentIndex + 1 < length && buffer[currentIndex] == -102 && buffer[currentIndex + 1] == -128) {
+					currentIndex += 2;
+					last = ' ';
+					return true;
+				}
+				return false;
 			case -30:
-				if (currentIndex + 2 < length) {
-					final byte b1 = buffer[currentIndex + 1];
-					final byte b2 = buffer[currentIndex + 2];
-					if (b1 == -127 && b2 == -97) return true;
+				if (currentIndex + 1 < length) {
+					final byte b1 = buffer[currentIndex];
+					final byte b2 = buffer[currentIndex + 1];
+					if (b1 == -127 && b2 == -97) {
+						currentIndex += 2;
+						last = ' ';
+						return true;
+					}
 					if (b1 != -128) return false;
 					switch (b2) {
 						case -128:
@@ -279,6 +291,8 @@ public final class JsonReader {
 						case -88:
 						case -87:
 						case -81:
+							currentIndex += 2;
+							last = ' ';
 							return true;
 						default:
 							return false;
@@ -287,7 +301,12 @@ public final class JsonReader {
 					return false;
 				}
 			case -29:
-				return currentIndex + 2 < length && buffer[currentIndex + 1] == -128 && buffer[currentIndex + 2] == -128;
+				if (currentIndex + 1 < length && buffer[currentIndex] == -128 && buffer[currentIndex + 1] == -128) {
+					currentIndex += 2;
+					last = ' ';
+					return true;
+				}
+				return false;
 			default:
 				return false;
 		}
