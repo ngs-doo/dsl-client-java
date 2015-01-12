@@ -1,10 +1,10 @@
 package com.dslplatform.client.json;
 
+import com.dslplatform.patterns.ServiceLocator;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-
-import com.dslplatform.patterns.ServiceLocator;
 
 public final class JsonReader {
 	private final byte[] buffer;
@@ -247,7 +247,7 @@ public final class JsonReader {
 	}
 
 	private boolean wasWhiteSpace() {
-		if(last=='"' || last==','){
+		if (last == '"' || last == ',') {
 			return false;
 		}
 		switch (last) {
