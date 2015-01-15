@@ -41,10 +41,11 @@ public final class JsonWriter extends Writer {
 		if (position >= result.length) {
 			result = Arrays.copyOf(result, result.length + result.length / 2);
 		}
-		result[s] = 'n';
-		result[s + 1] = 'u';
-		result[s + 2] = 'l';
-		result[s + 3] = 'l';
+		final byte[] result_local = result;
+		result_local[s] = 'n';
+		result_local[s + 1] = 'u';
+		result_local[s + 2] = 'l';
+		result_local[s + 3] = 'l';
 	}
 
 	public final void writeByte(final byte c) {
@@ -59,176 +60,177 @@ public final class JsonWriter extends Writer {
 		if (position + (len << 2) + (len << 1) + 2 >= result.length) {
 			result = Arrays.copyOf(result, result.length + result.length / 2 + (len << 2) + (len << 1) + 2);
 		}
-		result[position] = QUOTE;
+		final byte[] result_local = result;
+		result_local[position] = QUOTE;
 		int cur = position + 1;
 		for (int i = 0; i < str.length(); i++) {
 			final char c = str.charAt(i);
 			if (c == '"') {
-				result[cur++] = ESCAPE;
-				result[cur++] = QUOTE;
+				result_local[cur++] = ESCAPE;
+				result_local[cur++] = QUOTE;
 			} else if (c == '\\') {
-				result[cur++] = ESCAPE;
-				result[cur++] = ESCAPE;
+				result_local[cur++] = ESCAPE;
+				result_local[cur++] = ESCAPE;
 			} else if (c < 32) {
 				if (c == 8) {
-					result[cur++] = ESCAPE;
-					result[cur++] = 'b';
+					result_local[cur++] = ESCAPE;
+					result_local[cur++] = 'b';
 				} else if (c == 9) {
-					result[cur++] = ESCAPE;
-					result[cur++] = 't';
+					result_local[cur++] = ESCAPE;
+					result_local[cur++] = 't';
 				} else if (c == 10) {
-					result[cur++] = ESCAPE;
-					result[cur++] = 'n';
+					result_local[cur++] = ESCAPE;
+					result_local[cur++] = 'n';
 				} else if (c == 12) {
-					result[cur++] = ESCAPE;
-					result[cur++] = 'f';
+					result_local[cur++] = ESCAPE;
+					result_local[cur++] = 'f';
 				} else if (c == 13) {
-					result[cur++] = ESCAPE;
-					result[cur++] = 'r';
+					result_local[cur++] = ESCAPE;
+					result_local[cur++] = 'r';
 				} else {
-					result[cur] = ESCAPE;
-					result[cur + 1] = 'u';
-					result[cur + 2] = '0';
-					result[cur + 3] = '0';
+					result_local[cur] = ESCAPE;
+					result_local[cur + 1] = 'u';
+					result_local[cur + 2] = '0';
+					result_local[cur + 3] = '0';
 					switch (c) {
 						case 0:
-							result[cur + 4] = '0';
-							result[cur + 5] = '0';
+							result_local[cur + 4] = '0';
+							result_local[cur + 5] = '0';
 							break;
 						case 1:
-							result[cur + 4] = '0';
-							result[cur + 5] = '1';
+							result_local[cur + 4] = '0';
+							result_local[cur + 5] = '1';
 							break;
 						case 2:
-							result[cur + 4] = '0';
-							result[cur + 5] = '2';
+							result_local[cur + 4] = '0';
+							result_local[cur + 5] = '2';
 							break;
 						case 3:
-							result[cur + 4] = '0';
-							result[cur + 5] = '3';
+							result_local[cur + 4] = '0';
+							result_local[cur + 5] = '3';
 							break;
 						case 4:
-							result[cur + 4] = '0';
-							result[cur + 5] = '4';
+							result_local[cur + 4] = '0';
+							result_local[cur + 5] = '4';
 							break;
 						case 5:
-							result[cur + 4] = '0';
-							result[cur + 5] = '5';
+							result_local[cur + 4] = '0';
+							result_local[cur + 5] = '5';
 							break;
 						case 6:
-							result[cur + 4] = '0';
-							result[cur + 5] = '6';
+							result_local[cur + 4] = '0';
+							result_local[cur + 5] = '6';
 							break;
 						case 7:
-							result[cur + 4] = '0';
-							result[cur + 5] = '7';
+							result_local[cur + 4] = '0';
+							result_local[cur + 5] = '7';
 							break;
 						case 11:
-							result[cur + 4] = '0';
-							result[cur + 5] = 'B';
+							result_local[cur + 4] = '0';
+							result_local[cur + 5] = 'B';
 							break;
 						case 14:
-							result[cur + 4] = '0';
-							result[cur + 5] = 'E';
+							result_local[cur + 4] = '0';
+							result_local[cur + 5] = 'E';
 							break;
 						case 15:
-							result[cur + 4] = '0';
-							result[cur + 5] = 'F';
+							result_local[cur + 4] = '0';
+							result_local[cur + 5] = 'F';
 							break;
 						case 16:
-							result[cur + 4] = '1';
-							result[cur + 5] = '0';
+							result_local[cur + 4] = '1';
+							result_local[cur + 5] = '0';
 							break;
 						case 17:
-							result[cur + 4] = '1';
-							result[cur + 5] = '1';
+							result_local[cur + 4] = '1';
+							result_local[cur + 5] = '1';
 							break;
 						case 18:
-							result[cur + 4] = '1';
-							result[cur + 5] = '2';
+							result_local[cur + 4] = '1';
+							result_local[cur + 5] = '2';
 							break;
 						case 19:
-							result[cur + 4] = '1';
-							result[cur + 5] = '3';
+							result_local[cur + 4] = '1';
+							result_local[cur + 5] = '3';
 							break;
 						case 20:
-							result[cur + 4] = '1';
-							result[cur + 5] = '4';
+							result_local[cur + 4] = '1';
+							result_local[cur + 5] = '4';
 							break;
 						case 21:
-							result[cur + 4] = '1';
-							result[cur + 5] = '5';
+							result_local[cur + 4] = '1';
+							result_local[cur + 5] = '5';
 							break;
 						case 22:
-							result[cur + 4] = '1';
-							result[cur + 5] = '6';
+							result_local[cur + 4] = '1';
+							result_local[cur + 5] = '6';
 							break;
 						case 23:
-							result[cur + 4] = '1';
-							result[cur + 5] = '7';
+							result_local[cur + 4] = '1';
+							result_local[cur + 5] = '7';
 							break;
 						case 24:
-							result[cur + 4] = '1';
-							result[cur + 5] = '8';
+							result_local[cur + 4] = '1';
+							result_local[cur + 5] = '8';
 							break;
 						case 25:
-							result[cur + 4] = '1';
-							result[cur + 5] = '9';
+							result_local[cur + 4] = '1';
+							result_local[cur + 5] = '9';
 							break;
 						case 26:
-							result[cur + 4] = '1';
-							result[cur + 5] = 'A';
+							result_local[cur + 4] = '1';
+							result_local[cur + 5] = 'A';
 							break;
 						case 27:
-							result[cur + 4] = '1';
-							result[cur + 5] = 'B';
+							result_local[cur + 4] = '1';
+							result_local[cur + 5] = 'B';
 							break;
 						case 28:
-							result[cur + 4] = '1';
-							result[cur + 5] = 'C';
+							result_local[cur + 4] = '1';
+							result_local[cur + 5] = 'C';
 							break;
 						case 29:
-							result[cur + 4] = '1';
-							result[cur + 5] = 'D';
+							result_local[cur + 4] = '1';
+							result_local[cur + 5] = 'D';
 							break;
 						case 30:
-							result[cur + 4] = '1';
-							result[cur + 5] = 'E';
+							result_local[cur + 4] = '1';
+							result_local[cur + 5] = 'E';
 							break;
 						default:
-							result[cur + 4] = '1';
-							result[cur + 5] = 'F';
+							result_local[cur + 4] = '1';
+							result_local[cur + 5] = 'F';
 							break;
 					}
 					cur += 6;
 				}
 			} else if (c < 0x007F) {
-				result[cur++] = (byte) c;
+				result_local[cur++] = (byte) c;
 			} else {
 				final int cp = str.codePointAt(i);
 				if (Character.isSupplementaryCodePoint(cp)) {
 					i++;
 				}
 				if (cp == 0x007F) {
-					result[cur++] = (byte) cp;
+					result_local[cur++] = (byte) cp;
 				} else if (cp <= 0x7FF) {
-					result[cur++] = (byte) (0xC0 | ((cp >> 6) & 0x1F));
-					result[cur++] = (byte) (0x80 | (cp & 0x3F));
+					result_local[cur++] = (byte) (0xC0 | ((cp >> 6) & 0x1F));
+					result_local[cur++] = (byte) (0x80 | (cp & 0x3F));
 				} else if ((cp < 0xD800) || (cp > 0xDFFF && cp <= 0xFFFD)) {
-					result[cur++] = (byte) (0xE0 | ((cp >> 12) & 0x0F));
-					result[cur++] = (byte) (0x80 | ((cp >> 6) & 0x3F));
-					result[cur++] = (byte) (0x80 | (cp & 0x3F));
+					result_local[cur++] = (byte) (0xE0 | ((cp >> 12) & 0x0F));
+					result_local[cur++] = (byte) (0x80 | ((cp >> 6) & 0x3F));
+					result_local[cur++] = (byte) (0x80 | (cp & 0x3F));
 				} else if (cp >= 0x10000 && cp <= 0x10FFFF) {
-					result[cur++] = (byte) (0xF0 | ((cp >> 18) & 0x07));
-					result[cur++] = (byte) (0x80 | ((cp >> 12) & 0x3F));
-					result[cur++] = (byte) (0x80 | ((cp >> 6) & 0x3F));
-					result[cur++] = (byte) (0x80 | (cp & 0x3F));
+					result_local[cur++] = (byte) (0xF0 | ((cp >> 18) & 0x07));
+					result_local[cur++] = (byte) (0x80 | ((cp >> 12) & 0x3F));
+					result_local[cur++] = (byte) (0x80 | ((cp >> 6) & 0x3F));
+					result_local[cur++] = (byte) (0x80 | (cp & 0x3F));
 				} else {
 					throw new RuntimeException("Unknown unicode codepoint in string! " + Integer.toHexString(cp));
 				}
 			}
 		}
-		result[cur] = QUOTE;
+		result_local[cur] = QUOTE;
 		position = cur + 1;
 	}
 
@@ -236,9 +238,10 @@ public final class JsonWriter extends Writer {
 		if (position + 64 >= result.length) {
 			result = Arrays.copyOf(result, result.length + result.length / 2);
 		}
+		final byte[] result_local = result;
 		int p = position;
 		for (int i = off; i < end; i++) {
-			result[p++] = (byte) tmp[i];
+			result_local[p++] = (byte) tmp[i];
 		}
 		position = p;
 	}
@@ -247,9 +250,10 @@ public final class JsonWriter extends Writer {
 		if (position + 64 >= result.length) {
 			result = Arrays.copyOf(result, result.length + result.length / 2);
 		}
+		final byte[] result_local = result;
 		final int p = position;
 		for (int i = 0; i < len; i++) {
-			result[p + i] = (byte) tmp[i];
+			result_local[p + i] = (byte) tmp[i];
 		}
 		position += len;
 	}
@@ -259,9 +263,10 @@ public final class JsonWriter extends Writer {
 		if (position + len >= result.length) {
 			result = Arrays.copyOf(result, result.length + result.length / 2 + len);
 		}
+		final byte[] result_local = result;
 		final int p = position;
 		for (int i = 0; i < str.length(); i++) {
-			result[p + i] = (byte) str.charAt(i);
+			result_local[p + i] = (byte) str.charAt(i);
 		}
 		position += len;
 	}
@@ -270,9 +275,10 @@ public final class JsonWriter extends Writer {
 		if (position + (buf.length << 1) + 2 >= result.length) {
 			result = Arrays.copyOf(result, result.length + result.length / 2 + (buf.length << 1) + 2);
 		}
-		result[position++] = '"';
-		position += Base64.encodeToBytes(buf, result, position);
-		result[position++] = '"';
+		final byte[] result_local = result;
+		result_local[position++] = '"';
+		position += Base64.encodeToBytes(buf, result_local, position);
+		result_local[position++] = '"';
 	}
 
 	@Override
@@ -303,18 +309,18 @@ public final class JsonWriter extends Writer {
 	}
 
 	@Override
-	public void write(int c) throws IOException {
+	public void write(final int c) throws IOException {
 		tmp[0] = (char) c;
 		writeString(new String(tmp, 0, 1));
 	}
 
 	@Override
-	public void write(char[] cbuf, int off, int len) {
+	public void write(final char[] cbuf, final int off, final int len) {
 		writeString(new String(cbuf, off, len));
 	}
 
 	@Override
-	public void write(String str, int off, int len) {
+	public void write(final String str, final int off, final int len) {
 		writeString(str.substring(off, off + len));
 	}
 

@@ -75,7 +75,7 @@ public final class JsonReader {
 	public final String readSimpleString() throws IOException {
 		if (last != '"')
 			throw new IOException("Expecting '\"' at position " + positionInStream() + ". Found " + (char) last);
-		int start = currentIndex;
+		final int start = currentIndex;
 		int i = start;
 		for (; i < length && buffer[i] != '"'; i++) {
 			tmp[i - start] = (char) buffer[i];
@@ -88,7 +88,7 @@ public final class JsonReader {
 	public final char[] readSimpleQuote() throws IOException {
 		if (last != '"')
 			throw new IOException("Expecting '\"' at position " + positionInStream() + ". Found " + (char) last);
-		int start = tokenStart = currentIndex;
+		final int start = tokenStart = currentIndex;
 		int i = currentIndex;
 		for (; i < length && buffer[i] != '"'; i++) {
 			tmp[i - start] = (char) buffer[i];
@@ -260,21 +260,12 @@ public final class JsonReader {
 			case -96:
 				return true;
 			case -31:
-				if (currentIndex + 1 < length && buffer[currentIndex] == -102 && buffer[currentIndex + 1] == -128) {
-					currentIndex += 2;
-					last = ' ';
-					return true;
-				}
-				return false;
+				return currentIndex + 2 < length && buffer[currentIndex + 1] == -102 && buffer[currentIndex + 2] == -128;
 			case -30:
-				if (currentIndex + 1 < length) {
-					final byte b1 = buffer[currentIndex];
-					final byte b2 = buffer[currentIndex + 1];
-					if (b1 == -127 && b2 == -97) {
-						currentIndex += 2;
-						last = ' ';
-						return true;
-					}
+				if (currentIndex + 2 < length) {
+					final byte b1 = buffer[currentIndex + 1];
+					final byte b2 = buffer[currentIndex + 2];
+					if (b1 == -127 && b2 == -97) return true;
 					if (b1 != -128) return false;
 					switch (b2) {
 						case -128:
@@ -291,8 +282,6 @@ public final class JsonReader {
 						case -88:
 						case -87:
 						case -81:
-							currentIndex += 2;
-							last = ' ';
 							return true;
 						default:
 							return false;
@@ -301,12 +290,7 @@ public final class JsonReader {
 					return false;
 				}
 			case -29:
-				if (currentIndex + 1 < length && buffer[currentIndex] == -128 && buffer[currentIndex + 1] == -128) {
-					currentIndex += 2;
-					last = ' ';
-					return true;
-				}
-				return false;
+				return currentIndex + 2 < length && buffer[currentIndex + 1] == -128 && buffer[currentIndex + 2] == -128;
 			default:
 				return false;
 		}
@@ -489,13 +473,13 @@ public final class JsonReader {
 	}
 
 	public final <T> ArrayList<T> deserializeCollectionWithGet(final ReadObject<T> readObject) throws IOException {
-		ArrayList<T> res = new ArrayList<T>();
+		final ArrayList<T> res = new ArrayList<T>();
 		deserializeCollectionWithGet(readObject, res);
 		return res;
 	}
 
 	public final <T> ArrayList<T> deserializeCollectionWithMove(final ReadObject<T> readObject) throws IOException {
-		ArrayList<T> res = new ArrayList<T>();
+		final ArrayList<T> res = new ArrayList<T>();
 		deserializeCollectionWithMove(readObject, res);
 		return res;
 	}
@@ -525,13 +509,13 @@ public final class JsonReader {
 	}
 
 	public final <T> ArrayList<T> deserializeNullableCollectionWithGet(final ReadObject<T> readObject) throws IOException {
-		ArrayList<T> res = new ArrayList<T>();
+		final ArrayList<T> res = new ArrayList<T>();
 		deserializeNullableCollectionWithGet(readObject, res);
 		return res;
 	}
 
 	public final <T> ArrayList<T> deserializeNullableCollectionWithMove(final ReadObject<T> readObject) throws IOException {
-		ArrayList<T> res = new ArrayList<T>();
+		final ArrayList<T> res = new ArrayList<T>();
 		deserializeNullableCollectionWithMove(readObject, res);
 		return res;
 	}
@@ -581,7 +565,7 @@ public final class JsonReader {
 	}
 
 	public final <T extends JsonObject> ArrayList<T> deserializeCollection(final ReadJsonObject<T> readObject) throws IOException {
-		ArrayList<T> res = new ArrayList<T>();
+		final ArrayList<T> res = new ArrayList<T>();
 		deserializeCollection(readObject, res);
 		return res;
 	}
@@ -602,7 +586,7 @@ public final class JsonReader {
 	}
 
 	public final <T extends JsonObject> ArrayList<T> deserializeNullableCollection(final ReadJsonObject<T> readObject) throws IOException {
-		ArrayList<T> res = new ArrayList<T>();
+		final ArrayList<T> res = new ArrayList<T>();
 		deserializeNullableCollection(readObject, res);
 		return res;
 	}
