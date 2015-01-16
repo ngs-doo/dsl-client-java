@@ -7,8 +7,17 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.security.KeyStore;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -16,17 +25,17 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
-import com.dslplatform.client.json.JsonObject;
-import com.dslplatform.client.json.JsonReader;
-import com.dslplatform.client.json.JsonWriter;
-import com.dslplatform.patterns.ServiceLocator;
-import com.fasterxml.jackson.databind.JavaType;
 import org.slf4j.Logger;
 
 import com.dslplatform.client.exceptions.HttpException;
 import com.dslplatform.client.exceptions.HttpSecurityException;
 import com.dslplatform.client.exceptions.HttpServerErrorException;
 import com.dslplatform.client.exceptions.HttpUnexpectedCodeException;
+import com.dslplatform.client.json.JsonObject;
+import com.dslplatform.client.json.JsonReader;
+import com.dslplatform.client.json.JsonWriter;
+import com.dslplatform.patterns.ServiceLocator;
+import com.fasterxml.jackson.databind.JavaType;
 
 class HttpClient {
 	static String encode(final String param) {
@@ -101,7 +110,7 @@ class HttpClient {
 		this.executorService = executorService;
 		this.remoteUrls = properties.getProperty("api-url").split(",\\s+");
 
-		int totalWriters = Runtime.getRuntime().availableProcessors() * 2;
+		final int totalWriters = Runtime.getRuntime().availableProcessors() * 2;
 		jsonWriters = new LinkedBlockingDeque<JsonWriter>(totalWriters);
 		resultBuffers = new LinkedBlockingDeque<byte[]>(totalWriters);
 		for (int i = 0;i < totalWriters; i++) {
@@ -184,32 +193,34 @@ class HttpClient {
 
 		final byte[] bodyContent;
 		final int bodySize;
-		if (content == null) {
-			bodyContent = null;
-			bodySize = 0;
+		JsonWriter sw = null;
+		final Response response;
+		try {
+			if (content == null) {
+				bodyContent = null;
+				bodySize = 0;
 
-			logger.debug("Sending request [{}]: {}", method, service);
-		} else {
-			if (content instanceof JsonObject) {
-				final JsonWriter sw = jsonWriters.takeFirst();
-				try {
-					JsonObject jo = (JsonObject) content;
+				logger.debug("Sending request [{}]: {}", method, service);
+			} else {
+				if (content instanceof JsonObject) {
+					final JsonObject jo = (JsonObject) content;
+					sw = jsonWriters.takeFirst();
 					jo.serialize(sw, true);
-					JsonWriter.Bytes bytes = sw.toBytes();
+					final JsonWriter.Bytes bytes = sw.toBytes();
+					sw.reset();
 					bodyContent = bytes.content;
 					bodySize = bytes.length;
-				} finally {
-					jsonWriters.putFirst(sw);
+				} else {
+					bodyContent = JsonSerialization.serializeBytes(content);
+					bodySize = bodyContent.length;
 				}
-			} else {
-				bodyContent = JsonSerialization.serializeBytes(content);
-				bodySize = bodyContent.length;
+
+				logger.debug("Sending request [{}]: {}, content size: {} bytes", method, service, bodySize);
 			}
-
-			logger.debug("Sending request [{}]: {}, content size: {} bytes", method, service, bodySize);
+			response = transmit(service, headers, method, bodyContent, bodySize, buffer, 2);
+		} finally{
+			if(sw!=null) jsonWriters.putFirst(sw);
 		}
-
-		final Response response = transmit(service, headers, method, bodyContent, bodySize, buffer, 2);
 
 		if (logger.isDebugEnabled()) {
 			final long time = System.currentTimeMillis() - start;
@@ -277,7 +288,7 @@ class HttpClient {
 				jsonReaders.putIfAbsent(manifest, reader);
 			}
 			return reader;
-		}catch (Exception ignore) {
+		}catch (final Exception ignore) {
 			return null;
 		}
 	}
@@ -300,9 +311,9 @@ class HttpClient {
 					final Response response = doRawRequest(service, emptyHeaders, method, content, expected, buffer, start);
 					buffer = response.body;
 					if (JsonObject.class.isAssignableFrom(manifest)) {
-						JsonReader.ReadJsonObject<JsonObject> reader = getReader(manifest);
+						final JsonReader.ReadJsonObject<JsonObject> reader = getReader(manifest);
 						if (reader != null) {
-							JsonReader json = new JsonReader(response.body, response.size, locator);
+							final JsonReader json = new JsonReader(response.body, response.size, locator);
 							if (json.getNextToken() == '{') {
 								return (TResult) reader.deserialize(json, locator);
 							}
@@ -334,7 +345,7 @@ class HttpClient {
 					final Response response = doRawRequest(service, emptyHeaders, method, content, expected, buffer, start);
 					buffer = response.body;
 					if (JsonObject.class.isAssignableFrom(manifest)) {
-						JsonReader.ReadJsonObject<JsonObject> reader = getReader(manifest);
+						final JsonReader.ReadJsonObject<JsonObject> reader = getReader(manifest);
 						if (reader != null) {
 							final JsonReader json = new JsonReader(response.body, response.size, locator);
 							if (json.getNextToken() == '[') {
