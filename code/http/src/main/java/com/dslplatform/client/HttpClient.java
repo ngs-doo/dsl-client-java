@@ -113,7 +113,7 @@ class HttpClient {
 		final int totalWriters = Runtime.getRuntime().availableProcessors() * 2;
 		jsonWriters = new LinkedBlockingDeque<JsonWriter>(totalWriters);
 		resultBuffers = new LinkedBlockingDeque<byte[]>(totalWriters);
-		for (int i = 0;i < totalWriters; i++) {
+		for (int i = 0; i < totalWriters; i++) {
 			jsonWriters.addFirst(new JsonWriter());
 			resultBuffers.addFirst(new byte[1024]);
 		}
@@ -218,8 +218,8 @@ class HttpClient {
 				logger.debug("Sending request [{}]: {}, content size: {} bytes", method, service, bodySize);
 			}
 			response = transmit(service, headers, method, bodyContent, bodySize, buffer, 2);
-		} finally{
-			if(sw!=null) jsonWriters.putFirst(sw);
+		} finally {
+			if (sw != null) jsonWriters.putFirst(sw);
 		}
 
 		if (logger.isDebugEnabled()) {
@@ -288,7 +288,7 @@ class HttpClient {
 				jsonReaders.putIfAbsent(manifest, reader);
 			}
 			return reader;
-		}catch (final Exception ignore) {
+		} catch (final Exception ignore) {
 			return null;
 		}
 	}

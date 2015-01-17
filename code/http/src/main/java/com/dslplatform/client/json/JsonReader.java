@@ -339,7 +339,7 @@ public final class JsonReader {
 			hash ^= 0xFF & c;
 			hash *= 0x1000193;
 		}
-		if (read() != ':')
+		if (getNextToken() != ':')
 			throw new IOException("Expecting ':' at position " + positionInStream() + ". Found " + (char) last);
 		return (int) hash;
 	}
