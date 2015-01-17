@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 public final class JsonWriter extends Writer {
 
-	public final char[] tmp = new char[48];
+	public final byte[] tmp = new byte[48];
 	private byte[] result;
 	private int position;
 
@@ -239,8 +239,9 @@ public final class JsonWriter extends Writer {
 		}
 		int p = position;
 		final byte[] _result = result;
-		for (int i = off; i < end; i++) {
-			_result[p++] = (byte) tmp[i];
+		int i = off;
+		while (i < end) {
+			_result[p++] = tmp[i++];
 		}
 		position = p;
 	}
@@ -249,10 +250,10 @@ public final class JsonWriter extends Writer {
 		if (position + 64 >= result.length) {
 			result = Arrays.copyOf(result, result.length + (result.length >> 1));
 		}
-		final int p = position;
+		int p = position;
 		final byte[] _result = result;
-		for (int i = 0; i < len; i++) {
-			_result[p + i] = (byte) tmp[i];
+		for (int i = 0; i < len; i++, p++) {
+			_result[p] = tmp[i];
 		}
 		position += len;
 	}
@@ -308,7 +309,7 @@ public final class JsonWriter extends Writer {
 
 	@Override
 	public void write(int c) throws IOException {
-		tmp[0] = (char) c;
+		tmp[0] = (byte) c;
 		writeString(new String(tmp, 0, 1));
 	}
 

@@ -7,31 +7,31 @@ import java.util.Collection;
 
 public class NumberConverter {
 
-	private final static int[] Digits = new int[100];
+	private final static char[] Digits = new char[100];
 
 	static {
 		for (int i = 0; i < 100; i++) {
-			Digits[i] = (((i / 10) + '0') << 16) + i % 10 + '0';
+			Digits[i] = (char)((((i / 10) + '0') << 8) + i % 10 + '0');
 		}
 	}
 
-	static void write4(final int value, final char[] buf, final int pos) {
+	static void write4(final int value, final byte[] buf, final int pos) {
 		if (value > 9999) {
 			throw new IllegalArgumentException("Only 4 digits numbers are supported. Provided: " + value);
 		}
 		final int q = value / 100;
 		final int v1 = Digits[q];
 		final int v2 = Digits[value - ((q << 6) + (q << 5) + (q << 2))];
-		buf[pos] = (char) (v1 >> 16);
-		buf[pos + 1] = (char) v1;
-		buf[pos + 2] = (char) (v2 >> 16);
-		buf[pos + 3] = (char) v2;
+		buf[pos] = (byte) (v1 >> 8);
+		buf[pos + 1] = (byte) v1;
+		buf[pos + 2] = (byte) (v2 >> 8);
+		buf[pos + 3] = (byte) v2;
 	}
 
-	static void write2(final int value, final char[] buf, final int pos) {
+	static void write2(final int value, final byte[] buf, final int pos) {
 		final int v = Digits[value];
-		buf[pos] = (char) (v >> 16);
-		buf[pos + 1] = (char) v;
+		buf[pos] = (byte) (v >> 8);
+		buf[pos + 1] = (byte) v;
 	}
 
 	static int read2(final char[] buf, final int pos) {
@@ -146,7 +146,7 @@ public class NumberConverter {
 		if (value == Integer.MIN_VALUE) {
 			sw.writeAscii("-2147483648");
 		} else {
-			final char[] buf = sw.tmp;
+			final byte[] buf = sw.tmp;
 			int q, r;
 			int charPos = 10;
 			int i;
@@ -162,8 +162,8 @@ public class NumberConverter {
 				r = i - ((q << 6) + (q << 5) + (q << 2));
 				i = q;
 				final int v = Digits[r];
-				buf[charPos--] = (char)v;
-				buf[charPos--] = (char)(v >> 16);
+				buf[charPos--] = (byte)v;
+				buf[charPos--] = (byte)(v >> 8);
 			} while (i != 0);
 
 			final int start = buf[charPos + 1] == '0' ? charPos + 2 : charPos + 1;
@@ -222,7 +222,7 @@ public class NumberConverter {
 		if (value == Long.MIN_VALUE) {
 			sw.writeAscii("-9223372036854775808");
 		} else {
-			final char[] buf = sw.tmp;
+			final byte[] buf = sw.tmp;
 			long q;
 			int r;
 			int charPos = 20;
@@ -239,8 +239,8 @@ public class NumberConverter {
 				r = (int) (i - ((q << 6) + (q << 5) + (q << 2)));
 				i = q;
 				final int v = Digits[r];
-				buf[charPos--] = (char)v;
-				buf[charPos--] = (char)(v >> 16);
+				buf[charPos--] = (byte)v;
+				buf[charPos--] = (byte)(v >> 8);
 			} while (i != 0);
 
 			final int start = buf[charPos + 1] == '0' ? charPos + 2 : charPos + 1;

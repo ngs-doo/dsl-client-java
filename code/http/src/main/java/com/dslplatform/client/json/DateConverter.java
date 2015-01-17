@@ -26,7 +26,7 @@ public class DateConverter {
 	}
 
 	public static void serialize(final DateTime value, final JsonWriter sw) {
-		final char[] buf = sw.tmp;
+		final byte[] buf = sw.tmp;
 		buf[0] = '"';
 		final int year = value.getYear();
 		NumberConverter.write4(year, buf, 1);
@@ -45,7 +45,7 @@ public class DateConverter {
 			buf[20] = '.';
 			final int hi = milis / 100;
 			final int lo = milis - hi * 100;
-			buf[21] = (char) (hi + 48);
+			buf[21] = (byte) (hi + 48);
 			if (lo != 0) {
 				NumberConverter.write2(lo, buf, 22);
 				writeTimezone(buf, 24, value, sw);
@@ -57,7 +57,7 @@ public class DateConverter {
 		}
 	}
 
-	private static void writeTimezone(final char[] buf, final int position, final DateTime dt, final JsonWriter sw) {
+	private static void writeTimezone(final byte[] buf, final int position, final DateTime dt, final JsonWriter sw) {
 		final DateTimeZone zone = dt.getZone();
 		if (utcZone.equals(zone) || zone == null) {
 			buf[position] = 'Z';
@@ -148,7 +148,7 @@ public class DateConverter {
 	}
 
 	public static void serialize(final LocalDate value, final JsonWriter sw) {
-		final char[] buf = sw.tmp;
+		final byte[] buf = sw.tmp;
 		buf[0] = '"';
 		final int year = value.getYear();
 		NumberConverter.write4(year, buf, 1);
