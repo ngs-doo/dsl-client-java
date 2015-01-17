@@ -65,7 +65,7 @@ public final class JsonReader {
 		tokenStart = currentIndex - 1;
 		char ch = (char) last;
 		tmp[0] = ch;
-		for (int i = 1; ch != ',' && ch != '}' && ch != ']' && ch != '"' && i < tmp.length && currentIndex < length; i++, currentIndex++) {
+		for (int i = 1; ch != ',' && ch != '}' && ch != ']' && i < tmp.length && currentIndex < length; i++, currentIndex++) {
 			tmp[i] = ch = (char) buffer[currentIndex];
 		}
 		last = (byte) ch;
@@ -247,9 +247,6 @@ public final class JsonReader {
 	}
 
 	private boolean wasWhiteSpace() {
-		if (last == '"' || last == ',') {
-			return false;
-		}
 		switch (last) {
 			case 9:
 			case 10:
@@ -314,6 +311,9 @@ public final class JsonReader {
 
 	public final byte getNextToken() throws IOException {
 		read();
+		if (last == '"' || last == ',') {
+			return last;
+		}
 		while (wasWhiteSpace())
 			read();
 		return last;
@@ -330,30 +330,40 @@ public final class JsonReader {
 	}
 
 	public final int fillName() throws IOException {
-		if (last != '"')
+		if (last != '"') {
 			throw new IOException("Expecting '\"' at position " + positionInStream() + ". Found " + (char) last);
-		tokenStart = currentIndex;
-		byte c = read();
-		long hash = 0x811c9dc5;
-		for (; c != '"'; c = read()) {
-			hash ^= 0xFF & c;
-			hash *= 0x1000193;
 		}
-		if (getNextToken() != ':')
-			throw new IOException("Expecting ':' at position " + positionInStream() + ". Found " + (char) last);
+		tokenStart = currentIndex;
+		int ci = currentIndex;
+		long hash = 0x811c9dc5;
+		while (ci != length && buffer[ci] != '"') {
+			hash ^= buffer[ci];
+			hash *= 0x1000193;
+			ci++;
+		}
+		currentIndex = ci + 1;
+		if (read() != ':') {
+			moveToNextToken();
+			if (last != ':') {
+				throw new IOException("Expecting ':' at position " + positionInStream() + ". Found " + (char) last);
+			}
+		}
 		return (int) hash;
 	}
 
 	public final int calcHash() throws IOException {
-		if (last != '"')
+		if (last != '"') {
 			throw new IOException("Expecting '\"' at position " + positionInStream() + ". Found " + (char) last);
+		}
 		tokenStart = currentIndex;
-		byte c = read();
+		int ci = currentIndex;
 		long hash = 0x811c9dc5;
-		do {
-			hash ^= 0xFF & c;
+		while (ci != length && buffer[ci] != '"') {
+			hash ^= buffer[ci];
 			hash *= 0x1000193;
-		} while ((c = read()) != '"');
+			ci++;
+		}
+		currentIndex = ci + 1;
 		return (int) hash;
 	}
 

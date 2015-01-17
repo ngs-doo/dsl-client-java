@@ -7,36 +7,31 @@ import java.util.Collection;
 
 public class NumberConverter {
 
-	final static char[] DigitTens = {
-			'0', '0', '0', '0', '0', '0', '0', '0', '0', '0',
-			'1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
-			'2', '2', '2', '2', '2', '2', '2', '2', '2', '2',
-			'3', '3', '3', '3', '3', '3', '3', '3', '3', '3',
-			'4', '4', '4', '4', '4', '4', '4', '4', '4', '4',
-			'5', '5', '5', '5', '5', '5', '5', '5', '5', '5',
-			'6', '6', '6', '6', '6', '6', '6', '6', '6', '6',
-			'7', '7', '7', '7', '7', '7', '7', '7', '7', '7',
-			'8', '8', '8', '8', '8', '8', '8', '8', '8', '8',
-			'9', '9', '9', '9', '9', '9', '9', '9', '9', '9',
-	};
-	final static char[] DigitOnes = {
-			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-	};
+	private final static int[] Digits = new int[100];
+
+	static {
+		for (int i = 0; i < 100; i++) {
+			Digits[i] = (((i / 10) + '0') << 16) + i % 10 + '0';
+		}
+	}
+
+	static void write4(final int value, final char[] buf, final int pos) {
+		if (value > 9999) {
+			throw new IllegalArgumentException("Only 4 digits numbers are supported. Provided: " + value);
+		}
+		final int q = value / 100;
+		final int v1 = Digits[q];
+		final int v2 = Digits[value - ((q << 6) + (q << 5) + (q << 2))];
+		buf[pos] = (char) (v1 >> 16);
+		buf[pos + 1] = (char) v1;
+		buf[pos + 2] = (char) (v2 >> 16);
+		buf[pos + 3] = (char) v2;
+	}
 
 	static void write2(final int value, final char[] buf, final int pos) {
-		int q = value / 100;
-		int r = value - ((q << 6) + (q << 5) + (q << 2));
-		buf[pos] = DigitTens[r];
-		buf[pos + 1] = DigitOnes[r];
+		final int v = Digits[value];
+		buf[pos] = (char) (v >> 16);
+		buf[pos + 1] = (char) v;
 	}
 
 	static int read2(final char[] buf, final int pos) {
@@ -166,8 +161,9 @@ public class NumberConverter {
 				q = i / 100;
 				r = i - ((q << 6) + (q << 5) + (q << 2));
 				i = q;
-				buf[charPos--] = DigitOnes[r];
-				buf[charPos--] = DigitTens[r];
+				final int v = Digits[r];
+				buf[charPos--] = (char)v;
+				buf[charPos--] = (char)(v >> 16);
 			} while (i != 0);
 
 			final int start = buf[charPos + 1] == '0' ? charPos + 2 : charPos + 1;
@@ -242,8 +238,9 @@ public class NumberConverter {
 				q = i / 100;
 				r = (int) (i - ((q << 6) + (q << 5) + (q << 2)));
 				i = q;
-				buf[charPos--] = DigitOnes[r];
-				buf[charPos--] = DigitTens[r];
+				final int v = Digits[r];
+				buf[charPos--] = (char)v;
+				buf[charPos--] = (char)(v >> 16);
 			} while (i != 0);
 
 			final int start = buf[charPos + 1] == '0' ? charPos + 2 : charPos + 1;

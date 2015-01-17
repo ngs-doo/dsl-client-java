@@ -29,8 +29,7 @@ public class DateConverter {
 		final char[] buf = sw.tmp;
 		buf[0] = '"';
 		final int year = value.getYear();
-		NumberConverter.write2(year / 100, buf, 1);
-		NumberConverter.write2(year, buf, 3);
+		NumberConverter.write4(year, buf, 1);
 		buf[5] = '-';
 		NumberConverter.write2(value.getMonthOfYear(), buf, 6);
 		buf[8] = '-';
@@ -152,8 +151,7 @@ public class DateConverter {
 		final char[] buf = sw.tmp;
 		buf[0] = '"';
 		final int year = value.getYear();
-		NumberConverter.write2(year / 100, buf, 1);
-		NumberConverter.write2(year, buf, 3);
+		NumberConverter.write4(year, buf, 1);
 		buf[5] = '-';
 		NumberConverter.write2(value.getMonthOfYear(), buf, 6);
 		buf[8] = '-';
