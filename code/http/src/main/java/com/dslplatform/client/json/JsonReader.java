@@ -46,11 +46,15 @@ public final class JsonReader {
 		char ch = (char) last;
 		tmp[0] = ch;
 		int i = 1;
-		for (; ch != ',' && ch != '}' && ch != ']' && ch != '"' && i < tmp.length && currentIndex < length; i++, currentIndex++) {
-			tmp[i] = ch = (char) buffer[currentIndex];
+		int ci = currentIndex;
+		while (i < tmp.length && ci < buffer.length) {
+			ch = (char) buffer[ci++];
+			if (ch == ',' || ch == '}' || ch == ']') break;
+			tmp[i++] = ch;
 		}
+		currentIndex = ci;
 		last = (byte) ch;
-		return new String(tmp, 0, i - 1);
+		return new String(tmp, 0, i);
 	}
 
 	public final int getTokenStart() {
@@ -65,9 +69,14 @@ public final class JsonReader {
 		tokenStart = currentIndex - 1;
 		char ch = (char) last;
 		tmp[0] = ch;
-		for (int i = 1; ch != ',' && ch != '}' && ch != ']' && i < tmp.length && currentIndex < length; i++, currentIndex++) {
-			tmp[i] = ch = (char) buffer[currentIndex];
+		int i = 1;
+		int ci = currentIndex;
+		while (i < tmp.length && ci < buffer.length) {
+			ch = (char) buffer[ci++];
+			if (ch == ',' || ch == '}' || ch == ']') break;
+			tmp[i++] = ch;
 		}
+		currentIndex = ci;
 		last = (byte) ch;
 		return tmp;
 	}
@@ -75,25 +84,29 @@ public final class JsonReader {
 	public final String readSimpleString() throws IOException {
 		if (last != '"')
 			throw new IOException("Expecting '\"' at position " + positionInStream() + ". Found " + (char) last);
-		int start = currentIndex;
-		int i = start;
-		for (; i < length && buffer[i] != '"'; i++) {
-			tmp[i - start] = (char) buffer[i];
+		int i = 0;
+		int ci = currentIndex;
+		while (i < tmp.length && ci < buffer.length) {
+			final char ch = (char) buffer[ci++];
+			if (ch == '"') break;
+			tmp[i++] = ch;
 		}
-		currentIndex = i + 1;
+		currentIndex = ci;
 		last = '"';
-		return new String(tmp, 0, i - start);
+		return new String(tmp, 0, i);
 	}
 
 	public final char[] readSimpleQuote() throws IOException {
 		if (last != '"')
 			throw new IOException("Expecting '\"' at position " + positionInStream() + ". Found " + (char) last);
-		int start = tokenStart = currentIndex;
-		int i = currentIndex;
-		for (; i < length && buffer[i] != '"'; i++) {
-			tmp[i - start] = (char) buffer[i];
+		int ci = tokenStart = currentIndex;
+		int i = 0;
+		while (i < tmp.length && ci < buffer.length) {
+			final char ch = (char) buffer[ci++];
+			if (ch == '"') break;
+			tmp[i++] = ch;
 		}
-		currentIndex = i + 1;
+		currentIndex = ci;
 		last = '"';
 		return tmp;
 	}
@@ -106,13 +119,13 @@ public final class JsonReader {
 			throw new IOException("JSON string must start with a double quote! Instead found: " + byteDetails(buffer[currentIndex - 1]));
 		}
 
-		byte bb = 0;
-		for (int pos = 0; pos < tmp.length; pos++) {
-			if (currentIndex >= length) {
-				throw new IOException("JSON string was not closed with a double quote!");
-			}
-			bb = buffer[currentIndex++];
+		char bb = 0;
+		int pos = 0;
+		int ci = currentIndex;
+		while (pos < tmp.length && ci < buffer.length) {
+			bb = (char) buffer[ci++];
 			if (bb == '"') {
+				currentIndex = ci;
 				last = '"';
 				return new String(tmp, 0, pos);
 			}
@@ -121,26 +134,28 @@ public final class JsonReader {
 			// there is no chance that we can decode the string without instantiating
 			// a temporary buffer, so quit this loop
 			if ((bb ^ '\\') < 1) break;
-			tmp[pos] = (char) bb;
+			tmp[pos++] = bb;
 		}
 
 		// If the buffer contains an ASCII string (no high bit set) without any escape codes "\n", "\t", etc...,
 		// there is no need to instantiate any temporary buffers, we just decode the original buffer directly
 		// via ISO-8859-1 encoding since it is the fastest encoding which is guaranteed to retain all ASCII characters
-		while (true) {
-			if (currentIndex >= length) {
-				throw new IOException("JSON string was not closed with a double quote!");
-			}
+		while (ci < buffer.length) {
 			// If we encounter a backslash, which is a beginning of an escape sequence
 			// or a high bit was set - indicating an UTF-8 encoded multibyte character,
 			// there is no chance that we can decode the string without instantiating
 			// a temporary buffer, so quit this loop
 			if ((bb ^ '\\') < 1) break;
-			bb = buffer[currentIndex++];
+			bb = (char) buffer[ci++];
 			if (bb == '"') {
+				currentIndex = ci;
 				last = '"';
 				return new String(buffer, startIndex, currentIndex - startIndex - 1, "ISO-8859-1");
 			}
+		}
+		currentIndex = ci;
+		if (currentIndex >= length) {
+			throw new IOException("JSON string was not closed with a double quote!");
 		}
 
 		// temporary buffer, will resize if need be
@@ -336,12 +351,13 @@ public final class JsonReader {
 		tokenStart = currentIndex;
 		int ci = currentIndex;
 		long hash = 0x811c9dc5;
-		while (ci != length && buffer[ci] != '"') {
-			hash ^= buffer[ci];
+		while (ci < buffer.length) {
+			final byte b = buffer[ci++];
+			if (b == '"') break;
+			hash ^= b;
 			hash *= 0x1000193;
-			ci++;
 		}
-		currentIndex = ci + 1;
+		currentIndex = ci;
 		if (read() != ':') {
 			moveToNextToken();
 			if (last != ':') {
@@ -358,12 +374,13 @@ public final class JsonReader {
 		tokenStart = currentIndex;
 		int ci = currentIndex;
 		long hash = 0x811c9dc5;
-		while (ci != length && buffer[ci] != '"') {
-			hash ^= buffer[ci];
+		while (ci < buffer.length) {
+			final byte b = buffer[ci++];
+			if (b == '"') break;
+			hash ^= b;
 			hash *= 0x1000193;
-			ci++;
 		}
-		currentIndex = ci + 1;
+		currentIndex = ci;
 		return (int) hash;
 	}
 

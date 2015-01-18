@@ -7,11 +7,12 @@ import java.util.Collection;
 
 public class NumberConverter {
 
-	private final static char[] Digits = new char[100];
+	private final static int[] Digits = new int[100];
+	private final static int[] Digit = new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 
 	static {
 		for (int i = 0; i < 100; i++) {
-			Digits[i] = (char)((((i / 10) + '0') << 8) + i % 10 + '0');
+			Digits[i] = (i / 10 == 0 ? 1 << 16 : 0) + (((i / 10) + '0') << 8) + i % 10 + '0';
 		}
 	}
 
@@ -35,19 +36,17 @@ public class NumberConverter {
 	}
 
 	static int read2(final char[] buf, final int pos) {
-		return (buf[pos] - 48) * 10 + buf[pos + 1] - 48;
-	}
-
-	static int read(final char[] buf, final int start, int end) {
-		int value = 0;
-		for (int i = start; i < end; i++) {
-			value = value * 10 + buf[i] - 48;
-		}
-		return value;
+		final int v1 = buf[pos] - 48;
+		return (v1 << 3) + (v1 << 1) + buf[pos + 1] - 48;
 	}
 
 	static int read4(final char[] buf, final int pos) {
-		return (buf[pos] - 48) * 1000 + (buf[pos + 1] - 48) * 100 + (buf[pos + 2] - 48) * 10 + buf[pos + 3] - 48;
+		final int v2 = buf[pos + 1] - 48;
+		final int v3 = buf[pos + 2] - 48;
+		return (buf[pos] - 48) * 1000
+				+ (v2 << 6) + (v2 << 5) + (v2 << 2)
+				+ (v3 << 3) + (v3 << 1)
+				+ buf[pos + 3] - 48;
 	}
 
 	public static void serializeNullable(final Double value, final JsonWriter sw) {
@@ -157,34 +156,41 @@ public class NumberConverter {
 				i = value;
 			}
 
-			do {
+			int v;
+			for (; ; ) {
 				q = i / 100;
 				r = i - ((q << 6) + (q << 5) + (q << 2));
 				i = q;
-				final int v = Digits[r];
-				buf[charPos--] = (byte)v;
-				buf[charPos--] = (byte)(v >> 8);
-			} while (i != 0);
+				v = Digits[r];
+				buf[charPos--] = (byte) v;
+				buf[charPos--] = (byte) (v >> 8);
+				if (i == 0) break;
+			}
 
-			final int start = buf[charPos + 1] == '0' ? charPos + 2 : charPos + 1;
-			sw.writeBuffer(start, 11);
+			sw.writeBuffer(charPos + 1 + (v >> 16), 11);
 		}
 	}
 
 	public static int deserializeInt(final JsonReader reader) throws IOException {
 		final char[] buf = reader.readNumber();
-		int value = 0;
 		final int len = reader.getCurrentIndex() - reader.getTokenStart() - 1;
-		char ch;
-		final int start = buf[0] == '-' ? 1 : 0;
-		for (int i = start; i < len && i < buf.length; i++) {
-			ch = buf[i];
-			if (ch >= '0' && ch <= '9') {
-				value = value * 10 + ch - 48;
-			} else return Integer.parseInt(new String(buf, 0, len));
+		int value = 0;
+		try {
+			if (buf[0] == '-') {
+				for (int i = 1; i < buf.length; i++) {
+					if (i == len) break;
+					value = (value << 3) + (value << 1) - Digit[buf[i] - 48];
+				}
+			} else {
+				for (int i = 0; i < buf.length; i++) {
+					if (i == len) break;
+					value = (value << 3) + (value << 1) + Digit[buf[i] - 48];
+				}
+			}
+		} catch (ArrayIndexOutOfBoundsException ignore) {
+			return Integer.parseInt(new String(buf, 0, len));
 		}
-		//TODO: leading zero...
-		return start == 0 ? value : -value;
+		return value;
 	}
 
 	private static JsonReader.ReadObject<Integer> IntReader = new JsonReader.ReadObject<Integer>() {
@@ -234,34 +240,42 @@ public class NumberConverter {
 				i = value;
 			}
 
-			do {
+			int v;
+			for (; ; ) {
 				q = i / 100;
 				r = (int) (i - ((q << 6) + (q << 5) + (q << 2)));
 				i = q;
-				final int v = Digits[r];
-				buf[charPos--] = (byte)v;
-				buf[charPos--] = (byte)(v >> 8);
-			} while (i != 0);
+				v = Digits[r];
+				buf[charPos--] = (byte) v;
+				buf[charPos--] = (byte) (v >> 8);
+				if (i == 0) break;
+			}
 
-			final int start = buf[charPos + 1] == '0' ? charPos + 2 : charPos + 1;
-			sw.writeBuffer(start, 21);
+			sw.writeBuffer(charPos + 1 + (v >> 16), 21);
 		}
 	}
 
 	public static long deserializeLong(final JsonReader reader) throws IOException {
 		final char[] buf = reader.readNumber();
-		long value = 0;
 		final int len = reader.getCurrentIndex() - reader.getTokenStart() - 1;
-		char ch;
-		final int start = buf[0] == '-' ? 1 : 0;
-		for (int i = 0; i < len && i < buf.length; i++) {
-			ch = buf[i];
-			if (ch >= '0' && ch <= '9') {
-				value = value * 10 + ch - 48;
-			} else return Long.parseLong(new String(buf, 0, len));
+		long value = 0;
+		try {
+			if (buf[0] == '-') {
+				for (int i = 1; i < buf.length; i++) {
+					if (i == len) break;
+					value = (value << 3) + (value << 1) - Digit[buf[i] - 48];
+				}
+			} else {
+				for (int i = 0; i < buf.length; i++) {
+					if (i == len) break;
+					value = (value << 3) + (value << 1) + Digit[buf[i] - 48];
+				}
+			}
+		} catch (ArrayIndexOutOfBoundsException ignore) {
+			return Long.parseLong(new String(buf, 0, len));
 		}
 		//TODO: leading zero...
-		return start == 0 ? value : -value;
+		return value;
 	}
 
 	private static JsonReader.ReadObject<Long> LongReader = new JsonReader.ReadObject<Long>() {

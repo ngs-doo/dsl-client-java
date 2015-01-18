@@ -38,7 +38,7 @@ public final class JsonWriter extends Writer {
 		final int s = position;
 		position += 4;
 		if (position >= result.length) {
-			result = Arrays.copyOf(result, result.length + (result.length >> 1));
+			result = Arrays.copyOf(result, result.length + result.length / 2);
 		}
 		final byte[] _result = result;
 		_result[s] = 'n';
@@ -49,7 +49,7 @@ public final class JsonWriter extends Writer {
 
 	public final void writeByte(final byte c) {
 		if (position == result.length) {
-			result = Arrays.copyOf(result, result.length + (result.length >> 1));
+			result = Arrays.copyOf(result, result.length + result.length / 2);
 		}
 		result[position++] = c;
 	}
@@ -57,7 +57,7 @@ public final class JsonWriter extends Writer {
 	public final void writeString(final String str) {
 		final int len = str.length();
 		if (position + (len << 2) + (len << 1) + 2 >= result.length) {
-			result = Arrays.copyOf(result, result.length + (result.length >> 1) + (len << 2) + (len << 1) + 2);
+			result = Arrays.copyOf(result, result.length + result.length / 2 + (len << 2) + (len << 1) + 2);
 		}
 		final byte[] _result = result;
 		_result[position] = QUOTE;
@@ -235,25 +235,26 @@ public final class JsonWriter extends Writer {
 
 	public final void writeBuffer(final int off, final int end) {
 		if (position + 64 >= result.length) {
-			result = Arrays.copyOf(result, result.length + (result.length >> 1));
+			result = Arrays.copyOf(result, result.length + result.length / 2);
 		}
 		int p = position;
 		final byte[] _result = result;
-		int i = off;
-		while (i < end) {
-			_result[p++] = tmp[i++];
+		for (int i = off; i < tmp.length; i++) {
+			if (i == end) break;
+			_result[p++] = tmp[i];
 		}
 		position = p;
 	}
 
 	public final void writeBuffer(final int len) {
 		if (position + 64 >= result.length) {
-			result = Arrays.copyOf(result, result.length + (result.length >> 1));
+			result = Arrays.copyOf(result, result.length + result.length / 2);
 		}
-		int p = position;
+		final int p = position;
 		final byte[] _result = result;
-		for (int i = 0; i < len; i++, p++) {
-			_result[p] = tmp[i];
+		for (int i = 0; i < tmp.length; i++) {
+			if (i == len) break;
+			_result[p + i] = tmp[i];
 		}
 		position += len;
 	}
@@ -261,7 +262,7 @@ public final class JsonWriter extends Writer {
 	public final void writeAscii(final String str) {
 		final int len = str.length();
 		if (position + len >= result.length) {
-			result = Arrays.copyOf(result, result.length + (result.length >> 1) + len);
+			result = Arrays.copyOf(result, result.length + result.length / 2 + len);
 		}
 		final int p = position;
 		final byte[] _result = result;
@@ -273,7 +274,7 @@ public final class JsonWriter extends Writer {
 
 	public final void writeBinary(final byte[] buf) {
 		if (position + (buf.length << 1) + 2 >= result.length) {
-			result = Arrays.copyOf(result, result.length + (result.length >> 1) + (buf.length << 1) + 2);
+			result = Arrays.copyOf(result, result.length + result.length / 2 + (buf.length << 1) + 2);
 		}
 		result[position++] = '"';
 		position += Base64.encodeToBytes(buf, result, position);
