@@ -615,10 +615,12 @@ public final class JsonReader {
 
 	public final <T extends JsonObject> void deserializeCollection(final ReadJsonObject<T> readObject, final Collection<T> res) throws IOException {
 		if (last == '{') {
+			getNextToken();
 			res.add(readObject.deserialize(this, locator));
 		} else throw new IOException("Expecting '{' at position " + positionInStream() + ". Found " + (char) last);
 		while (getNextToken() == ',') {
 			if (getNextToken() == '{') {
+				getNextToken();
 				res.add(readObject.deserialize(this, locator));
 			} else throw new IOException("Expecting '{' at position " + positionInStream() + ". Found " + (char) last);
 		}
@@ -636,12 +638,14 @@ public final class JsonReader {
 
 	public final <T extends JsonObject> void deserializeNullableCollection(final ReadJsonObject<T> readObject, final Collection<T> res) throws IOException {
 		if (last == '{') {
+			getNextToken();
 			res.add(readObject.deserialize(this, locator));
 		} else if (wasNull()) {
 			res.add(null);
 		} else throw new IOException("Expecting '{' at position " + positionInStream() + ". Found " + (char) last);
 		while (getNextToken() == ',') {
 			if (getNextToken() == '{') {
+				getNextToken();
 				res.add(readObject.deserialize(this, locator));
 			} else if (wasNull()) {
 				res.add(null);
