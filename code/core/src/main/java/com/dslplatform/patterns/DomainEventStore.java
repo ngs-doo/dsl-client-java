@@ -15,7 +15,7 @@ public interface DomainEventStore {
 	 * @param event event to raise
 	 * @return      future containing string value of event URI
 	 */
-	public <T extends DomainEvent> Future<String> submit(final T event);
+	public <T extends DomainEvent> Future<String> submit(T event);
 
 	/**
 	 * Apply domain event to a single aggregate. Server will return modified aggregate root.
@@ -26,8 +26,8 @@ public interface DomainEventStore {
 	 * @return      future containing modified aggregate root
 	 */
 	public <TAggregate extends AggregateRoot, TEvent extends AggregateDomainEvent<TAggregate>> Future<TAggregate> submit(
-			final TEvent event,
-			final String uri);
+			TEvent event,
+			String uri);
 
 	/**
 	 * Helper method for sending domain event to the server. Server will return modified aggregate root.
@@ -38,6 +38,6 @@ public interface DomainEventStore {
 	 * @return          future containing modified aggregate root
 	 */
 	public <TAggregate extends AggregateRoot, TEvent extends AggregateDomainEvent<TAggregate>> Future<TAggregate> submit(
-			final TEvent event,
-			final TAggregate aggregate);
+			TEvent event,
+			TAggregate aggregate);
 }

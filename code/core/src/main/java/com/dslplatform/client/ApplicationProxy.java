@@ -18,9 +18,9 @@ public interface ApplicationProxy {
 	 * @return               future with deserialized result
 	 */
 	public <TResult> Future<TResult> get(
-			final Class<TResult> manifest,
-			final String command,
-			final int[] expectedStatus);
+			Class<TResult> manifest,
+			String command,
+			int[] expectedStatus);
 
 	/**
 	 * When remote service require an argument message with serialized payload will be sent.
@@ -33,8 +33,8 @@ public interface ApplicationProxy {
 	 * @return               future with deserialized result
 	 */
 	public <TArgument, TResult> Future<TResult> post(
-			final Class<TResult> manifest,
-			final String command,
-			final TArgument argument,
-			final int[] expectedStatus);
+			Class<TResult> manifest,
+			String command,
+			TArgument argument,
+			int[] expectedStatus);
 }

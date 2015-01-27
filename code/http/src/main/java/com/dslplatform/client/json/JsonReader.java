@@ -471,11 +471,11 @@ public final class JsonReader {
 	}
 
 	public static interface ReadObject<T> {
-		T read(final JsonReader reader) throws IOException;
+		T read(JsonReader reader) throws IOException;
 	}
 
 	public static interface ReadJsonObject<T extends JsonObject> {
-		T deserialize(final JsonReader reader, final ServiceLocator locator) throws IOException;
+		T deserialize(JsonReader reader, ServiceLocator locator) throws IOException;
 	}
 
 	public final boolean wasNull() throws IOException {

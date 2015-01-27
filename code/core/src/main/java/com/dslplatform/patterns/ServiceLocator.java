@@ -16,5 +16,5 @@ public interface ServiceLocator {
 	 * @param clazz class or interface
 	 * @return      registered implementation
 	 */
-	public <T> T resolve(final Class<T> clazz);
+	public <T> T resolve(Class<T> clazz);
 }

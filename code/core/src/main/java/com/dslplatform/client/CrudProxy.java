@@ -23,8 +23,8 @@ public interface CrudProxy {
 	 * @return         future to found domain object
 	 */
 	public <T extends Identifiable> Future<T> read(
-			final Class<T> manifest,
-			final String uri);
+			Class<T> manifest,
+			String uri);
 
 	/**
 	 * Create new aggregate root on the remote server.
@@ -35,7 +35,7 @@ public interface CrudProxy {
 	 * @return          future to aggregate root with new identity
 	 */
 	public <TAggregate extends AggregateRoot> Future<TAggregate> create(
-			final TAggregate aggregate);
+			TAggregate aggregate);
 
 	/**
 	 * Modify existing aggregate root on the remote server.
@@ -45,7 +45,7 @@ public interface CrudProxy {
 	 * @return          future to aggregate root with updated attributes
 	 */
 	public <TAggregate extends AggregateRoot> Future<TAggregate> update(
-			final TAggregate aggregate);
+			TAggregate aggregate);
 
 	/**
 	 * Delete existing aggregate root from the remote server.
@@ -57,6 +57,6 @@ public interface CrudProxy {
 	 * @return         future to deleted aggregate root instance
 	 */
 	public <TAggregate extends AggregateRoot> Future<TAggregate> delete(
-			final Class<TAggregate> manifest,
-			final String uri);
+			Class<TAggregate> manifest,
+			String uri);
 }

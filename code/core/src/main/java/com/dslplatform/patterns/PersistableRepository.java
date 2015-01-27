@@ -24,15 +24,15 @@ public interface PersistableRepository<T extends AggregateRoot> extends Reposito
 	 * @return       future uris of newly created aggregates
 	 */
 	public Future<List<String>> persist(
-			final Iterable<T> inserts,
-			final Iterable<Map.Entry<T, T>> updates,
-			final Iterable<T> deletes);
+			Iterable<T> inserts,
+			Iterable<Map.Entry<T, T>> updates,
+			Iterable<T> deletes);
 
 	/** @see PersistableRepository#persist(Iterable, Iterable, Iterable) */
 	public Future<List<String>> persist(
-			final T[] inserts,
-			final Map.Entry<T, T>[] updates,
-			final T[] deletes);
+			T[] inserts,
+			Map.Entry<T, T>[] updates,
+			T[] deletes);
 
 	/**
 	 * Bulk insert.
@@ -41,10 +41,10 @@ public interface PersistableRepository<T extends AggregateRoot> extends Reposito
 	 * @param inserts new aggregate roots
 	 * @return       future uris of created aggregate roots
 	 */
-	public Future<List<String>> insert(final Iterable<T> inserts);
+	public Future<List<String>> insert(Iterable<T> inserts);
 
 	/** @see PersistableRepository#insert(Iterable) */
-	public Future<List<String>> insert(final T[] inserts);
+	public Future<List<String>> insert(T[] inserts);
 
 	/**
 	 * Insert a single {@link AggregateRoot aggregate}.
@@ -52,7 +52,7 @@ public interface PersistableRepository<T extends AggregateRoot> extends Reposito
 	 * @param insert new aggregate root
 	 * @return       future uri of created aggregate root
 	 */
-	public Future<String> insert(final T insert);
+	public Future<String> insert(T insert);
 
 	/**
 	 * Bulk update.
@@ -61,10 +61,10 @@ public interface PersistableRepository<T extends AggregateRoot> extends Reposito
 	 * @param updates sequence of aggregate roots to update
 	 * @return       future for error checking
 	 */
-	public Future<?> update(final Iterable<T> updates);
+	public Future<?> update(Iterable<T> updates);
 
 	/** @see PersistableRepository#update(Iterable) */
-	public Future<?> update(final T[] updates);
+	public Future<?> update(T[] updates);
 
 	/**
 	 * Changing state of an aggregate root.
@@ -72,7 +72,7 @@ public interface PersistableRepository<T extends AggregateRoot> extends Reposito
 	 * @param update aggregate root to update
 	 * @return       future for error checking
 	 */
-	public Future<?> update(final T update);
+	public Future<?> update(T update);
 
 	/**
 	 * Bulk delete.
@@ -81,10 +81,10 @@ public interface PersistableRepository<T extends AggregateRoot> extends Reposito
 	 * @param deletes aggregate roots to delete
 	 * @return       future for error checking
 	 */
-	public Future<?> delete(final Iterable<T> deletes);
+	public Future<?> delete(Iterable<T> deletes);
 
 	/** @see #delete(Iterable) */
-	public Future<?> delete(final T[] deletes);
+	public Future<?> delete(T[] deletes);
 
 	/**
 	 * Deleting an {@link AggregateRoot aggregate}.
@@ -92,5 +92,5 @@ public interface PersistableRepository<T extends AggregateRoot> extends Reposito
 	 * @param delete aggregate root to delete
 	 * @return       future for error checking
 	 */
-	public Future<?> delete(final T delete);
+	public Future<?> delete(T delete);
 }

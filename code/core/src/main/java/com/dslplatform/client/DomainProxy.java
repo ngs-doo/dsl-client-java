@@ -28,8 +28,8 @@ public interface DomainProxy {
 	 * @return         future to found domain objects
 	 */
 	public <T extends Identifiable> Future<List<T>> find(
-			final Class<T> manifest,
-			final String[] uris);
+			Class<T> manifest,
+			String[] uris);
 
 	/**
 	 * Returns a list of domain objects uniquely represented with their URIs.
@@ -41,8 +41,8 @@ public interface DomainProxy {
 	 * @return         future to found domain objects
 	 */
 	public <T extends Identifiable> Future<List<T>> find(
-			final Class<T> manifest,
-			final Iterable<String> uris);
+			Class<T> manifest,
+			Iterable<String> uris);
 
 	/**
 	 * Returns a list of domain objects satisfying {@link Specification specification}
@@ -61,10 +61,10 @@ public interface DomainProxy {
 	 * @return              future to domain objects which satisfy search predicate
 	 */
 	public <T extends Searchable> Future<List<T>> search(
-			final Specification<T> specification,
-			final Integer limit,
-			final Integer offset,
-			final Iterable<Map.Entry<String, Boolean>> order);
+			Specification<T> specification,
+			Integer limit,
+			Integer offset,
+			Iterable<Map.Entry<String, Boolean>> order);
 
 	/**
 	 * Returns a list of domain objects satisfying {@link Specification specification}
@@ -78,9 +78,9 @@ public interface DomainProxy {
 	 * @return              future to domain objects which satisfy search predicate
 	 */
 	public <T extends Searchable> Future<List<T>> search(
-			final Specification<T> specification,
-			final Integer limit,
-			final Integer offset);
+			Specification<T> specification,
+			Integer limit,
+			Integer offset);
 
 	/**
 	 * Returns a list of domain objects satisfying {@link Specification specification}
@@ -89,7 +89,7 @@ public interface DomainProxy {
 	 * @return              future to domain objects which satisfy search predicate
 	 */
 	public <T extends Searchable> Future<List<T>> search(
-			final Specification<T> specification);
+			Specification<T> specification);
 
 	/**
 	 * Returns a list of all domain objects
@@ -108,10 +108,10 @@ public interface DomainProxy {
 	 * @return         future to found domain objects
 	 */
 	public <T extends Searchable> Future<List<T>> search(
-			final Class<T> manifest,
-			final Integer limit,
-			final Integer offset,
-			final Iterable<Map.Entry<String, Boolean>> order);
+			Class<T> manifest,
+			Integer limit,
+			Integer offset,
+			Iterable<Map.Entry<String, Boolean>> order);
 
 	/**
 	 * Returns a list of all domain objects
@@ -125,9 +125,9 @@ public interface DomainProxy {
 	 * @return         future to found domain objects
 	 */
 	public <T extends Searchable> Future<List<T>> search(
-			final Class<T> manifest,
-			final Integer limit,
-			final Integer offset);
+			Class<T> manifest,
+			Integer limit,
+			Integer offset);
 
 	/**
 	 * Returns a list of all domain objects
@@ -137,7 +137,7 @@ public interface DomainProxy {
 	 * @return         future to found domain objects
 	 */
 	public <T extends Searchable> Future<List<T>> search(
-			final Class<T> manifest);
+			Class<T> manifest);
 
 	/**
 	 * Returns a total number of domain objects.
@@ -147,7 +147,7 @@ public interface DomainProxy {
 	 * @return         future to number of domain objects
 	 */
 	public <T extends Searchable> Future<Long> count(
-			final Class<T> manifest);
+			Class<T> manifest);
 
 	/**
 	 * Returns a number of elements satisfying provided specification.
@@ -157,7 +157,7 @@ public interface DomainProxy {
 	 * @return              future to number of domain objects which satisfy specification
 	 */
 	public <T extends Searchable> Future<Long> count(
-			final Specification<T> specification);
+			Specification<T> specification);
 
 	/**
 	 * Send domain event to the server. Server will return identity under which it was stored.
@@ -168,7 +168,7 @@ public interface DomainProxy {
 	 * @return            future containing string value of event URI
 	 */
 	public <TEvent extends DomainEvent> Future<String> submit(
-			final TEvent domainEvent);
+			TEvent domainEvent);
 
 	/**
 	 * Apply domain event to a single aggregate. Server will return modified aggregate root.
@@ -180,6 +180,6 @@ public interface DomainProxy {
 	 * @return            future containing modified aggregate root
 	 */
 	public <TAggregate extends AggregateRoot, TEvent extends AggregateDomainEvent<TAggregate>> Future<TAggregate> submit(
-			final TEvent domainEvent,
-			final String uri);
+			TEvent domainEvent,
+			String uri);
 }

@@ -38,8 +38,8 @@ public interface ReportingProxy {
 	 * @return       future to populated results
 	 */
 	public <TReport extends Report<TResult>, TResult> Future<TResult> populate(
-			final Class<TResult> result,
-			final TReport report);
+			Class<TResult> result,
+			TReport report);
 
 	/**
 	 * Create document from report. Send message to server with serialized report specification.
@@ -59,8 +59,8 @@ public interface ReportingProxy {
 	 * @return          future to document content
 	 */
 	public <TReport extends Report<TResult>, TResult> Future<byte[]> createReport(
-			final TReport report,
-			final String templater);
+			TReport report,
+			String templater);
 
 	/**
 	 * Perform data analysis on specified data source.
@@ -77,12 +77,12 @@ public interface ReportingProxy {
 	 * @return              future to document content
 	 */
 	public <TSource extends Searchable> Future<byte[]> olapCube(
-			final String cubeName,
-			final Specification<TSource> specification,
-			final String templater,
-			final Iterable<String> dimensions,
-			final Iterable<String> facts,
-			final Iterable<Map.Entry<String, Boolean>> order);
+			String cubeName,
+			Specification<TSource> specification,
+			String templater,
+			Iterable<String> dimensions,
+			Iterable<String> facts,
+			Iterable<Map.Entry<String, Boolean>> order);
 
 	/**
 	 * Perform data analysis on specified data source.
@@ -97,11 +97,11 @@ public interface ReportingProxy {
 	 * @return           future to document content
 	 */
 	public Future<byte[]> olapCube(
-			final String cubeName,
-			final String templater,
-			final Iterable<String> dimensions,
-			final Iterable<String> facts,
-			final Iterable<Map.Entry<String, Boolean>> order);
+			String cubeName,
+			String templater,
+			Iterable<String> dimensions,
+			Iterable<String> facts,
+			Iterable<Map.Entry<String, Boolean>> order);
 
 	/**
 	 * Get aggregate root history.
@@ -112,8 +112,8 @@ public interface ReportingProxy {
 	 * @return         future to collection of found aggregate histories
 	 */
 	public <TAggregate extends AggregateRoot> Future<List<History<TAggregate>>> getHistory(
-			final Class<TAggregate> manifest,
-			final Iterable<String> uris);
+			Class<TAggregate> manifest,
+			Iterable<String> uris);
 
 	/**
 	 * Populate template using found domain object.
@@ -126,10 +126,10 @@ public interface ReportingProxy {
 	 * @return         future to populated document
 	 */
 	public <TIdentifiable extends Identifiable> Future<byte[]> findTemplater(
-			final Class<TIdentifiable> manifest,
-			final String file,
-			final String uri,
-			final boolean toPdf);
+			Class<TIdentifiable> manifest,
+			String file,
+			String uri,
+			boolean toPdf);
 
 	/**
 	 * Populate template using domain objects which satisfies
@@ -143,8 +143,8 @@ public interface ReportingProxy {
 	 * @return              future to populated document
 	 */
 	public <TSearchable extends Searchable> Future<byte[]> searchTemplater(
-			final Class<TSearchable> manifest,
-			final String file,
-			final Specification<TSearchable> specification,
-			final boolean toPdf);
+			Class<TSearchable> manifest,
+			String file,
+			Specification<TSearchable> specification,
+			boolean toPdf);
 }

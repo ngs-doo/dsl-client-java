@@ -24,9 +24,9 @@ public interface StandardProxy {
 	 * @return        future uris of newly created aggregates
 	 */
 	public <TAggregate extends AggregateRoot> Future<List<String>> persist(
-			final Iterable<TAggregate> inserts,
-			final Iterable<Map.Entry<TAggregate, TAggregate>> updates,
-			final Iterable<TAggregate> deletes);
+			Iterable<TAggregate> inserts,
+			Iterable<Map.Entry<TAggregate, TAggregate>> updates,
+			Iterable<TAggregate> deletes);
 
 	/**
 	 * Perform data analysis on specified data source.
@@ -43,12 +43,12 @@ public interface StandardProxy {
 	 * @return              future with deserialized collection from analysis result
 	 */
 	public <TDomainObject extends Searchable, TResult> Future<List<TResult>> olapCube(
-			final Class<TResult> manifest,
-			final String cubeName,
-			final Specification<TDomainObject> specification,
-			final Iterable<String> dimensions,
-			final Iterable<String> facts,
-			final Iterable<Map.Entry<String, Boolean>> order);
+			Class<TResult> manifest,
+			String cubeName,
+			Specification<TDomainObject> specification,
+			Iterable<String> dimensions,
+			Iterable<String> facts,
+			Iterable<Map.Entry<String, Boolean>> order);
 
 	/**
 	 * Perform data analysis on specified data source.
@@ -63,11 +63,11 @@ public interface StandardProxy {
 	 * @return              future with deserialized collection from analysis result
 	 */
 	public <TResult> Future<List<TResult>> olapCube(
-			final Class<TResult> manifest,
-			final String cubeName,
-			final Iterable<String> dimensions,
-			final Iterable<String> facts,
-			final Iterable<Map.Entry<String, Boolean>> order);
+			Class<TResult> manifest,
+			String cubeName,
+			Iterable<String> dimensions,
+			Iterable<String> facts,
+			Iterable<Map.Entry<String, Boolean>> order);
 
 	/**
 	 * Execute remote service (server implementation for IServerService&lt;TArgument, TResult&gt;)
@@ -79,7 +79,7 @@ public interface StandardProxy {
 	 * @return         future with deserialized result
 	 */
 	public <TArgument, TResult> Future<TResult> execute(
-			final Class<TResult> manifest,
-			final String command,
-			final TArgument argument);
+			Class<TResult> manifest,
+			String command,
+			TArgument argument);
 }
