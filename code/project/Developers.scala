@@ -1,7 +1,8 @@
 object Developers {
   lazy val members = Map(
-    "melezov"   -> "Marko Elezović"
+    "hperadin"  -> "Hrvoje Peradin"
   , "rinmalavi" -> "Marin Vila"
+  , "melezov"   -> "Marko Elezović"
   , "zapov"     -> "Rikard Pavelić"
   )
 

@@ -23,6 +23,6 @@ package com.dslplatform.patterns;
  * }
  * </pre></blockquote>
  *
- * @param <T> domain object on which search will be performed.
+ * @param <T>  domain object on which search will be performed
  */
 public interface Specification<T extends Searchable> {}

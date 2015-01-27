@@ -6,18 +6,18 @@ import java.util.Arrays;
  * with RFC 2045.<br><br>
  * On Windows XP sp1 with 1.4.2_04 and later ;), this encoder and decoder is about 10 times faster
  * on small arrays (10 - 1000 bytes) and 2-3 times as fast on larger arrays (10000 - 1000000 bytes)
- * compared to <code>sun.misc.Encoder()/Decoder()</code>.<br><br>
+ * compared to {@code sun.misc.Encoder()/Decoder()}.<br><br>
  *
  * On byte arrays the encoder is about 20% faster than Jakarta Commons Base64 Codec for encode and
  * about 50% faster for decoding large arrays. This implementation is about twice as fast on very small
- * arrays (&lt 30 bytes). If source/destination is a <code>String</code> this
+ * arrays (&lt 30 bytes). If source/destination is a {@code String} this
  * version is about three times as fast due to the fact that the Commons Codec result has to be recoded
- * to a <code>String</code> from <code>byte[]</code>, which is very expensive.<br><br>
+ * to a {@code String} from {@code byte[]}, which is very expensive.<br><br>
  *
  * This encode/decode algorithm doesn't create any temporary arrays as many other codecs do, it only
  * allocates the resulting array. This produces less garbage and it is possible to handle arrays twice
  * as large as algorithms that create a temporary array. (E.g. Jakarta Commons Codec). It is unknown
- * whether Sun's <code>sun.misc.Encoder()/Decoder()</code> produce temporary arrays but since performance
+ * whether Sun's {@code sun.misc.Encoder()/Decoder()} produce temporary arrays but since performance
  * is quite low it probably does.<br><br>
  *
  * The encoder produces the same output as the Sun one except that the Sun's encoder appends
