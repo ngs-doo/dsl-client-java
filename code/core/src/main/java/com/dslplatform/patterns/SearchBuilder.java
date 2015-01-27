@@ -124,8 +124,8 @@ public class SearchBuilder<T extends Searchable> {
 	/**
 	 * Returns a list of domain objects which satisfy
 	 * {@link Specification specification} if it was set, otherwise all of them.
-	 * Parameters can be previously set to <code>limit</code> results,
-	 * skip <code>offset</code> of initial results and <code>order</code>
+	 * Parameters can be previously set to {@code limit} results,
+	 * skip {@code offset} of initial results and {@code order}
 	 * by some of this domain objects properties.
 	 *
 	 * @return  future value of the resulting sequence

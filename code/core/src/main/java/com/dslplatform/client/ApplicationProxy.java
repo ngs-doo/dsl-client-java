@@ -9,32 +9,36 @@ import java.util.concurrent.Future;
  */
 public interface ApplicationProxy {
 	/**
-	 * If remote service doesn't require any arguments it can be called using get method.
-	 * Provide class of result for deserialization.
+	 * When the remote service doesn't require any arguments it can be called
+	 * using the {@code get} method. The class needs to be provided for
+	 * deserialization.
 	 *
-	 * @param manifest       result type
-	 * @param command        remote service name
-	 * @param expectedStatus expected status from remote call
-	 * @return               future with deserialized result
+	 * @param <TResult>       result type
+	 * @param manifest        result class for deserialization
+	 * @param command         remote service name
+	 * @param expectedStatus  expected status from remote call
+	 * @return                future with the deserialized result
 	 */
 	public <TResult> Future<TResult> get(
-			final Class<TResult> manifest,
-			final String command,
-			final int[] expectedStatus);
+			Class<TResult> manifest,
+			String command,
+			int[] expectedStatus);
 
 	/**
-	 * When remote service require an argument message with serialized payload will be sent.
-	 * Provide class of result for deserialization.
+	 * When the remote service requires arguments a message with the serialized
+	 * payload will be sent. The class needs to be provided for deserialization.
 	 *
-	 * @param manifest       result type
-	 * @param command        remote service name
-	 * @param argument       remote service argument
-	 * @param expectedStatus expected status from remote call
-	 * @return               future with deserialized result
+	 * @param <TArgument>     argument type
+	 * @param <TResult>       result type
+	 * @param manifest        result class for deserialization
+	 * @param command         remote service name
+	 * @param argument        remote service argument
+	 * @param expectedStatus  expected status from remote call
+	 * @return                future with the deserialized result
 	 */
 	public <TArgument, TResult> Future<TResult> post(
-			final Class<TResult> manifest,
-			final String command,
-			final TArgument argument,
-			final int[] expectedStatus);
+			Class<TResult> manifest,
+			String command,
+			TArgument argument,
+			int[] expectedStatus);
 }
