@@ -148,7 +148,7 @@ class Utils {
 	static final boolean isAndroid;
 
 	static {
-		isAndroid = System.getProperty("java.runtime.name").toLowerCase().contains("android");
+		isAndroid = System.getProperty("java.runtime.name").toLowerCase(Locale.ENGLISH).contains("android");
 	}
 
 	static class AndroidEncoding {

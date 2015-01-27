@@ -8,7 +8,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import com.dslplatform.patterns.*;
-import com.fasterxml.jackson.databind.JavaType;
 
 class HttpReportingProxy implements ReportingProxy {
 	private final static String REPORTING_URI = "Reporting.svc/";
