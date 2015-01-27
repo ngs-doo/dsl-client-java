@@ -8,10 +8,10 @@ import net.virtualvoid.sbt.graph.Plugin._
 
 trait Default {
   val defaultSettings =
-    Defaults.defaultSettings ++
+    Defaults.coreDefaultSettings ++
     eclipseSettings ++
     graphSettings ++ Seq(
-      scalaVersion := "2.11.4"
+      scalaVersion := "2.11.5"
     , crossPaths := false
     , autoScalaLibrary := false
     , unmanagedSourceDirectories in Compile := Seq((javaSource in Compile).value)
@@ -56,22 +56,23 @@ trait Default {
 
 trait Dependencies {
   // JodaTime
-  val jodaTime = "joda-time" % "joda-time" % "2.5"
+  val jodaTime = "joda-time" % "joda-time" % "2.7"
 
   // Json serialization
-  val jackson = "com.fasterxml.jackson.core" % "jackson-databind" % "2.4.3"
+  val jackson = "com.fasterxml.jackson.core" % "jackson-databind" % "2.5.0"
 
   // Logging facade
-  val slf4j = "org.slf4j" % "slf4j-api" % "1.7.7"
+  val slf4j = "org.slf4j" % "slf4j-api" % "1.7.10"
 
   // Amazon Web Services SDK (S3 type)
-  val aws = "com.amazonaws" % "aws-java-sdk" % "1.8.11"
+  val awsCore = "com.amazonaws" % "aws-java-sdk-core" % "1.9.16"
+  val awsS3   = "com.amazonaws" % "aws-java-sdk-s3" % "1.9.16"
 
   // Android SDK
   val androidSDK = "com.google.android" % "android" % "4.1.1.4"
 
   // Testing
-  val junit = "junit" % "junit" % "4.11"
+  val junit = "junit" % "junit" % "4.12"
   val junitInterface = "com.novocode" % "junit-interface" % "0.11"
   val jsonAssert = "org.skyscreamer" % "jsonassert" % "1.2.3"
   val xmlUnit = "xmlunit" % "xmlunit" % "1.5"
@@ -80,7 +81,7 @@ trait Dependencies {
 
 // ----------------------------------------------------------------------------
 
-object NGSBuild extends Build with Default with Dependencies {
+object Build extends Build with Default with Dependencies {
   lazy val core = Project(
     "core"
   , file("core")
@@ -102,7 +103,8 @@ object NGSBuild extends Build with Default with Dependencies {
         slf4j
       , jackson
       , androidSDK % "provided" intransitive()
-      , aws % "provided"
+      , awsCore % "provided" intransitive()
+      , awsS3 % "provided" intransitive()
       , jsonAssert % "test"
       , junit % "test"
       , junitInterface % "test"
@@ -128,7 +130,7 @@ object NGSBuild extends Build with Default with Dependencies {
         / "dsl-client.properties"
       )
 
-      org.apache.commons.io.FileUtils.writeStringToFile(propertiesPath, body, "UTF-8")
+      IO.write(propertiesPath, body)
       onLoad.value
     }
 
@@ -150,5 +152,5 @@ object NGSBuild extends Build with Default with Dependencies {
     packageBin in Compile                     := (packageBin in Compile).map{checkByteCode}.value
   )
 
-  lazy val root = (project in file(".")) settings ((defaultSettings ++ rootSettings): _*)
+  lazy val root = project in file(".") settings ((defaultSettings ++ rootSettings): _*)
 }
