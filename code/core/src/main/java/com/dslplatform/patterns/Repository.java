@@ -18,17 +18,17 @@ public interface Repository<T extends Identifiable> extends SearchableRepository
 	 * @param uris sequence of unique identifiers
 	 * @return     future to found domain objects
 	 */
-	public Future<List<T>> find(final Iterable<String> uris);
+	public Future<List<T>> find(Iterable<String> uris);
 
-	/** @see Repository#find(Iterable) */
-	public Future<List<T>> find(final String[] uris);
+	/** @see #find(Iterable) */
+	public Future<List<T>> find(String[] uris);
 
 	/**
 	 * Returns a domain object uniquely represented with its URI.
 	 * If object is not found, an exception will be thrown
 	 *
-	 * @param uri domain object identity
-	 * @return    future to found domain object
+	 * @param uri  domain object identity
+	 * @return     future to found domain object
 	 */
-	public Future<T> find(final String uri);
+	public Future<T> find(String uri);
 }

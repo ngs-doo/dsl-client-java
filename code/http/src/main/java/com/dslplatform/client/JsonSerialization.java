@@ -9,8 +9,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import com.dslplatform.patterns.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer;
-import com.fasterxml.jackson.databind.util.Converter;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.w3c.dom.Document;
@@ -243,7 +241,6 @@ public class JsonSerialization {
 	private static class HistoryDelegate<T extends AggregateRoot> {
 		public final List<SnapshotDelegate<T>> Snapshots;
 
-		@SuppressWarnings("unused")
 		private HistoryDelegate() { this.Snapshots = null; }
 	}
 
@@ -448,7 +445,7 @@ public class JsonSerialization {
 	/**
 	 * Builds an XML subtree out of a list and a head element. The list elements
 	 * are serialized into a series of nodes whose title is
-	 * <code>listHeadElementName</code>. The head element need be created before
+	 * {@code listHeadElementName}. The head element need be created before
 	 * this method call.
 	 *
 	 * @param doc          The parent document
@@ -525,9 +522,15 @@ public class JsonSerialization {
 		return typeFactory.constructType(simple);
 	}
 
+	@SuppressWarnings("deprecation")
 	public static JavaType buildGenericType(final Class<?> containerType, final Class<?>... element) {
 		return typeFactory.constructParametricType(containerType, element);
 	}
+
+// TODO: constructParametricType was deprecated in jackson 2.5.0
+//	public static JavaType buildGenericType(final Class<?> containerType, final Class<?> element, final Class<?>... elements) {
+//		return typeFactory.constructParametrizedType(containerType, element, elements);
+//	}
 
 	@SuppressWarnings("rawtypes")
 	public static JavaType buildCollectionType(final Class<? extends Collection> collection, final JavaType element) {
