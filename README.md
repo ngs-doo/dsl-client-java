@@ -2,19 +2,16 @@
 
 ## Introduction
 
-DSL client is a set of core Java files used for interaction of DSL platform and Java.
+DSL client is a set of core Java files used as compile target for [DSL Platform] [1].
 
-If you are new to the DSL platform, take a look at [introduction] [3] and check out [the tutorials] [4]. 
+If you are new to the DSL Platform, take a look at [introduction] [3] and check out [the tutorials] [4]. 
 You can even [try it online] [5] (but not in Java).
 
-## Installing
+## Why?
 
-This package should primarily be used for testing. To setup DSL platform in an easy way, we recommend you to create and download a project from [dsl-platform.com][1]. 
-For further information about using DSL platform in your projects, follow the instructions in the Setup guide.
+DSL client is compatible with [Revenj] [6] REST API. This means it can be used as Java/Android library for interaction with Revenj.
 
-## Running tests
-
-Tests are not yet ported to this repository. You can expect them soon.
+DSL client can also be used as fastest [JSON serializer] [7] for JVM.  
 
 ## Documentation
 
@@ -30,3 +27,5 @@ List of documentation resources:
 [3]: https://docs.dsl-platform.com/java-introduction
 [4]: https://docs.dsl-platform.com/java-beginners-tutorial
 [5]: https://learn.dsl-platform.com
+[6]: https://github.com/ngs-doo/revenj
+[7]: https://github.com/ngs-doo/json-benchmark
