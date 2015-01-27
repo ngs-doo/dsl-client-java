@@ -20,15 +20,15 @@ public interface Repository<T extends Identifiable> extends SearchableRepository
 	 */
 	public Future<List<T>> find(Iterable<String> uris);
 
-	/** @see Repository#find(Iterable) */
+	/** @see #find(Iterable) */
 	public Future<List<T>> find(String[] uris);
 
 	/**
 	 * Returns a domain object uniquely represented with its URI.
 	 * If object is not found, an exception will be thrown
 	 *
-	 * @param uri domain object identity
-	 * @return    future to found domain object
+	 * @param uri  domain object identity
+	 * @return     future to found domain object
 	 */
 	public Future<T> find(String uri);
 }

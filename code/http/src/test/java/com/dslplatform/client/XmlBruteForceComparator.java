@@ -210,12 +210,9 @@ public class XmlBruteForceComparator implements Comparator<Element> {
 	 * The lists are considered equal if their nodes are equal. Since they
 	 * represent paths in a tree, their ordering is relevant.
 	 *
-	 * @param lhs
-	 *            The lhs List<Node>
-	 * @param rhs
-	 *            The rhs List<Node>
-	 * @return true if the {@code lists} are equal, {@code false} otherwise
-	 * @throws InterruptedException
+	 * @param lhs  The lhs List<Node>
+	 * @param rhs  The rhs List<Node>
+	 * @return     {@code true} if the {@code lists} are equal, {@code false} otherwise
 	 */
 	private boolean nodeListsEqual(final List<Node> lhs, final List<Node> rhs) {
 

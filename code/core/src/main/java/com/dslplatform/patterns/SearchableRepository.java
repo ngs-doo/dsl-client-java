@@ -21,10 +21,10 @@ import java.util.concurrent.Future;
 public interface SearchableRepository<T extends Searchable> {
 	/**
 	 * Returns a list of domain objects satisfying {@link Specification specification}
-	 * with up to <code>limit</code> results.
-	 * <code>offset</code> can be used to skip initial results.
-	 * <code>order</code> should be given as a list of pairs of
-	 * <code>{@literal <String, Boolean>}</code>
+	 * with up to {@code limit} results.
+	 * {@code offset} can be used to skip initial results.
+	 * {@code order} should be given as a list of pairs of
+	 * {@code {@literal <String, Boolean>}}
 	 * where first is a property name and second is whether it should be sorted
 	 * ascending over this property.
 	 *
@@ -42,8 +42,8 @@ public interface SearchableRepository<T extends Searchable> {
 
 	/**
 	 * Returns a list of domain objects satisfying {@link Specification specification}
-	 * with up to <code>limit</code> results.
-	 * <code>offset</code> can be used to skip initial results.
+	 * with up to {@code limit} results.
+	 * {@code offset} can be used to skip initial results.
 	 *
 	 * @param specification search predicate
 	 * @param limit         maximum number of results
@@ -65,10 +65,10 @@ public interface SearchableRepository<T extends Searchable> {
 
 	/**
 	 * Returns a list of all domain objects
-	 * with up to <code>limit</code> results.
-	 * <code>offset</code> can be used to skip initial results.
-	 * <code>order</code> should be given as a list of pairs of
-	 * <code>{@literal <String, Boolean>}</code>
+	 * with up to {@code limit} results.
+	 * {@code offset} can be used to skip initial results.
+	 * {@code order} should be given as a list of pairs of
+	 * {@code {@literal <String, Boolean>}}
 	 * where first is a property name and second is whether it should be sorted
 	 * ascending over this property.
 	 *
@@ -84,8 +84,8 @@ public interface SearchableRepository<T extends Searchable> {
 
 	/**
 	 * Returns a list of all domain objects
-	 * with up to <code>limit</code> results.
-	 * <code>offset</code> can be used to skip initial results.
+	 * with up to {@code limit} results.
+	 * {@code offset} can be used to skip initial results.
 	 *
 	 * @param limit  maximum number of results
 	 * @param offset number of results to be skipped

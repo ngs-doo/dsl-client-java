@@ -13,8 +13,9 @@ public interface ServiceLocator {
 	/**
 	 * Resolve a service registered in the locator.
 	 *
-	 * @param clazz class or interface
-	 * @return      registered implementation
+	 * @param <T>    type to be located
+	 * @param clazz  class or interface
+	 * @return       registered implementation
 	 */
 	public <T> T resolve(Class<T> clazz);
 }

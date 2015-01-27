@@ -10,8 +10,11 @@ import java.util.Map;
 
 import com.dslplatform.client.StandardProxy;
 
-/** Utility class for building olap cube analysis.*/
-
+/**
+ * Utility class for building olap cube analysis.
+ *
+ * @param <T>  domain object type
+ */
 public class CubeBuilder<T extends Identifiable> {
 	private final ServiceLocator locator;
 	private final String cubeName;
@@ -62,8 +65,8 @@ public class CubeBuilder<T extends Identifiable> {
 	/**
 	 * Order result ascending using a provided property
 	 *
-	 * @param property name of domain objects property
-	 * @return         itself
+	 * @param property  name of domain object's property
+	 * @return          itself
 	 */
 	public CubeBuilder<T> ascending(final String property) {
 		return orderBy(property, true);
@@ -72,22 +75,23 @@ public class CubeBuilder<T extends Identifiable> {
 	/**
 	 * Order result descending using a provided property
 	 *
-	 * @param property name of domain objects property
-	 * @return         itself
+	 * @param property  name of domain object's property
+	 * @return          itself
 	 */
 	public CubeBuilder<T> descending(final String property) {
 		return orderBy(property, false);
 	}
 
 	/**
-	 * Returns a list of domain objects which satisfy
+	 * Returns a list of domain objects which satisfy the
 	 * {@link Specification specification} if it was set, otherwise all of them.
-	 * Parameters can be previously set to <code>limit</code> results,
-	 * skip <code>offset</code> of initial results and <code>order</code>
-	 * by some of this domain objects properties.
+	 * Parameters can be previously set to {@code limit} results,
+	 * skip {@code offset} of initial results and {@code order}
+	 * by some of this domain object's properties.
 	 *
-	 * @param <T> aggregate root type
-	 * @return  future value of the resulting sequence
+	 * @param <TResult>  domain object type
+	 * @param clazz      domain object class (for deserialization)
+	 * @return           future value of the resulting sequence
 	 */
 	public <TResult> java.util.List<TResult> analyze(final Class<TResult> clazz) throws IOException {
 		final StandardProxy proxy = locator.resolve(StandardProxy.class);
