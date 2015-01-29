@@ -94,11 +94,11 @@ object Build extends Build with Default with Dependencies {
     )
   )
 
-  lazy val http = Project(
-    "http"
-  , file("http")
+  lazy val core = Project(
+    "core"
+  , file("core")
   , settings = defaultSettings ++ Seq(
-      name := "dsl-client-http"
+      name := "dsl-client-core"
     , libraryDependencies ++= Seq(
         slf4j
       , jackson
@@ -134,9 +134,9 @@ object Build extends Build with Default with Dependencies {
       onLoad.value
     }
 
-  def aggregatedCompile = ScopeFilter(inProjects(interface, http), inConfigurations(Compile))
+  def aggregatedCompile = ScopeFilter(inProjects(interface, core), inConfigurations(Compile))
 
-  def aggregatedTest = ScopeFilter(inProjects(interface, http), inConfigurations(Test))
+  def aggregatedTest = ScopeFilter(inProjects(interface, core), inConfigurations(Test))
 
   def rootSettings = Seq(
     sources in Compile                        := sources.all(aggregatedCompile).value.flatten,
