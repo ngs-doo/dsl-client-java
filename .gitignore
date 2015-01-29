@@ -1,10 +1,13 @@
-target
+.cache
 .classpath
+.history
+.idea
+.idea_modules
 .project
 .settings
-.history
 .target
-.cache
-.idea
+
+target
+
 *.orig
 *~
