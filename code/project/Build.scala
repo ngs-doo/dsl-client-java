@@ -82,11 +82,11 @@ trait Dependencies {
 // ----------------------------------------------------------------------------
 
 object Build extends Build with Default with Dependencies {
-  lazy val core = Project(
-    "core"
-  , file("core")
+  lazy val interface = Project(
+    "interface"
+  , file("interface")
   , settings = defaultSettings ++ Seq(
-      name := "dsl-client-core"
+      name := "dsl-client-interface"
     , libraryDependencies ++= Seq(
         jodaTime
       )
@@ -94,11 +94,11 @@ object Build extends Build with Default with Dependencies {
     )
   )
 
-  lazy val http = Project(
-    "http"
-  , file("http")
+  lazy val core = Project(
+    "core"
+  , file("core")
   , settings = defaultSettings ++ Seq(
-      name := "dsl-client-http"
+      name := "dsl-client-core"
     , libraryDependencies ++= Seq(
         slf4j
       , jackson
@@ -117,7 +117,7 @@ object Build extends Build with Default with Dependencies {
     , createVersionProperties
     , unmanagedJars in Test += baseDirectory.value / "test-lib" / "java-client.jar"
     )
-  ) dependsOn(core)
+  ) dependsOn(interface)
 
   private val createVersionProperties =
     onLoad := {
@@ -134,9 +134,9 @@ object Build extends Build with Default with Dependencies {
       onLoad.value
     }
 
-  def aggregatedCompile = ScopeFilter(inProjects(core, http), inConfigurations(Compile))
+  def aggregatedCompile = ScopeFilter(inProjects(interface, core), inConfigurations(Compile))
 
-  def aggregatedTest = ScopeFilter(inProjects(core, http), inConfigurations(Test))
+  def aggregatedTest = ScopeFilter(inProjects(interface, core), inConfigurations(Test))
 
   def rootSettings = Seq(
     sources in Compile                        := sources.all(aggregatedCompile).value.flatten,
