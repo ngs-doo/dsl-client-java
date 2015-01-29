@@ -272,6 +272,19 @@ public final class JsonWriter extends Writer {
 		position += len;
 	}
 
+	public final void writeAscii(final byte[] buf) {
+		final int len = buf.length;
+		if (position + len >= result.length) {
+			result = Arrays.copyOf(result, result.length + result.length / 2 + len);
+		}
+		final int p = position;
+		final byte[] _result = result;
+		for (int i = 0; i < buf.length; i++) {
+			_result[p + i] = buf[i];
+		}
+		position += len;
+	}
+
 	public final void writeBinary(final byte[] buf) {
 		if (position + (buf.length << 1) + 2 >= result.length) {
 			result = Arrays.copyOf(result, result.length + result.length / 2 + (buf.length << 1) + 2);
