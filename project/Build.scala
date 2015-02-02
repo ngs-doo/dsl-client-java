@@ -2,6 +2,7 @@ import sbt._
 import Keys._
 
 import com.typesafe.sbteclipse.plugin.EclipsePlugin._
+import org.sbtidea.SbtIdeaPlugin._
 import net.virtualvoid.sbt.graph.Plugin._
 
 // ----------------------------------------------------------------------------
@@ -15,9 +16,6 @@ trait Default {
     , crossPaths := false
     , autoScalaLibrary := false
     , unmanagedSourceDirectories in Compile := Seq((javaSource in Compile).value)
-    , EclipseKeys.eclipseOutput := Some(".target")
-    , EclipseKeys.executionEnvironment := Some(EclipseExecutionEnvironment.JavaSE16)
-    , EclipseKeys.projectFlavor := EclipseProjectFlavor.Java
     , javacOptions in doc := Seq(
         "-encoding", "UTF-8"
       , "-source", "1.6"
@@ -38,6 +36,10 @@ trait Default {
           )
         case _ => Nil
       })
+    , EclipseKeys.eclipseOutput := Some(".target")
+    , EclipseKeys.executionEnvironment := Some(EclipseExecutionEnvironment.JavaSE16)
+    , EclipseKeys.projectFlavor := EclipseProjectFlavor.Java
+    , ideaExcludeFolders := Seq(".idea", ".idea_modules", ".settings") 
     )
 
   def checkByteCode(jar: File): File = {
