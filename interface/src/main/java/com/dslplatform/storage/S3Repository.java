@@ -21,6 +21,19 @@ public interface S3Repository {
 	Future<InputStream> get(String bucket, String key);
 
 	/**
+	 * Load remote stream using bucket and key
+	 *
+	 * @param bucket
+	 *            bucket where stream is stored
+	 * @param key
+	 *            key in bucket for stream
+	 * @param version
+	 *            version id of object
+	 * @return future to stream
+	 */
+	Future<InputStream> get(String bucket, String key, String version);
+
+	/**
 	 * Upload stream defined by bucket and key.
 	 * Provide length of the stream and additional metadata.
 	 *
@@ -46,4 +59,15 @@ public interface S3Repository {
 	 * @return       future for error checking
 	 */
 	Future<?> delete(String bucket, String key);
+
+	/**
+	 * Checks if resource exists in storage
+	 *
+	 * @param bucket
+	 * @param key
+	 * @param versionID
+	 * @return
+	 */
+	Future<Boolean> checkExists(String bucket, String key, String versionID);
+
 }

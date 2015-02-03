@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import com.dslplatform.patterns.DomainEventStore;
 import com.dslplatform.patterns.ServiceLocator;
+import com.dslplatform.storage.S3Repository;
 
 /**
  * DSL client Java initialization.
@@ -119,8 +120,8 @@ public class Bootstrap {
 				.register(DomainProxy.class, domainProxy)
 				.register(StandardProxy.class, new HttpStandardProxy(httpClient, executorService))
 				.register(ReportingProxy.class, new HttpReportingProxy(httpClient, executorService, jsonDeserialization))
-				.register(DomainEventStore.class, new ClientDomainEventStore(domainProxy));
-//				.register(S3Repository.class, new AmazonS3Repository(project))
+				.register(DomainEventStore.class, new ClientDomainEventStore(domainProxy))
+				.register(S3Repository.class, new AmazonS3Repository(properties, executorService));
 
 		return staticLocator = locator;
 	}
@@ -142,7 +143,7 @@ public class Bootstrap {
 		}
 	}
 
-// -----------------------------------------------------------------------------
+	// -----------------------------------------------------------------------------
 
 	private static final Properties versionInfo = new Properties();
 

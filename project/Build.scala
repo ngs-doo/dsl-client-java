@@ -103,8 +103,8 @@ object Build extends Build with Default with Dependencies {
         slf4j
       , jackson
       , androidSDK % "provided" intransitive()
-      , awsCore % "provided" intransitive()
-      , awsS3 % "provided" intransitive()
+      , awsCore % "provided" 
+      , awsS3 % "provided"
       , jsonAssert % "test"
       , junit % "test"
       , junitInterface % "test"
