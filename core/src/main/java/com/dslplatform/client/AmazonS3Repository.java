@@ -9,6 +9,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
@@ -20,6 +22,7 @@ import com.dslplatform.storage.S3Repository;
 class AmazonS3Repository implements S3Repository {
 	private final String s3AccessKey;
 	private final String s3SecretKey;
+	private final String s3Region;
 	private final ExecutorService executorService;
 
 	private AmazonS3Client s3Client;
@@ -31,6 +34,8 @@ class AmazonS3Repository implements S3Repository {
 			if (s3SecretKey == null || s3SecretKey.isEmpty())
 				throw new IOException("S3 configuration is missing. Please add s3-secret");
 			s3Client = new AmazonS3Client(new BasicAWSCredentials(s3AccessKey, s3SecretKey));
+			if (s3Region != null)
+				s3Client.setRegion(Region.getRegion(Regions.fromName(s3Region)));
 		}
 		return s3Client;
 	}
@@ -38,13 +43,14 @@ class AmazonS3Repository implements S3Repository {
 	public AmazonS3Repository(final Properties properties, final ExecutorService executorService) {
 		s3AccessKey = properties.getProperty("s3-user");
 		s3SecretKey = properties.getProperty("s3-secret");
+		s3Region    = properties.getProperty("s3-region");
 		this.executorService = executorService;
 	}
 
 	private void checkBucket(final String name) throws IOException {
 		if (name == null || name.isEmpty())
 			throw new IOException(
-					"Bucket not specified. If you wish to use default bucket name, add it as s3-bucket to dsl-project.properties");
+					"Bucket not specified. If you wish to use default bucket name, add it as s3-bucket into properties.");
 	}
 
 	@Override

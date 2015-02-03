@@ -75,6 +75,21 @@ public class S3 implements java.io.Serializable {
 		upload(streamToByteArray(stream));
 	}
 
+	public S3(final String key) throws IOException {
+		this(bucketName, key);
+	}
+
+	public S3(final String bucket, final String key) throws IOException {
+		if (bucket == null) throw new IllegalArgumentException("bucket cannot be null!");
+		if (key == null) throw new IllegalArgumentException("key cannot be null!");
+
+		instanceRepository = null;
+		cachedContent = null;
+
+		this.key = key;
+		this.bucket = bucket;
+	}
+
 	/**
 	 * Create new instance of S3 from provided stream.
 	 * Upload will be called immediately.
