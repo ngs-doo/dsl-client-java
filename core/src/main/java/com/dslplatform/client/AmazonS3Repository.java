@@ -72,19 +72,6 @@ class AmazonS3Repository implements S3Repository {
 	}
 
 	@Override
-	public Future<InputStream> get(final String bucket, final String key,
-			final String version) {
-		return executorService.submit(new Callable<InputStream>() {
-			@Override
-			public InputStream call() throws IOException {
-				final S3Object s3 = getS3Client().getObject(
-						new GetObjectRequest(bucket, key, version));
-				return s3.getObjectContent();
-			}
-		});
-	}
-
-	@Override
 	public Future<?> upload(final String bucket, final String key,
 			final InputStream stream, final long length,
 			final Map<String, String> metadata) {
@@ -119,8 +106,7 @@ class AmazonS3Repository implements S3Repository {
 		});
 	}
 
-	public Future<Boolean> checkExists(final String bucket, final String key,
-			final String version) {
+	public Future<Boolean> checkExists(final String bucket, final String key) {
 		return executorService.submit(new Callable<Boolean>() {
 			@Override
 			public Boolean call() throws IOException {

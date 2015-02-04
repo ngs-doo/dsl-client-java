@@ -34,7 +34,6 @@ public class S3 implements java.io.Serializable {
 			@JsonProperty("Length") final int length,
 			@JsonProperty("Name") final String name,
 			@JsonProperty("MimeType") final String mimeType,
-			@JsonProperty("VersionID") final String versionID,
 			@JsonProperty("Metadata") final Map<String, String> metadata) {
 		instanceRepository = locator.resolve(S3Repository.class);
 		this.bucket = bucket;
@@ -42,7 +41,6 @@ public class S3 implements java.io.Serializable {
 		this.length = length;
 		this.name = name;
 		this.mimeType = mimeType;
-		this.versionID = versionID;
 
 		if (metadata != null) {
 			for (final Map.Entry<String, String> kv : metadata.entrySet()) {
@@ -80,12 +78,12 @@ public class S3 implements java.io.Serializable {
 		upload(streamToByteArray(stream));
 	}
 
-	public S3(final String key, final String versionID) throws IOException {
+	public S3(final String key) throws IOException {
 		instanceRepository = getRepository();
 		cachedContent = null;
 		Boolean exists;
 		try {
-			exists = instanceRepository.checkExists(S3.bucketName, key, versionID).get(10, TimeUnit.SECONDS);
+			exists = instanceRepository.checkExists(S3.bucketName, key).get(10, TimeUnit.SECONDS);
 		} catch (InterruptedException ie) {
 			throw new IOException("Error occured during object lookup!", ie);
 		} catch (ExecutionException ee){
@@ -95,7 +93,6 @@ public class S3 implements java.io.Serializable {
 		}
 		if (exists) {
 			this.key = key;
-			this.versionID = versionID;
 		} else throw new IOException("Not found!");
 	}
 
@@ -218,18 +215,6 @@ public class S3 implements java.io.Serializable {
 		return this;
 	}
 
-	private String versionID;
-
-	/**
-	 * For convenience, remote data can be assigned a version id. If user has
-	 * not enabled versioning, then return data is null.
-	 *
-	 * @return version id associated with the remote data
-	 */
-	@JsonProperty("VersionID")
-	public String getVersionID() {
-		return this.versionID;
-	}
 
 	private final HashMap<String, String> metadata = new HashMap<String, String>();
 
@@ -270,7 +255,7 @@ public class S3 implements java.io.Serializable {
 	public InputStream getStream() throws IOException {
 		if (key == null || key.isEmpty()) return null;
 		try {
-			return (versionID == null) ? getRepository().get(bucketName, key).get() : getRepository().get(bucketName, key, versionID).get();
+			return getRepository().get(bucketName, key).get();
 		} catch (final InterruptedException e) {
 			throw new IOException(e);
 		} catch (final ExecutionException e) {
@@ -289,7 +274,7 @@ public class S3 implements java.io.Serializable {
 		if (key == null || key.isEmpty()) return null;
 		final InputStream stream;
 		try {
-			stream = (versionID == null) ? getRepository().get(bucket, key).get() : getRepository().get(bucket, key, versionID).get();
+			stream = getRepository().get(bucket, key).get();
 		} catch (final InterruptedException e) {
 			throw new IOException(e);
 		} catch (final ExecutionException e) {
