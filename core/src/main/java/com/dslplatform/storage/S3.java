@@ -356,10 +356,8 @@ public class S3 implements java.io.Serializable {
 		try {
 			getRepository().upload(bucket, key, stream, bytes.length, metadata).get();
 		} catch (final InterruptedException e) {
-			System.out.println(e.getMessage());
 			throw new IOException(e);
 		} catch (final ExecutionException e) {
-			System.out.println(e.getMessage());
 			throw new IOException(e);
 		}
 		length = bytes.length;

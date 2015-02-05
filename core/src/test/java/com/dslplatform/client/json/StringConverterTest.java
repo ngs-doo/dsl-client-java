@@ -1,11 +1,13 @@
 package com.dslplatform.client.json;
 
+import com.dslplatform.client.TestLogging;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
 
-public class StringConverterTest {
+public class StringConverterTest extends TestLogging {
 	@Test
 	public void testCharacterParsing() throws IOException {
 		// setup
@@ -17,7 +19,7 @@ public class StringConverterTest {
 			// log
 			if ((value & 0xfff) == 0xfff) {
 				final long progress = value - from;
-				System.out.println(String.format("Exhaustive character parsing test [%d,%d] (%.2f%%)", from, to, (float) progress * 100 / range));
+				debug("Exhaustive character parsing test [%d,%d] (%.2f%%)", from, to, (float) progress * 100 / range);
 			}
 
 			// The Unicode standard permanently reserves these code point values for UTF-16 encoding of the high and low surrogates,
@@ -89,7 +91,7 @@ public class StringConverterTest {
 			// log
 			if ((value & 0xfff) == 0xfff) {
 				final long progress = value - from;
-				System.out.println(String.format("Exhaustive character printing test [%d,%d] (%.2f%%)", from, to, (float) progress * 100 / range));
+				debug("Exhaustive character printing test [%d,%d] (%.2f%%)", from, to, (float) progress * 100 / range);
 			}
 
 			// The Unicode standard permanently reserves these code point values for UTF-16 encoding of the high and low surrogates,
@@ -147,7 +149,7 @@ public class StringConverterTest {
 			// log
 			if ((value & 0xfff) == 0xfff) {
 				final long progress = value - from;
-				System.out.println(String.format("Exhaustive surrogate character pair parsing test [%d,%d] (%.2f%%)", from, to ,(float) progress * 100 / range));
+				debug("Exhaustive surrogate character pair parsing test [%d,%d] (%.2f%%)", from, to ,(float) progress * 100 / range);
 			}
 
 			final char[] pair = Character.toChars((int) value);

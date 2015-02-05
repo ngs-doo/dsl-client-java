@@ -1,13 +1,16 @@
-package com.dslplatform.client;
+package com.dslplatform.client.xml;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.net.URISyntaxException;
-import java.net.URL;
+import com.dslplatform.client.Bootstrap;
+import com.dslplatform.client.JsonSerialization;
+import com.dslplatform.client.JsonStatic;
+import com.dslplatform.client.TestLogging;
+import com.dslplatform.patterns.ServiceLocator;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
+import javax.management.RuntimeMBeanException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
@@ -15,28 +18,22 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import java.io.*;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Properties;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
-
-public class Helpers {
-
+public class XMLHelpers extends TestLogging {
 	public static File getFileForResource(final String resourcePath) throws URISyntaxException {
 		final URL resourceURL = Xml2JsonRoundTripTest.class.getResource(resourcePath);
 
 		if (resourceURL == null) return null;
-		else return new File(resourceURL.toURI());
-
+		return new File(resourceURL.toURI());
 	}
 
 	public static Document parseXmlFile(final File file) throws SAXException, IOException, ParserConfigurationException {
-
 		final Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file);
-
 		doc.normalizeDocument();
-
 		return doc;
 	}
 
@@ -57,17 +54,6 @@ public class Helpers {
 		}
 	}
 
-	public static void printDocumentTree(final Node el) {
-		System.out.println(el.toString());
-		for (int i = 0; i < el.getChildNodes().getLength(); i++) {
-			printDocumentTree(el.getChildNodes().item(i));
-		}
-	}
-
-	public static void printXmlDocument(final Document doc) {
-		System.out.println(xmlDocumentToString(doc));
-	}
-
 	public static String xmlDocumentToString(final Document doc) {
 		try {
 			final DOMSource domSource = new DOMSource(doc);
@@ -83,21 +69,15 @@ public class Helpers {
 		}
 	}
 
-	public static Document xmlDocumentFromJson(final String jSon) throws IOException, ParserConfigurationException {
-
-		System.out.println("Json:");
-		System.out.println(jSon);
-
+	public static Document xmlDocumentFromJson(final String json) throws IOException, ParserConfigurationException {
 		final Element xmlRootElement =
-				new JsonSerialization(new com.dslplatform.client.MapServiceLocator()).<Element> deserialize(
-						JsonSerialization.buildType(org.w3c.dom.Element.class),
-						jSon);
+				JsonStatic.INSTANCE.jsonSerialization.deserialize(
+						JsonSerialization.buildType(Element.class),
+						json);
 
 		final Document xmlDocument = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-
 		final Node rootNode = xmlDocument.importNode(xmlRootElement, true);
 		xmlDocument.appendChild(rootNode);
-
 		return xmlDocument;
 	}
 

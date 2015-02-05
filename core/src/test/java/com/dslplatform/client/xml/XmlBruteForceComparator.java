@@ -1,6 +1,4 @@
-package com.dslplatform.client;
-
-import static java.lang.System.out;
+package com.dslplatform.client.xml;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -62,7 +60,6 @@ public class XmlBruteForceComparator implements Comparator<Element> {
 
 	@Override
 	public int compare(final Element lhs, final Element rhs) {
-
 		collapseNodes(lhs, rhs);
 
 		buildPaths(xmlPaths_lhs, null, lhs);
@@ -176,12 +173,6 @@ public class XmlBruteForceComparator implements Comparator<Element> {
 	 */
 	private int compareAllPaths(final List<List<Node>> lhs, final List<List<Node>> rhs) {
 		if (lhs.size() != rhs.size()) {
-			System.out.println("Različite veličine:");
-			System.out.println();
-			System.out.println(lhs);
-			System.out.println();
-			System.out.println(rhs);
-
 			return -1;
 		}
 
@@ -191,12 +182,11 @@ public class XmlBruteForceComparator implements Comparator<Element> {
 				if (nodeListsEqual(leftPath, rightPath)) {
 					found = true;
 					rhs.remove(rightPath);
-
 					break;
 				}
 			}
+
 			if (!found) {
-				out.println(leftPath);
 				return -1;
 			}
 		}
@@ -215,16 +205,12 @@ public class XmlBruteForceComparator implements Comparator<Element> {
 	 * @return     {@code true} if the {@code lists} are equal, {@code false} otherwise
 	 */
 	private boolean nodeListsEqual(final List<Node> lhs, final List<Node> rhs) {
-
 		if (lhs.size() != rhs.size()) return false;
-
 		for (int i = 0; i < lhs.size(); i++) {
-
 			final Node node1 = lhs.get(i);
 			final Node node2 = rhs.get(i);
 			if (!nodesEqual(node1, node2)) return false;
 		}
-
 		return true;
 	}
 
@@ -283,23 +269,18 @@ public class XmlBruteForceComparator implements Comparator<Element> {
 
 	private List<Attr> getListOfAttributes(final Node node) {
 		final List<Attr> aListOfAttributes = new ArrayList<Attr>();
-
 		for (int i = 0; i < node.getAttributes().getLength(); i++) {
 			aListOfAttributes.add((Attr) node.getAttributes().item(i));
 		}
-
 		return aListOfAttributes;
 	}
 
 	private List<Node> getListOfChildren(final Node node) {
 		final List<Node> nodes = new ArrayList<Node>();
-
 		final NodeList nodeList = node.getChildNodes();
-
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			nodes.add(nodeList.item(i));
 		}
-
 		return nodes;
 	}
 
