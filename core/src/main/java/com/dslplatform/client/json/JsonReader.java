@@ -119,12 +119,14 @@ public final class JsonReader {
 			throw new IOException("JSON string must start with a double quote! Instead found: " + byteDetails(buffer[currentIndex - 1]));
 		}
 
-		char bb = 0;
+		byte bb = 0;
+		char ch = 0;
 		int pos = 0;
 		int ci = currentIndex;
 		while (pos < tmp.length && ci < buffer.length) {
-			bb = (char) buffer[ci++];
-			if (bb == '"') {
+			bb = buffer[ci++];
+			ch = (char) bb;
+			if (ch == '"') {
 				currentIndex = ci;
 				last = '"';
 				return new String(tmp, 0, pos);
@@ -134,7 +136,7 @@ public final class JsonReader {
 			// there is no chance that we can decode the string without instantiating
 			// a temporary buffer, so quit this loop
 			if ((bb ^ '\\') < 1) break;
-			tmp[pos++] = bb;
+			tmp[pos++] = ch;
 		}
 
 		// If the buffer contains an ASCII string (no high bit set) without any escape codes "\n", "\t", etc...,
@@ -146,8 +148,9 @@ public final class JsonReader {
 			// there is no chance that we can decode the string without instantiating
 			// a temporary buffer, so quit this loop
 			if ((bb ^ '\\') < 1) break;
-			bb = (char) buffer[ci++];
-			if (bb == '"') {
+			bb = buffer[ci++];
+			ch = (char) bb;
+			if (ch == '"') {
 				currentIndex = ci;
 				last = '"';
 				return new String(buffer, startIndex, currentIndex - startIndex - 1, "ISO-8859-1");
