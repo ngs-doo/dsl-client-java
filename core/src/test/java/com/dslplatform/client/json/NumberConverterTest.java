@@ -1,9 +1,10 @@
 package com.dslplatform.client.json;
 
+import com.dslplatform.client.TestLogging;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class NumberConverterTest {
+public class NumberConverterTest extends TestLogging {
 	@Test
 	public void testSerialization() {
 		// setup
@@ -17,7 +18,7 @@ public class NumberConverterTest {
 			// log
 			if ((value & 0xffff) == 0xffff) {
 				final long progress = value - from;
-				System.out.println(String.format("Exhaustive long serialization test [%d,%d] (%.2f%%)", from, to ,(float) progress * 100 / range));
+				debug("Exhaustive long serialization test [%d,%d] (%.2f%%)", from, to, (float) progress * 100 / range);
 			}
 
 			// init
@@ -52,16 +53,16 @@ public class NumberConverterTest {
 		buf[pos + 1] = (byte) pair;
 	}
 
-	@Test
+	// @Test
 	public void testNoop2() {
 		// setup
 		final byte[] out = new byte[2];
 
-		final long startAt = System.currentTimeMillis();
+		final long startAt = now();
 		for (int value = 0; value < 100; value++) {
 			// log
 			if ((value % 10) == 9) {
-				System.out.println(String.format("noop2 test (%.2f%%)", value * 100f / 100));
+				debug("noop2 test (%.2f%%)", value * 100f / 100);
 			}
 
 			// serialization
@@ -106,16 +107,16 @@ public class NumberConverterTest {
 		buf[pos + 1] = (byte) pair;
 	}
 
-	@Test
+	// @Test
 	public void testFast2x() {
 		// setup
 		final byte[] out = new byte[2];
 
-		final long startAt = System.currentTimeMillis();
+		final long startAt = now();
 		for (int value = 0; value < 0x10000000; value++) {
 			// log
 			if ((value & 0xffffff) == 0xffffff) {
-				System.out.println(String.format("fast2x test (%.2f%%)", value * 100f / 0x10000000));
+				debug("fast2x test (%.2f%%)", value * 100f / 0x10000000);
 			}
 
 			// serialization
@@ -137,16 +138,16 @@ public class NumberConverterTest {
 		buf[pos + 1] = (byte) pair;
 	}
 
-	@Test
+	// @Test
 	public void testFast2() {
 		// setup
 		final byte[] out = new byte[2];
 
-		final long startAt = System.currentTimeMillis();
+		final long startAt = now();
 		for (int value = 0; value >= 0; value++) {
 			// log
 			if ((value & 0xffffff) == 0xffffff) {
-				System.out.println(String.format("fast2 test (%.2f%%)", value * 100f / Integer.MAX_VALUE));
+				debug("fast2 test (%.2f%%)", value * 100f / Integer.MAX_VALUE);
 			}
 
 			// serialization
@@ -168,16 +169,16 @@ public class NumberConverterTest {
 		buf[pos + 1] = (byte) (mod100 % 10 + '0');
 	}
 
-	@Test
+	// @Test
 	public void testSlow2() {
 		// setup
 		final byte[] out = new byte[2];
 
-		final long startAt = System.currentTimeMillis();
+		final long startAt = now();
 		for (int value = 0; value >= 0; value++) {
 			// log
 			if ((value & 0xffffff) == 0xffffff) {
-				System.out.println(String.format("slow2 test (%.2f%%)", value * 100f / Integer.MAX_VALUE));
+				debug("slow2 test (%.2f%%)", value * 100f / Integer.MAX_VALUE);
 			}
 
 			// serialization
@@ -192,49 +193,53 @@ public class NumberConverterTest {
 
 	// -----------------------------------------------------------------------------------------------------------------
 
-	public static void main(final String[] args) {
+	private void testSpeed(final int rounds, final int iterations) {
 		final byte[] out = new byte[2];
 
 		final int mode = 1 | 4 | 8;
 
-		for (int i = 0; i < 10; i++) {
-			System.out.println("-------------------------------");
+		for (int i = 0; i < rounds; i++) {
+			info("-------------------------------");
 
 			if ((mode & 1) == 1) {
-				final long startAt = System.currentTimeMillis();
-				for (int value = 0; value < 0x10000000; value++) {
+				final long startAt = now();
+				for (int value = 0; value < iterations; value++) {
 					noop2(99, out, 0);
 				}
-				final long endAt = System.currentTimeMillis();
-				System.out.println(" noop2 #" + i + ", took: " + (endAt - startAt) + " ms");
+				final long endAt = now();
+				info(" noop2 #" + i + ", took: " + (endAt - startAt) + " ms");
 			}
 
 			if ((mode & 2) == 2) {
-				final long startAt = System.currentTimeMillis();
-				for (int value = 0; value < 0x10000000; value++) {
+				final long startAt = now();
+				for (int value = 0; value < iterations; value++) {
 					fast2x(value, out, 0);
 				}
-				final long endAt = System.currentTimeMillis();
-				System.out.println("fast2x #" + i + ", took: " + (endAt - startAt) + " ms");
+				final long endAt = now();
+				info("fast2x #" + i + ", took: " + (endAt - startAt) + " ms");
 			}
 
 			if ((mode & 4) == 4) {
-				final long startAt = System.currentTimeMillis();
-				for (int value = 0; value < 0x10000000; value++) {
+				final long startAt = now();
+				for (int value = 0; value < iterations; value++) {
 					fast2(value, out, 0);
 				}
-				final long endAt = System.currentTimeMillis();
-				System.out.println(" fast2 #" + i + ", took: " + (endAt - startAt) + " ms");
+				final long endAt = now();
+				info(" fast2 #" + i + ", took: " + (endAt - startAt) + " ms");
 			}
 
 			if ((mode & 8) == 8) {
-				final long startAt = System.currentTimeMillis();
-				for (int value = 0; value < 0x10000000; value++) {
+				final long startAt = now();
+				for (int value = 0; value < iterations; value++) {
 					slow2(value, out, 0);
 				}
-				final long endAt = System.currentTimeMillis();
-				System.out.println(" slow2 #" + i + ", took: " + (endAt - startAt) + " ms");
+				final long endAt = now();
+				info(" slow2 #" + i + ", took: " + (endAt - startAt) + " ms");
 			}
 		}
+	}
+
+	public static void main(final String[] args) {
+		new NumberConverterTest().testSpeed(10, 0x10000000);
 	}
 }

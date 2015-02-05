@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MapServiceLocatorTest {
-
 	@Test
 	public void withDefaultLoggerAndEC() throws Exception {
 		final Map<Class<?>, Object> initialComponents = new HashMap<Class<?>, Object>();
@@ -25,5 +24,4 @@ public class MapServiceLocatorTest {
 		assertSame("Executor matches", executorService, mapServiceLocator.resolve(ExecutorService.class));
 		assertSame("Logger matches", logger, mapServiceLocator.resolve(Logger.class));
 	}
-
 }

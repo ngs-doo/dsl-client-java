@@ -1,10 +1,6 @@
-package com.dslplatform.client;
+package com.dslplatform.client.xml;
 
-import static com.dslplatform.client.Helpers.getFileForResource;
-import static com.dslplatform.client.Helpers.jsonStringFromXml;
-import static com.dslplatform.client.Helpers.parseXmlFile;
-import static com.dslplatform.client.Helpers.stringFromFile;
-import static com.dslplatform.client.Helpers.xmlDocumentFromJson;
+import static com.dslplatform.client.xml.XMLHelpers.*;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -18,6 +14,7 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
+import com.dslplatform.client.TestLogging;
 import org.json.JSONException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,11 +24,11 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 @RunWith(Parameterized.class)
-public class Json2XmlRoundTripTest {
+public class Json2XmlRoundTripTest extends TestLogging {
 
 	File sourceFile;
 
-	public Json2XmlRoundTripTest(final String filename, final File sourceFile) {
+	public Json2XmlRoundTripTest(final String unused, final File sourceFile) {
 		this.sourceFile = sourceFile;
 	}
 
@@ -50,9 +47,9 @@ public class Json2XmlRoundTripTest {
 			TransformerException, TransformerFactoryConfigurationError {
 
 		final File jsonSourceFile = sourceFile;
-		System.out.println("-----------------------------------------------------");
-		System.out.println("| Testiramo za datoteku: " + jsonSourceFile.getName());
-		System.out.println("-----------------------------------------------------");
+		debug("+----------------------------------------------------");
+		debug("| Testing filename: " + jsonSourceFile.getName());
+		debug("+----------------------------------------------------");
 
 		/* Filename initialization */
 		final String sourceFilename_json = jsonSourceFile.getName();
@@ -87,10 +84,6 @@ public class Json2XmlRoundTripTest {
 	}
 
 	private static void assertJsonEquivalence(final String lhs, final String rhs) throws JSONException {
-		System.out.println();
-		System.out.println(lhs);
-		System.out.println(rhs);
-		System.out.println();
 		JSONAssert.assertEquals(lhs, rhs, true);
 	}
 
