@@ -46,15 +46,4 @@ public interface S3Repository {
 	 * @return       future for error checking
 	 */
 	Future<?> delete(String bucket, String key);
-
-	/**
-	 * Checks if resource exists in storage
-	 *
-	 * @param bucket
-	 * @param key
-	 * @param versionID
-	 * @return
-	 */
-	Future<Boolean> checkExists(String bucket, String key);
-
 }
