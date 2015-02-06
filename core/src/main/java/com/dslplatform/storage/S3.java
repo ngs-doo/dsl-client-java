@@ -15,8 +15,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Data structure for working with S3 binaries.
@@ -41,7 +39,6 @@ public class S3 implements java.io.Serializable {
 		this.length = length;
 		this.name = name;
 		this.mimeType = mimeType;
-
 		if (metadata != null) {
 			for (final Map.Entry<String, String> kv : metadata.entrySet()) {
 				metadata.put(kv.getKey(), kv.getValue());
@@ -79,21 +76,18 @@ public class S3 implements java.io.Serializable {
 	}
 
 	public S3(final String key) throws IOException {
-		instanceRepository = getRepository();
+		this(bucketName, key);
+	}
+
+	public S3(final String bucket, final String key) throws IOException {
+		if (bucket == null) throw new IllegalArgumentException("bucket cannot be null!");
+		if (key == null) throw new IllegalArgumentException("key cannot be null!");
+
+		instanceRepository = null;
 		cachedContent = null;
-		Boolean exists;
-		try {
-			exists = instanceRepository.checkExists(S3.bucketName, key).get(10, TimeUnit.SECONDS);
-		} catch (InterruptedException ie) {
-			throw new IOException("Error occured during object lookup!", ie);
-		} catch (ExecutionException ee){
-			throw new IOException("Error occured during object lookup!", ee);
-		} catch (TimeoutException te){
-			throw new IOException("Error occured during object lookup!", te);
-		}
-		if (exists) {
-			this.key = key;
-		} else throw new IOException("Not found!");
+
+		this.key = key;
+		this.bucket = bucket;
 	}
 
 	/**
@@ -124,8 +118,8 @@ public class S3 implements java.io.Serializable {
 	private final static String bucketName = Bootstrap.getLocator().resolve(Properties.class).getProperty("s3-bucket");
 
 	private S3Repository getRepository() {
-		if (bucket == null) this.bucket = bucketName;
-		return instanceRepository != null ? instanceRepository
+		return instanceRepository != null
+				? instanceRepository
 				: staticRepository;
 	}
 
@@ -215,7 +209,6 @@ public class S3 implements java.io.Serializable {
 		return this;
 	}
 
-
 	private final HashMap<String, String> metadata = new HashMap<String, String>();
 
 	/**
@@ -255,7 +248,7 @@ public class S3 implements java.io.Serializable {
 	public InputStream getStream() throws IOException {
 		if (key == null || key.isEmpty()) return null;
 		try {
-			return getRepository().get(bucketName, key).get();
+			return getRepository().get(bucket, key).get();
 		} catch (final InterruptedException e) {
 			throw new IOException(e);
 		} catch (final ExecutionException e) {
