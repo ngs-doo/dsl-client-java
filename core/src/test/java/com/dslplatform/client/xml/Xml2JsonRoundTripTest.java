@@ -1,11 +1,6 @@
-package com.dslplatform.client;
+package com.dslplatform.client.xml;
 
-import static com.dslplatform.client.Helpers.getFileForResource;
-import static com.dslplatform.client.Helpers.jsonStringFromXml;
-import static com.dslplatform.client.Helpers.parseXmlFile;
-import static com.dslplatform.client.Helpers.printXmlDocument;
-import static com.dslplatform.client.Helpers.stringFromFile;
-import static com.dslplatform.client.Helpers.xmlDocumentFromJson;
+import static com.dslplatform.client.xml.XMLHelpers.*;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -19,6 +14,7 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
+import com.dslplatform.client.TestLogging;
 import org.json.JSONException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,11 +24,10 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 @RunWith(Parameterized.class)
-public class Xml2JsonRoundTripTest {
+public class Xml2JsonRoundTripTest extends TestLogging {
+	private final File sourceFile;
 
-	File sourceFile;
-
-	public Xml2JsonRoundTripTest(final String filename, final File sourceFile) {
+	public Xml2JsonRoundTripTest(final String unused, final File sourceFile) {
 		this.sourceFile = sourceFile;
 	}
 
@@ -58,9 +53,10 @@ public class Xml2JsonRoundTripTest {
 
 		final File xmlSourceFile = sourceFile;
 
-		System.out.println("-----------------------------------------------------");
-		System.out.println("| Testiramo za datoteku: " + xmlSourceFile.getName());
-		System.out.println("-----------------------------------------------------");
+		debug("+----------------------------------------------------");
+		debug("| Testing filename: " + xmlSourceFile.getName());
+		debug("+----------------------------------------------------");
+
 		/* Filename initialisation */
 		final String sourceFilename_xml = xmlSourceFile.getName();
 		final String convertedFilename_json = sourceFilename_xml + ".json";
@@ -88,10 +84,10 @@ public class Xml2JsonRoundTripTest {
 		/* Convert back to XML, and compare with reference documents */
 		final Document roundtripXmlDocument = xmlDocumentFromJson(convertedJson);
 
-		System.out.println("Our roundtrip XML:");
-		printXmlDocument(roundtripXmlDocument);
-		System.out.println("Reference roundtrip xml:");
-		printXmlDocument(referenceRoundTrip_xml);
+		debug("Our roundtrip XML:");
+		debug(roundtripXmlDocument);
+		debug("Reference roundtrip xml:");
+		debug(referenceRoundTrip_xml);
 
 		assertXmlEquivalence(
 				"The reference roundtrip XML does not match the converted roundtrip XML",
@@ -105,11 +101,6 @@ public class Xml2JsonRoundTripTest {
 	}
 
 	private static void assertJsonEquivalence(final String lhs, final String rhs) throws JSONException {
-		System.out.println();
-		System.out.println("Checking JSon equivalence: ");
-		System.out.println(lhs);
-		System.out.println(rhs);
-
 		JSONAssert.assertEquals(lhs, rhs, true);
 	}
 

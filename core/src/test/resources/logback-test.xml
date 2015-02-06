@@ -5,7 +5,7 @@
       <pattern>[%4p] [%d{HH:mm:ss}] %c{36}: %m%n</pattern>
     </encoder>
   </appender>
-  <root level="WARN">
+  <root level="INFO">
     <appender-ref ref="STDOUT"/>
   </root>
 </configuration>
