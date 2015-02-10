@@ -42,21 +42,6 @@ public final class JsonReader {
 		return last;
 	}
 
-	public final String readShortValue() throws IOException {
-		char ch = (char) last;
-		tmp[0] = ch;
-		int i = 1;
-		int ci = currentIndex;
-		while (i < tmp.length && ci < buffer.length) {
-			ch = (char) buffer[ci++];
-			if (ch == ',' || ch == '}' || ch == ']') break;
-			tmp[i++] = ch;
-		}
-		currentIndex = ci;
-		last = (byte) ch;
-		return new String(tmp, 0, i);
-	}
-
 	public final int getTokenStart() {
 		return tokenStart;
 	}

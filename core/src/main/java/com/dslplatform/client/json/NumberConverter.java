@@ -62,9 +62,62 @@ public class NumberConverter {
 		sw.writeAscii(Double.toString(value));
 	}
 
-	public static Double deserializeDouble(final JsonReader reader) throws IOException {
-		//TODO: better implementation required
-		return Double.parseDouble(reader.readShortValue());
+	public static double deserializeDouble(final JsonReader reader) throws IOException {
+		final char[] buf = reader.readNumber();
+		final int len = reader.getCurrentIndex() - reader.getTokenStart() - 1;
+		long value = 0;
+		char ch = buf[0];
+		try {
+			if (ch == '-') {
+				int i = 1;
+				for (; i < buf.length; i++) {
+					ch = buf[i];
+					if (i == len || ch == '.') break;
+					value = (value << 3) + (value << 1) - Digit[ch - 48];
+				}
+				if (ch == '.') {
+					i++;
+					int div = 1;
+					for (; i < buf.length; i++) {
+						if (i == len) break;
+						div = (div << 3) + (div << 1);
+						value = (value << 3) + (value << 1) - Digit[buf[i] - 48];
+					}
+					return value / (double)div;
+				} else {
+					return value;
+				}
+			} else {
+				int i = 0;
+				for (; i < buf.length; i++) {
+					ch = buf[i];
+					if (i == len || ch == '.') break;
+					value = (value << 3) + (value << 1) + Digit[ch - 48];
+				}
+				if (ch == '.') {
+					i++;
+					int div = 1;
+					for (; i < buf.length; i++) {
+						if (i == len) break;
+						div = (div << 3) + (div << 1);
+						value = (value << 3) + (value << 1) + Digit[buf[i] - 48];
+					}
+					return value / (double)div;
+				} else {
+					return value;
+				}
+			}
+		} catch (ArrayIndexOutOfBoundsException ignore) {
+			int end = len;
+			while (end > 0 && Character.isWhitespace(buf[end - 1])) {
+				end --;
+			}
+			try {
+				return Double.parseDouble(new String(buf, 0, end));
+			} catch (NumberFormatException nfe) {
+				throw new IOException("Error parsing float number at position: " + (reader.getCurrentIndex() - len), nfe);
+			}
+		}
 	}
 
 	private static JsonReader.ReadObject<Double> DoubleReader = new JsonReader.ReadObject<Double>() {
@@ -103,9 +156,62 @@ public class NumberConverter {
 		sw.writeAscii(Float.toString(value));
 	}
 
-	public static Float deserializeFloat(final JsonReader reader) throws IOException {
-		//TODO: better implementation required
-		return Float.parseFloat(reader.readShortValue());
+	public static float deserializeFloat(final JsonReader reader) throws IOException {
+		final char[] buf = reader.readNumber();
+		final int len = reader.getCurrentIndex() - reader.getTokenStart() - 1;
+		long value = 0;
+		char ch = buf[0];
+		try {
+			if (ch == '-') {
+				int i = 1;
+				for (; i < buf.length; i++) {
+					ch = buf[i];
+					if (i == len || ch == '.') break;
+					value = (value << 3) + (value << 1) - Digit[ch - 48];
+				}
+				if (ch == '.') {
+					i++;
+					int div = 1;
+					for (; i < buf.length; i++) {
+						if (i == len) break;
+						div = (div << 3) + (div << 1);
+						value = (value << 3) + (value << 1) - Digit[buf[i] - 48];
+					}
+					return value / (float)div;
+				} else {
+					return value;
+				}
+			} else {
+				int i = 0;
+				for (; i < buf.length; i++) {
+					ch = buf[i];
+					if (i == len || ch == '.') break;
+					value = (value << 3) + (value << 1) + Digit[ch - 48];
+				}
+				if (ch == '.') {
+					i++;
+					int div = 1;
+					for (; i < buf.length; i++) {
+						if (i == len) break;
+						div = (div << 3) + (div << 1);
+						value = (value << 3) + (value << 1) + Digit[buf[i] - 48];
+					}
+					return value / (float)div;
+				} else {
+					return value;
+				}
+			}
+		} catch (ArrayIndexOutOfBoundsException ignore) {
+			int end = len;
+			while (end > 0 && Character.isWhitespace(buf[end - 1])) {
+				end --;
+			}
+			try {
+				return Float.parseFloat(new String(buf, 0, end));
+			} catch (NumberFormatException nfe) {
+				throw new IOException("Error parsing float number at position: " + (reader.getCurrentIndex() - len), nfe);
+			}
+		}
 	}
 
 	private static JsonReader.ReadObject<Float> FloatReader = new JsonReader.ReadObject<Float>() {
@@ -188,7 +294,15 @@ public class NumberConverter {
 				}
 			}
 		} catch (ArrayIndexOutOfBoundsException ignore) {
-			return Integer.parseInt(new String(buf, 0, len));
+			int end = len;
+			while (end > 0 && Character.isWhitespace(buf[end - 1])) {
+				end --;
+			}
+			try {
+				return Integer.parseInt(new String(buf, 0, end));
+			} catch (NumberFormatException nfe) {
+				throw new IOException("Error parsing int number at position: " + (reader.getCurrentIndex() - len), nfe);
+			}
 		}
 		return value;
 	}
@@ -272,7 +386,15 @@ public class NumberConverter {
 				}
 			}
 		} catch (ArrayIndexOutOfBoundsException ignore) {
-			return Long.parseLong(new String(buf, 0, len));
+			int end = len;
+			while (end > 0 && Character.isWhitespace(buf[end - 1])) {
+				end --;
+			}
+			try {
+				return Long.parseLong(new String(buf, 0, end));
+			} catch (NumberFormatException nfe) {
+				throw new IOException("Error parsing long number at position: " + (reader.getCurrentIndex() - len), nfe);
+			}
 		}
 		//TODO: leading zero...
 		return value;
@@ -315,7 +437,58 @@ public class NumberConverter {
 
 	public static BigDecimal deserializeDecimal(final JsonReader reader) throws IOException {
 		final char[] buf = reader.readNumber();
-		return new BigDecimal(buf, 0, reader.getCurrentIndex() - reader.getTokenStart() - 1);
+		final int len = reader.getCurrentIndex() - reader.getTokenStart() - 1;
+		long value = 0;
+		char ch = buf[0];
+		try {
+			if (ch == '-') {
+				int i = 1;
+				for (; i < buf.length; i++) {
+					ch = buf[i];
+					if (i == len || ch == '.') break;
+					value = (value << 3) + (value << 1) - Digit[ch - 48];
+				}
+				if (ch == '.') {
+					i++;
+					int dp = i;
+					for (; i < buf.length; i++) {
+						if (i == len) break;
+						value = (value << 3) + (value << 1) - Digit[buf[i] - 48];
+					}
+					return BigDecimal.valueOf(value, len - dp);
+				} else {
+					return BigDecimal.valueOf(value);
+				}
+			} else {
+				int i = 0;
+				for (; i < buf.length; i++) {
+					ch = buf[i];
+					if (i == len || ch == '.') break;
+					value = (value << 3) + (value << 1) + Digit[ch - 48];
+				}
+				if (ch == '.') {
+					i++;
+					int dp = i;
+					for (; i < buf.length; i++) {
+						if (i == len) break;
+						value = (value << 3) + (value << 1) + Digit[buf[i] - 48];
+					}
+					return BigDecimal.valueOf(value, len - dp);
+				} else {
+					return BigDecimal.valueOf(value);
+				}
+			}
+		} catch (ArrayIndexOutOfBoundsException ignore) {
+			int end = len;
+			while (end > 0 && Character.isWhitespace(buf[end - 1])) {
+				end --;
+			}
+			try {
+				return new BigDecimal(buf, 0, end);
+			} catch (NumberFormatException nfe) {
+				throw new IOException("Error parsing decimal number at position: " + (reader.getCurrentIndex() - len), nfe);
+			}
+		}
 	}
 
 	private static JsonReader.ReadObject<BigDecimal> DecimalReader = new JsonReader.ReadObject<BigDecimal>() {
