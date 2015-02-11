@@ -4,6 +4,9 @@ import com.dslplatform.client.TestLogging;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
+
 public class NumberConverterTest extends TestLogging {
 	@Test
 	public void testSerialization() {
@@ -33,6 +36,28 @@ public class NumberConverterTest extends TestLogging {
 			Assert.assertEquals(value, valueParsed);
 		}
 	}
+
+
+	@Test
+	public void testPowersOf10() throws IOException {
+		String sciForm = "1";
+
+		final int maxLen = Long.toString(Long.MAX_VALUE).length();
+		for (int i = 0; i <= maxLen; i ++) {
+			// space to prevent end of stream gotcha
+			final byte[] body = (sciForm + " ").getBytes(Charset.forName("ISO-8859-1"));
+
+			final JsonReader jr = new JsonReader(body, null);
+			jr.getNextToken();
+			final long parsed = NumberConverter.deserializeLong(jr);
+
+			final long check = Long.valueOf(sciForm);
+			Assert.assertEquals(check, parsed);
+
+			sciForm += '0';
+		}
+	}
+
 
 	// -----------------------------------------------------------------------------------------------------------------
 

@@ -2,6 +2,7 @@ package com.dslplatform.client.json;
 
 import com.dslplatform.client.TestLogging;
 import org.junit.Assert;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -66,7 +67,7 @@ public class DecimalConverterTest extends TestLogging {
 		// first digit in values
 		Assert.assertEquals('0', jr.getNextToken());
 
-		for (int i = 0; i < count; i ++) {
+		for (int i = 0; i < count; i++) {
 			if (i > 0) jr.getNextToken();
 
 			// setup
@@ -78,7 +79,27 @@ public class DecimalConverterTest extends TestLogging {
 			//check
 			final boolean equality = direct.compareTo(current) == 0;
 			if (!equality) {
-				Assert.fail("Parsed BigDecimal was not equal to the test value; " + direct + " != " + current);
+				Assert.fail("Parsed BigDecimal was not equal to the test value; expected " + direct + ", but actual was " + current);
+			}
+		}
+	}
+
+	@Test
+	public void testPowersOf10() throws IOException {
+		for (int i = -500; i < 500; i ++) {
+			final String sciForm = "1E" + i;
+			final BigDecimal check = new BigDecimal(sciForm);
+
+			// space to prevent end of stream gotcha
+			final String plainForm = check.toPlainString() + ' ';
+			final byte[] body = plainForm.getBytes(Charset.forName("ISO-8859-1"));
+
+			final JsonReader jr = new JsonReader(body, null);
+			jr.getNextToken();
+			final BigDecimal parsed = NumberConverter.deserializeDecimal(jr);
+
+			if (parsed.compareTo(check) != 0) {
+				Assert.fail("Mismatch in decimals; expected " + check + ", but actual was " + parsed);
 			}
 		}
 	}
