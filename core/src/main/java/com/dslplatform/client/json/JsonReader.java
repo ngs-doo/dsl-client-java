@@ -10,7 +10,7 @@ public final class JsonReader {
 	private final byte[] buffer;
 	private final int length;
 	private final ServiceLocator locator;
-	private final char[] tmp = new char[48];
+	private final char[] tmp = new char[64];
 
 	private int tokenStart;
 	private int currentIndex = 0;
@@ -28,6 +28,8 @@ public final class JsonReader {
 		this.locator = locator;
 		if (length > buffer.length) {
 			throw new IOException("length can't be longer than buffer.length");
+		} else if (length < buffer.length) {
+			buffer[length] = '\0';
 		}
 	}
 
@@ -56,7 +58,6 @@ public final class JsonReader {
 		tmp[0] = ch;
 		int i = 1;
 		int ci = currentIndex;
-		// FIXME: will fail near end of stream, with number lengths being off by one as currentIndex will never become buffer.length
 		while (i < tmp.length && ci < buffer.length) {
 			ch = (char) buffer[ci++];
 			if (ch == ',' || ch == '}' || ch == ']') break;

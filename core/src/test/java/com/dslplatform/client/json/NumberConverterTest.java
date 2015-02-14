@@ -43,7 +43,7 @@ public class NumberConverterTest extends TestLogging {
 		String sciForm = "1";
 
 		final int maxLen = Long.toString(Long.MAX_VALUE).length();
-		for (int i = 0; i <= maxLen; i ++) {
+		for (int i = 0; i < maxLen; i ++) {
 			// space to prevent end of stream gotcha
 			final byte[] body = (sciForm + " ").getBytes(Charset.forName("ISO-8859-1"));
 
