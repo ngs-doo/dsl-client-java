@@ -3,6 +3,7 @@ package com.dslplatform.client.json;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 
 public class NumberConverter {
@@ -73,12 +74,39 @@ public class NumberConverter {
 		sw.writeAscii(Double.toString(value));
 	}
 
+	private static char[] readLongNumber(final JsonReader reader, final char[] buf) throws IOException {
+		char ch;
+		int i = 0;
+		for (; i < buf.length; i++) {
+			ch = buf[i];
+			if (!(ch >= '0' && ch < '9' || ch == '-' || ch == '+' || ch == '.' || ch == 'e' || ch == 'E')) {
+				return buf;
+			}
+		}
+		char[] tmp = Arrays.copyOf(buf, buf.length * 2);
+		do {
+			do {
+				ch = (char) reader.read();
+				tmp[i++] = ch;
+				if (!(ch >= '0' && ch < '9' || ch == '-' || ch == '+' || ch == '.' || ch == 'e' || ch == 'E')) {
+					return Arrays.copyOf(tmp, i - 1);
+				}
+			} while (i < tmp.length);
+			tmp = Arrays.copyOf(tmp, tmp.length * 2);
+		} while (true);
+	}
+
 	public static double deserializeDouble(final JsonReader reader) throws IOException {
 		final char[] buf = reader.readNumber();
 		final int position = reader.getCurrentIndex();
 		final int len = position - reader.getTokenStart() - 1;
 		if (len > 18) {
-			return parseDoubleGeneric(buf, len, position);
+			if (len == buf.length - 1) {
+				final char[] tmp = readLongNumber(reader, buf);
+				return parseDoubleGeneric(tmp, tmp.length, position);
+			} else {
+				return parseDoubleGeneric(buf, len, position);
+			}
 		}
 		char ch = buf[0];
 		if (ch == '-') {
@@ -204,7 +232,12 @@ public class NumberConverter {
 		final int position = reader.getCurrentIndex();
 		final int len = reader.getCurrentIndex() - reader.getTokenStart() - 1;
 		if (len > 18) {
-			return parseFloatGeneric(buf, len, position);
+			if (len == buf.length - 1) {
+				final char[] tmp = readLongNumber(reader, buf);
+				return parseFloatGeneric(tmp, tmp.length, position);
+			} else {
+				return parseFloatGeneric(buf, len, position);
+			}
 		}
 		char ch = buf[0];
 		if (ch == '-') {
@@ -337,8 +370,8 @@ public class NumberConverter {
 				i = value;
 			}
 
-			int v;
-			for (; ; ) {
+			int v = 0;
+			while (charPos > 1) {
 				q = i / 100;
 				r = i - ((q << 6) + (q << 5) + (q << 2));
 				i = q;
@@ -444,8 +477,8 @@ public class NumberConverter {
 				i = value;
 			}
 
-			int v;
-			for (; ; ) {
+			int v = 0;
+			while (charPos > 1) {
 				q = i / 100;
 				r = (int) (i - ((q << 6) + (q << 5) + (q << 2)));
 				i = q;
@@ -544,7 +577,12 @@ public class NumberConverter {
 		final int position = reader.getCurrentIndex();
 		final int len = position - reader.getTokenStart() - 1;
 		if (len > 18) {
-			return parseNumberGeneric(buf, len, position);
+			if (len == buf.length - 1) {
+				final char[] tmp = readLongNumber(reader, buf);
+				return parseNumberGeneric(tmp, tmp.length, position);
+			} else {
+				return parseNumberGeneric(buf, len, position);
+			}
 		}
 		final char ch = buf[0];
 		if (ch == '-') {

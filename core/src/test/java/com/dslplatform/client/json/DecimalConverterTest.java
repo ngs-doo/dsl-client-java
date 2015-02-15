@@ -86,7 +86,7 @@ public class DecimalConverterTest extends TestLogging {
 
 	@Test
 	public void testPowersOf10() throws IOException {
-		for (int i = -50; i < 50; i ++) {
+		for (int i = -500; i < 500; i ++) {
 			final String sciForm = "1E" + i;
 			final BigDecimal check = new BigDecimal(sciForm);
 
