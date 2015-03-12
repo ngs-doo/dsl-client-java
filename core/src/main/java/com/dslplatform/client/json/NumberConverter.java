@@ -70,8 +70,16 @@ public class NumberConverter {
 	}
 
 	public static void serialize(final double value, final JsonWriter sw) {
-		//TODO: better implementation required
-		sw.writeAscii(Double.toString(value));
+		if (Double.isNaN(value)) {
+			sw.writeAscii("\"NaN\"");
+		} else if (Double.isInfinite(value)) {
+			final long bits = Double.doubleToLongBits(value);
+			if((bits & -9223372036854775808L) != 0L) {
+				sw.writeAscii("\"-Infinity\"");
+			} else {
+				sw.writeAscii("\"Infinity\"");
+			}
+		} else sw.writeAscii(Double.toString(value));
 	}
 
 	private static char[] readLongNumber(final JsonReader reader, final char[] buf) throws IOException {
@@ -97,6 +105,13 @@ public class NumberConverter {
 	}
 
 	public static double deserializeDouble(final JsonReader reader) throws IOException {
+		if (reader.last() == '"') {
+			final int position = reader.getCurrentIndex();
+			final char[] buf = reader.readSimpleQuote();
+			double result = parseDoubleGeneric(buf, reader.getCurrentIndex() - position - 1, position + 1);
+			reader.read();
+			return result;
+		}
 		final char[] buf = reader.readNumber();
 		final int position = reader.getCurrentIndex();
 		final int len = position - reader.getTokenStart() - 1;
@@ -218,16 +233,31 @@ public class NumberConverter {
 		if (value == null) {
 			sw.writeNull();
 		} else {
-			sw.writeAscii(Float.toString(value));
+			serialize(value.floatValue(), sw);
 		}
 	}
 
 	public static void serialize(final float value, final JsonWriter sw) {
-		//TODO: better implementation required
-		sw.writeAscii(Float.toString(value));
+		if (Float.isNaN(value)) {
+			sw.writeAscii("\"NaN\"");
+		} else if (Float.isInfinite(value)) {
+			final int bits = Float.floatToIntBits(value);
+			if ((bits & -2147483648) != 0) {
+				sw.writeAscii("\"-Infinity\"");
+			} else {
+				sw.writeAscii("\"Infinity\"");
+			}
+		} else sw.writeAscii(Float.toString(value)); //TODO: better implementation required
 	}
 
 	public static float deserializeFloat(final JsonReader reader) throws IOException {
+		if (reader.last() == '"') {
+			final int position = reader.getCurrentIndex();
+			final char[] buf = reader.readSimpleQuote();
+			float result = parseFloatGeneric(buf, reader.getCurrentIndex() - position - 1, position + 1);
+			reader.read();
+			return result;
+		}
 		final char[] buf = reader.readNumber();
 		final int position = reader.getCurrentIndex();
 		final int len = reader.getCurrentIndex() - reader.getTokenStart() - 1;
@@ -349,7 +379,7 @@ public class NumberConverter {
 		if (value == null) {
 			sw.writeNull();
 		} else {
-			serialize(value, sw);
+			serialize(value.intValue(), sw);
 		}
 	}
 
@@ -457,7 +487,7 @@ public class NumberConverter {
 		if (value == null) {
 			sw.writeNull();
 		} else {
-			serialize(value, sw);
+			serialize(value.longValue(), sw);
 		}
 	}
 
