@@ -136,8 +136,9 @@ public class NumberConverter {
 		long value = 0;
 		char ch = ' ';
 		for (; i < buf.length; i++) {
+			if (i == len) return value;
 			ch = buf[i];
-			if (i == len || ch == '.') break;
+			if (ch == '.') break;
 			final int ind = buf[i] - 48;
 			if (ind >= 0 && ind < 10) {
 				value = (value << 3) + (value << 1) + ind;
@@ -167,8 +168,9 @@ public class NumberConverter {
 		long value = 0;
 		char ch = ' ';
 		for (; i < buf.length; i++) {
+			if (i == len) return value;
 			ch = buf[i];
-			if (i == len || ch == '.') break;
+			if (ch == '.') break;
 			final int ind = buf[i] - 48;
 			if (ind >= 0 && ind < 10) {
 				value = (value << 3) + (value << 1) - ind;
@@ -282,8 +284,9 @@ public class NumberConverter {
 		long value = 0;
 		char ch = ' ';
 		for (; i < buf.length; i++) {
+			if (i == len) return value;
 			ch = buf[i];
-			if (i == len || ch == '.') break;
+			if (ch == '.') break;
 			final int ind = buf[i] - 48;
 			if (ind >= 0 && ind < 10) {
 				value = (value << 3) + (value << 1) + ind;
@@ -313,8 +316,9 @@ public class NumberConverter {
 		long value = 0;
 		char ch = ' ';
 		for (; i < buf.length; i++) {
+			if (i == len) return value;
 			ch = buf[i];
-			if (i == len || ch == '.') break;
+			if (ch == '.') break;
 			final int ind = buf[i] - 48;
 			if (ind >= 0 && ind < 10) {
 				value = (value << 3) + (value << 1) - ind;
@@ -627,8 +631,9 @@ public class NumberConverter {
 		long value = 0;
 		char ch = ' ';
 		for (; i < buf.length; i++) {
+			if (i == len) return BigDecimal.valueOf(value);
 			ch = buf[i];
-			if (i == len || ch == '.' || ch == 'e' || ch == 'E') break;
+			if (ch == '.' || ch == 'e' || ch == 'E') break;
 			final int ind = ch - 48;
 			if (ind >= 0 && ind < 10) {
 				value = (value << 3) + (value << 1) + ind;
@@ -640,8 +645,9 @@ public class NumberConverter {
 			i++;
 			int dp = i;
 			for (; i < buf.length; i++) {
+				if (i == len) return BigDecimal.valueOf(value, len - dp);
 				ch = buf[i];
-				if (i == len || ch == 'e' || ch == 'E') break;
+				if (ch == 'e' || ch == 'E') break;
 				final int ind = ch - 48;
 				if (ind >= 0 && ind < 10) {
 					value = (value << 3) + (value << 1) + ind;
@@ -684,8 +690,9 @@ public class NumberConverter {
 		long value = 0;
 		char ch = ' ';
 		for (; i < buf.length; i++) {
+			if (i == len) return BigDecimal.valueOf(value);
 			ch = buf[i];
-			if (i == len || ch == '.' || ch == 'e' || ch == 'E') break;
+			if (ch == '.' || ch == 'e' || ch == 'E') break;
 			final int ind = ch - 48;
 			if (ind >= 0 && ind < 10) {
 				value = (value << 3) + (value << 1) - ind;
@@ -697,8 +704,9 @@ public class NumberConverter {
 			i++;
 			int dp = i;
 			for (; i < buf.length; i++) {
+				if (i == len) return BigDecimal.valueOf(value, len - dp);
 				ch = buf[i];
-				if (i == len || ch == 'e' || ch == 'E') break;
+				if (ch == 'e' || ch == 'E') break;
 				final int ind = ch - 48;
 				if (ind >= 0 && ind < 10) {
 					value = (value << 3) + (value << 1) - ind;
