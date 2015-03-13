@@ -53,7 +53,7 @@ public class NumberConverter {
 		if (value == null) {
 			sw.writeNull();
 		} else {
-			sw.writeAscii(Double.toString(value));
+			serialize(value.doubleValue(), sw);
 		}
 	}
 
