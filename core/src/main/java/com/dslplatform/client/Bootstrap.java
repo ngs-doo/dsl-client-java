@@ -39,10 +39,14 @@ public class Bootstrap {
 	}
 
 	/**
-	 * Initialize service locator using provided dsl-project.properties stream
+	 * Initialize service locator using provided Properties configuration
 	 * and components specified in initialComponents param. Use this constructor
 	 * if you want to inject arbitrary instance of org.slf4j.Logger, and(or)
 	 * java.util.concurrent.ExecutorService.
+	 * If you register Class into item key, it will be registered into container as such.
+	 * This means you can take dependencies on other services from it's constructor,
+	 * since it will be resolved at a later time. If you provide instance as key,
+	 * all services must be resolved upfront.
 	 *
 	 * @param properties        project settings
 	 * @param initialComponents components to initialize with
@@ -56,7 +60,7 @@ public class Bootstrap {
 	}
 
 	/**
-	 * Initialize service locator using provided dsl-project.properties stream.
+	 * Initialize service locator using provided Properties configuration.
 	 *
 	 * @param properties   project settings
 	 * @return             initialized service locator
@@ -84,43 +88,53 @@ public class Bootstrap {
 			final Properties properties,
 			final MapServiceLocator locator) throws IOException {
 		if (properties == null) throw new IOException("Provided properties was null.");
-		final JsonSerialization jsonDeserialization = new JsonSerialization(locator);
-		final Logger logger;
-		if (locator.contains(Logger.class)) {
-			logger = locator.resolve(Logger.class);
-		} else {
-			logger = LoggerFactory.getLogger("dsl-client-http");
-			locator.register(Logger.class, logger);
-		}
 		locator.register(Properties.class, properties);
+		final JsonSerialization json =
+				locator.resolveOrRegister(JsonSerialization.class, new MapServiceLocator.LazyInstance<JsonSerialization>() {
+					@Override public JsonSerialization create() { return new JsonSerialization(locator); }
+				});
+		final Logger logger =
+				locator.resolveOrRegister(Logger.class, new MapServiceLocator.LazyInstance<Logger>() {
+					@Override public Logger create() { return LoggerFactory.getLogger("dsl-client-http"); }
+				});
 
-		final ExecutorService executorService;
-		if (locator.contains(ExecutorService.class)) {
-			executorService = locator.resolve(ExecutorService.class);
-		} else {
-			executorService = Executors.newCachedThreadPool();
-			locator.register(ExecutorService.class, executorService);
-		}
-		final HttpHeaderProvider headerProvider;
-		if (locator.contains(HttpHeaderProvider.class)) {
-			headerProvider = locator.resolve(HttpHeaderProvider.class);
-		} else {
-			headerProvider = new SettingsHeaderProvider(properties);
-			locator.register(HttpHeaderProvider.class, headerProvider);
-		}
+		final ExecutorService executorService =
+				locator.resolveOrRegister(ExecutorService.class, new MapServiceLocator.LazyInstance<ExecutorService>() {
+					@Override public ExecutorService create() { return Executors.newCachedThreadPool(); }
+				});
+		final HttpHeaderProvider headerProvider =
+				locator.resolveOrRegister(HttpHeaderProvider.class, new MapServiceLocator.LazyInstance<HttpHeaderProvider>() {
+					@Override public HttpHeaderProvider create() { return new SettingsHeaderProvider(properties); }
+				});
 		final HttpClient httpClient =
-				new HttpClient(properties, jsonDeserialization, locator, logger, headerProvider, executorService);
-		final DomainProxy domainProxy = new HttpDomainProxy(httpClient);
-
-		locator
-				.register(JsonSerialization.class, jsonDeserialization)
-				.register(HttpClient.class, httpClient)
-				.register(ApplicationProxy.class, new HttpApplicationProxy(httpClient))
-				.register(CrudProxy.class, HttpCrudProxy.class)
-				.register(DomainProxy.class, domainProxy)
-				.register(StandardProxy.class, new HttpStandardProxy(httpClient, executorService))
-				.register(ReportingProxy.class, new HttpReportingProxy(httpClient, executorService, jsonDeserialization))
-				.register(DomainEventStore.class, new ClientDomainEventStore(domainProxy));
+				locator.resolveOrRegister(HttpClient.class, new MapServiceLocator.LazyInstance<HttpClient>() {
+					@Override
+					public HttpClient create() {
+						return new HttpClient(properties, json, locator, logger, headerProvider, executorService);
+					}
+				});
+		final DomainProxy domainProxy =
+				locator.resolveOrRegister(DomainProxy.class, new MapServiceLocator.LazyInstance<DomainProxy>() {
+					@Override public DomainProxy create() { return new HttpDomainProxy(httpClient); }
+				});
+		locator.resolveOrRegister(ApplicationProxy.class, new MapServiceLocator.LazyInstance<ApplicationProxy>() {
+			@Override public ApplicationProxy create() { return new HttpApplicationProxy(httpClient); }
+		});
+		locator.resolveOrRegister(CrudProxy.class, new MapServiceLocator.LazyInstance<CrudProxy>() {
+			@Override public CrudProxy create() { return new HttpCrudProxy(httpClient); }
+		});
+		locator.resolveOrRegister(StandardProxy.class, new MapServiceLocator.LazyInstance<StandardProxy>() {
+			@Override public StandardProxy create() { return new HttpStandardProxy(httpClient, executorService); }
+		});
+		locator.resolveOrRegister(ReportingProxy.class, new MapServiceLocator.LazyInstance<ReportingProxy>() {
+			@Override public ReportingProxy create() { return new HttpReportingProxy(httpClient, executorService, json); }
+		});
+		locator.resolveOrRegister(DomainEventStore.class, new MapServiceLocator.LazyInstance<DomainEventStore>() {
+			@Override
+			public DomainEventStore create() {
+				return new ClientDomainEventStore(domainProxy);
+			}
+		});
 		if (properties.getProperty("s3-user") != null) {
 			registerS3(locator, properties, executorService);
 		}
@@ -132,7 +146,9 @@ public class Bootstrap {
 			MapServiceLocator locator,
 			final Properties properties,
 			final ExecutorService executorService){
-		locator.register(S3Repository.class, new AmazonS3Repository(properties, executorService));
+		locator.resolveOrRegister(S3Repository.class, new MapServiceLocator.LazyInstance<S3Repository>() {
+			@Override public S3Repository create() { return new AmazonS3Repository(properties, executorService); }
+		});
 	}
 
 
@@ -157,7 +173,7 @@ public class Bootstrap {
 
 	private static final Properties versionInfo = new Properties();
 
-	private static final String getVersionInfo(final String section) {
+	private static String getVersionInfo(final String section) {
 		if (versionInfo.isEmpty()) {
 			try {
 				versionInfo.load(Bootstrap.class.getResourceAsStream("dsl-client.properties"));

@@ -284,7 +284,12 @@ class HttpClient {
 		try {
 			JsonReader.ReadJsonObject<JsonObject> reader = jsonReaders.get(manifest);
 			if (reader == null) {
-				reader = (JsonReader.ReadJsonObject<JsonObject>) manifest.getField("JSON_READER").get(null);
+				try {
+					reader = (JsonReader.ReadJsonObject<JsonObject>) manifest.getField("JSON_READER").get(null);
+				} catch (Exception ignore) {
+					//log error!?
+					return null;
+				}
 				jsonReaders.putIfAbsent(manifest, reader);
 			}
 			return reader;

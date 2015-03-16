@@ -30,7 +30,7 @@ public class S3Test {
 		logger.info("Initialized");
 	}
 
-	@Test(expected = RuntimeException.class)
+	@Test
 	public void testEmptyDependencyInjection() throws IOException{
 		try {
 			Bootstrap.init(getClass().getResourceAsStream("/projectprops/mockproject.properties"))

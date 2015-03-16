@@ -1,18 +1,21 @@
 package com.dslplatform.client;
 
+import com.dslplatform.client.json.JsonObject;
+import com.dslplatform.client.json.JsonWriter;
 import com.dslplatform.patterns.AggregateRoot;
 import com.dslplatform.patterns.History;
+import com.dslplatform.patterns.ServiceLocator;
 import com.dslplatform.patterns.Snapshot;
 import com.dslplatform.test.simple.SimpleRoot;
 import com.fasterxml.jackson.databind.JavaType;
 import org.joda.time.DateTime;
 import org.junit.Test;
+import org.slf4j.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class DeserializationTest {
 	/** Copy of private static inner class from JsonSerialization */
@@ -60,5 +63,63 @@ public class DeserializationTest {
 		assertEquals("UPDATE", action);
 		final int i = simpleRootSnapshot.getValue().getI();
 		assertEquals(5, i);
+	}
+
+	static class MockFuture<T> implements Future<T> {
+		@Override
+		public boolean cancel(boolean mayInterruptIfRunning) { return false; }
+		@Override
+		public boolean isCancelled() { return false; }
+		@Override
+		public boolean isDone() { return true; }
+		@Override
+		public T get() throws InterruptedException, ExecutionException { return null; }
+		@Override
+		public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+			return null;
+		}
+	}
+
+	static class MockClient extends HttpClient {
+		public MockClient(final ServiceLocator locator) {
+			super(locator.resolve(Properties.class), null, locator, locator.resolve(Logger.class), null, null);
+		}
+
+		public static Object lastContent;
+
+		@Override
+		public <TArgument, TResult> Future<List<TResult>> sendCollectionRequest(
+				final Class<TResult> manifest,
+				final String service,
+				final String method,
+				final TArgument content,
+				final int[] expected) {
+			lastContent = content;
+			return new MockFuture<List<TResult>>();
+		}
+	}
+
+	@Test
+	public void testPersistArg() throws Exception {
+		final Properties props = new Properties();
+		props.put("api-url", "http://localhost");
+		props.put("package-name", "com.dslplatform.test");
+		final Map<Class<?>, Object> components = new HashMap<Class<?>, Object>();
+		components.put(HttpClient.class, MockClient.class);
+		final ServiceLocator locator = Bootstrap.init(props, components);
+		final StandardProxy proxy = locator.resolve(StandardProxy.class);
+		final List<SimpleRoot> roots = new ArrayList<SimpleRoot>();
+		roots.add(new SimpleRoot());
+		final List<Map.Entry<SimpleRoot, SimpleRoot>> pairs = new ArrayList<Map.Entry<SimpleRoot, SimpleRoot>>();
+		pairs.add(new AbstractMap.SimpleEntry<SimpleRoot, SimpleRoot>(new SimpleRoot(), new SimpleRoot()));
+		final List<String> result = proxy.persist(roots, pairs, null).get();
+		assertNull(result);
+		final JsonObject persistObj = (JsonObject) MockClient.lastContent;
+		assertNotNull(persistObj);
+		final JsonWriter jw = new JsonWriter();
+		persistObj.serialize(jw, false);
+		final String json = jw.toString();
+		assertTrue(json.startsWith("{\"RootName\":\"simple.SimpleRoot\",\"ToInsert\":\"[{\\\"URI\\\":\\\""));
+		assertTrue(json.contains("\",\"ToUpdate\":\"[{\\\"Key\\\":{\\\"URI\\\":\\\""));
 	}
 }

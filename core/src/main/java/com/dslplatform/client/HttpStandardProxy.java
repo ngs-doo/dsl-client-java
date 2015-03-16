@@ -1,5 +1,6 @@
 package com.dslplatform.client;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +8,9 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+import com.dslplatform.client.json.JsonObject;
+import com.dslplatform.client.json.JsonWriter;
+import com.dslplatform.client.json.StringConverter;
 import com.dslplatform.patterns.AggregateRoot;
 import com.dslplatform.patterns.Searchable;
 import com.dslplatform.patterns.Specification;
@@ -27,7 +31,7 @@ class HttpStandardProxy implements StandardProxy {
 	}
 
 	@JsonSerialize
-	private static class PersistArg {
+	private static class PersistArg implements JsonObject {
 		@SuppressWarnings("unused")
 		public final String RootName;
 		@SuppressWarnings("unused")
@@ -46,6 +50,63 @@ class HttpStandardProxy implements StandardProxy {
 			ToInsert = toInsert;
 			ToUpdate = toUpdate;
 			ToDelete = toDelete;
+		}
+
+		static <T> String serialize(final Class<?> clazz, final List<T> items) throws IOException {
+			if (JsonObject.class.isAssignableFrom(clazz)) {
+				final JsonWriter writer = new JsonWriter();
+				writer.writeByte((byte)'[');
+				((JsonObject) items.get(0)).serialize(writer, false);
+				for (int i = 1; i < items.size(); i++) {
+					writer.writeByte((byte)',');
+					((JsonObject) items.get(i)).serialize(writer, false);
+				}
+				writer.writeByte((byte)']');
+				return writer.toString();
+			}
+			return JsonSerialization.serialize(items);
+		}
+
+		static <T> String serializePairs(final Class<?> clazz, final List<Pair<T, T>> items) throws IOException {
+			if (JsonObject.class.isAssignableFrom(clazz)) {
+				final JsonWriter writer = new JsonWriter();
+				final Pair<T, T> pair = items.get(0);
+				writer.writeAscii("[{\"Key\":");
+				((JsonObject) pair.key).serialize(writer, false);
+				writer.writeAscii(",\"Value\":");
+				((JsonObject) pair.value).serialize(writer, false);
+				for (int i = 1; i < items.size(); i++) {
+					final Pair<T, T> it = items.get(i);
+					writer.writeAscii("},{\"Key\":");
+					((JsonObject) it.key).serialize(writer, false);
+					writer.writeAscii(",\"Value\":");
+					((JsonObject) it.value).serialize(writer, false);
+				}
+				writer.writeAscii("}]");
+				return writer.toString();
+			}
+			return JsonSerialization.serialize(items);
+		}
+
+		@Override
+		public void serialize(JsonWriter writer, boolean minimal) {
+			writer.writeByte((byte) '{');
+			writer.writeAscii("\"RootName\":\"");
+			writer.writeAscii(RootName);
+			writer.writeAscii("\"");
+			if (ToInsert != null) {
+				writer.writeAscii(",\"ToInsert\":");
+				StringConverter.serialize(ToInsert, writer);
+			}
+			if (ToUpdate != null) {
+				writer.writeAscii(",\"ToUpdate\":");
+				StringConverter.serialize(ToUpdate, writer);
+			}
+			if (ToDelete != null) {
+				writer.writeAscii(",\"ToDelete\":");
+				StringConverter.serialize(ToDelete, writer);
+			}
+			writer.writeByte((byte)'}');
 		}
 	}
 
@@ -85,8 +146,8 @@ class HttpStandardProxy implements StandardProxy {
 				if (inserts != null) {
 					final List<T> list = Utils.toArrayList(inserts);
 					if (!list.isEmpty()) {
-						toInsert = JsonSerialization.serialize(list);
 						clazz = list.get(0).getClass();
+						toInsert = PersistArg.serialize(clazz, list);
 					}
 				}
 				String toUpdate = null;
@@ -99,8 +160,8 @@ class HttpStandardProxy implements StandardProxy {
 						list.add(pair);
 					}
 					if (!list.isEmpty()) {
-						toUpdate = JsonSerialization.serialize(list);
 						clazz = list.get(0).value.getClass();
+						toUpdate = PersistArg.serializePairs(clazz, list);
 					}
 				}
 
@@ -108,9 +169,8 @@ class HttpStandardProxy implements StandardProxy {
 				if (deletes != null) {
 					final List<T> list = Utils.toArrayList(deletes);
 					if (!list.isEmpty()) {
-
-						toDelete = JsonSerialization.serialize(list);
 						clazz = list.get(0).getClass();
+						toDelete = PersistArg.serialize(clazz, list);
 					}
 				}
 

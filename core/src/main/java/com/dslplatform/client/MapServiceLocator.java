@@ -20,8 +20,17 @@ class MapServiceLocator implements ServiceLocator {
 		components.putAll(initialComponents);
 	}
 
-	boolean contains(final Class<?> clazz) {
-		return components.containsKey(clazz);
+	static interface LazyInstance<T> {
+		public T create();
+	}
+
+	<T> T resolveOrRegister(final Class<T> clazz, final LazyInstance<T> factory) {
+		if (components.containsKey(clazz)) {
+			return resolve(clazz);
+		}
+		final T instance = factory.create();
+		components.put(clazz, instance);
+		return instance;
 	}
 
 	@Override
@@ -39,9 +48,11 @@ class MapServiceLocator implements ServiceLocator {
 	private Object resolve(final Class<?> clazz, final boolean checkErrors) {
 		final Object component = components.get(clazz);
 
-		if (component != null) return component instanceof Class
-				? tryResolve((Class<?>) component)
-				: component;
+		if (component != null) {
+			return component instanceof Class
+					? tryResolve((Class<?>) component)
+					: component;
+		}
 
 		final Object instance = tryResolve(clazz);
 
