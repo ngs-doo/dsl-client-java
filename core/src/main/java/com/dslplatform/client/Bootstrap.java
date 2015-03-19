@@ -221,7 +221,7 @@ public class Bootstrap {
 		System.out.println();
 
 		System.out.println("This is the Java version of the DSL Platform client library");
-		System.out.println("and is not indented to be run as a standalone application.");
+		System.out.println("and is not intended to run as a standalone application.");
 		System.out.println();
 		System.out.println("For more information, visit https://dsl-platform.com/");
 		System.out.println();
