@@ -356,7 +356,7 @@ class HttpClient {
 							final JsonReader json = new JsonReader(response.body, response.size, locator);
 							if (json.getNextToken() == '[') {
 								if (json.getNextToken() == ']') {
-									return new ArrayList<TResult>();
+									return new ArrayList<TResult>(0);
 								}
 								return (List<TResult>) json.deserializeCollection(reader);
 							}

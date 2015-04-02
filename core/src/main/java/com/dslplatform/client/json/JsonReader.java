@@ -16,23 +16,33 @@ public final class JsonReader {
 	private int currentIndex = 0;
 	private byte last = ' ';
 
-	private JsonReader(final byte[] buffer, final int length, final ServiceLocator locator, final char[] tmp) {
+	private JsonReader(final char[] tmp, final byte[] buffer, final int length, final ServiceLocator locator) {
+		this.tmp = tmp;
 		this.buffer = buffer;
 		this.length = length;
 		this.locator = locator;
-		this.tmp = tmp;
 	}
 
 	public JsonReader(final byte[] buffer, final ServiceLocator locator) {
-		this(buffer, buffer.length, locator, new char[64]);
+		this(new char[64], buffer, buffer.length, locator);
 	}
 
 	public JsonReader(final byte[] buffer, final ServiceLocator locator, final char[] tmp) {
-		this(buffer, buffer.length, locator, tmp);
+		this(tmp, buffer, buffer.length, locator);
+		if (tmp == null) {
+			throw new NullPointerException("tmp buffer provided as null.");
+		}
 	}
 
 	public JsonReader(final byte[] buffer, final int length, final ServiceLocator locator) throws IOException {
 		this(buffer, length, locator, new char[64]);
+	}
+
+	public JsonReader(final byte[] buffer, final int length, final ServiceLocator locator, final char[] tmp) throws IOException {
+		this(tmp, buffer, length, locator);
+		if (tmp == null) {
+			throw new NullPointerException("tmp buffer provided as null.");
+		}
 		if (length > buffer.length) {
 			throw new IOException("length can't be longer than buffer.length");
 		} else if (length < buffer.length) {
@@ -508,13 +518,13 @@ public final class JsonReader {
 	}
 
 	public final <T> ArrayList<T> deserializeCollectionWithGet(final ReadObject<T> readObject) throws IOException {
-		ArrayList<T> res = new ArrayList<T>();
+		final ArrayList<T> res = new ArrayList<T>(4);
 		deserializeCollectionWithGet(readObject, res);
 		return res;
 	}
 
 	public final <T> ArrayList<T> deserializeCollectionWithMove(final ReadObject<T> readObject) throws IOException {
-		ArrayList<T> res = new ArrayList<T>();
+		final ArrayList<T> res = new ArrayList<T>(4);
 		deserializeCollectionWithMove(readObject, res);
 		return res;
 	}
@@ -544,13 +554,13 @@ public final class JsonReader {
 	}
 
 	public final <T> ArrayList<T> deserializeNullableCollectionWithGet(final ReadObject<T> readObject) throws IOException {
-		ArrayList<T> res = new ArrayList<T>();
+		final ArrayList<T> res = new ArrayList<T>(4);
 		deserializeNullableCollectionWithGet(readObject, res);
 		return res;
 	}
 
 	public final <T> ArrayList<T> deserializeNullableCollectionWithMove(final ReadObject<T> readObject) throws IOException {
-		ArrayList<T> res = new ArrayList<T>();
+		final ArrayList<T> res = new ArrayList<T>(4);
 		deserializeNullableCollectionWithMove(readObject, res);
 		return res;
 	}
@@ -600,7 +610,7 @@ public final class JsonReader {
 	}
 
 	public final <T extends JsonObject> ArrayList<T> deserializeCollection(final ReadJsonObject<T> readObject) throws IOException {
-		ArrayList<T> res = new ArrayList<T>();
+		final ArrayList<T> res = new ArrayList<T>(4);
 		deserializeCollection(readObject, res);
 		return res;
 	}
@@ -623,7 +633,7 @@ public final class JsonReader {
 	}
 
 	public final <T extends JsonObject> ArrayList<T> deserializeNullableCollection(final ReadJsonObject<T> readObject) throws IOException {
-		ArrayList<T> res = new ArrayList<T>();
+		final ArrayList<T> res = new ArrayList<T>(4);
 		deserializeNullableCollection(readObject, res);
 		return res;
 	}

@@ -174,7 +174,7 @@ class HttpStandardProxy implements StandardProxy {
 					}
 				}
 
-				if (clazz == null) return new ArrayList<String>();
+				if (clazz == null) return new ArrayList<String>(0);
 
 				final String domainName = client.getDslName(clazz);
 

@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 public class HttpUnexpectedCodeException extends HttpException {
-	private final List<Integer> expectedCode = new ArrayList<Integer>();
+	private final List<Integer> expectedCode = new ArrayList<Integer>(2);
 
 	public HttpUnexpectedCodeException(
 			final String response,
