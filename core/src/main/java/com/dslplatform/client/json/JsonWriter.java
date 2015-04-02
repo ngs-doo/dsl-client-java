@@ -59,10 +59,18 @@ public final class JsonWriter extends Writer {
 		if (position + (len << 2) + (len << 1) + 2 >= result.length) {
 			result = Arrays.copyOf(result, result.length + result.length / 2 + (len << 2) + (len << 1) + 2);
 		}
+		int i = 0;
+		while(i < str.length()) {
+			final char c = str.charAt(i);
+			if (c > 31 && c != '"' && c != '\\' && c < 127) {
+				i++;
+			} else break;
+		}
 		final byte[] _result = result;
 		_result[position] = QUOTE;
-		int cur = position + 1;
-		for (int i = 0; i < str.length(); i++) {
+		str.getBytes(0, i, _result, position + 1);
+		int cur = position + i + 1;
+		for (; i < str.length(); i++) {
 			final char c = str.charAt(i);
 			if (c == '"') {
 				_result[cur++] = ESCAPE;
@@ -239,10 +247,11 @@ public final class JsonWriter extends Writer {
 		}
 		int p = position;
 		final byte[] _result = result;
-		for (int i = off; i < tmp.length; i++) {
-			if (i == end) break;
-			_result[p++] = tmp[i];
-		}
+		if (off >= 0 && end <= tmp.length) {
+			for (int i = off; i < end; i++) {
+				_result[p++] = tmp[i];
+			}
+		} else throw new ArrayIndexOutOfBoundsException("Invalid offset and/or end arguments provided: " + off + " and " + end);
 		position = p;
 	}
 
@@ -252,10 +261,11 @@ public final class JsonWriter extends Writer {
 		}
 		final int p = position;
 		final byte[] _result = result;
-		for (int i = 0; i < tmp.length; i++) {
-			if (i == len) break;
-			_result[p + i] = tmp[i];
-		}
+		if (len <= tmp.length) {
+			for (int i = 0; i < len; i++) {
+				_result[p + i] = tmp[i];
+			}
+		} else throw new ArrayIndexOutOfBoundsException("Provided len argument is larger than buffer length: " + len + " > " + tmp.length);
 		position += len;
 	}
 
@@ -264,11 +274,15 @@ public final class JsonWriter extends Writer {
 		if (position + len >= result.length) {
 			result = Arrays.copyOf(result, result.length + result.length / 2 + len);
 		}
-		final int p = position;
-		final byte[] _result = result;
-		for (int i = 0; i < str.length(); i++) {
-			_result[p + i] = (byte) str.charAt(i);
+		str.getBytes(0, len, result, position);
+		position += len;
+	}
+
+	public final void writeAscii(final String str, final int len) {
+		if (position + len >= result.length) {
+			result = Arrays.copyOf(result, result.length + result.length / 2 + len);
 		}
+		str.getBytes(0, len, result, position);
 		position += len;
 	}
 
@@ -283,6 +297,20 @@ public final class JsonWriter extends Writer {
 			_result[p + i] = buf[i];
 		}
 		position += len;
+	}
+
+	public final void writeAscii(final byte[] buf, final int len) {
+		if (position + len >= result.length) {
+			result = Arrays.copyOf(result, result.length + result.length / 2 + len);
+		}
+		final int p = position;
+		final byte[] _result = result;
+		if (len <= buf.length) {
+			for (int i = 0; i < len; i++) {
+				_result[p + i] = buf[i];
+			}
+			position += len;
+		} else throw new ArrayIndexOutOfBoundsException("Provided len argument is larger than buffer length: " + len + " > " + buf.length);
 	}
 
 	public final void writeBinary(final byte[] buf) {
@@ -315,6 +343,10 @@ public final class JsonWriter extends Writer {
 
 	public final byte[] toByteArray() {
 		return Arrays.copyOf(result, position);
+	}
+
+	public final int size() {
+		return position;
 	}
 
 	public final void reset() {

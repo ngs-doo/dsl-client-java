@@ -10,22 +10,29 @@ public final class JsonReader {
 	private final byte[] buffer;
 	private final int length;
 	private final ServiceLocator locator;
-	private final char[] tmp = new char[64];
+	private final char[] tmp;
 
 	private int tokenStart;
 	private int currentIndex = 0;
 	private byte last = ' ';
 
-	public JsonReader(final byte[] buffer, final ServiceLocator locator) {
-		this.buffer = buffer;
-		this.length = buffer.length;
-		this.locator = locator;
-	}
-
-	public JsonReader(final byte[] buffer, final int length, final ServiceLocator locator) throws IOException {
+	private JsonReader(final byte[] buffer, final int length, final ServiceLocator locator, final char[] tmp) {
 		this.buffer = buffer;
 		this.length = length;
 		this.locator = locator;
+		this.tmp = tmp;
+	}
+
+	public JsonReader(final byte[] buffer, final ServiceLocator locator) {
+		this(buffer, buffer.length, locator, new char[64]);
+	}
+
+	public JsonReader(final byte[] buffer, final ServiceLocator locator, final char[] tmp) {
+		this(buffer, buffer.length, locator, tmp);
+	}
+
+	public JsonReader(final byte[] buffer, final int length, final ServiceLocator locator) throws IOException {
+		this(buffer, length, locator, new char[64]);
 		if (length > buffer.length) {
 			throw new IOException("length can't be longer than buffer.length");
 		} else if (length < buffer.length) {
@@ -79,7 +86,6 @@ public final class JsonReader {
 			tmp[i++] = ch;
 		}
 		currentIndex = ci;
-		last = '"';
 		return new String(tmp, 0, i);
 	}
 
@@ -94,7 +100,6 @@ public final class JsonReader {
 			tmp[i++] = ch;
 		}
 		currentIndex = ci;
-		last = '"';
 		return tmp;
 	}
 
@@ -107,7 +112,7 @@ public final class JsonReader {
 		}
 
 		byte bb = 0;
-		char ch = 0;
+		char ch;
 		int pos = 0;
 		int ci = currentIndex;
 		while (pos < tmp.length && ci < buffer.length) {
@@ -115,7 +120,6 @@ public final class JsonReader {
 			ch = (char) bb;
 			if (ch == '"') {
 				currentIndex = ci;
-				last = '"';
 				return new String(tmp, 0, pos);
 			}
 			// If we encounter a backslash, which is a beginning of an escape sequence
@@ -139,7 +143,6 @@ public final class JsonReader {
 			ch = (char) bb;
 			if (ch == '"') {
 				currentIndex = ci;
-				last = '"';
 				return new String(buffer, startIndex, currentIndex - startIndex - 1, "ISO-8859-1");
 			}
 		}
@@ -160,7 +163,6 @@ public final class JsonReader {
 		while (currentIndex < length) {
 			int bc = buffer[currentIndex++];
 			if (bc == '"') {
-				last = '"';
 				return new String(chars, 0, soFar);
 			}
 
