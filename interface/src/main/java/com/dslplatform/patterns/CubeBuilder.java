@@ -28,7 +28,7 @@ public class CubeBuilder<T extends Identifiable> {
 		this.locator = locator;
 		dimensions = new LinkedList<String>();
 		facts = new LinkedList<String>();
-		order = new ArrayList<Map.Entry<String, Boolean>>();
+		order = new ArrayList<Map.Entry<String, Boolean>>(1);
 	}
 
 	public CubeBuilder<T> with(final Specification<T> specification) {

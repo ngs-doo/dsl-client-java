@@ -118,26 +118,31 @@ public final class JsonReader {
 		final int startIndex = currentIndex;
 		// At this point, buffer cannot be empty or null, it is safe to read first character
 		if (last != '"') {
-			throw new IOException("JSON string must start with a double quote! Instead found: " + byteDetails(buffer[currentIndex - 1]));
+			//TODO: count special chars in separate counter
+			throw new IOException("JSON string must start with a double quote at: " + currentIndex);
 		}
 
 		byte bb = 0;
-		char ch;
-		int pos = 0;
 		int ci = currentIndex;
-		while (pos < tmp.length && ci < buffer.length) {
-			bb = buffer[ci++];
-			ch = (char) bb;
-			if (ch == '"') {
-				currentIndex = ci;
-				return new String(tmp, 0, pos);
+		try {
+			for (int i = 0; i < tmp.length; i++) {
+				bb = buffer[ci++];
+				if (bb == '"') {
+					currentIndex = ci;
+					return new String(tmp, 0, i);
+				}
+				// If we encounter a backslash, which is a beginning of an escape sequence
+				// or a high bit was set - indicating an UTF-8 encoded multibyte character,
+				// there is no chance that we can decode the string without instantiating
+				// a temporary buffer, so quit this loop
+				if ((bb ^ '\\') < 1) break;
+				tmp[i] = (char)bb;
 			}
-			// If we encounter a backslash, which is a beginning of an escape sequence
-			// or a high bit was set - indicating an UTF-8 encoded multibyte character,
-			// there is no chance that we can decode the string without instantiating
-			// a temporary buffer, so quit this loop
-			if ((bb ^ '\\') < 1) break;
-			tmp[pos++] = ch;
+		} catch (ArrayIndexOutOfBoundsException ignore) {
+			throw new IOException("JSON string was not closed with a double quote at: " + currentIndex);
+		}
+		if (ci >= length) {
+			throw new IOException("JSON string was not closed with a double quote at: " + ci);
 		}
 
 		// If the buffer contains an ASCII string (no high bit set) without any escape codes "\n", "\t", etc...,
@@ -150,15 +155,14 @@ public final class JsonReader {
 			// a temporary buffer, so quit this loop
 			if ((bb ^ '\\') < 1) break;
 			bb = buffer[ci++];
-			ch = (char) bb;
-			if (ch == '"') {
+			if (bb == '"') {
 				currentIndex = ci;
 				return new String(buffer, startIndex, currentIndex - startIndex - 1, "ISO-8859-1");
 			}
 		}
 		currentIndex = ci;
 		if (currentIndex >= length) {
-			throw new IOException("JSON string was not closed with a double quote!");
+			throw new IOException("JSON string was not closed with a double quote at: " + ci);
 		}
 
 		// temporary buffer, will resize if need be
@@ -257,10 +261,6 @@ public final class JsonReader {
 		if (value >= 'A' && value <= 'F') return value - 0x37;
 		if (value >= 'a' && value <= 'f') return value - 0x57;
 		throw new IOException("Could not parse unicode escape, expected a hexadecimal digit, got '" + value + "'");
-	}
-
-	private String byteDetails(final byte c) {
-		return "'" + ((char) c) + "'" + "(" + c + ")";
 	}
 
 	private boolean wasWhiteSpace() {

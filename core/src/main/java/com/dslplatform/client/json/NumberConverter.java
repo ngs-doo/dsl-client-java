@@ -135,8 +135,7 @@ public class NumberConverter {
 	private static double parsePositiveDouble(final char[] buf, final int position, final int len, int i) throws IOException {
 		long value = 0;
 		char ch = ' ';
-		for (; i < buf.length; i++) {
-			if (i == len) return value;
+		for (; i < len; i++) {
 			ch = buf[i];
 			if (ch == '.') break;
 			final int ind = buf[i] - 48;
@@ -146,11 +145,11 @@ public class NumberConverter {
 				return parseDoubleGeneric(buf, len, position);
 			}
 		}
-		if (ch == '.') {
+		if (i == len) return value;
+		else if (ch == '.') {
 			i++;
 			int div = 1;
-			for (; i < buf.length; i++) {
-				if (i == len) break;
+			for (; i < len; i++) {
 				final int ind = buf[i] - 48;
 				if (ind >= 0 && ind < 10) {
 					div = (div << 3) + (div << 1);
@@ -167,8 +166,7 @@ public class NumberConverter {
 	private static double parseNegativeDouble(final char[] buf, final int position, final int len, int i) throws IOException {
 		long value = 0;
 		char ch = ' ';
-		for (; i < buf.length; i++) {
-			if (i == len) return value;
+		for (; i < len; i++) {
 			ch = buf[i];
 			if (ch == '.') break;
 			final int ind = buf[i] - 48;
@@ -178,11 +176,11 @@ public class NumberConverter {
 				return parseDoubleGeneric(buf, len, position);
 			}
 		}
-		if (ch == '.') {
+		if (i == len) return value;
+		else if (ch == '.') {
 			i++;
 			int div = 1;
-			for (; i < buf.length; i++) {
-				if (i == len) break;
+			for (; i < len; i++) {
 				final int ind = buf[i] - 48;
 				if (ind >= 0 && ind < 10) {
 					div = (div << 3) + (div << 1);
@@ -283,8 +281,7 @@ public class NumberConverter {
 	private static float parsePositiveFloat(final char[] buf, final int position, final int len, int i) throws IOException {
 		long value = 0;
 		char ch = ' ';
-		for (; i < buf.length; i++) {
-			if (i == len) return value;
+		for (; i < len; i++) {
 			ch = buf[i];
 			if (ch == '.') break;
 			final int ind = buf[i] - 48;
@@ -297,8 +294,7 @@ public class NumberConverter {
 		if (ch == '.') {
 			i++;
 			int div = 1;
-			for (; i < buf.length; i++) {
-				if (i == len) break;
+			for (; i < len; i++) {
 				final int ind = buf[i] - 48;
 				if (ind >= 0 && ind < 10) {
 					div = (div << 3) + (div << 1);
@@ -315,8 +311,7 @@ public class NumberConverter {
 	private static float parseNegativeFloat(final char[] buf, final int position, final int len, int i) throws IOException {
 		long value = 0;
 		char ch = ' ';
-		for (; i < buf.length; i++) {
-			if (i == len) return value;
+		for (; i < len; i++) {
 			ch = buf[i];
 			if (ch == '.') break;
 			final int ind = buf[i] - 48;
@@ -329,8 +324,7 @@ public class NumberConverter {
 		if (ch == '.') {
 			i++;
 			int div = 1;
-			for (; i < buf.length; i++) {
-				if (i == len) break;
+			for (; i < len; i++) {
 				final int ind = buf[i] - 48;
 				if (ind >= 0 && ind < 10) {
 					div = (div << 3) + (div << 1);
@@ -434,8 +428,7 @@ public class NumberConverter {
 
 	private static int parsePositiveInt(final char[] buf, final int position, final int len, int i) throws IOException {
 		int value = 0;
-		for (; i < buf.length; i++) {
-			if (i == len) break;
+		for (; i < len; i++) {
 			final int ind = buf[i] - 48;
 			if (ind >= 0 && ind < 10) {
 				value = (value << 3) + (value << 1) + ind;
@@ -450,8 +443,7 @@ public class NumberConverter {
 
 	private static int parseNegativeInt(final char[] buf, final int position, final int len, int i) throws IOException {
 		int value = 0;
-		for (; i < buf.length; i++) {
-			if (i == len) break;
+		for (; i < len; i++) {
 			final int ind = buf[i] - 48;
 			if (ind >= 0 && ind < 10) {
 				value = (value << 3) + (value << 1) - ind;
@@ -541,8 +533,7 @@ public class NumberConverter {
 
 	private static long parsePositiveLong(final char[] buf, final int position, final int len, int i) throws IOException {
 		long value = 0;
-		for (; i < buf.length; i++) {
-			if (i == len) break;
+		for (; i < len; i++) {
 			final int ind = buf[i] - 48;
 			if (ind >= 0 && ind < 10) {
 				value = (value << 3) + (value << 1) + ind;
@@ -557,8 +548,7 @@ public class NumberConverter {
 
 	private static long parseNegativeLong(final char[] buf, final int position, final int len, int i) throws IOException {
 		long value = 0;
-		for (; i < buf.length; i++) {
-			if (i == len) break;
+		for (; i < len; i++) {
 			final int ind = buf[i] - 48;
 			if (ind >= 0 && ind < 10) {
 				value = (value << 3) + (value << 1) - ind;
@@ -630,8 +620,7 @@ public class NumberConverter {
 	private static BigDecimal parsePositiveDecimal(final char[] buf, final int position, final int len, int i) throws IOException {
 		long value = 0;
 		char ch = ' ';
-		for (; i < buf.length; i++) {
-			if (i == len) return BigDecimal.valueOf(value);
+		for (; i < len; i++) {
 			ch = buf[i];
 			if (ch == '.' || ch == 'e' || ch == 'E') break;
 			final int ind = ch - 48;
@@ -641,11 +630,11 @@ public class NumberConverter {
 				return parseNumberGeneric(buf, len, position);
 			}
 		}
-		if (ch == '.') {
+		if (i == len) return BigDecimal.valueOf(value);
+		else if (ch == '.') {
 			i++;
 			int dp = i;
-			for (; i < buf.length; i++) {
-				if (i == len) return BigDecimal.valueOf(value, len - dp);
+			for (; i < len; i++) {
 				ch = buf[i];
 				if (ch == 'e' || ch == 'E') break;
 				final int ind = ch - 48;
@@ -655,7 +644,8 @@ public class NumberConverter {
 					return parseNumberGeneric(buf, len, position);
 				}
 			}
-			if (ch == 'e' || ch == 'E') {
+			if (i == len) return BigDecimal.valueOf(value, len - dp);
+			else if (ch == 'e' || ch == 'E') {
 				final int ep = i;
 				i++;
 				ch = buf[i];
@@ -689,8 +679,7 @@ public class NumberConverter {
 	private static BigDecimal parseNegativeDecimal(final char[] buf, final int position, final int len, int i) throws IOException {
 		long value = 0;
 		char ch = ' ';
-		for (; i < buf.length; i++) {
-			if (i == len) return BigDecimal.valueOf(value);
+		for (; i < len; i++) {
 			ch = buf[i];
 			if (ch == '.' || ch == 'e' || ch == 'E') break;
 			final int ind = ch - 48;
@@ -700,11 +689,11 @@ public class NumberConverter {
 				return parseNumberGeneric(buf, len, position);
 			}
 		}
-		if (ch == '.') {
+		if (i == len) return BigDecimal.valueOf(value);
+		else if (ch == '.') {
 			i++;
 			int dp = i;
-			for (; i < buf.length; i++) {
-				if (i == len) return BigDecimal.valueOf(value, len - dp);
+			for (; i < len; i++) {
 				ch = buf[i];
 				if (ch == 'e' || ch == 'E') break;
 				final int ind = ch - 48;
@@ -714,7 +703,8 @@ public class NumberConverter {
 					return parseNumberGeneric(buf, len, position);
 				}
 			}
-			if (ch == 'e' || ch == 'E') {
+			if (i == len) return BigDecimal.valueOf(value, len - dp);
+			else if (ch == 'e' || ch == 'E') {
 				final int ep = i;
 				i++;
 				ch = buf[i];

@@ -28,7 +28,7 @@ public class SearchBuilder<T extends Searchable> {
 	 */
 	public SearchBuilder(final SearchableRepository<T> repository) {
 		this.repository = repository;
-		order = new ArrayList<Map.Entry<String, Boolean>>();
+		order = new ArrayList<Map.Entry<String, Boolean>>(1);
 	}
 
 	/**

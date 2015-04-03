@@ -1,6 +1,7 @@
 package com.dslplatform.client.json;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -247,11 +248,9 @@ public final class JsonWriter extends Writer {
 		}
 		int p = position;
 		final byte[] _result = result;
-		if (off >= 0 && end <= tmp.length) {
-			for (int i = off; i < end; i++) {
-				_result[p++] = tmp[i];
-			}
-		} else throw new ArrayIndexOutOfBoundsException("Invalid offset and/or end arguments provided: " + off + " and " + end);
+		for (int i = off; i < end; i++) {
+			_result[p++] = tmp[i];
+		}
 		position = p;
 	}
 
@@ -261,11 +260,9 @@ public final class JsonWriter extends Writer {
 		}
 		final int p = position;
 		final byte[] _result = result;
-		if (len <= tmp.length) {
-			for (int i = 0; i < len; i++) {
-				_result[p + i] = tmp[i];
-			}
-		} else throw new ArrayIndexOutOfBoundsException("Provided len argument is larger than buffer length: " + len + " > " + tmp.length);
+		for (int i = 0; i < len; i++) {
+			_result[p + i] = tmp[i];
+		}
 		position += len;
 	}
 
@@ -305,12 +302,10 @@ public final class JsonWriter extends Writer {
 		}
 		final int p = position;
 		final byte[] _result = result;
-		if (len <= buf.length) {
-			for (int i = 0; i < len; i++) {
-				_result[p + i] = buf[i];
-			}
-			position += len;
-		} else throw new ArrayIndexOutOfBoundsException("Provided len argument is larger than buffer length: " + len + " > " + buf.length);
+		for (int i = 0; i < len; i++) {
+			_result[p + i] = buf[i];
+		}
+		position += len;
 	}
 
 	public final void writeBinary(final byte[] buf) {
@@ -343,6 +338,10 @@ public final class JsonWriter extends Writer {
 
 	public final byte[] toByteArray() {
 		return Arrays.copyOf(result, position);
+	}
+
+	public final void toStream(final OutputStream stream) throws IOException {
+		stream.write(result, 0, position);
 	}
 
 	public final int size() {
