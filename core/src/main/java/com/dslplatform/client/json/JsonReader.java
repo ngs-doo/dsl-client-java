@@ -7,6 +7,22 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public final class JsonReader {
+
+	private static final boolean[] Whitespace = new boolean[256];
+
+	static {
+		Whitespace[9 + 128] = true;
+		Whitespace[10 + 128] = true;
+		Whitespace[11 + 128] = true;
+		Whitespace[12 + 128] = true;
+		Whitespace[13 + 128] = true;
+		Whitespace[32 + 128] = true;
+		Whitespace[-96 + 128] = true;
+		Whitespace[-31 + 128] = true;
+		Whitespace[-30 + 128] = true;
+		Whitespace[-29 + 128] = true;
+	}
+
 	private final byte[] buffer;
 	private final int length;
 	private final ServiceLocator locator;
@@ -328,17 +344,20 @@ public final class JsonReader {
 
 	public final byte getNextToken() throws IOException {
 		read();
-		if (last == '"' || last == ',') {
-			return last;
+		if (Whitespace[last + 128]) {
+			while (wasWhiteSpace()) {
+				read();
+			}
 		}
-		while (wasWhiteSpace())
-			read();
 		return last;
 	}
 
 	public final byte moveToNextToken() throws IOException {
-		while (wasWhiteSpace())
-			read();
+		if (Whitespace[last + 128]) {
+			while (wasWhiteSpace()) {
+				read();
+			}
+		}
 		return last;
 	}
 
