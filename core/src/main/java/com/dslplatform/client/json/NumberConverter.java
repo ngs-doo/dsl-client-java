@@ -123,7 +123,7 @@ public class NumberConverter {
 				return parseDoubleGeneric(buf, len, position);
 			}
 		}
-		char ch = buf[0];
+		final char ch = buf[0];
 		if (ch == '-') {
 			return parseNegativeDouble(buf, position, len, 1);
 		} else if (ch == '+') {
@@ -139,9 +139,8 @@ public class NumberConverter {
 			ch = buf[i];
 			if (ch == '.') break;
 			final int ind = buf[i] - 48;
-			if (ind >= 0 && ind < 10) {
-				value = (value << 3) + (value << 1) + ind;
-			} else {
+			value = (value << 3) + (value << 1) + ind;
+			if (ind < 0 || ind > 9) {
 				return parseDoubleGeneric(buf, len, position);
 			}
 		}
@@ -151,10 +150,9 @@ public class NumberConverter {
 			int div = 1;
 			for (; i < len; i++) {
 				final int ind = buf[i] - 48;
-				if (ind >= 0 && ind < 10) {
-					div = (div << 3) + (div << 1);
-					value = (value << 3) + (value << 1) + ind;
-				} else {
+				div = (div << 3) + (div << 1);
+				value = (value << 3) + (value << 1) + ind;
+				if (ind < 0 || ind > 9) {
 					return parseDoubleGeneric(buf, len, position);
 				}
 			}
@@ -170,9 +168,8 @@ public class NumberConverter {
 			ch = buf[i];
 			if (ch == '.') break;
 			final int ind = buf[i] - 48;
-			if (ind >= 0 && ind < 10) {
-				value = (value << 3) + (value << 1) - ind;
-			} else {
+			value = (value << 3) + (value << 1) - ind;
+			if (ind < 0 || ind > 9) {
 				return parseDoubleGeneric(buf, len, position);
 			}
 		}
@@ -182,10 +179,9 @@ public class NumberConverter {
 			int div = 1;
 			for (; i < len; i++) {
 				final int ind = buf[i] - 48;
-				if (ind >= 0 && ind < 10) {
-					div = (div << 3) + (div << 1);
-					value = (value << 3) + (value << 1) - ind;
-				} else {
+				div = (div << 3) + (div << 1);
+				value = (value << 3) + (value << 1) - ind;
+				if (ind < 0 || ind > 9) {
 					return parseDoubleGeneric(buf, len, position);
 				}
 			}
@@ -269,7 +265,7 @@ public class NumberConverter {
 				return parseFloatGeneric(buf, len, position);
 			}
 		}
-		char ch = buf[0];
+		final char ch = buf[0];
 		if (ch == '-') {
 			return parseNegativeFloat(buf, position, len, 1);
 		} else if (ch == '+') {
@@ -285,9 +281,8 @@ public class NumberConverter {
 			ch = buf[i];
 			if (ch == '.') break;
 			final int ind = buf[i] - 48;
-			if (ind >= 0 && ind < 10) {
-				value = (value << 3) + (value << 1) + ind;
-			} else {
+			value = (value << 3) + (value << 1) + ind;
+			if (ind < 0 || ind > 9) {
 				return parseFloatGeneric(buf, len, position);
 			}
 		}
@@ -296,10 +291,9 @@ public class NumberConverter {
 			int div = 1;
 			for (; i < len; i++) {
 				final int ind = buf[i] - 48;
-				if (ind >= 0 && ind < 10) {
-					div = (div << 3) + (div << 1);
-					value = (value << 3) + (value << 1) + ind;
-				} else {
+				div = (div << 3) + (div << 1);
+				value = (value << 3) + (value << 1) + ind;
+				if (ind < 0 || ind > 9) {
 					return parseFloatGeneric(buf, len, position);
 				}
 			}
@@ -315,9 +309,8 @@ public class NumberConverter {
 			ch = buf[i];
 			if (ch == '.') break;
 			final int ind = buf[i] - 48;
-			if (ind >= 0 && ind < 10) {
-				value = (value << 3) + (value << 1) - ind;
-			} else {
+			value = (value << 3) + (value << 1) - ind;
+			if (ind < 0 || ind > 9) {
 				return parseFloatGeneric(buf, len, position);
 			}
 		}
@@ -326,10 +319,9 @@ public class NumberConverter {
 			int div = 1;
 			for (; i < len; i++) {
 				final int ind = buf[i] - 48;
-				if (ind >= 0 && ind < 10) {
-					div = (div << 3) + (div << 1);
-					value = (value << 3) + (value << 1) - ind;
-				} else {
+				div = (div << 3) + (div << 1);
+				value = (value << 3) + (value << 1) - ind;
+				if (ind < 0 || ind > 9) {
 					return parseFloatGeneric(buf, len, position);
 				}
 			}
@@ -430,9 +422,8 @@ public class NumberConverter {
 		int value = 0;
 		for (; i < len; i++) {
 			final int ind = buf[i] - 48;
-			if (ind >= 0 && ind < 10) {
-				value = (value << 3) + (value << 1) + ind;
-			} else {
+			value = (value << 3) + (value << 1) + ind;
+			if (ind < 0 || ind > 9) {
 				BigDecimal v = parseNumberGeneric(buf, len, position);
 				if (v.scale() <= 0) return v.intValue();
 				throw new IOException("Error parsing int number at position: " + (position - len) + ". Found decimal value: " + v);
@@ -445,9 +436,8 @@ public class NumberConverter {
 		int value = 0;
 		for (; i < len; i++) {
 			final int ind = buf[i] - 48;
-			if (ind >= 0 && ind < 10) {
-				value = (value << 3) + (value << 1) - ind;
-			} else {
+			value = (value << 3) + (value << 1) - ind;
+			if (ind < 0 || ind > 9) {
 				BigDecimal v = parseNumberGeneric(buf, len, position);
 				if (v.scale() <= 0) return v.intValue();
 				throw new IOException("Error parsing int number at position: " + (position - len) + ". Found decimal value: " + v);
@@ -523,42 +513,35 @@ public class NumberConverter {
 		final int position = reader.getCurrentIndex();
 		final int len = position - reader.getTokenStart() - 1;
 		final char ch = buf[0];
+		int i = 0;
+		long value = 0;
 		if (ch == '-') {
-			return parseNegativeLong(buf, position, len, 1);
-		} else if (ch == '+') {
-			return parsePositiveLong(buf, position, len, 1);
-		}
-		return parsePositiveLong(buf, position, len, 0);
-	}
-
-	private static long parsePositiveLong(final char[] buf, final int position, final int len, int i) throws IOException {
-		long value = 0;
-		for (; i < len; i++) {
-			final int ind = buf[i] - 48;
-			if (ind >= 0 && ind < 10) {
-				value = (value << 3) + (value << 1) + ind;
-			} else {
-				BigDecimal v = parseNumberGeneric(buf, len, position);
-				if (v.scale() <= 0) return v.longValue();
-				throw new IOException("Error parsing long number at position: " + (position - len) + ". Found decimal value: " + v);
-			}
-		}
-		return value;
-	}
-
-	private static long parseNegativeLong(final char[] buf, final int position, final int len, int i) throws IOException {
-		long value = 0;
-		for (; i < len; i++) {
-			final int ind = buf[i] - 48;
-			if (ind >= 0 && ind < 10) {
+			i = 1;
+			for (; i < len; i++) {
+				final int ind = buf[i] - 48;
 				value = (value << 3) + (value << 1) - ind;
-			} else {
-				BigDecimal v = parseNumberGeneric(buf, len, position);
-				if (v.scale() <= 0) return v.longValue();
-				throw new IOException("Error parsing long number at position: " + (position - len) + ". Found decimal value: " + v);
+				if (ind < 0 || ind > 9) {
+					return parseLongGeneric(buf, position, len);
+				}
+			}
+			return value;
+		} else if (ch == '+') {
+			i = 1;
+		}
+		for (; i < len; i++) {
+			final int ind = buf[i] - 48;
+			value = (value << 3) + (value << 1) + ind;
+			if (ind < 0 || ind > 9) {
+				return parseLongGeneric(buf, position, len);
 			}
 		}
 		return value;
+	}
+
+	private static long parseLongGeneric(final char[] buf, final int position, final int len) throws IOException {
+		BigDecimal v = parseNumberGeneric(buf, len, position);
+		if (v.scale() <= 0) return v.longValue();
+		throw new IOException("Error parsing long number at position: " + (position - len) + ". Found decimal value: " + v);
 	}
 
 	private static JsonReader.ReadObject<Long> LongReader = new JsonReader.ReadObject<Long>() {
@@ -624,9 +607,8 @@ public class NumberConverter {
 			ch = buf[i];
 			if (ch == '.' || ch == 'e' || ch == 'E') break;
 			final int ind = ch - 48;
-			if (ind >= 0 && ind < 10) {
-				value = (value << 3) + (value << 1) + ind;
-			} else {
+			value = (value << 3) + (value << 1) + ind;
+			if (ind < 0 || ind > 9) {
 				return parseNumberGeneric(buf, len, position);
 			}
 		}
@@ -638,9 +620,8 @@ public class NumberConverter {
 				ch = buf[i];
 				if (ch == 'e' || ch == 'E') break;
 				final int ind = ch - 48;
-				if (ind >= 0 && ind < 10) {
-					value = (value << 3) + (value << 1) + ind;
-				} else {
+				value = (value << 3) + (value << 1) + ind;
+				if (ind < 0 || ind > 9) {
 					return parseNumberGeneric(buf, len, position);
 				}
 			}
@@ -683,9 +664,8 @@ public class NumberConverter {
 			ch = buf[i];
 			if (ch == '.' || ch == 'e' || ch == 'E') break;
 			final int ind = ch - 48;
-			if (ind >= 0 && ind < 10) {
-				value = (value << 3) + (value << 1) - ind;
-			} else {
+			value = (value << 3) + (value << 1) - ind;
+			if (ind < 0 || ind > 9) {
 				return parseNumberGeneric(buf, len, position);
 			}
 		}
@@ -697,9 +677,8 @@ public class NumberConverter {
 				ch = buf[i];
 				if (ch == 'e' || ch == 'E') break;
 				final int ind = ch - 48;
-				if (ind >= 0 && ind < 10) {
-					value = (value << 3) + (value << 1) - ind;
-				} else {
+				value = (value << 3) + (value << 1) - ind;
+				if (ind < 0 || ind > 9) {
 					return parseNumberGeneric(buf, len, position);
 				}
 			}
