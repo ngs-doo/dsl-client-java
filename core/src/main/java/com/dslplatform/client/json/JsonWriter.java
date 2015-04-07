@@ -7,7 +7,6 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 
 public final class JsonWriter extends Writer {
-
 	public final byte[] tmp = new byte[48];
 	private byte[] result;
 	private int position;
@@ -55,13 +54,14 @@ public final class JsonWriter extends Writer {
 		result[position++] = c;
 	}
 
+	@SuppressWarnings("deprecation")
 	public final void writeString(final String str) {
 		final int len = str.length();
 		if (position + (len << 2) + (len << 1) + 2 >= result.length) {
 			result = Arrays.copyOf(result, result.length + result.length / 2 + (len << 2) + (len << 1) + 2);
 		}
 		int i = 0;
-		while(i < str.length()) {
+		while (i < str.length()) {
 			final char c = str.charAt(i);
 			if (c > 31 && c != '"' && c != '\\' && c < 127) {
 				i++;
@@ -266,6 +266,7 @@ public final class JsonWriter extends Writer {
 		position += len;
 	}
 
+	@SuppressWarnings("deprecation")
 	public final void writeAscii(final String str) {
 		final int len = str.length();
 		if (position + len >= result.length) {
@@ -275,6 +276,7 @@ public final class JsonWriter extends Writer {
 		position += len;
 	}
 
+	@SuppressWarnings("deprecation")
 	public final void writeAscii(final String str, final int len) {
 		if (position + len >= result.length) {
 			result = Arrays.copyOf(result, result.length + result.length / 2 + len);
@@ -369,8 +371,7 @@ public final class JsonWriter extends Writer {
 	}
 
 	@Override
-	public void flush() throws IOException {
-	}
+	public void flush() throws IOException {}
 
 	@Override
 	public void close() throws IOException {
