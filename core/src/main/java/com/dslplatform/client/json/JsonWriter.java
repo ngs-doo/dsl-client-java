@@ -5,6 +5,9 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 public final class JsonWriter extends Writer {
 	public final byte[] tmp = new byte[48];
@@ -54,7 +57,6 @@ public final class JsonWriter extends Writer {
 		result[position++] = c;
 	}
 
-	@SuppressWarnings("deprecation")
 	public final void writeString(final String str) {
 		final int len = str.length();
 		if (position + (len << 2) + (len << 1) + 2 >= result.length) {
@@ -377,4 +379,121 @@ public final class JsonWriter extends Writer {
 	public void close() throws IOException {
 		position = 0;
 	}
+
+	public <T extends JsonObject> void serialize(final T[] array, final boolean minimal) {
+		writeByte(ARRAY_START);
+		if (array.length != 0) {
+			array[0].serialize(this, minimal);
+			for (int i = 1; i < array.length; i++) {
+				writeByte(COMMA);
+				array[i].serialize(this, minimal);
+			}
+		}
+		writeByte(ARRAY_END);
+	}
+
+	public <T extends JsonObject> void serialize(final List<T> list, final boolean minimal) {
+		writeByte(ARRAY_START);
+		if (list.size() != 0) {
+			list.get(0).serialize(this, minimal);
+			for (int i = 1; i < list.size(); i++) {
+				writeByte(COMMA);
+				list.get(i).serialize(this, minimal);
+			}
+		}
+		writeByte(ARRAY_END);
+	}
+
+	public <T extends JsonObject> void serialize(final Collection<T> collection, final boolean minimal) {
+		writeByte(ARRAY_START);
+		if (!collection.isEmpty()) {
+			final Iterator<T> it = collection.iterator();
+			it.next().serialize(this, minimal);
+			while (it.hasNext()) {
+				writeByte(COMMA);
+				it.next().serialize(this, minimal);
+			}
+		}
+		writeByte(ARRAY_END);
+	}
+
+	public <T extends JsonObject> void serializeNullable(final T[] array, final boolean minimal) {
+		if (array == null) {
+			writeNull();
+			return;
+		}
+		writeByte(ARRAY_START);
+		if (array.length != 0) {
+			T item = array[0];
+			if (item != null) {
+				item.serialize(this, minimal);
+			} else {
+				writeNull();
+			}
+			for (int i = 1; i < array.length; i++) {
+				writeByte(COMMA);
+				item = array[i];
+				if (item != null) {
+					item.serialize(this, minimal);
+				} else {
+					writeNull();
+				}
+			}
+		}
+		writeByte(ARRAY_END);
+	}
+
+	public <T extends JsonObject> void serializeNullable(final List<T> list, final boolean minimal) {
+		if (list == null) {
+			writeNull();
+			return;
+		}
+		writeByte(ARRAY_START);
+		if (list.size() != 0) {
+			T item = list.get(0);
+			if (item != null) {
+				item.serialize(this, minimal);
+			} else {
+				writeNull();
+			}
+			for (int i = 1; i < list.size(); i++) {
+				writeByte(COMMA);
+				item = list.get(i);
+				if (item != null) {
+					item.serialize(this, minimal);
+				} else {
+					writeNull();
+				}
+			}
+		}
+		writeByte(ARRAY_END);
+	}
+
+	public <T extends JsonObject> void serializeNullable(final Collection<T> collection, final boolean minimal) {
+		if (collection == null) {
+			writeNull();
+			return;
+		}
+		writeByte(ARRAY_START);
+		if (!collection.isEmpty()) {
+			final Iterator<T> it = collection.iterator();
+			T item = it.next();
+			if (item != null) {
+				item.serialize(this, minimal);
+			} else {
+				writeNull();
+			}
+			while (it.hasNext()) {
+				writeByte(COMMA);
+				item = it.next();
+				if (item != null) {
+					item.serialize(this, minimal);
+				} else {
+					writeNull();
+				}
+			}
+		}
+		writeByte(ARRAY_END);
+	}
+
 }
