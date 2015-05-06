@@ -60,17 +60,17 @@ public final class JsonWriter extends Writer {
 		if (position + (len << 2) + (len << 1) + 2 >= result.length) {
 			result = Arrays.copyOf(result, result.length + result.length / 2 + (len << 2) + (len << 1) + 2);
 		}
+		final byte[] _result = result;
+		_result[position] = QUOTE;
+		int cur = position + 1;
 		int i = 0;
 		while (i < str.length()) {
 			final char c = str.charAt(i);
 			if (c > 31 && c != '"' && c != '\\' && c < 127) {
+				_result[cur++] = (byte)c;
 				i++;
 			} else break;
 		}
-		final byte[] _result = result;
-		_result[position] = QUOTE;
-		str.getBytes(0, i, _result, position + 1);
-		int cur = position + i + 1;
 		for (; i < str.length(); i++) {
 			final char c = str.charAt(i);
 			if (c == '"') {
