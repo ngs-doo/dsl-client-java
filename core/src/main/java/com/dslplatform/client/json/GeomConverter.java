@@ -8,6 +8,68 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class GeomConverter {
+
+	static JsonReader.ReadObject<Point2D> LocationReader = new JsonReader.ReadObject<Point2D>() {
+		@Override
+		public Point2D read(JsonReader reader) throws IOException {
+			return deserializeLocation(reader);
+		}
+	};
+	static JsonWriter.WriteObject<Point2D> LocationWriter = new JsonWriter.WriteObject<Point2D>() {
+		@Override
+		public void write(JsonWriter writer, Point2D value) {
+			serializeLocationNullable(value, writer);
+		}
+	};
+	static JsonWriter.WriteObject<Point2D.Double> LocationWriterDouble = new JsonWriter.WriteObject<Point2D.Double>() {
+		@Override
+		public void write(JsonWriter writer, Point2D.Double value) {
+			serializeLocationNullable(value, writer);
+		}
+	};
+	static JsonWriter.WriteObject<Point2D.Float> LocationWriterFloat = new JsonWriter.WriteObject<Point2D.Float>() {
+		@Override
+		public void write(JsonWriter writer, Point2D.Float value) {
+			serializeLocationNullable(value, writer);
+		}
+	};
+	static JsonReader.ReadObject<Point> PointReader = new JsonReader.ReadObject<Point>() {
+		@Override
+		public Point read(JsonReader reader) throws IOException {
+			return deserializePoint(reader);
+		}
+	};
+	static JsonWriter.WriteObject<Point> PointWriter = new JsonWriter.WriteObject<Point>() {
+		@Override
+		public void write(JsonWriter writer, Point value) {
+			serializePointNullable(value, writer);
+		}
+	};
+	static JsonReader.ReadObject<Rectangle2D> RectangleReader = new JsonReader.ReadObject<Rectangle2D>() {
+		@Override
+		public Rectangle2D read(JsonReader reader) throws IOException {
+			return deserializeRectangle(reader);
+		}
+	};
+	static JsonWriter.WriteObject<Rectangle2D> RectangleWriter = new JsonWriter.WriteObject<Rectangle2D>() {
+		@Override
+		public void write(JsonWriter writer, Rectangle2D value) {
+			serializeRectangleNullable(value, writer);
+		}
+	};
+	static JsonWriter.WriteObject<Rectangle2D.Double> RectangleWriterDouble = new JsonWriter.WriteObject<Rectangle2D.Double>() {
+		@Override
+		public void write(JsonWriter writer, Rectangle2D.Double value) {
+			serializeRectangleNullable(value, writer);
+		}
+	};
+	static JsonWriter.WriteObject<Rectangle2D.Float> RectangleWriterFloat = new JsonWriter.WriteObject<Rectangle2D.Float>() {
+		@Override
+		public void write(JsonWriter writer, Rectangle2D.Float value) {
+			serializeRectangleNullable(value, writer);
+		}
+	};
+
 	public static void serializeLocationNullable(final Point2D value, final JsonWriter sw) {
 		if (value == null) {
 			sw.writeNull();
@@ -25,30 +87,52 @@ public class GeomConverter {
 	}
 
 	public static Point2D deserializeLocation(final JsonReader reader) throws IOException {
-		return null;
+		if (reader.last() != '{') throw new IOException("Expecting '{' at position " + reader.positionInStream() + ". Found " + (char)reader.last());
+		byte nextToken = reader.getNextToken();
+		if (nextToken == '}') return new Point2D.Double();
+		double x = 0;
+		double y = 0;
+		String name = StringConverter.deserialize(reader);
+		nextToken = reader.getNextToken();
+		if (nextToken != ':') throw new IOException("Expecting ':' at position " + reader.positionInStream() + ". Found " + (char)nextToken);
+		reader.getNextToken();
+		double value = NumberConverter.deserializeDouble(reader);
+		if ("X".equalsIgnoreCase(name)) {
+			x = value;
+		} else if ("Y".equalsIgnoreCase(name)) {
+			y = value;
+		}
+		while ((nextToken = reader.getNextToken()) == ',') {
+			reader.getNextToken();
+			name = StringConverter.deserialize(reader);
+			nextToken = reader.getNextToken();
+			if (nextToken != ':') throw new IOException("Expecting ':' at position " + reader.positionInStream() + ". Found " + (char)nextToken);
+			reader.getNextToken();
+			value = NumberConverter.deserializeDouble(reader);
+			if ("X".equalsIgnoreCase(name)) {
+				x = value;
+			} else if ("Y".equalsIgnoreCase(name)) {
+				y = value;
+			}
+		}
+		if (nextToken != '}') throw new IOException("Expecting '}' at position " + reader.positionInStream() + ". Found " + (char)nextToken);
+		return new Point2D.Double(x, y);
 	}
 
-	private static JsonReader.ReadObject<Point2D> LocationReader = new JsonReader.ReadObject<Point2D>() {
-		@Override
-		public Point2D read(JsonReader reader) throws IOException {
-			return deserializeLocation(reader);
-		}
-	};
-
 	public static ArrayList<Point2D> deserializeLocationCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeCollectionWithGet(LocationReader);
+		return reader.deserializeCollection(LocationReader);
 	}
 
 	public static void deserializeLocationCollection(final JsonReader reader, final Collection<Point2D> res) throws IOException {
-		reader.deserializeCollectionWithGet(LocationReader, res);
+		reader.deserializeCollection(LocationReader, res);
 	}
 
 	public static ArrayList<Point2D> deserializeLocationNullableCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeNullableCollectionWithGet(LocationReader);
+		return reader.deserializeNullableCollection(LocationReader);
 	}
 
 	public static void deserializeLocationNullableCollection(final JsonReader reader, final Collection<Point2D> res) throws IOException {
-		reader.deserializeNullableCollectionWithGet(LocationReader, res);
+		reader.deserializeNullableCollection(LocationReader, res);
 	}
 
 	public static void serializePointNullable(final Point value, final JsonWriter sw) {
@@ -68,30 +152,53 @@ public class GeomConverter {
 	}
 
 	public static Point deserializePoint(final JsonReader reader) throws IOException {
-		return null;
+		if (reader.last() != '{') throw new IOException("Expecting '{' at position " + reader.positionInStream() + ". Found " + (char)reader.last());
+		byte nextToken = reader.getNextToken();
+		if (nextToken == '}') return new Point();
+		int x = 0;
+		int y = 0;
+		String name = StringConverter.deserialize(reader);
+		nextToken = reader.getNextToken();
+		if (nextToken != ':') throw new IOException("Expecting ':' at position " + reader.positionInStream() + ". Found " + (char)nextToken);
+		reader.getNextToken();
+		int value = NumberConverter.deserializeInt(reader);
+		if ("X".equalsIgnoreCase(name)) {
+			x = value;
+		} else if ("Y".equalsIgnoreCase(name)) {
+			y = value;
+		}
+		while ((nextToken = reader.getNextToken()) == ',') {
+			reader.getNextToken();
+			name = StringConverter.deserialize(reader);
+			nextToken = reader.getNextToken();
+			if (nextToken != ':') throw new IOException("Expecting ':' at position " + reader.positionInStream() + ". Found " + (char)nextToken);
+			reader.getNextToken();
+			value = NumberConverter.deserializeInt(reader);
+			if ("X".equalsIgnoreCase(name)) {
+				x = value;
+			} else if ("Y".equalsIgnoreCase(name)) {
+				y = value;
+			}
+		}
+		if (nextToken != '}') throw new IOException("Expecting '}' at position " + reader.positionInStream() + ". Found " + (char)nextToken);
+		return new Point(x, y);
+
 	}
 
-	private static JsonReader.ReadObject<Point> PointReader = new JsonReader.ReadObject<Point>() {
-		@Override
-		public Point read(JsonReader reader) throws IOException {
-			return deserializePoint(reader);
-		}
-	};
-
 	public static ArrayList<Point> deserializePointCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeCollectionWithGet(PointReader);
+		return reader.deserializeCollection(PointReader);
 	}
 
 	public static void deserializePointCollection(final JsonReader reader, final Collection<Point> res) throws IOException {
-		reader.deserializeCollectionWithGet(PointReader, res);
+		reader.deserializeCollection(PointReader, res);
 	}
 
 	public static ArrayList<Point> deserializePointNullableCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeNullableCollectionWithGet(PointReader);
+		return reader.deserializeNullableCollection(PointReader);
 	}
 
 	public static void deserializePointNullableCollection(final JsonReader reader, final Collection<Point> res) throws IOException {
-		reader.deserializeNullableCollectionWithGet(PointReader, res);
+		reader.deserializeNullableCollection(PointReader, res);
 	}
 
 	public static void serializeRectangleNullable(final Rectangle2D value, final JsonWriter sw) {
@@ -115,29 +222,61 @@ public class GeomConverter {
 	}
 
 	public static Rectangle2D deserializeRectangle(final JsonReader reader) throws IOException {
-		return null;
+		if (reader.last() != '{') throw new IOException("Expecting '{' at position " + reader.positionInStream() + ". Found " + (char)reader.last());
+		byte nextToken = reader.getNextToken();
+		if (nextToken == '}') return new Rectangle2D.Double();
+		double x = 0;
+		double y = 0;
+		double width = 0;
+		double height = 0;
+		String name = StringConverter.deserialize(reader);
+		nextToken = reader.getNextToken();
+		if (nextToken != ':') throw new IOException("Expecting ':' at position " + reader.positionInStream() + ". Found " + (char)nextToken);
+		reader.getNextToken();
+		double value = NumberConverter.deserializeDouble(reader);
+		if ("X".equalsIgnoreCase(name)) {
+			x = value;
+		} else if ("Y".equalsIgnoreCase(name)) {
+			y = value;
+		} else if ("Width".equalsIgnoreCase(name)) {
+			width = value;
+		} else if ("Height".equalsIgnoreCase(name)) {
+			height = value;
+		}
+		while ((nextToken = reader.getNextToken()) == ',') {
+			reader.getNextToken();
+			name = StringConverter.deserialize(reader);
+			nextToken = reader.getNextToken();
+			if (nextToken != ':') throw new IOException("Expecting ':' at position " + reader.positionInStream() + ". Found " + (char)nextToken);
+			reader.getNextToken();
+			value = NumberConverter.deserializeDouble(reader);
+			if ("X".equalsIgnoreCase(name)) {
+				x = value;
+			} else if ("Y".equalsIgnoreCase(name)) {
+				y = value;
+			} else if ("Width".equalsIgnoreCase(name)) {
+				width = value;
+			} else if ("Height".equalsIgnoreCase(name)) {
+				height = value;
+			}
+		}
+		if (nextToken != '}') throw new IOException("Expecting '}' at position " + reader.positionInStream() + ". Found " + (char)nextToken);
+		return new Rectangle2D.Double(x, y, width, height);
 	}
 
-	private static JsonReader.ReadObject<Rectangle2D> RectangleReader = new JsonReader.ReadObject<Rectangle2D>() {
-		@Override
-		public Rectangle2D read(JsonReader reader) throws IOException {
-			return deserializeRectangle(reader);
-		}
-	};
-
 	public static ArrayList<Rectangle2D> deserializeRectangleCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeCollectionWithGet(RectangleReader);
+		return reader.deserializeCollection(RectangleReader);
 	}
 
 	public static void deserializeRectangleCollection(final JsonReader reader, final Collection<Rectangle2D> res) throws IOException {
-		reader.deserializeCollectionWithGet(RectangleReader, res);
+		reader.deserializeCollection(RectangleReader, res);
 	}
 
 	public static ArrayList<Rectangle2D> deserializeRectangleNullableCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeNullableCollectionWithGet(RectangleReader);
+		return reader.deserializeNullableCollection(RectangleReader);
 	}
 
 	public static void deserializeRectangleNullableCollection(final JsonReader reader, final Collection<Rectangle2D> res) throws IOException {
-		reader.deserializeNullableCollectionWithGet(RectangleReader, res);
+		reader.deserializeNullableCollection(RectangleReader, res);
 	}
 }

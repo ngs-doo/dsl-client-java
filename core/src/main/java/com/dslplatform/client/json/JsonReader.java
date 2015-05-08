@@ -3,6 +3,7 @@ package com.dslplatform.client.json;
 import com.dslplatform.patterns.ServiceLocator;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -24,7 +25,7 @@ public final class JsonReader {
 	}
 
 	private final byte[] buffer;
-	private final int length;
+	final int length;
 	private final ServiceLocator locator;
 	private final char[] tmp;
 
@@ -66,11 +67,22 @@ public final class JsonReader {
 		}
 	}
 
+	private final static Charset utf8 = Charset.forName("UTF-8");
+
+	@Override
+	public String toString() {
+		return new String(buffer, 0, length, utf8);
+	}
+
 	public final byte read() throws IOException {
 		if (currentIndex >= length) {
 			throw new IOException("end of stream");
 		}
 		return last = buffer[currentIndex++];
+	}
+
+	boolean isEndOfStream() {
+		return length == currentIndex;
 	}
 
 	public final byte last() {
@@ -96,7 +108,7 @@ public final class JsonReader {
 			if (ch == ',' || ch == '}' || ch == ']') break;
 			tmp[i++] = ch;
 		}
-		currentIndex = ci;
+		currentIndex += i - 1;
 		last = (byte) ch;
 		return tmp;
 	}
@@ -116,8 +128,9 @@ public final class JsonReader {
 	}
 
 	public final char[] readSimpleQuote() throws IOException {
-		if (last != '"')
+		if (last != '"') {
 			throw new IOException("Expecting '\"' at position " + positionInStream() + ". Found " + (char) last);
+		}
 		int ci = tokenStart = currentIndex;
 		int i = 0;
 		while (i < tmp.length && ci < buffer.length) {
@@ -491,7 +504,7 @@ public final class JsonReader {
 		return Base64.decodeFast(buffer, start, currentIndex - 1);
 	}
 
-	public static interface ReadObject<T> {
+	static interface ReadObject<T> {
 		T read(JsonReader reader) throws IOException;
 	}
 
@@ -504,6 +517,7 @@ public final class JsonReader {
 			if (currentIndex + 2 < length && buffer[currentIndex] == 'u'
 					&& buffer[currentIndex + 1] == 'l' && buffer[currentIndex + 2] == 'l') {
 				currentIndex += 3;
+				last = 'l';
 				return true;
 			}
 			throw new IOException("Invalid null value found at: " + currentIndex);
@@ -516,6 +530,7 @@ public final class JsonReader {
 			if (currentIndex + 2 < length && buffer[currentIndex] == 'r'
 					&& buffer[currentIndex + 1] == 'u' && buffer[currentIndex + 2] == 'e') {
 				currentIndex += 3;
+				last = 'e';
 				return true;
 			}
 			throw new IOException("Invalid boolean value found at: " + currentIndex);
@@ -529,6 +544,7 @@ public final class JsonReader {
 					&& buffer[currentIndex + 1] == 'l' && buffer[currentIndex + 2] == 's'
 					&& buffer[currentIndex + 3] == 'e') {
 				currentIndex += 4;
+				last = 'e';
 				return true;
 			}
 			throw new IOException("Invalid boolean value found at: " + currentIndex);
@@ -536,19 +552,13 @@ public final class JsonReader {
 		return false;
 	}
 
-	public final <T> ArrayList<T> deserializeCollectionWithGet(final ReadObject<T> readObject) throws IOException {
+	public final <T> ArrayList<T> deserializeCollection(final ReadObject<T> readObject) throws IOException {
 		final ArrayList<T> res = new ArrayList<T>(4);
-		deserializeCollectionWithGet(readObject, res);
+		deserializeCollection(readObject, res);
 		return res;
 	}
 
-	public final <T> ArrayList<T> deserializeCollectionWithMove(final ReadObject<T> readObject) throws IOException {
-		final ArrayList<T> res = new ArrayList<T>(4);
-		deserializeCollectionWithMove(readObject, res);
-		return res;
-	}
-
-	public final <T> void deserializeCollectionWithGet(final ReadObject<T> readObject, final Collection<T> res) throws IOException {
+	public final <T> void deserializeCollection(final ReadObject<T> readObject, final Collection<T> res) throws IOException {
 		res.add(readObject.read(this));
 		while (getNextToken() == ',') {
 			getNextToken();
@@ -560,31 +570,13 @@ public final class JsonReader {
 		}
 	}
 
-	public final <T> void deserializeCollectionWithMove(final ReadObject<T> readObject, final Collection<T> res) throws IOException {
-		res.add(readObject.read(this));
-		while (moveToNextToken() == ',') {
-			getNextToken();
-			res.add(readObject.read(this));
-		}
-		if (last != ']') {
-			if (currentIndex >= length) throw new IOException("Unexpected end of json in collection.");
-			else throw new IOException("Expecting ']' at position " + positionInStream() + ". Found " + (char) last);
-		}
-	}
-
-	public final <T> ArrayList<T> deserializeNullableCollectionWithGet(final ReadObject<T> readObject) throws IOException {
+	public final <T> ArrayList<T> deserializeNullableCollection(final ReadObject<T> readObject) throws IOException {
 		final ArrayList<T> res = new ArrayList<T>(4);
-		deserializeNullableCollectionWithGet(readObject, res);
+		deserializeNullableCollection(readObject, res);
 		return res;
 	}
 
-	public final <T> ArrayList<T> deserializeNullableCollectionWithMove(final ReadObject<T> readObject) throws IOException {
-		final ArrayList<T> res = new ArrayList<T>(4);
-		deserializeNullableCollectionWithMove(readObject, res);
-		return res;
-	}
-
-	public final <T> void deserializeNullableCollectionWithGet(final ReadObject<T> readObject, final Collection<T> res) throws IOException {
+	public final <T> void deserializeNullableCollection(final ReadObject<T> readObject, final Collection<T> res) throws IOException {
 		if (wasNull()) {
 			res.add(null);
 		} else {
@@ -596,30 +588,6 @@ public final class JsonReader {
 				res.add(null);
 			} else {
 				res.add(readObject.read(this));
-			}
-		}
-		if (last != ']') {
-			if (currentIndex >= length) throw new IOException("Unexpected end of json in collection.");
-			else throw new IOException("Expecting ']' at position " + positionInStream() + ". Found " + (char) last);
-		}
-	}
-
-	public final <T> void deserializeNullableCollectionWithMove(final ReadObject<T> readObject, final Collection<T> res) throws IOException {
-		if (wasNull()) {
-			res.add(null);
-			getNextToken();
-		} else {
-			res.add(readObject.read(this));
-			moveToNextToken();
-		}
-		while (last == ',') {
-			getNextToken();
-			if (wasNull()) {
-				res.add(null);
-				getNextToken();
-			} else {
-				res.add(readObject.read(this));
-				moveToNextToken();
 			}
 		}
 		if (last != ']') {

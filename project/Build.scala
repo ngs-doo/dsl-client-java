@@ -103,7 +103,7 @@ object Build extends Build with Default with Dependencies {
       name := "dsl-client-core"
     , libraryDependencies ++= Seq(
         slf4j
-      , jackson
+      , jackson % "provided"
       , androidSDK % "provided" intransitive()
       , awsCore % "provided" 
       , awsS3 % "provided"

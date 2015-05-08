@@ -1,5 +1,6 @@
 package com.dslplatform.client;
 
+import com.dslplatform.client.json.JacksonJsonSerialization;
 import com.dslplatform.client.json.JsonObject;
 import com.dslplatform.client.json.JsonWriter;
 import com.dslplatform.patterns.AggregateRoot;
@@ -8,6 +9,8 @@ import com.dslplatform.patterns.ServiceLocator;
 import com.dslplatform.patterns.Snapshot;
 import com.dslplatform.test.simple.SimpleRoot;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -41,10 +44,11 @@ public class DeserializationTest {
 	@Test
 	public void getSnapshots() throws Exception {
 		final String jason = "[{\"At\":\"2014-11-27T13:37:53.249724+01:00\",\"Value\":{\"ID\":23040,\"s\":\"\",\"URI\":\"23040\",\"isOdd\":true},\"Action\":\"INSERT\"},{\"At\":\"2014-11-27T13:37:53.408438+01:00\",\"Value\":{\"ID\":23040,\"i\":5,\"s\":\"\",\"URI\":\"23040\"},\"Action\":\"UPDATE\"},{\"At\":\"2014-11-27T13:37:53.438207+01:00\",\"Value\":{\"ID\":23040,\"i\":7,\"s\":\"\",\"URI\":\"23040\"},\"Action\":\"UPDATE\"},{\"At\":\"2014-11-27T13:37:53.453703+01:00\",\"Value\":{\"ID\":23040,\"i\":11,\"s\":\"\",\"URI\":\"23040\"},\"Action\":\"UPDATE\"}]";
-		final JavaType st = JsonSerialization.buildCollectionType(
+		final TypeFactory typeFactory = new ObjectMapper().getTypeFactory();
+		final JavaType st = typeFactory.constructCollectionType(
 				ArrayList.class,
-				JsonSerialization.buildGenericType(SnapshotDelegate.class, SimpleRoot.class));
-		final List<SnapshotDelegate<SimpleRoot>> snapshotList = JsonStatic.INSTANCE.jsonSerialization.deserialize(st, jason);
+				typeFactory.constructParametricType(SnapshotDelegate.class, SimpleRoot.class));
+		final List<SnapshotDelegate<SimpleRoot>> snapshotList = JacksonJsonSerialization.deserialize(st, jason, null);
 		assertEquals(4, snapshotList.size());
 		assertEquals("INSERT", snapshotList.get(0).Action);
 		assertEquals("UPDATE", snapshotList.get(1).Action);
@@ -54,15 +58,21 @@ public class DeserializationTest {
 
 	@Test
 	public void getHistoryList() throws Exception {
-		final String jason = "[{\"Snapshots\":[{\"At\":\"2014-11-27T13:37:53.249724+01:00\",\"Value\":{\"ID\":23040,\"s\":\"\",\"URI\":\"23040\",\"isOdd\":true},\"Action\":\"INSERT\"},{\"At\":\"2014-11-27T13:37:53.408438+01:00\",\"Value\":{\"ID\":23040,\"i\":5,\"s\":\"\",\"URI\":\"23040\"},\"Action\":\"UPDATE\"},{\"At\":\"2014-11-27T13:37:53.438207+01:00\",\"Value\":{\"ID\":23040,\"i\":7,\"s\":\"\",\"URI\":\"23040\"},\"Action\":\"UPDATE\"},{\"At\":\"2014-11-27T13:37:53.453703+01:00\",\"Value\":{\"ID\":23040,\"i\":11,\"s\":\"\",\"URI\":\"23040\"},\"Action\":\"UPDATE\"}]}]";
-		final List<History<SimpleRoot>> historyList = JsonStatic.INSTANCE.jsonSerialization.deserializeHistoryList(SimpleRoot.class, jason.getBytes());
-		final List<Snapshot<SimpleRoot>> snapshots = historyList.get(0).getSnapshots();
-		assertEquals(4, snapshots.size());
-		final Snapshot<SimpleRoot> simpleRootSnapshot = snapshots.get(1);
-		final String action = simpleRootSnapshot.getAction();
-		assertEquals("UPDATE", action);
-		final int i = simpleRootSnapshot.getValue().getI();
-		assertEquals(5, i);
+		final String jason = "[{\"Snapshots\":[{\"At\":\"2014-10-27T13:37:53.249724+01:00\",\"Value\":{\"ID\":23040,\"s\":\"\",\"URI\":\"23040\",\"isOdd\":true},\"Action\":\"INSERT\"},{\"At\":\"2014-11-27T13:37:53.408438+01:00\",\"Value\":{\"ID\":23040,\"i\":5,\"s\":\"\",\"URI\":\"23040\"},\"Action\":\"UPDATE\"},{\"At\":\"2014-11-27T13:37:53.438207+01:00\",\"Value\":{\"ID\":23040,\"i\":7,\"s\":\"\",\"URI\":\"23040\"},\"Action\":\"UPDATE\"},{\"At\":\"2014-11-27T13:37:53.453703+01:00\",\"Value\":{\"ID\":23040,\"i\":11,\"s\":\"\",\"URI\":\"23040\"},\"Action\":\"UPDATE\"}]},{\"Snapshots\":[{\"At\":\"2014-11-27T13:37:53.249724+01:00\",\"Value\":{\"ID\":23040,\"s\":\"\",\"URI\":\"23040\",\"isOdd\":true},\"Action\":\"INSERT\"},{\"At\":\"2014-11-27T13:37:53.408438+01:00\",\"Value\":{\"ID\":23040,\"i\":5,\"s\":\"\",\"URI\":\"23040\"},\"Action\":\"UPDATE\"},{\"At\":\"2014-11-27T13:37:53.438207+01:00\",\"Value\":{\"ID\":23040,\"i\":7,\"s\":\"\",\"URI\":\"23040\"},\"Action\":\"UPDATE\"},{\"At\":\"2014-11-27T13:37:53.453703+01:00\",\"Value\":{\"ID\":23040,\"i\":11,\"s\":\"\",\"URI\":\"23040\"},\"Action\":\"UPDATE\"}]}]";
+		final List<History<SimpleRoot>> historyList1 = JsonStatic.INSTANCE.jackson.deserializeHistoryList(SimpleRoot.class, jason.getBytes(), jason.length());
+		final List<History<SimpleRoot>> historyList2 = JsonStatic.INSTANCE.manual.deserializeHistoryList(SimpleRoot.class, jason.getBytes(), jason.length());
+		assertEquals(2, historyList1.size());
+		assertEquals(2, historyList2.size());
+		final List<Snapshot<SimpleRoot>> snapshots1 = historyList1.get(0).getSnapshots();
+		final List<Snapshot<SimpleRoot>> snapshots2 = historyList2.get(0).getSnapshots();
+		assertEquals(4, snapshots1.size());
+		assertEquals(4, snapshots2.size());
+		final Snapshot<SimpleRoot> simpleRootSnapshot1 = snapshots1.get(1);
+		final Snapshot<SimpleRoot> simpleRootSnapshot2 = snapshots2.get(1);
+		assertEquals("UPDATE", simpleRootSnapshot1.getAction());
+		assertEquals("UPDATE", simpleRootSnapshot2.getAction());
+		assertEquals(5, simpleRootSnapshot1.getValue().getI());
+		assertEquals(simpleRootSnapshot1.getValue(), simpleRootSnapshot2.getValue());
 	}
 
 	static class MockFuture<T> implements Future<T> {
@@ -82,7 +92,7 @@ public class DeserializationTest {
 
 	static class MockClient extends HttpClient {
 		public MockClient(final ServiceLocator locator) {
-			super(locator.resolve(Properties.class), null, locator, locator.resolve(Logger.class), null, null);
+			super(locator.resolve(Properties.class), JsonStatic.INSTANCE.jackson, locator.resolve(Logger.class), null, null);
 		}
 
 		public static Object lastContent;

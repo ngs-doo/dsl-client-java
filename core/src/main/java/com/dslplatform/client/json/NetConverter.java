@@ -7,6 +7,32 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class NetConverter {
+
+	static JsonReader.ReadObject<URI> UriReader = new JsonReader.ReadObject<URI>() {
+		@Override
+		public URI read(JsonReader reader) throws IOException {
+			return deserializeUri(reader);
+		}
+	};
+	static JsonWriter.WriteObject<URI> UriWriter = new JsonWriter.WriteObject<URI>() {
+		@Override
+		public void write(JsonWriter writer, URI value) {
+			serializeNullable(value, writer);
+		}
+	};
+	static JsonReader.ReadObject<InetAddress> AddressReader = new JsonReader.ReadObject<InetAddress>() {
+		@Override
+		public InetAddress read(JsonReader reader) throws IOException {
+			return deserializeIp(reader);
+		}
+	};
+	static JsonWriter.WriteObject<InetAddress> AddressWriter = new JsonWriter.WriteObject<InetAddress>() {
+		@Override
+		public void write(JsonWriter writer, InetAddress value) {
+			serializeNullable(value, writer);
+		}
+	};
+
 	public static void serializeNullable(final URI value, final JsonWriter sw) {
 		if (value == null) {
 			sw.writeNull();
@@ -23,27 +49,20 @@ public class NetConverter {
 		return URI.create(reader.readString());
 	}
 
-	private static JsonReader.ReadObject<URI> UriReader = new JsonReader.ReadObject<URI>() {
-		@Override
-		public URI read(JsonReader reader) throws IOException {
-			return deserializeUri(reader);
-		}
-	};
-
 	public static ArrayList<URI> deserializeUriCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeCollectionWithGet(UriReader);
+		return reader.deserializeCollection(UriReader);
 	}
 
 	public static void deserializeUriCollection(final JsonReader reader, final Collection<URI> res) throws IOException {
-		reader.deserializeCollectionWithGet(UriReader, res);
+		reader.deserializeCollection(UriReader, res);
 	}
 
 	public static ArrayList<URI> deserializeUriNullableCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeNullableCollectionWithGet(UriReader);
+		return reader.deserializeNullableCollection(UriReader);
 	}
 
 	public static void deserializeUriNullableCollection(final JsonReader reader, final Collection<URI> res) throws IOException {
-		reader.deserializeNullableCollectionWithGet(UriReader, res);
+		reader.deserializeNullableCollection(UriReader, res);
 	}
 
 	public static void serializeNullable(final InetAddress value, final JsonWriter sw) {
@@ -64,26 +83,19 @@ public class NetConverter {
 		return InetAddress.getByName(reader.readSimpleString());
 	}
 
-	private static JsonReader.ReadObject<InetAddress> AddressReader = new JsonReader.ReadObject<InetAddress>() {
-		@Override
-		public InetAddress read(JsonReader reader) throws IOException {
-			return deserializeIp(reader);
-		}
-	};
-
 	public static ArrayList<InetAddress> deserializeIpCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeCollectionWithGet(AddressReader);
+		return reader.deserializeCollection(AddressReader);
 	}
 
 	public static void deserializeIpCollection(final JsonReader reader, final Collection<InetAddress> res) throws IOException {
-		reader.deserializeCollectionWithGet(AddressReader, res);
+		reader.deserializeCollection(AddressReader, res);
 	}
 
 	public static ArrayList<InetAddress> deserializeIpNullableCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeNullableCollectionWithGet(AddressReader);
+		return reader.deserializeNullableCollection(AddressReader);
 	}
 
 	public static void deserializeIpNullableCollection(final JsonReader reader, final Collection<InetAddress> res) throws IOException {
-		reader.deserializeNullableCollectionWithGet(AddressReader, res);
+		reader.deserializeNullableCollection(AddressReader, res);
 	}
 }

@@ -8,6 +8,7 @@ import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.dslplatform.client.json.DslJsonSerialization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,7 +92,7 @@ public class Bootstrap {
 		locator.register(Properties.class, properties);
 		final JsonSerialization json =
 				locator.resolveOrRegister(JsonSerialization.class, new MapServiceLocator.LazyInstance<JsonSerialization>() {
-					@Override public JsonSerialization create() { return new JsonSerialization(locator); }
+					@Override public JsonSerialization create() { return new DslJsonSerialization(locator); }
 				});
 		final Logger logger =
 				locator.resolveOrRegister(Logger.class, new MapServiceLocator.LazyInstance<Logger>() {
@@ -110,7 +111,7 @@ public class Bootstrap {
 				locator.resolveOrRegister(HttpClient.class, new MapServiceLocator.LazyInstance<HttpClient>() {
 					@Override
 					public HttpClient create() {
-						return new HttpClient(properties, json, locator, logger, headerProvider, executorService);
+						return new HttpClient(properties, json, logger, headerProvider, executorService);
 					}
 				});
 		final DomainProxy domainProxy =

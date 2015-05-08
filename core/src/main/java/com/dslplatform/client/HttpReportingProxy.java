@@ -1,12 +1,14 @@
 package com.dslplatform.client;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+import com.dslplatform.client.json.JsonObject;
+import com.dslplatform.client.json.JsonWriter;
+import com.dslplatform.client.json.StringConverter;
 import com.dslplatform.patterns.*;
 
 class HttpReportingProxy implements ReportingProxy {
@@ -15,15 +17,15 @@ class HttpReportingProxy implements ReportingProxy {
 
 	private final HttpClient client;
 	private final ExecutorService executorService;
-	private final JsonSerialization jsonSerialization;
+	private final JsonSerialization json;
 
 	public HttpReportingProxy(
 			final HttpClient client,
 			final ExecutorService executorService,
-			final JsonSerialization jsonSerialization) {
+			final JsonSerialization json) {
 		this.client = client;
 		this.executorService = executorService;
-		this.jsonSerialization = jsonSerialization;
+		this.json = json;
 	}
 
 	@Override
@@ -89,21 +91,22 @@ class HttpReportingProxy implements ReportingProxy {
 				new int[]{200});
 	}
 
-	private static class HistoryArg {
-		@SuppressWarnings("unused")
-		public final String Name;
-		@SuppressWarnings("unused")
-		public final ArrayList<String> Uri;
-
-		@SuppressWarnings("unused")
-		private HistoryArg() {
-			Name = null;
-			Uri = null;
-		}
+	private static class HistoryArg implements JsonObject {
+		private final String name;
+		private final List<String> uris;
 
 		public HistoryArg(final String name, final Iterable<String> uris) {
-			Name = name;
-			Uri = Utils.toArrayList(uris);
+			this.name = name;
+			this.uris = Utils.toArrayList(uris);
+		}
+
+		@Override
+		public void serialize(JsonWriter writer, boolean minimal) {
+			writer.writeAscii("{\"Name\":");
+			writer.writeAscii(name);
+			writer.writeAscii(",\"Uri\":");
+			StringConverter.serialize(uris, writer);
+			writer.writeByte(JsonWriter.OBJECT_END);
 		}
 	}
 
@@ -122,7 +125,7 @@ class HttpReportingProxy implements ReportingProxy {
 						new HistoryArg(domainName, uris),
 						Utils.acceptAs("application/json"),
 						new int[]{200}).get();
-				return jsonSerialization.deserializeHistoryList(manifest, result);
+				return json.deserializeHistoryList(manifest, result, result.length);
 			}
 		});
 	}

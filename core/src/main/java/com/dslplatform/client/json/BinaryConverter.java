@@ -6,6 +6,19 @@ import java.util.Collection;
 
 public class BinaryConverter {
 
+	static JsonReader.ReadObject<byte[]> Base64Reader = new JsonReader.ReadObject<byte[]>() {
+		@Override
+		public byte[] read(JsonReader reader) throws IOException {
+			return deserialize(reader);
+		}
+	};
+	static JsonWriter.WriteObject<byte[]> Base64Writer = new JsonWriter.WriteObject<byte[]>() {
+		@Override
+		public void write(JsonWriter writer, byte[] value) {
+			serialize(value, writer);
+		}
+	};
+
 	public static void serialize(final byte[] value, final JsonWriter sw) {
 		if (value == null) {
 			sw.writeNull();
@@ -20,26 +33,19 @@ public class BinaryConverter {
 		return reader.readBase64();
 	}
 
-	private static JsonReader.ReadObject<byte[]> Base64Reader = new JsonReader.ReadObject<byte[]>() {
-		@Override
-		public byte[] read(JsonReader reader) throws IOException {
-			return deserialize(reader);
-		}
-	};
-
 	public static ArrayList<byte[]> deserializeCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeCollectionWithGet(Base64Reader);
+		return reader.deserializeCollection(Base64Reader);
 	}
 
 	public static void deserializeCollection(final JsonReader reader, final Collection<byte[]> res) throws IOException {
-		reader.deserializeCollectionWithGet(Base64Reader, res);
+		reader.deserializeCollection(Base64Reader, res);
 	}
 
 	public static ArrayList<byte[]> deserializeNullableCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeNullableCollectionWithGet(Base64Reader);
+		return reader.deserializeNullableCollection(Base64Reader);
 	}
 
 	public static void deserializeNullableCollection(final JsonReader reader, final Collection<byte[]> res) throws IOException {
-		reader.deserializeNullableCollectionWithGet(Base64Reader, res);
+		reader.deserializeNullableCollection(Base64Reader, res);
 	}
 }

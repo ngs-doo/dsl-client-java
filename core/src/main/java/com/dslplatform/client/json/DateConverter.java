@@ -17,6 +17,31 @@ public class DateConverter {
 	private static final DateTimeFormatter dateTimeParser = ISODateTimeFormat.dateTimeParser().withOffsetParsed();
 	private static final DateTimeZone utcZone = DateTimeZone.UTC;
 
+	static JsonReader.ReadObject<LocalDate> LocalDateReader = new JsonReader.ReadObject<LocalDate>() {
+		@Override
+		public LocalDate read(final JsonReader reader) throws IOException {
+			return deserializeLocalDate(reader);
+		}
+	};
+	static JsonWriter.WriteObject<LocalDate> LocalDateWriter = new JsonWriter.WriteObject<LocalDate>() {
+		@Override
+		public void write(JsonWriter writer, LocalDate value) {
+			serializeNullable(value, writer);
+		}
+	};
+	static JsonReader.ReadObject<DateTime> DateTimeReader = new JsonReader.ReadObject<DateTime>() {
+		@Override
+		public DateTime read(JsonReader reader) throws IOException {
+			return deserializeDateTime(reader);
+		}
+	};
+	static JsonWriter.WriteObject<DateTime> DateTimeWriter = new JsonWriter.WriteObject<DateTime>() {
+		@Override
+		public void write(JsonWriter writer, DateTime value) {
+			serializeNullable(value, writer);
+		}
+	};
+
 	public static void serializeNullable(final DateTime value, final JsonWriter sw) {
 		if (value == null) {
 			sw.writeNull();
@@ -116,27 +141,20 @@ public class DateConverter {
 		}
 	}
 
-	private static JsonReader.ReadObject<DateTime> DateTimeReader = new JsonReader.ReadObject<DateTime>() {
-		@Override
-		public DateTime read(JsonReader reader) throws IOException {
-			return deserializeDateTime(reader);
-		}
-	};
-
 	public static ArrayList<DateTime> deserializeDateTimeCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeCollectionWithGet(DateTimeReader);
+		return reader.deserializeCollection(DateTimeReader);
 	}
 
 	public static void deserializeDateTimeCollection(final JsonReader reader, final Collection<DateTime> res) throws IOException {
-		reader.deserializeCollectionWithGet(DateTimeReader, res);
+		reader.deserializeCollection(DateTimeReader, res);
 	}
 
 	public static ArrayList<DateTime> deserializeDateTimeNullableCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeNullableCollectionWithGet(DateTimeReader);
+		return reader.deserializeNullableCollection(DateTimeReader);
 	}
 
 	public static void deserializeDateTimeNullableCollection(final JsonReader reader, final Collection<DateTime> res) throws IOException {
-		reader.deserializeNullableCollectionWithGet(DateTimeReader, res);
+		reader.deserializeNullableCollection(DateTimeReader, res);
 	}
 
 	public static void serializeNullable(final LocalDate value, final JsonWriter sw) {
@@ -173,26 +191,19 @@ public class DateConverter {
 		}
 	}
 
-	private static JsonReader.ReadObject<LocalDate> LocalDateReader = new JsonReader.ReadObject<LocalDate>() {
-		@Override
-		public LocalDate read(final JsonReader reader) throws IOException {
-			return deserializeLocalDate(reader);
-		}
-	};
-
 	public static ArrayList<LocalDate> deserializeLocalDateCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeCollectionWithGet(LocalDateReader);
+		return reader.deserializeCollection(LocalDateReader);
 	}
 
 	public static void deserializeLocalDateCollection(final JsonReader reader, final Collection<LocalDate> res) throws IOException {
-		reader.deserializeCollectionWithGet(LocalDateReader, res);
+		reader.deserializeCollection(LocalDateReader, res);
 	}
 
 	public static ArrayList<LocalDate> deserializeLocalDateNullableCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeNullableCollectionWithGet(LocalDateReader);
+		return reader.deserializeNullableCollection(LocalDateReader);
 	}
 
 	public static void deserializeLocalDateNullableCollection(final JsonReader reader, final Collection<LocalDate> res) throws IOException {
-		reader.deserializeNullableCollectionWithGet(LocalDateReader, res);
+		reader.deserializeNullableCollection(LocalDateReader, res);
 	}
 }

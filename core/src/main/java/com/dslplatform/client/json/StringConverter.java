@@ -3,8 +3,22 @@ package com.dslplatform.client.json;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class StringConverter {
+
+	static JsonReader.ReadObject<String> Reader = new JsonReader.ReadObject<String>() {
+		@Override
+		public String read(JsonReader reader) throws IOException {
+			return deserialize(reader);
+		}
+	};
+	static JsonWriter.WriteObject<String> Writer = new JsonWriter.WriteObject<String>() {
+		@Override
+		public void write(JsonWriter writer, String value) {
+			serializeNullable(value, writer);
+		}
+	};
 
 	public static void serializeShortNullable(final String value, final JsonWriter sw) {
 		if (value == null) {
@@ -42,26 +56,31 @@ public class StringConverter {
 		return reader.readString();
 	}
 
-	private static JsonReader.ReadObject<String> Reader = new JsonReader.ReadObject<String>() {
-		@Override
-		public String read(JsonReader reader) throws IOException {
-			return deserialize(reader);
-		}
-	};
-
 	public static ArrayList<String> deserializeCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeCollectionWithGet(Reader);
+		return reader.deserializeCollection(Reader);
 	}
 
 	public static void deserializeCollection(final JsonReader reader, final Collection<String> res) throws IOException {
-		reader.deserializeCollectionWithGet(Reader, res);
+		reader.deserializeCollection(Reader, res);
 	}
 
 	public static ArrayList<String> deserializeNullableCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeNullableCollectionWithGet(Reader);
+		return reader.deserializeNullableCollection(Reader);
 	}
 
 	public static void deserializeNullableCollection(final JsonReader reader, final Collection<String> res) throws IOException {
-		reader.deserializeNullableCollectionWithGet(Reader, res);
+		reader.deserializeNullableCollection(Reader, res);
+	}
+
+	public static void serialize(final List<String> list, final JsonWriter writer) {
+		writer.writeByte(JsonWriter.ARRAY_START);
+		if (list.size() != 0) {
+			serialize(list.get(0), writer);
+			for (int i = 1; i < list.size(); i++) {
+				writer.writeByte(JsonWriter.COMMA);
+				serialize(list.get(i), writer);
+			}
+		}
+		writer.writeByte(JsonWriter.ARRAY_END);
 	}
 }

@@ -7,14 +7,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.security.KeyStore;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -32,10 +30,7 @@ import com.dslplatform.client.exceptions.HttpSecurityException;
 import com.dslplatform.client.exceptions.HttpServerErrorException;
 import com.dslplatform.client.exceptions.HttpUnexpectedCodeException;
 import com.dslplatform.client.json.JsonObject;
-import com.dslplatform.client.json.JsonReader;
 import com.dslplatform.client.json.JsonWriter;
-import com.dslplatform.patterns.ServiceLocator;
-import com.fasterxml.jackson.databind.JavaType;
 
 class HttpClient {
 	static String encode(final String param) {
@@ -84,8 +79,7 @@ class HttpClient {
 	}
 
 	private final Logger logger;
-	private final JsonSerialization jsonDeserialization;
-	private final ServiceLocator locator;
+	private final JsonSerialization json;
 	private final HttpHeaderProvider headerProvider;
 	private final ExecutorService executorService;
 	private final String domainPrefix;
@@ -99,14 +93,12 @@ class HttpClient {
 
 	public HttpClient(
 			final Properties properties,
-			final JsonSerialization jsonDeserialization,
-			final ServiceLocator locator,
+			final JsonSerialization json,
 			final Logger logger,
 			final HttpHeaderProvider headerProvider,
 			final ExecutorService executorService) {
 		this.logger = logger;
-		this.jsonDeserialization = jsonDeserialization;
-		this.locator = locator;
+		this.json = json;
 		this.executorService = executorService;
 		this.remoteUrls = properties.getProperty("api-url").split(",\\s+");
 
@@ -211,7 +203,7 @@ class HttpClient {
 					bodyContent = bytes.content;
 					bodySize = bytes.length;
 				} else {
-					bodyContent = JsonSerialization.serializeBytes(content);
+					bodyContent = json.serialize(content);
 					bodySize = bodyContent.length;
 				}
 
@@ -276,28 +268,6 @@ class HttpClient {
 		});
 	}
 
-	private static final ConcurrentHashMap<Class<?>, JsonReader.ReadJsonObject<JsonObject>> jsonReaders =
-			new ConcurrentHashMap<Class<?>, JsonReader.ReadJsonObject<JsonObject>>();
-
-	@SuppressWarnings("unchecked")
-	private static JsonReader.ReadJsonObject<JsonObject> getReader(final Class<?> manifest) {
-		try {
-			JsonReader.ReadJsonObject<JsonObject> reader = jsonReaders.get(manifest);
-			if (reader == null) {
-				try {
-					reader = (JsonReader.ReadJsonObject<JsonObject>) manifest.getField("JSON_READER").get(null);
-				} catch (Exception ignore) {
-					//log error!?
-					return null;
-				}
-				jsonReaders.putIfAbsent(manifest, reader);
-			}
-			return reader;
-		} catch (final Exception ignore) {
-			return null;
-		}
-	}
-
 	public <TArgument, TResult> Future<TResult> sendRequest(
 			final Class<TResult> manifest,
 			final String service,
@@ -315,17 +285,7 @@ class HttpClient {
 				try {
 					final Response response = doRawRequest(service, emptyHeaders, method, content, expected, buffer, start);
 					buffer = response.body;
-					if (JsonObject.class.isAssignableFrom(manifest)) {
-						final JsonReader.ReadJsonObject<JsonObject> reader = getReader(manifest);
-						if (reader != null) {
-							final JsonReader json = new JsonReader(response.body, response.size, locator);
-							if (json.getNextToken() == '{') {
-								json.getNextToken();
-								return (TResult) reader.deserialize(json, locator);
-							}
-						}
-					}
-					return jsonDeserialization.deserialize(manifest, response.body, response.size);
+					return json.deserialize(manifest, response.body, response.size);
 				} finally {
 					resultBuffers.putFirst(buffer);
 				}
@@ -350,20 +310,7 @@ class HttpClient {
 				try {
 					final Response response = doRawRequest(service, emptyHeaders, method, content, expected, buffer, start);
 					buffer = response.body;
-					if (JsonObject.class.isAssignableFrom(manifest)) {
-						final JsonReader.ReadJsonObject<JsonObject> reader = getReader(manifest);
-						if (reader != null) {
-							final JsonReader json = new JsonReader(response.body, response.size, locator);
-							if (json.getNextToken() == '[') {
-								if (json.getNextToken() == ']') {
-									return new ArrayList<TResult>(0);
-								}
-								return (List<TResult>) json.deserializeCollection(reader);
-							}
-						}
-					}
-					final JavaType type = JsonSerialization.buildCollectionType(ArrayList.class, manifest);
-					return jsonDeserialization.deserialize(type, response.body, response.size);
+					return json.deserializeList(manifest, response.body, response.size);
 				} finally {
 					resultBuffers.putFirst(buffer);
 				}

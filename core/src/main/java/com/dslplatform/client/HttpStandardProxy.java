@@ -1,6 +1,5 @@
 package com.dslplatform.client;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +13,6 @@ import com.dslplatform.client.json.StringConverter;
 import com.dslplatform.patterns.AggregateRoot;
 import com.dslplatform.patterns.Searchable;
 import com.dslplatform.patterns.Specification;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 class HttpStandardProxy implements StandardProxy {
 	private final static String STANDARD_URI = "Commands.svc/";
@@ -30,15 +28,10 @@ class HttpStandardProxy implements StandardProxy {
 		this.executorService = executorService;
 	}
 
-	@JsonSerialize
 	private static class PersistArg implements JsonObject {
-		@SuppressWarnings("unused")
 		public final String RootName;
-		@SuppressWarnings("unused")
 		public final String ToInsert;
-		@SuppressWarnings("unused")
 		public final String ToUpdate;
-		@SuppressWarnings("unused")
 		public final String ToDelete;
 
 		public PersistArg(
@@ -50,42 +43,6 @@ class HttpStandardProxy implements StandardProxy {
 			ToInsert = toInsert;
 			ToUpdate = toUpdate;
 			ToDelete = toDelete;
-		}
-
-		static <T> String serialize(final Class<?> clazz, final List<T> items) throws IOException {
-			if (JsonObject.class.isAssignableFrom(clazz)) {
-				final JsonWriter writer = new JsonWriter();
-				writer.writeByte((byte)'[');
-				((JsonObject) items.get(0)).serialize(writer, false);
-				for (int i = 1; i < items.size(); i++) {
-					writer.writeByte((byte)',');
-					((JsonObject) items.get(i)).serialize(writer, false);
-				}
-				writer.writeByte((byte)']');
-				return writer.toString();
-			}
-			return JsonSerialization.serialize(items);
-		}
-
-		static <T> String serializePairs(final Class<?> clazz, final List<Pair<T, T>> items) throws IOException {
-			if (JsonObject.class.isAssignableFrom(clazz)) {
-				final JsonWriter writer = new JsonWriter();
-				final Pair<T, T> pair = items.get(0);
-				writer.writeAscii("[{\"Key\":");
-				((JsonObject) pair.key).serialize(writer, false);
-				writer.writeAscii(",\"Value\":");
-				((JsonObject) pair.value).serialize(writer, false);
-				for (int i = 1; i < items.size(); i++) {
-					final Pair<T, T> it = items.get(i);
-					writer.writeAscii("},{\"Key\":");
-					((JsonObject) it.key).serialize(writer, false);
-					writer.writeAscii(",\"Value\":");
-					((JsonObject) it.value).serialize(writer, false);
-				}
-				writer.writeAscii("}]");
-				return writer.toString();
-			}
-			return JsonSerialization.serialize(items);
 		}
 
 		@Override
@@ -110,25 +67,39 @@ class HttpStandardProxy implements StandardProxy {
 		}
 	}
 
-	@SuppressWarnings("serial")
-	private static class Pair<K, V> implements java.util.Map.Entry<K, V>, java.io.Serializable {
-		public K key;
-		public V value;
+	static class Pair implements JsonObject {
+		private final JsonObject key;
+		private final JsonObject value;
 
-		@Override
-		public K getKey() {
-			return key;
+		public <T extends AggregateRoot> Pair(Map.Entry<T, T> update) {
+			this.key = (JsonObject)update.getKey();
+			this.value = (JsonObject)update.getValue();
 		}
 
 		@Override
-		public V getValue() {
-			return value;
+		public void serialize(final JsonWriter jw, final boolean minimal) {
+			jw.writeAscii("{\"Key\":");
+			if (key != null) {
+				key.serialize(jw, minimal);
+			} else {
+				jw.writeNull();
+			}
+			jw.writeAscii(",\"Value\":");
+			if (value != null) {
+				value.serialize(jw, minimal);
+			} else {
+				jw.writeNull();
+			}
+			jw.writeByte(JsonWriter.OBJECT_END);
 		}
+	}
 
-		@Override
-		public V setValue(final V value) {
-			return this.value = value;
+	private static ArrayList<JsonObject> toJsonList(final Iterable<?> iterable) {
+		final ArrayList<JsonObject> copy = new ArrayList<JsonObject>();
+		for (final Object t : iterable) {
+			copy.add((JsonObject)t);
 		}
+		return copy;
 	}
 
 	@Override
@@ -142,35 +113,39 @@ class HttpStandardProxy implements StandardProxy {
 			public List<String> call() throws Exception {
 				Class<?> clazz = null;
 
+				final JsonWriter jw = new JsonWriter();
 				String toInsert = null;
 				if (inserts != null) {
-					final List<T> list = Utils.toArrayList(inserts);
+					final List<JsonObject> list = toJsonList(inserts);
 					if (!list.isEmpty()) {
 						clazz = list.get(0).getClass();
-						toInsert = PersistArg.serialize(clazz, list);
+						jw.serialize(list);
+						toInsert = jw.toString();
+						jw.reset();
 					}
 				}
 				String toUpdate = null;
 				if (updates != null) {
-					final List<Pair<T, T>> list = new ArrayList<Pair<T, T>>();
+					final List<Pair> list = new ArrayList<Pair>();
 					for (final Map.Entry<T, T> update : updates) {
-						final Pair<T, T> pair = new Pair<T, T>();
-						pair.key = update.getKey();
-						pair.value = update.getValue();
-						list.add(pair);
+						list.add(new Pair(update));
 					}
 					if (!list.isEmpty()) {
 						clazz = list.get(0).value.getClass();
-						toUpdate = PersistArg.serializePairs(clazz, list);
+						jw.serialize(list);
+						toUpdate = jw.toString();
+						jw.reset();
 					}
 				}
 
 				String toDelete = null;
 				if (deletes != null) {
-					final List<T> list = Utils.toArrayList(deletes);
+					final List<JsonObject> list = toJsonList(deletes);
 					if (!list.isEmpty()) {
 						clazz = list.get(0).getClass();
-						toDelete = PersistArg.serialize(clazz, list);
+						jw.serialize(list);
+						toDelete = jw.toString();
+						jw.reset();
 					}
 				}
 

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
+import com.dslplatform.client.json.*;
 import com.dslplatform.patterns.Searchable;
 import com.dslplatform.patterns.ServiceLocator;
 
@@ -26,7 +27,7 @@ public class GenericSearchBuilder<T extends Searchable> {
 	private final HttpClient httpClient;
 	private final Map<String, List<FilterPair>> filters;
 
-	static class FilterPair {
+	static class FilterPair implements JsonObject {
 		public final Integer Key;
 		public final String Value;
 
@@ -39,6 +40,14 @@ public class GenericSearchBuilder<T extends Searchable> {
 		private FilterPair() {
 			this.Key = null;
 			this.Value = null;
+		}
+
+		public void serialize(final JsonWriter jw, final boolean minimal) {
+			jw.writeString("{\"Key\":");
+			NumberConverter.serializeNullable(Key, jw);
+			jw.writeString(",\"Value\":");
+			StringConverter.serializeNullable(Value, jw);
+			jw.writeByte(JsonWriter.OBJECT_END);
 		}
 	}
 
@@ -170,7 +179,7 @@ public class GenericSearchBuilder<T extends Searchable> {
 
 	private GenericSearchBuilder<T> filter(final String property, final int id, final Object value) throws IOException {
 		if (property == null || property.isEmpty()) throw new IllegalArgumentException("property can't be null");
-		final String json = value != null ? JsonSerialization.serialize(value) : null;
+		final String json = value != null ? Utils.serialize(value) : null;
 		final List<FilterPair> pairs;
 		if (!filters.containsKey(property)) {
 			pairs = new ArrayList<FilterPair>();

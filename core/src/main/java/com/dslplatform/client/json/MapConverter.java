@@ -5,6 +5,31 @@ import java.util.*;
 
 public class MapConverter {
 
+	private static JsonReader.ReadObject<Map<String, String>> TypedMapReader = new JsonReader.ReadObject<Map<String, String>>() {
+		@Override
+		public Map<String, String> read(JsonReader reader) throws IOException {
+			return deserialize(reader);
+		}
+	};
+	static JsonReader.ReadObject<Map> MapReader = new JsonReader.ReadObject<Map>() {
+		@Override
+		public Map read(JsonReader reader) throws IOException {
+			return deserialize(reader);
+		}
+	};
+	static JsonWriter.WriteObject<Map> MapWriter = new JsonWriter.WriteObject<Map>() {
+		@Override
+		public void write(JsonWriter writer, Map value) {
+			serializeNullable(value, writer);
+		}
+	};
+	static JsonWriter.WriteObject<HashMap> HashMapWriter = new JsonWriter.WriteObject<HashMap>() {
+		@Override
+		public void write(JsonWriter writer, HashMap value) {
+			serializeNullable(value, writer);
+		}
+	};
+
 	public static void serializeNullable(final Map<String, String> value, final JsonWriter sw) {
 		if (value == null) {
 			sw.writeNull();
@@ -35,7 +60,7 @@ public class MapConverter {
 
 	public static Map<String, String> deserialize(final JsonReader reader) throws IOException {
 		if (reader.last() != '{') throw new IOException("Expecting '{' at position " + reader.positionInStream() + ". Found " + (char)reader.last());
-		HashMap<String, String> res = new HashMap<String, String>();
+		final HashMap<String, String> res = new HashMap<String, String>();
 		byte nextToken = reader.getNextToken();
 		if (nextToken == '}') return res;
 		String key = StringConverter.deserialize(reader);
@@ -57,26 +82,19 @@ public class MapConverter {
 		return res;
 	}
 
-	private static JsonReader.ReadObject<Map<String, String>> MapReader = new JsonReader.ReadObject<Map<String, String>>() {
-		@Override
-		public Map<String, String> read(JsonReader reader) throws IOException {
-			return deserialize(reader);
-		}
-	};
-
 	public static ArrayList<Map<String, String>> deserializeCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeCollectionWithGet(MapReader);
+		return reader.deserializeCollection(TypedMapReader);
 	}
 
-	public static void deserializeCollection(final JsonReader reader, Collection<Map<String, String>> res) throws IOException {
-		reader.deserializeCollectionWithGet(MapReader, res);
+	public static void deserializeCollection(final JsonReader reader, final Collection<Map<String, String>> res) throws IOException {
+		reader.deserializeCollection(TypedMapReader, res);
 	}
 
 	public static ArrayList<Map<String, String>> deserializeNullableCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeNullableCollectionWithGet(MapReader);
+		return reader.deserializeNullableCollection(TypedMapReader);
 	}
 
-	public static void deserializeNullableCollection(final JsonReader reader, Collection<Map<String, String>> res) throws IOException {
-		reader.deserializeNullableCollectionWithGet(MapReader, res);
+	public static void deserializeNullableCollection(final JsonReader reader, final Collection<Map<String, String>> res) throws IOException {
+		reader.deserializeNullableCollection(TypedMapReader, res);
 	}
 }

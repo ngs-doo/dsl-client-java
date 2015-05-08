@@ -1,16 +1,12 @@
 package com.dslplatform.client.xml;
 
-import com.dslplatform.client.Bootstrap;
-import com.dslplatform.client.JsonSerialization;
 import com.dslplatform.client.JsonStatic;
 import com.dslplatform.client.TestLogging;
-import com.dslplatform.patterns.ServiceLocator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import javax.management.RuntimeMBeanException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
@@ -21,7 +17,6 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Properties;
 
 public class XMLHelpers extends TestLogging {
 	public static File getFileForResource(final String resourcePath) throws URISyntaxException {
@@ -70,10 +65,7 @@ public class XMLHelpers extends TestLogging {
 	}
 
 	public static Document xmlDocumentFromJson(final String json) throws IOException, ParserConfigurationException {
-		final Element xmlRootElement =
-				JsonStatic.INSTANCE.jsonSerialization.deserialize(
-						JsonSerialization.buildType(Element.class),
-						json);
+		final Element xmlRootElement = JsonStatic.INSTANCE.jackson.deserialize(Element.class, json);
 
 		final Document xmlDocument = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
 		final Node rootNode = xmlDocument.importNode(xmlRootElement, true);
@@ -82,6 +74,6 @@ public class XMLHelpers extends TestLogging {
 	}
 
 	public static String jsonStringFromXml(final Document source_xml) throws IOException {
-		return JsonSerialization.serialize(source_xml.getDocumentElement());
+		return JsonStatic.INSTANCE.jackson.serializeString(source_xml.getDocumentElement());
 	}
 }

@@ -1,5 +1,6 @@
 package com.dslplatform.client.json;
 
+import com.dslplatform.client.JsonStatic;
 import com.dslplatform.client.TestLogging;
 import org.junit.Assert;
 import org.junit.Test;
@@ -68,7 +69,10 @@ public class DecimalConverterTest extends TestLogging {
 		Assert.assertEquals('0', jr.getNextToken());
 
 		for (int i = 0; i < count - 1; i++) {
-			if (i > 0) jr.getNextToken();
+			if (i > 0) {
+				jr.getNextToken();//','
+				jr.getNextToken();//' '
+			}
 
 			// setup
 			final BigDecimal direct = new BigDecimal(values[i]);
@@ -91,7 +95,7 @@ public class DecimalConverterTest extends TestLogging {
 			final BigDecimal check = new BigDecimal(sciForm);
 
 			// space to prevent end of stream gotcha
-			final String plainForm = check.toPlainString() + ' ';
+			final String plainForm = check.toPlainString();
 			final byte[] body = plainForm.getBytes(Charset.forName("ISO-8859-1"));
 
 			final JsonReader jr = new JsonReader(body, null);
@@ -102,5 +106,16 @@ public class DecimalConverterTest extends TestLogging {
 				Assert.fail("Mismatch in decimals; expected " + check + ", but actual was " + parsed);
 			}
 		}
+	}
+
+	@Test
+	public void longNumber() throws IOException {
+		final BigDecimal check = new BigDecimal("0.123456789012345678901234567890123456789012345678901234567890123456789");
+
+		final String plainForm = check.toPlainString();
+		final byte[] body = plainForm.getBytes("UTF-8");
+
+		final BigDecimal result = JsonStatic.INSTANCE.manual.deserialize(BigDecimal.class, body, body.length);
+		Assert.assertEquals(check, result);
 	}
 }

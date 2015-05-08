@@ -4,10 +4,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class JsonWriter extends Writer {
 	public final byte[] tmp = new byte[48];
@@ -380,44 +378,35 @@ public final class JsonWriter extends Writer {
 		position = 0;
 	}
 
-	public <T extends JsonObject> void serialize(final T[] array, final boolean minimal) {
+	static interface WriteObject<T> {
+		void write(JsonWriter writer, T value);
+	}
+
+	public <T extends JsonObject> void serialize(final T[] array) {
 		writeByte(ARRAY_START);
 		if (array.length != 0) {
-			array[0].serialize(this, minimal);
+			array[0].serialize(this, false);
 			for (int i = 1; i < array.length; i++) {
 				writeByte(COMMA);
-				array[i].serialize(this, minimal);
+				array[i].serialize(this, false);
 			}
 		}
 		writeByte(ARRAY_END);
 	}
 
-	public <T extends JsonObject> void serialize(final List<T> list, final boolean minimal) {
+	public <T extends JsonObject> void serialize(final List<T> list) {
 		writeByte(ARRAY_START);
 		if (list.size() != 0) {
-			list.get(0).serialize(this, minimal);
+			list.get(0).serialize(this, false);
 			for (int i = 1; i < list.size(); i++) {
 				writeByte(COMMA);
-				list.get(i).serialize(this, minimal);
+				list.get(i).serialize(this, false);
 			}
 		}
 		writeByte(ARRAY_END);
 	}
 
-	public <T extends JsonObject> void serialize(final Collection<T> collection, final boolean minimal) {
-		writeByte(ARRAY_START);
-		if (!collection.isEmpty()) {
-			final Iterator<T> it = collection.iterator();
-			it.next().serialize(this, minimal);
-			while (it.hasNext()) {
-				writeByte(COMMA);
-				it.next().serialize(this, minimal);
-			}
-		}
-		writeByte(ARRAY_END);
-	}
-
-	public <T extends JsonObject> void serializeNullable(final T[] array, final boolean minimal) {
+	<T> void serialize(final T[] array, final WriteObject<T> writer) {
 		if (array == null) {
 			writeNull();
 			return;
@@ -426,7 +415,7 @@ public final class JsonWriter extends Writer {
 		if (array.length != 0) {
 			T item = array[0];
 			if (item != null) {
-				item.serialize(this, minimal);
+				writer.write(this, item);
 			} else {
 				writeNull();
 			}
@@ -434,7 +423,7 @@ public final class JsonWriter extends Writer {
 				writeByte(COMMA);
 				item = array[i];
 				if (item != null) {
-					item.serialize(this, minimal);
+					writer.write(this, item);
 				} else {
 					writeNull();
 				}
@@ -443,7 +432,7 @@ public final class JsonWriter extends Writer {
 		writeByte(ARRAY_END);
 	}
 
-	public <T extends JsonObject> void serializeNullable(final List<T> list, final boolean minimal) {
+	<T> void serialize(final List<T> list, final WriteObject<T> writer) {
 		if (list == null) {
 			writeNull();
 			return;
@@ -452,7 +441,7 @@ public final class JsonWriter extends Writer {
 		if (list.size() != 0) {
 			T item = list.get(0);
 			if (item != null) {
-				item.serialize(this, minimal);
+				writer.write(this, item);
 			} else {
 				writeNull();
 			}
@@ -460,7 +449,7 @@ public final class JsonWriter extends Writer {
 				writeByte(COMMA);
 				item = list.get(i);
 				if (item != null) {
-					item.serialize(this, minimal);
+					writer.write(this, item);
 				} else {
 					writeNull();
 				}
@@ -469,7 +458,7 @@ public final class JsonWriter extends Writer {
 		writeByte(ARRAY_END);
 	}
 
-	public <T extends JsonObject> void serializeNullable(final Collection<T> collection, final boolean minimal) {
+	<T> void serialize(final Collection<T> collection, final WriteObject<T> writer) {
 		if (collection == null) {
 			writeNull();
 			return;
@@ -479,7 +468,7 @@ public final class JsonWriter extends Writer {
 			final Iterator<T> it = collection.iterator();
 			T item = it.next();
 			if (item != null) {
-				item.serialize(this, minimal);
+				writer.write(this, item);
 			} else {
 				writeNull();
 			}
@@ -487,7 +476,7 @@ public final class JsonWriter extends Writer {
 				writeByte(COMMA);
 				item = it.next();
 				if (item != null) {
-					item.serialize(this, minimal);
+					writer.write(this, item);
 				} else {
 					writeNull();
 				}
@@ -495,5 +484,4 @@ public final class JsonWriter extends Writer {
 		}
 		writeByte(ARRAY_END);
 	}
-
 }

@@ -1,12 +1,22 @@
 package com.dslplatform.client;
 
+import com.dslplatform.client.json.DslJsonSerialization;
+import com.dslplatform.client.json.JsonObject;
+import com.dslplatform.client.json.JsonWriter;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
-class Utils {
-	public static <T> ArrayList<T> toArrayList(final Iterable<T> iterable) {
+public class Utils {
+	public static final DateTime MIN_DATE_TIME = DateTime.parse("0001-01-01T00:00:00Z");
+	public static final LocalDate MIN_LOCAL_DATE = new LocalDate(1, 1, 1);
+	public static final UUID MIN_UUID = new java.util.UUID(0L, 0L);
+
+	static <T> ArrayList<T> toArrayList(final Iterable<T> iterable) {
 		final ArrayList<T> copy = new ArrayList<T>();
 		for (final T t : iterable) {
 			copy.add(t);
@@ -15,8 +25,8 @@ class Utils {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static List<Map.Entry<String, String>> acceptAs(final String mimeType) {
-		return Arrays.asList((Map.Entry<String, String>) new AbstractMap.SimpleEntry<String, String>(
+	static List<Map.Entry<String, String>> acceptAs(final String mimeType) {
+		return Collections.singletonList((Map.Entry<String, String>) new AbstractMap.SimpleEntry<String, String>(
 				"Accept",
 				mimeType));
 	}
@@ -60,7 +70,7 @@ class Utils {
 		return sB.toString();
 	}
 
-	public static String buildOlapArguments(
+	static String buildOlapArguments(
 			final Iterable<String> dimensions,
 			final Iterable<String> facts,
 			final Iterable<Map.Entry<String, Boolean>> order,
@@ -82,7 +92,7 @@ class Utils {
 		return query.toString();
 	}
 
-	public static String buildOlapArguments(
+	static String buildOlapArguments(
 			final Iterable<String> dimensions,
 			final Iterable<String> facts,
 			final Iterable<Map.Entry<String, Boolean>> order) {
@@ -145,10 +155,16 @@ class Utils {
 		return byteArrayOutputStream.toByteArray();
 	}
 
-	static final boolean isAndroid;
+	private static final DslJsonSerialization staticJson = new DslJsonSerialization(null);
+
+	static String serialize(final Object value) throws IOException {
+		return new String(staticJson.serialize(value), "UTF-8");
+	}
+
+	public static final boolean IS_ANDROID;
 
 	static {
-		isAndroid = System.getProperty("java.runtime.name").toLowerCase(Locale.ENGLISH).contains("android");
+		IS_ANDROID = System.getProperty("java.runtime.name").toLowerCase(Locale.ENGLISH).contains("android");
 	}
 
 	static class AndroidEncoding {
@@ -164,7 +180,7 @@ class Utils {
 	}
 
 	static String base64Encode(final byte[] body) {
-		if (isAndroid) {
+		if (IS_ANDROID) {
 			return AndroidEncoding.toBase64(body);
 		} else {
 			return JavaEncoding.toBase64(body);

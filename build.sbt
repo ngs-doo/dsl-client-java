@@ -1,5 +1,5 @@
 name                              := "dsl-client-java"
-version in ThisBuild              := "1.2.2"
+version in ThisBuild              := "1.3.0"
 organization in ThisBuild         := "com.dslplatform"
 
 publishTo in ThisBuild            := Some(if (version.value endsWith "-SNAPSHOT") Opts.resolver.sonatypeSnapshots else Opts.resolver.sonatypeStaging)

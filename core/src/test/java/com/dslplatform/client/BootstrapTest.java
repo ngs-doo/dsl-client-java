@@ -3,9 +3,7 @@ package com.dslplatform.client;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -16,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import com.dslplatform.patterns.ServiceLocator;
 
 public class BootstrapTest {
+
 	@Test
 	public void withDefaultLoggerAndEC() throws Exception {
 		final ServiceLocator locator = Bootstrap.init(getClass().getResourceAsStream("/projectprops/mockproject.properties"));

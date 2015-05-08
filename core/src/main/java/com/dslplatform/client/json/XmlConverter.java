@@ -18,6 +18,19 @@ import java.util.Collection;
 
 public class XmlConverter {
 
+	static JsonReader.ReadObject<Element> Reader = new JsonReader.ReadObject<Element>() {
+		@Override
+		public Element read(JsonReader reader) throws IOException {
+			return deserialize(reader);
+		}
+	};
+	static JsonWriter.WriteObject<Element> Writer = new JsonWriter.WriteObject<Element>() {
+		@Override
+		public void write(JsonWriter writer, Element value) {
+			serializeNullable(value, writer);
+		}
+	};
+
 	private static DocumentBuilder documentBuilder;
 
 	static {
@@ -57,26 +70,19 @@ public class XmlConverter {
 		}
 	}
 
-	private static JsonReader.ReadObject<Element> Reader = new JsonReader.ReadObject<Element>() {
-		@Override
-		public Element read(JsonReader reader) throws IOException {
-			return deserialize(reader);
-		}
-	};
-
 	public static ArrayList<Element> deserializeCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeCollectionWithGet(Reader);
+		return reader.deserializeCollection(Reader);
 	}
 
 	public static void deserializeCollection(final JsonReader reader, final Collection<Element> res) throws IOException {
-		reader.deserializeCollectionWithGet(Reader, res);
+		reader.deserializeCollection(Reader, res);
 	}
 
 	public static ArrayList<Element> deserializeNullableCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeNullableCollectionWithGet(Reader);
+		return reader.deserializeNullableCollection(Reader);
 	}
 
 	public static void deserializeNullableCollection(final JsonReader reader, final Collection<Element> res) throws IOException {
-		reader.deserializeNullableCollectionWithGet(Reader, res);
+		reader.deserializeNullableCollection(Reader, res);
 	}
 }
