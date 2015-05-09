@@ -158,7 +158,7 @@ public class Utils {
 	private static final DslJsonSerialization staticJson = new DslJsonSerialization(null);
 
 	static String serialize(final Object value) throws IOException {
-		return new String(staticJson.serialize(value), "UTF-8");
+		return staticJson.serialize(value).toUtf8();
 	}
 
 	public static final boolean IS_ANDROID;

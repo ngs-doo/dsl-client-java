@@ -1,5 +1,7 @@
 package com.dslplatform.client.json;
 
+import com.dslplatform.patterns.Bytes;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
@@ -322,16 +324,6 @@ public final class JsonWriter extends Writer {
 	@Override
 	public String toString() {
 		return new String(result, 0, position, utf8);
-	}
-
-	public static class Bytes {
-		public final byte[] content;
-		public final int length;
-
-		public Bytes(final byte[] content, final int length) {
-			this.content = content;
-			this.length = length;
-		}
 	}
 
 	public final Bytes toBytes() {

@@ -2,12 +2,10 @@ package com.dslplatform.client.json;
 
 import java.io.*;
 import java.lang.reflect.Array;
-import java.lang.reflect.TypeVariable;
 import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.net.URI;
 import java.util.*;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.dslplatform.client.Utils;
@@ -500,16 +498,33 @@ public class DslJsonSerialization implements JsonSerialization {
 				writer.writeAscii("[]");
 				return true;
 			}
-			final TypeVariable<? extends Class<?>>[] genericParams = manifest.getTypeParameters();
-			if (genericParams.length != 1) {
-				return false;
+			Class<?> baseType = null;
+			final Iterator iterator = items.iterator();
+			do {
+				final Object item = iterator.next();
+				if (item != null) {
+					Class<?> elementType = item.getClass();
+					if (elementType != baseType) {
+						if (baseType == null || elementType.isAssignableFrom(baseType)) {
+							baseType = elementType;
+						}
+					}
+				}
+			} while (iterator.hasNext());
+			if (baseType == null) {
+				writer.writeByte(JsonWriter.ARRAY_START);
+				writer.writeNull();
+				for (int i = 1; i < items.size(); i++) {
+					writer.writeAscii(",null");
+				}
+				writer.writeByte(JsonWriter.ARRAY_END);
+				return true;
 			}
-			final Class<?> elementManifest = genericParams[0].getGenericDeclaration();
-			if (JsonObject.class.isAssignableFrom(elementManifest)) {
+			if (JsonObject.class.isAssignableFrom(baseType)) {
 				serialize(writer, (Collection<JsonObject>) items);
 				return true;
 			}
-			final JsonWriter.WriteObject<Object> elementWriter = (JsonWriter.WriteObject<Object>) jsonWriters.get(elementManifest);
+			final JsonWriter.WriteObject<Object> elementWriter = (JsonWriter.WriteObject<Object>) jsonWriters.get(baseType);
 			if (elementWriter != null) {
 				writer.serialize(items, elementWriter);
 				return true;
@@ -518,15 +533,15 @@ public class DslJsonSerialization implements JsonSerialization {
 		return false;
 	}
 
-	private static final byte[] NULL = new byte[]{'n', 'u', 'l', 'l'};
+	private static final Bytes NULL = new Bytes(new byte[]{'n', 'u', 'l', 'l'}, 4);
 
-	public final byte[] serialize(final Object value) throws IOException {
+	public final Bytes serialize(final Object value) throws IOException {
 		if (value == null) return NULL;
-		final JsonWriter jw = new JsonWriter();
-		final Class<?> manifest = value.getClass();
-		if (!serialize(jw, manifest, value)) {
-			throw new IOException("Unable to serialize provided object. Failed to find serializer for: " + manifest);
-		}
-		return jw.toByteArray();
-	}
+        final JsonWriter jw = new JsonWriter();
+        final Class<?> manifest = value.getClass();
+        if (!serialize(jw, manifest, value)) {
+            throw new IOException("Unable to serialize provided object. Failed to find serializer for: " + manifest);
+        }
+        return jw.toBytes();
+    }
 }

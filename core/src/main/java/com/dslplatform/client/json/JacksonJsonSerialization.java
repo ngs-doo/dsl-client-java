@@ -670,8 +670,9 @@ public class JacksonJsonSerialization implements JsonSerialization {
 	}
 
 	@Override
-	public byte[] serialize(Object value) throws IOException {
-		return serializationMapper.writer().writeValueAsBytes(value);
+	public Bytes serialize(Object value) throws IOException {
+		final byte[] result = serializationMapper.writer().writeValueAsBytes(value);
+        return new Bytes(result, result.length);
 	}
 
 	@Override
