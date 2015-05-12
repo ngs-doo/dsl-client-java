@@ -75,6 +75,14 @@ public class DslJsonSerialization implements JsonSerialization {
 	}
 
 	void registerAndroidSpecifics() {
+		registerReader(android.graphics.PointF.class, AndroidGeomConverter.LocationReader);
+		registerWriter(android.graphics.PointF.class, AndroidGeomConverter.LocationWriter);
+		registerReader(android.graphics.Point.class, AndroidGeomConverter.PointReader);
+		registerWriter(android.graphics.Point.class, AndroidGeomConverter.PointWriter);
+		registerReader(android.graphics.Rect.class, AndroidGeomConverter.RectangleReader);
+		registerWriter(android.graphics.Rect.class, AndroidGeomConverter.RectangleWriter);
+		registerReader(android.graphics.Bitmap.class, AndroidGeomConverter.ImageReader);
+		registerWriter(android.graphics.Bitmap.class, AndroidGeomConverter.ImageWriter);
 	}
 
 	void registerJavaSpecifics() {

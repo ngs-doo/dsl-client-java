@@ -1,29 +1,14 @@
 package com.dslplatform.client;
 
 import com.dslplatform.client.json.DslJsonSerialization;
-import com.dslplatform.client.json.JacksonJsonSerialization;
-import com.dslplatform.client.json.JsonObject;
-import com.dslplatform.client.json.JsonWriter;
-import com.dslplatform.patterns.AggregateRoot;
-import com.dslplatform.patterns.History;
-import com.dslplatform.patterns.ServiceLocator;
-import com.dslplatform.patterns.Snapshot;
 import com.dslplatform.test.simple.E;
 import com.dslplatform.test.simple.SimpleRoot;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.junit.Test;
-import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import static org.junit.Assert.*;
 
@@ -68,11 +53,11 @@ public class ManualJsonTest {
 	@Test
 	public void simpleIntCollections() throws IOException {
 		final JsonSerialization json = new DslJsonSerialization(null);
-		int[] input1 = new int[]{-1,0,1};
+		int[] input1 = new int[]{-1, 0, 1};
 		byte[] res = json.serialize(input1).toByteArray();
 		int[] output1 = json.deserialize(int[].class, res, res.length);
 		assertArrayEquals(input1, output1);
-		Integer[] input2 = new Integer[]{-1,null,1};
+		Integer[] input2 = new Integer[]{-1, null, 1};
 		res = json.serialize(input2).toByteArray();
 		Integer[] output2 = json.deserialize(Integer[].class, res, res.length);
 		assertArrayEquals(input2, output2);
@@ -129,5 +114,18 @@ public class ManualJsonTest {
 		byte[] res = json.serialize(root1).toByteArray();
 		SimpleRoot root2 = json.deserialize(SimpleRoot.class, res, res.length);
 		assertEquals(root1, root2);
+	}
+
+	@Test
+	public void javaGeomTypes() throws IOException {
+		final JsonSerialization json = new DslJsonSerialization(null);
+		java.awt.Point orig_p = new java.awt.Point(3, 4);
+		byte[] res = json.serialize(orig_p).toByteArray();
+		java.awt.Point deser_p = json.deserialize(java.awt.Point.class, res, res.length);
+		assertEquals(orig_p, deser_p);
+		java.awt.geom.Rectangle2D orig_r = new java.awt.geom.Rectangle2D.Double(3, 4, 10, 20);
+		res = json.serialize(orig_r).toByteArray();
+		java.awt.geom.Rectangle2D deser_r = json.deserialize(java.awt.geom.Rectangle2D.class, res, res.length);
+		assertEquals(orig_r, deser_r);
 	}
 }
