@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.dslplatform.client.Utils;
 import com.dslplatform.patterns.*;
 import com.dslplatform.client.JsonSerialization;
+import com.dslplatform.storage.S3;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.w3c.dom.Element;
@@ -69,6 +70,8 @@ public class DslJsonSerialization implements JsonSerialization {
 		registerWriter(UUID.class, UUIDConverter.Writer);
 		registerReader(Element.class, XmlConverter.Reader);
 		registerWriter(Element.class, XmlConverter.Writer);
+		registerReader(S3.class, StorageConverter.S3Reader);
+		registerWriter(S3.class, StorageConverter.S3Writer);
 	}
 
 	void registerAndroidSpecifics() {
@@ -85,6 +88,9 @@ public class DslJsonSerialization implements JsonSerialization {
 		registerWriter(java.awt.geom.Rectangle2D.class, GeomConverter.RectangleWriter);
 		registerWriter(java.awt.geom.Rectangle2D.Double.class, GeomConverter.RectangleWriterDouble);
 		registerWriter(java.awt.geom.Rectangle2D.Float.class, GeomConverter.RectangleWriterFloat);
+		registerReader(java.awt.image.BufferedImage.class, GeomConverter.ImageReader);
+		registerWriter(java.awt.Image.class, GeomConverter.ImageWriter);
+		registerWriter(java.awt.image.BufferedImage.class, GeomConverter.BufferedImageWriter);
 	}
 
 	private static boolean isNull(final int size, final byte[] body) {
@@ -537,11 +543,11 @@ public class DslJsonSerialization implements JsonSerialization {
 
 	public final Bytes serialize(final Object value) throws IOException {
 		if (value == null) return NULL;
-        final JsonWriter jw = new JsonWriter();
-        final Class<?> manifest = value.getClass();
-        if (!serialize(jw, manifest, value)) {
-            throw new IOException("Unable to serialize provided object. Failed to find serializer for: " + manifest);
-        }
-        return jw.toBytes();
-    }
+		final JsonWriter jw = new JsonWriter();
+		final Class<?> manifest = value.getClass();
+		if (!serialize(jw, manifest, value)) {
+			throw new IOException("Unable to serialize provided object. Failed to find serializer for: " + manifest);
+		}
+		return jw.toBytes();
+	}
 }

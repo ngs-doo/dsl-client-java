@@ -10,6 +10,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import com.dslplatform.client.Utils;
 import com.dslplatform.patterns.*;
 import com.dslplatform.client.JsonSerialization;
+import com.dslplatform.storage.S3;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -57,6 +59,65 @@ public class JacksonJsonSerialization implements JsonSerialization {
 		@Override
 		public DateTime deserialize(final JsonParser parser, final DeserializationContext _unused) throws IOException {
 			return DateTime.parse(parser.getValueAsString());
+		}
+	};
+
+	private static final JsonSerializer<S3> s3Serializer = new JsonSerializer<S3>() {
+		@Override
+		public void serialize(final S3 value, final JsonGenerator jg, final SerializerProvider _unused) throws IOException {
+			jg.writeStartObject();
+			jg.writeStringField("Bucket", value.getBucket());
+			jg.writeStringField("Key", value.getKey());
+			jg.writeNumberField("Length", value.getLength());
+			jg.writeStringField("Name", value.getName());
+			jg.writeStringField("MimeType", value.getMimeType());
+			jg.writeObjectField("Metadata", value.getMetadata());
+			jg.writeEndObject();
+		}
+	};
+
+	private static final JsonDeserializer<S3> s3Deserializer = new JsonDeserializer<S3>() {
+		@Override
+		public S3 deserialize(final JsonParser parser, final DeserializationContext context) throws IOException {
+			if (parser.getCurrentToken() != JsonToken.START_OBJECT) {
+				throw new IOException("Expecting '{'. Found: " + parser.getCurrentToken());
+			}
+			String bucket = null;
+			String key = null;
+			long length = 0;
+			String name = null;
+			String mimeType = null;
+			Map<String, String> metadata = null;
+			while(parser.nextToken() == JsonToken.FIELD_NAME) {
+				String field = parser.getCurrentName();
+				if ("Bucket".equalsIgnoreCase(field)) {
+					bucket = parser.nextTextValue();
+				} else if ("Key".equalsIgnoreCase(field)) {
+					key = parser.nextTextValue();
+				} else if ("Length".equalsIgnoreCase(field)) {
+					length = parser.nextLongValue(0);
+				} else if ("Name".equalsIgnoreCase(field)) {
+					name = parser.nextTextValue();
+				} else if ("MimeType".equalsIgnoreCase(field)) {
+					mimeType = parser.nextTextValue();
+				} else if ("Metadata".equalsIgnoreCase(field)) {
+					final JsonToken token = parser.nextToken();
+					if (token == JsonToken.START_OBJECT) {
+						metadata = (Map<String, String>) parser.readValueAs(HashMap.class);
+					} else if (token == JsonToken.VALUE_NULL) {
+						metadata = null;
+					} else {
+						throw new IOException("Expecting '}'. Found: " + parser.getCurrentToken());
+					}
+				} else {
+					parser.skipChildren();
+				}
+			}
+			if (parser.getCurrentToken() != JsonToken.END_OBJECT) {
+				throw new IOException("Expecting '}'. Found: " + parser.getCurrentToken());
+			}
+			ServiceLocator locator = (ServiceLocator)context.findInjectableValue("_serviceLocator", null, null);
+			return new S3(locator, bucket, key, length, name, mimeType, metadata);
 		}
 	};
 
@@ -363,9 +424,9 @@ public class JacksonJsonSerialization implements JsonSerialization {
 	/**
 	 * Recursively builds an XML document subtree
 	 *
-	 * @param doc                the document to be built up
+	 * @param doc				the document to be built up
 	 * @param subtreeRootElement the root of the subtree
-	 * @param elementContent     the value of the subtree
+	 * @param elementContent	 the value of the subtree
 	 */
 	@SuppressWarnings("unchecked")
 	private static void buildXmlFromHashMap(
@@ -450,7 +511,7 @@ public class JacksonJsonSerialization implements JsonSerialization {
 	 * {@code listHeadElementName}. The head element need be created before
 	 * this method call.
 	 *
-	 * @param doc          The parent document
+	 * @param doc		  The parent document
 	 * @param listHeadNode The first node of the list, needs to be created before this method call
 	 * @param elementContentList  The actual list contents
 	 */
@@ -511,6 +572,7 @@ public class JacksonJsonSerialization implements JsonSerialization {
 			new SimpleModule("SerializationModule", new Version(1, 0, 0, "SNAPSHOT", "com.dslplatform", "dsl-client-java"))
 					.addSerializer(LocalDate.class, dateSerializer)
 					.addSerializer(Element.class, xmlSerializer)
+					.addSerializer(S3.class, s3Serializer)
 					.addSerializer(DateTime.class, timestampSerializer);
 
 	private static final ObjectMapper serializationMapper = new ObjectMapper()
@@ -542,26 +604,32 @@ public class JacksonJsonSerialization implements JsonSerialization {
 	private final ObjectMapper deserializationMapper;
 
 	public JacksonJsonSerialization(final ServiceLocator locator) {
+		addPlatformDependentDeserializerModules(deserializationModule);
+		addPlatformDependentSerializerModules(serializationModule);
 		deserializationMapper = makeDeserializationObjectMapper(locator);
 	}
 
-	<T> T deserialize(final JavaType type, final String data) throws IOException {
+	public <T> T deserialize(final JavaType type, final String data) throws IOException {
 		return deserializationMapper.readValue(data, type);
 	}
 
-	<T> T deserialize(final JavaType type, final byte[] data) throws IOException {
+	public <T> T deserialize(final JavaType type, final byte[] data) throws IOException {
 		return deserializationMapper.readValue(data, type);
 	}
 
-	<T> T deserialize(final JavaType type, final byte[] data, final int size) throws IOException {
+	public <T> T deserialize(final JavaType type, final byte[] data, final int size) throws IOException {
 		return deserializationMapper.readValue(data, 0, size, type);
 	}
 
-	<T> T deserialize(final Class<T> clazz, final byte[] data) throws IOException {
+	public <T> T deserialize(final Class<T> clazz, final byte[] data) throws IOException {
 		return deserializationMapper.readValue(data, clazz);
 	}
 
-	<T> T deserialize(final JavaType type, final InputStream stream) throws IOException {
+	public <T> T deserialize(final Class<T> clazz, final String data) throws IOException {
+		return deserializationMapper.readValue(data, clazz);
+	}
+
+	public <T> T deserialize(final JavaType type, final InputStream stream) throws IOException {
 		return deserializationMapper.readValue(stream, type);
 	}
 
@@ -591,14 +659,6 @@ public class JacksonJsonSerialization implements JsonSerialization {
 		return historyList;
 	}
 
-	public static <T> T deserialize(final Class<T> clazz, final String data) throws IOException {
-		return staticDeserializationMapper.readValue(data, clazz);
-	}
-
-	public static <T> ArrayList<T> deserializeCollection(final Class<T> clazz, final String data) throws IOException {
-		return staticDeserializationMapper.readValue(data, typeFactory.constructCollectionType(ArrayList.class, clazz));
-	}
-
 	public static String serializeString(final Object data) throws IOException {
 		return serializationMapper.writer().writeValueAsString(data);
 	}
@@ -619,6 +679,7 @@ public class JacksonJsonSerialization implements JsonSerialization {
 			new SimpleModule("DeserializationModule", new Version(1, 0, 0, "SNAPSHOT", "com.dslplatform", "dsl-client-java"))
 					.addDeserializer(LocalDate.class, dateDeserializer)
 					.addDeserializer(DateTime.class, timestampDeserializer)
+					.addDeserializer(S3.class, s3Deserializer)
 					.addDeserializer(Element.class, xmlDeserializer);
 
 	private static ObjectMapper makeDeserializationObjectMapper(final ServiceLocator locator) {
@@ -628,30 +689,6 @@ public class JacksonJsonSerialization implements JsonSerialization {
 				.registerModule(deserializationModule)
 				.setInjectableValues(new InjectableValues.Std().addValue("_serviceLocator", locator));
 	}
-
-	private static ObjectMapper staticDeserializationMapper =
-			new ObjectMapper()
-					.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-					.configure(Feature.ALLOW_NON_NUMERIC_NUMBERS, true)
-					.registerModule(deserializationModule);
-
-	public static <T> T deserialize(final JavaType type, final String data, final ServiceLocator locator) throws IOException {
-		return makeDeserializationObjectMapper(locator).readValue(data, type);
-	}
-
-	public static <T> T deserialize(final JavaType type, final byte[] data, final ServiceLocator locator) throws IOException {
-		return makeDeserializationObjectMapper(locator).readValue(data, type);
-	}
-
-	public static <T> T deserialize(final JavaType type, final InputStream stream, final ServiceLocator locator) throws IOException {
-		return makeDeserializationObjectMapper(locator).readValue(stream, type);
-	}
-
-	static {
-		addPlatformDependentDeserializerModules(deserializationModule);
-		addPlatformDependentSerializerModules(serializationModule);
-	}
-
 
 	private static void addPlatformDependentSerializerModules(final SimpleModule serializationModule) {
 		if (Utils.IS_ANDROID) {
@@ -672,17 +709,17 @@ public class JacksonJsonSerialization implements JsonSerialization {
 	@Override
 	public Bytes serialize(Object value) throws IOException {
 		final byte[] result = serializationMapper.writer().writeValueAsBytes(value);
-        return new Bytes(result, result.length);
+		return new Bytes(result, result.length);
 	}
 
 	@Override
 	public <T> T deserialize(Class<T> manifest, byte[] content, int size) throws IOException {
-		return staticDeserializationMapper.readValue(content, 0, size, manifest);
+		return deserializationMapper.readValue(content, 0, size, manifest);
 	}
 
 	@Override
 	public <T> List<T> deserializeList(Class<T> manifest, byte[] content, int size) throws IOException {
 		final JavaType type = typeFactory.constructCollectionType(ArrayList.class, manifest);
-		return staticDeserializationMapper.readValue(content, 0, size, type);
+		return deserializationMapper.readValue(content, 0, size, type);
 	}
 }

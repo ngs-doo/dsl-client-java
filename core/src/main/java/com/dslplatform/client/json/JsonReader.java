@@ -26,7 +26,7 @@ public final class JsonReader {
 
 	private final byte[] buffer;
 	final int length;
-	private final ServiceLocator locator;
+	final ServiceLocator locator;
 	private final char[] tmp;
 
 	private int tokenStart;

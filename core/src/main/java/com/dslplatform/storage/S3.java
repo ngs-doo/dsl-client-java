@@ -2,9 +2,6 @@ package com.dslplatform.storage;
 
 import com.dslplatform.client.Bootstrap;
 import com.dslplatform.patterns.ServiceLocator;
-import com.fasterxml.jackson.annotation.JacksonInject;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -23,28 +20,6 @@ import java.util.concurrent.ExecutionException;
  * binary on remote server.
  */
 public class S3 implements java.io.Serializable {
-
-	@JsonCreator
-	protected S3(
-			@JacksonInject("_serviceLocator") final ServiceLocator locator,
-			@JsonProperty("Bucket") final String bucket,
-			@JsonProperty("Key") final String key,
-			@JsonProperty("Length") final int length,
-			@JsonProperty("Name") final String name,
-			@JsonProperty("MimeType") final String mimeType,
-			@JsonProperty("Metadata") final Map<String, String> metadata) {
-		instanceRepository = locator.resolve(S3Repository.class);
-		this.bucket = bucket;
-		this.key = key;
-		this.length = length;
-		this.name = name;
-		this.mimeType = mimeType;
-		if (metadata != null) {
-			for (final Map.Entry<String, String> kv : metadata.entrySet()) {
-				metadata.put(kv.getKey(), kv.getValue());
-			}
-		}
-	}
 
 	/**
 	 * Create new instance of S3.
@@ -113,6 +88,27 @@ public class S3 implements java.io.Serializable {
 		upload(bytes);
 	}
 
+	public S3(
+			final ServiceLocator locator,
+			final String bucket,
+			final String key,
+			final long length,
+			final String name,
+			final String mimeType,
+			final Map<String, String> metadata) {
+		instanceRepository = locator != null ? locator.resolve(S3Repository.class) : staticRepository;
+		this.bucket = bucket;
+		this.key = key;
+		this.length = length;
+		this.name = name;
+		this.mimeType = mimeType;
+		if (metadata != null) {
+			for (final Map.Entry<String, String> kv : metadata.entrySet()) {
+				metadata.put(kv.getKey(), kv.getValue());
+			}
+		}
+	}
+
 	private final S3Repository instanceRepository;
 	private final static S3Repository staticRepository = Bootstrap.getLocator().resolve(S3Repository.class);
 	private final static String bucketName = Bootstrap.getLocator().resolve(Properties.class).getProperty("s3-bucket");
@@ -131,7 +127,6 @@ public class S3 implements java.io.Serializable {
 	 *
 	 * @return bucket to remote server
 	 */
-	@JsonProperty("Bucket")
 	public String getBucket() {
 		return bucket;
 	}
@@ -143,7 +138,6 @@ public class S3 implements java.io.Serializable {
 	 *
 	 * @return key in bucket on the remote server
 	 */
-	@JsonProperty("Key")
 	public String getKey() {
 		return key;
 	}
@@ -159,7 +153,6 @@ public class S3 implements java.io.Serializable {
 	 *
 	 * @return number of bytes
 	 */
-	@JsonProperty("Length")
 	public long getLength() {
 		return length;
 	}
@@ -193,7 +186,6 @@ public class S3 implements java.io.Serializable {
 	 *
 	 * @return mime type associated with the remote data
 	 */
-	@JsonProperty("MimeType")
 	public String getMimeType() {
 		return mimeType;
 	}
@@ -217,7 +209,6 @@ public class S3 implements java.io.Serializable {
 	 *
 	 * @return associated metadata
 	 */
-	@JsonProperty("Metadata")
 	public Map<String, String> getMetadata() {
 		return metadata;
 	}
@@ -322,7 +313,7 @@ public class S3 implements java.io.Serializable {
 		if (key == null || key.isEmpty()) {
 			this.bucket = bucket;
 			key = UUID.randomUUID().toString();
-		} else if (this.bucket != bucket) throw new IllegalArgumentException("Can't change bucket name");
+		} else if (!this.bucket.equals(bucket)) throw new IllegalArgumentException("Can't change bucket name");
 		try {
 			getRepository().upload(bucket, key, stream, length, metadata).get();
 		} catch (final InterruptedException e) {
@@ -366,7 +357,7 @@ public class S3 implements java.io.Serializable {
 		if (key == null || key.isEmpty()) {
 			this.bucket = bucket;
 			key = UUID.randomUUID().toString();
-		} else if (this.bucket != bucket) throw new IllegalArgumentException("Can't change bucket name");
+		} else if (!this.bucket.equals(bucket)) throw new IllegalArgumentException("Can't change bucket name");
 		final ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
 		try {
 			getRepository().upload(bucket, key, stream, bytes.length, metadata).get();

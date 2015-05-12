@@ -48,7 +48,7 @@ public class DeserializationTest {
 		final JavaType st = typeFactory.constructCollectionType(
 				ArrayList.class,
 				typeFactory.constructParametricType(SnapshotDelegate.class, SimpleRoot.class));
-		final List<SnapshotDelegate<SimpleRoot>> snapshotList = JacksonJsonSerialization.deserialize(st, jason, null);
+		final List<SnapshotDelegate<SimpleRoot>> snapshotList = JsonStatic.INSTANCE.jackson.deserialize(st, jason);
 		assertEquals(4, snapshotList.size());
 		assertEquals("INSERT", snapshotList.get(0).Action);
 		assertEquals("UPDATE", snapshotList.get(1).Action);

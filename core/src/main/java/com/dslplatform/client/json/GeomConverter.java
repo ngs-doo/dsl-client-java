@@ -3,6 +3,9 @@ package com.dslplatform.client.json;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.awt.image.WritableRaster;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -67,6 +70,24 @@ public class GeomConverter {
 		@Override
 		public void write(JsonWriter writer, Rectangle2D.Float value) {
 			serializeRectangleNullable(value, writer);
+		}
+	};
+	static JsonReader.ReadObject<BufferedImage> ImageReader = new JsonReader.ReadObject<BufferedImage>() {
+		@Override
+		public BufferedImage read(JsonReader reader) throws IOException {
+			return deserializeImage(reader);
+		}
+	};
+	static JsonWriter.WriteObject<Image> ImageWriter = new JsonWriter.WriteObject<Image>() {
+		@Override
+		public void write(JsonWriter writer, Image value) {
+			serialize(value, writer);
+		}
+	};
+	static JsonWriter.WriteObject<BufferedImage> BufferedImageWriter = new JsonWriter.WriteObject<BufferedImage>() {
+		@Override
+		public void write(JsonWriter writer, BufferedImage value) {
+			serialize(value, writer);
 		}
 	};
 
@@ -279,4 +300,44 @@ public class GeomConverter {
 	public static void deserializeRectangleNullableCollection(final JsonReader reader, final Collection<Rectangle2D> res) throws IOException {
 		reader.deserializeNullableCollection(RectangleReader, res);
 	}
+
+	public static void serialize(final Image value, final JsonWriter sw) {
+		if (value == null) {
+			sw.writeNull();
+		} else if (value instanceof BufferedImage) {
+			final WritableRaster raster = ((BufferedImage)value).getRaster();
+			final DataBufferByte data = (DataBufferByte) raster.getDataBuffer();
+			BinaryConverter.serialize(data.getData(), sw);
+		} else {
+			final BufferedImage image = new BufferedImage(value.getWidth(null), value.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+			final Graphics2D bGr = image.createGraphics();
+			bGr.drawImage(value, 0, 0, null);
+			bGr.dispose();
+			final WritableRaster raster = image.getRaster();
+			final DataBufferByte data = (DataBufferByte) raster.getDataBuffer();
+			BinaryConverter.serialize(data.getData(), sw);
+		}
+	}
+
+	public static BufferedImage deserializeImage(final JsonReader reader) throws IOException {
+		final byte[] content = com.dslplatform.client.json.BinaryConverter.deserialize(reader);
+		return javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(content));
+	}
+
+	public static ArrayList<BufferedImage> deserializeImageCollection(final JsonReader reader) throws IOException {
+		return reader.deserializeCollection(ImageReader);
+	}
+
+	public static void deserializeImageCollection(final JsonReader reader, final Collection<BufferedImage> res) throws IOException {
+		reader.deserializeCollection(ImageReader, res);
+	}
+
+	public static ArrayList<BufferedImage> deserializeImageNullableCollection(final JsonReader reader) throws IOException {
+		return reader.deserializeNullableCollection(ImageReader);
+	}
+
+	public static void deserializeImageNullableCollection(final JsonReader reader, final Collection<BufferedImage> res) throws IOException {
+		reader.deserializeNullableCollection(ImageReader, res);
+	}
+
 }
