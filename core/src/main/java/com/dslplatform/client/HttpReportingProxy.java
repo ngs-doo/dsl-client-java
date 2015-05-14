@@ -92,20 +92,20 @@ class HttpReportingProxy implements ReportingProxy {
 	}
 
 	private static class HistoryArg implements JsonObject {
-		private final String name;
-		private final List<String> uris;
+		public final String Name;
+		public final List<String> Uri;
 
 		public HistoryArg(final String name, final Iterable<String> uris) {
-			this.name = name;
-			this.uris = Utils.toArrayList(uris);
+			this.Name = name;
+			this.Uri = Utils.toArrayList(uris);
 		}
 
 		@Override
 		public void serialize(JsonWriter writer, boolean minimal) {
 			writer.writeAscii("{\"Name\":");
-			writer.writeAscii(name);
+			writer.writeAscii(Name);
 			writer.writeAscii(",\"Uri\":");
-			StringConverter.serialize(uris, writer);
+			StringConverter.serialize(Uri, writer);
 			writer.writeByte(JsonWriter.OBJECT_END);
 		}
 	}

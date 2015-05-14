@@ -90,6 +90,28 @@ public class ManualJsonTest {
 	}
 
 	@Test
+	public void simpleDoubleList() throws IOException {
+		final JsonSerialization json = new DslJsonSerialization(null);
+		String input = "[\"NaN\",1,2] ";
+		List<Double> output = json.deserializeList(double.class, input.getBytes(), input.length());
+		assertEquals(3, output.size());
+		assertEquals(Double.NaN, output.get(0), 0);
+		assertEquals(Double.parseDouble("1"), output.get(1), 0);
+		assertEquals(Double.parseDouble("2"), output.get(2), 0);
+	}
+
+	@Test
+	public void simpleFloatList() throws IOException {
+		final JsonSerialization json = new DslJsonSerialization(null);
+		String input = "[null,\"NaN\",1.2]";
+		List<Float> output = json.deserializeList(Float.class, input.getBytes(), input.length());
+		assertEquals(3, output.size());
+		assertNull(output.get(0));
+		assertEquals(Float.NaN, output.get(1), 0);
+		assertEquals(Float.parseFloat("1.2"), output.get(2), 0);
+	}
+
+	@Test
 	public void emptyList() throws IOException {
 		final JsonSerialization json = new DslJsonSerialization(null);
 		List<Object> input = new ArrayList<Object>();

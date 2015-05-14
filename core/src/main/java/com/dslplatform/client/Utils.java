@@ -1,8 +1,6 @@
 package com.dslplatform.client;
 
 import com.dslplatform.client.json.DslJsonSerialization;
-import com.dslplatform.client.json.JsonObject;
-import com.dslplatform.client.json.JsonWriter;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 

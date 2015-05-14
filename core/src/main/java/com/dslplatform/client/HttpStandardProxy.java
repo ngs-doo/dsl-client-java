@@ -1,5 +1,6 @@
 package com.dslplatform.client;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -19,12 +20,15 @@ class HttpStandardProxy implements StandardProxy {
 	private final static String APPLICATION_URI = "RestApplication.svc/";
 
 	private final HttpClient client;
+	private final JsonSerialization json;
 	private final ExecutorService executorService;
 
 	public HttpStandardProxy(
 			final HttpClient client,
+			final JsonSerialization json,
 			final ExecutorService executorService) {
 		this.client = client;
+		this.json = json;
 		this.executorService = executorService;
 	}
 
@@ -67,39 +71,29 @@ class HttpStandardProxy implements StandardProxy {
 		}
 	}
 
-	static class Pair implements JsonObject {
-		private final JsonObject key;
-		private final JsonObject value;
+	static class Pair<T extends AggregateRoot> implements JsonObject {
+		private final JsonSerialization json;
+		public final T Key;
+		public final T Value;
 
-		public <T extends AggregateRoot> Pair(Map.Entry<T, T> update) {
-			this.key = (JsonObject)update.getKey();
-			this.value = (JsonObject)update.getValue();
+		public Pair(JsonSerialization json, Map.Entry<T, T> update) {
+			this.json = json;
+			this.Key = update.getKey();
+			this.Value = update.getValue();
 		}
 
 		@Override
 		public void serialize(final JsonWriter jw, final boolean minimal) {
-			jw.writeAscii("{\"Key\":");
-			if (key != null) {
-				key.serialize(jw, minimal);
-			} else {
-				jw.writeNull();
+			try {
+				jw.writeAscii("{\"Key\":");
+				json.serialize(jw, Key);
+				jw.writeAscii(",\"Value\":");
+				json.serialize(jw, Value);
+				jw.writeByte(JsonWriter.OBJECT_END);
+			} catch (IOException ex) {
+				throw new RuntimeException(ex);
 			}
-			jw.writeAscii(",\"Value\":");
-			if (value != null) {
-				value.serialize(jw, minimal);
-			} else {
-				jw.writeNull();
-			}
-			jw.writeByte(JsonWriter.OBJECT_END);
 		}
-	}
-
-	private static ArrayList<JsonObject> toJsonList(final Iterable<?> iterable) {
-		final ArrayList<JsonObject> copy = new ArrayList<JsonObject>();
-		for (final Object t : iterable) {
-			copy.add((JsonObject)t);
-		}
-		return copy;
 	}
 
 	@Override
@@ -113,39 +107,32 @@ class HttpStandardProxy implements StandardProxy {
 			public List<String> call() throws Exception {
 				Class<?> clazz = null;
 
-				final JsonWriter jw = new JsonWriter();
 				String toInsert = null;
 				if (inserts != null) {
-					final List<JsonObject> list = toJsonList(inserts);
+					final List<T> list = Utils.toArrayList(inserts);
 					if (!list.isEmpty()) {
 						clazz = list.get(0).getClass();
-						jw.serialize(list);
-						toInsert = jw.toString();
-						jw.reset();
+						toInsert = json.serialize(list).toUtf8();
 					}
 				}
 				String toUpdate = null;
 				if (updates != null) {
 					final List<Pair> list = new ArrayList<Pair>();
 					for (final Map.Entry<T, T> update : updates) {
-						list.add(new Pair(update));
+						list.add(new Pair(json, update));
 					}
 					if (!list.isEmpty()) {
-						clazz = list.get(0).value.getClass();
-						jw.serialize(list);
-						toUpdate = jw.toString();
-						jw.reset();
+						clazz = list.get(0).Value.getClass();
+						toUpdate = json.serialize(list).toUtf8();
 					}
 				}
 
 				String toDelete = null;
 				if (deletes != null) {
-					final List<JsonObject> list = toJsonList(deletes);
+					final List<T> list = Utils.toArrayList(deletes);
 					if (!list.isEmpty()) {
 						clazz = list.get(0).getClass();
-						jw.serialize(list);
-						toDelete = jw.toString();
-						jw.reset();
+						toDelete = json.serialize(list).toUtf8();
 					}
 				}
 

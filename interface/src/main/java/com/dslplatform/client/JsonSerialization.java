@@ -5,6 +5,7 @@ import com.dslplatform.patterns.Bytes;
 import com.dslplatform.patterns.History;
 
 import java.io.IOException;
+import java.io.Writer;
 import java.util.List;
 
 /**
@@ -21,6 +22,14 @@ public interface JsonSerialization {
 	 * @throws IOException
 	 */
 	public Bytes serialize(Object value) throws IOException;
+
+	/**
+	 * Serialize object if possible to an existing Writer.
+	 *
+	 * @param value object instance to serialize
+	 * @throws IOException
+	 */
+	public void serialize(Writer writer, Object value) throws IOException;
 
 	/**
 	 * Try to deserialize provided JSON byte array input into specified object.

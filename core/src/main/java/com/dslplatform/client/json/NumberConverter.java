@@ -187,9 +187,7 @@ public class NumberConverter {
 		if (reader.last() == '"') {
 			final int position = reader.getCurrentIndex();
 			final char[] buf = reader.readSimpleQuote();
-			double result = parseDoubleGeneric(buf, reader.getCurrentIndex() - position - 1, position + 1);
-			reader.read();
-			return result;
+			return parseDoubleGeneric(buf, reader.getCurrentIndex() - position - 1, position + 1);
 		}
 		final char[] buf = reader.readNumber();
 		final int position = reader.getCurrentIndex();
@@ -338,9 +336,7 @@ public class NumberConverter {
 		if (reader.last() == '"') {
 			final int position = reader.getCurrentIndex();
 			final char[] buf = reader.readSimpleQuote();
-			float result = parseFloatGeneric(buf, reader.getCurrentIndex() - position - 1, position + 1);
-			reader.read();
-			return result;
+			return parseFloatGeneric(buf, reader.getCurrentIndex() - position - 1, position + 1);
 		}
 		final char[] buf = reader.readNumber();
 		final int position = reader.getCurrentIndex();

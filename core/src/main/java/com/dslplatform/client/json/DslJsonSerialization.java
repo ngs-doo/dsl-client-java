@@ -558,4 +558,21 @@ public class DslJsonSerialization implements JsonSerialization {
 		}
 		return jw.toBytes();
 	}
+
+	@Override
+	public final void serialize(final Writer writer, final Object value) throws IOException {
+		if (value == null) {
+			writer.write("NULL");
+			return;
+		}
+		final Class<?> manifest = value.getClass();
+		final boolean isJsonWriter = writer instanceof JsonWriter;
+		final JsonWriter jw = isJsonWriter ? (JsonWriter) writer : new JsonWriter();
+		if (!serialize(jw, manifest, value)) {
+			throw new IOException("Unable to serialize provided object. Failed to find serializer for: " + manifest);
+		}
+		if (!isJsonWriter) {
+			writer.write(jw.toString());
+		}
+	}
 }

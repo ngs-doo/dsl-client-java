@@ -125,7 +125,7 @@ public class Bootstrap {
 			@Override public CrudProxy create() { return new HttpCrudProxy(httpClient); }
 		});
 		locator.resolveOrRegister(StandardProxy.class, new MapServiceLocator.LazyInstance<StandardProxy>() {
-			@Override public StandardProxy create() { return new HttpStandardProxy(httpClient, executorService); }
+			@Override public StandardProxy create() { return new HttpStandardProxy(httpClient, json, executorService); }
 		});
 		locator.resolveOrRegister(ReportingProxy.class, new MapServiceLocator.LazyInstance<ReportingProxy>() {
 			@Override public ReportingProxy create() { return new HttpReportingProxy(httpClient, executorService, json); }

@@ -671,7 +671,7 @@ public class JacksonJsonSerialization implements JsonSerialization {
 		serializationMapper.writer().writeValue(stream, data);
 	}
 
-	public static void serialize(final Writer writer, final Object data) throws IOException {
+	public static void serializeTo(final Writer writer, final Object data) throws IOException {
 		serializationMapper.writer().writeValue(writer, data);
 	}
 
@@ -710,6 +710,11 @@ public class JacksonJsonSerialization implements JsonSerialization {
 	public Bytes serialize(Object value) throws IOException {
 		final byte[] result = serializationMapper.writer().writeValueAsBytes(value);
 		return new Bytes(result, result.length);
+	}
+
+	@Override
+	public void serialize(Writer writer, Object value) throws IOException {
+		serializationMapper.writer().writeValue(writer, value);
 	}
 
 	@Override

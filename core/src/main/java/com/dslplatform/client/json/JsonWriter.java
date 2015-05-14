@@ -348,8 +348,7 @@ public final class JsonWriter extends Writer {
 
 	@Override
 	public void write(int c) throws IOException {
-		tmp[0] = (byte) c;
-		writeString(new String(tmp, 0, 1));
+		write(new char[] { (char)c }, 0, 1);
 	}
 
 	@Override

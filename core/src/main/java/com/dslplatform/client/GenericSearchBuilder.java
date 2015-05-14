@@ -36,12 +36,6 @@ public class GenericSearchBuilder<T extends Searchable> {
 			Value = value;
 		}
 
-		@SuppressWarnings("unused")
-		private FilterPair() {
-			this.Key = null;
-			this.Value = null;
-		}
-
 		public void serialize(final JsonWriter jw, final boolean minimal) {
 			jw.writeString("{\"Key\":");
 			NumberConverter.serializeNullable(Key, jw);
