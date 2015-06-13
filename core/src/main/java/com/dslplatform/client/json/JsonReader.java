@@ -165,7 +165,7 @@ public final class JsonReader {
 				// there is no chance that we can decode the string without instantiating
 				// a temporary buffer, so quit this loop
 				if ((bb ^ '\\') < 1) break;
-				tmp[i] = (char)bb;
+				tmp[i] = (char) bb;
 			}
 		} catch (ArrayIndexOutOfBoundsException ignore) {
 			throw new IOException("JSON string was not closed with a double quote at: " + currentIndex);
@@ -365,15 +365,6 @@ public final class JsonReader {
 		return last;
 	}
 
-	public final byte moveToNextToken() throws IOException {
-		if (Whitespace[last + 128]) {
-			while (wasWhiteSpace()) {
-				read();
-			}
-		}
-		return last;
-	}
-
 	public final long positionInStream() {
 		return currentIndex;
 	}
@@ -393,8 +384,7 @@ public final class JsonReader {
 		}
 		currentIndex = ci;
 		if (read() != ':') {
-			moveToNextToken();
-			if (last != ':') {
+			if (!wasWhiteSpace() || getNextToken() != ':') {
 				throw new IOException("Expecting ':' at position " + positionInStream() + ". Found " + (char) last);
 			}
 		}
