@@ -7,7 +7,6 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public final class JsonWriter extends Writer {
 	public final byte[] tmp = new byte[48];
@@ -65,14 +64,19 @@ public final class JsonWriter extends Writer {
 		final byte[] _result = result;
 		_result[position] = QUOTE;
 		int cur = position + 1;
-		int i = 0;
-		while (i < str.length()) {
+		for (int i = 0; i < len; i++) {
 			final char c = str.charAt(i);
-			if (c > 31 && c != '"' && c != '\\' && c < 127) {
-				_result[cur++] = (byte)c;
-				i++;
-			} else break;
+			if (c < 32 || c == '"' || c == '\\' || c > 126) {
+				position = writeQuotedString(str, i, cur, _result);
+				return;
+			}
+			_result[cur++] = (byte) c;
 		}
+		_result[cur] = QUOTE;
+		position = cur + 1;
+	}
+
+	private static int writeQuotedString(final String str, int i, int cur, final byte[] _result) {
 		for (; i < str.length(); i++) {
 			final char c = str.charAt(i);
 			if (c == '"') {
@@ -241,7 +245,7 @@ public final class JsonWriter extends Writer {
 			}
 		}
 		_result[cur] = QUOTE;
-		position = cur + 1;
+		return cur + 1;
 	}
 
 	public final void writeBuffer(final int off, final int end) {
@@ -348,7 +352,7 @@ public final class JsonWriter extends Writer {
 
 	@Override
 	public void write(int c) throws IOException {
-		write(new char[] { (char)c }, 0, 1);
+		write(new char[]{(char) c}, 0, 1);
 	}
 
 	@Override
@@ -362,14 +366,15 @@ public final class JsonWriter extends Writer {
 	}
 
 	@Override
-	public void flush() throws IOException {}
+	public void flush() throws IOException {
+	}
 
 	@Override
 	public void close() throws IOException {
 		position = 0;
 	}
 
-	static interface WriteObject<T> {
+	interface WriteObject<T> {
 		void write(JsonWriter writer, T value);
 	}
 
