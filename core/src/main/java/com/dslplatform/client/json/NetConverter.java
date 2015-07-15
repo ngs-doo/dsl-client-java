@@ -8,25 +8,25 @@ import java.util.Collection;
 
 public class NetConverter {
 
-	static JsonReader.ReadObject<URI> UriReader = new JsonReader.ReadObject<URI>() {
+	static final JsonReader.ReadObject<URI> UriReader = new JsonReader.ReadObject<URI>() {
 		@Override
 		public URI read(JsonReader reader) throws IOException {
 			return deserializeUri(reader);
 		}
 	};
-	static JsonWriter.WriteObject<URI> UriWriter = new JsonWriter.WriteObject<URI>() {
+	static final JsonWriter.WriteObject<URI> UriWriter = new JsonWriter.WriteObject<URI>() {
 		@Override
 		public void write(JsonWriter writer, URI value) {
 			serializeNullable(value, writer);
 		}
 	};
-	static JsonReader.ReadObject<InetAddress> AddressReader = new JsonReader.ReadObject<InetAddress>() {
+	static final JsonReader.ReadObject<InetAddress> AddressReader = new JsonReader.ReadObject<InetAddress>() {
 		@Override
 		public InetAddress read(JsonReader reader) throws IOException {
 			return deserializeIp(reader);
 		}
 	};
-	static JsonWriter.WriteObject<InetAddress> AddressWriter = new JsonWriter.WriteObject<InetAddress>() {
+	static final JsonWriter.WriteObject<InetAddress> AddressWriter = new JsonWriter.WriteObject<InetAddress>() {
 		@Override
 		public void write(JsonWriter writer, InetAddress value) {
 			serializeNullable(value, writer);

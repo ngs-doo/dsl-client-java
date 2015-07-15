@@ -6,13 +6,13 @@ import java.util.Collection;
 
 public class BinaryConverter {
 
-	static JsonReader.ReadObject<byte[]> Base64Reader = new JsonReader.ReadObject<byte[]>() {
+	static final JsonReader.ReadObject<byte[]> Base64Reader = new JsonReader.ReadObject<byte[]>() {
 		@Override
 		public byte[] read(JsonReader reader) throws IOException {
 			return deserialize(reader);
 		}
 	};
-	static JsonWriter.WriteObject<byte[]> Base64Writer = new JsonWriter.WriteObject<byte[]>() {
+	static final JsonWriter.WriteObject<byte[]> Base64Writer = new JsonWriter.WriteObject<byte[]>() {
 		@Override
 		public void write(JsonWriter writer, byte[] value) {
 			serialize(value, writer);

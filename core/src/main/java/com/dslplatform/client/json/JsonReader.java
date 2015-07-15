@@ -494,11 +494,11 @@ public final class JsonReader {
 		return Base64.decodeFast(buffer, start, currentIndex - 1);
 	}
 
-	static interface ReadObject<T> {
+	interface ReadObject<T> {
 		T read(JsonReader reader) throws IOException;
 	}
 
-	public static interface ReadJsonObject<T extends JsonObject> {
+	public interface ReadJsonObject<T extends JsonObject> {
 		T deserialize(JsonReader reader, ServiceLocator locator) throws IOException;
 	}
 
@@ -542,6 +542,13 @@ public final class JsonReader {
 		return false;
 	}
 
+	public final void checkArrayEnd() throws IOException {
+		if (last != ']') {
+			if (currentIndex >= length) throw new IOException("Unexpected end of JSON in collection.");
+			else throw new IOException("Expecting ']' at position " + positionInStream() + ". Found " + (char) last);
+		}
+	}
+
 	public final <T> ArrayList<T> deserializeCollection(final ReadObject<T> readObject) throws IOException {
 		final ArrayList<T> res = new ArrayList<T>(4);
 		deserializeCollection(readObject, res);
@@ -554,10 +561,7 @@ public final class JsonReader {
 			getNextToken();
 			res.add(readObject.read(this));
 		}
-		if (last != ']') {
-			if (currentIndex >= length) throw new IOException("Unexpected end of json in collection.");
-			else throw new IOException("Expecting ']' at position " + positionInStream() + ". Found " + (char) last);
-		}
+		checkArrayEnd();
 	}
 
 	public final <T> ArrayList<T> deserializeNullableCollection(final ReadObject<T> readObject) throws IOException {
@@ -580,10 +584,7 @@ public final class JsonReader {
 				res.add(readObject.read(this));
 			}
 		}
-		if (last != ']') {
-			if (currentIndex >= length) throw new IOException("Unexpected end of json in collection.");
-			else throw new IOException("Expecting ']' at position " + positionInStream() + ". Found " + (char) last);
-		}
+		checkArrayEnd();
 	}
 
 	public final <T extends JsonObject> ArrayList<T> deserializeCollection(final ReadJsonObject<T> readObject) throws IOException {
@@ -603,10 +604,7 @@ public final class JsonReader {
 				res.add(readObject.deserialize(this, locator));
 			} else throw new IOException("Expecting '{' at position " + positionInStream() + ". Found " + (char) last);
 		}
-		if (last != ']') {
-			if (currentIndex >= length) throw new IOException("Unexpected end of json in collection.");
-			else throw new IOException("Expecting ']' at position " + positionInStream() + ". Found " + (char) last);
-		}
+		checkArrayEnd();
 	}
 
 	public final <T extends JsonObject> ArrayList<T> deserializeNullableCollection(final ReadJsonObject<T> readObject) throws IOException {
@@ -630,9 +628,6 @@ public final class JsonReader {
 				res.add(null);
 			} else throw new IOException("Expecting '{' at position " + positionInStream() + ". Found " + (char) last);
 		}
-		if (last != ']') {
-			if (currentIndex >= length) throw new IOException("Unexpected end of json in collection.");
-			else throw new IOException("Expecting ']' at position " + positionInStream() + ". Found " + (char) last);
-		}
+		checkArrayEnd();
 	}
 }

@@ -9,61 +9,61 @@ import java.util.Collection;
 public class NumberConverter {
 
 	private final static int[] Digits = new int[100];
-	static JsonReader.ReadObject<Double> DoubleReader = new JsonReader.ReadObject<Double>() {
+	static final JsonReader.ReadObject<Double> DoubleReader = new JsonReader.ReadObject<Double>() {
 		@Override
 		public Double read(JsonReader reader) throws IOException {
 			return deserializeDouble(reader);
 		}
 	};
-	static JsonWriter.WriteObject<Double> DoubleWriter = new JsonWriter.WriteObject<Double>() {
+	static final JsonWriter.WriteObject<Double> DoubleWriter = new JsonWriter.WriteObject<Double>() {
 		@Override
 		public void write(JsonWriter writer, Double value) {
 			serializeNullable(value, writer);
 		}
 	};
-	static JsonReader.ReadObject<Float> FloatReader = new JsonReader.ReadObject<Float>() {
+	static final JsonReader.ReadObject<Float> FloatReader = new JsonReader.ReadObject<Float>() {
 		@Override
 		public Float read(JsonReader reader) throws IOException {
 			return deserializeFloat(reader);
 		}
 	};
-	static JsonWriter.WriteObject<Float> FloatWriter = new JsonWriter.WriteObject<Float>() {
+	static final JsonWriter.WriteObject<Float> FloatWriter = new JsonWriter.WriteObject<Float>() {
 		@Override
 		public void write(JsonWriter writer, Float value) {
 			serializeNullable(value, writer);
 		}
 	};
-	static JsonReader.ReadObject<Integer> IntReader = new JsonReader.ReadObject<Integer>() {
+	static final JsonReader.ReadObject<Integer> IntReader = new JsonReader.ReadObject<Integer>() {
 		@Override
 		public Integer read(JsonReader reader) throws IOException {
 			return deserializeInt(reader);
 		}
 	};
-	static JsonWriter.WriteObject<Integer> IntWriter = new JsonWriter.WriteObject<Integer>() {
+	static final JsonWriter.WriteObject<Integer> IntWriter = new JsonWriter.WriteObject<Integer>() {
 		@Override
 		public void write(JsonWriter writer, Integer value) {
 			serializeNullable(value, writer);
 		}
 	};
-	static JsonReader.ReadObject<Long> LongReader = new JsonReader.ReadObject<Long>() {
+	static final JsonReader.ReadObject<Long> LongReader = new JsonReader.ReadObject<Long>() {
 		@Override
 		public Long read(JsonReader reader) throws IOException {
 			return deserializeLong(reader);
 		}
 	};
-	static JsonWriter.WriteObject<Long> LongWriter = new JsonWriter.WriteObject<Long>() {
+	static final JsonWriter.WriteObject<Long> LongWriter = new JsonWriter.WriteObject<Long>() {
 		@Override
 		public void write(JsonWriter writer, Long value) {
 			serializeNullable(value, writer);
 		}
 	};
-	static JsonReader.ReadObject<BigDecimal> DecimalReader = new JsonReader.ReadObject<BigDecimal>() {
+	static final JsonReader.ReadObject<BigDecimal> DecimalReader = new JsonReader.ReadObject<BigDecimal>() {
 		@Override
 		public BigDecimal read(JsonReader reader) throws IOException {
 			return deserializeDecimal(reader);
 		}
 	};
-	static JsonWriter.WriteObject<BigDecimal> DecimalWriter = new JsonWriter.WriteObject<BigDecimal>() {
+	static final JsonWriter.WriteObject<BigDecimal> DecimalWriter = new JsonWriter.WriteObject<BigDecimal>() {
 		@Override
 		public void write(JsonWriter writer, BigDecimal value) {
 			serializeNullable(value, writer);

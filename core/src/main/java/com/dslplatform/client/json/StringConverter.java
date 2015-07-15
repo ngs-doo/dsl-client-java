@@ -7,13 +7,13 @@ import java.util.List;
 
 public class StringConverter {
 
-	static JsonReader.ReadObject<String> Reader = new JsonReader.ReadObject<String>() {
+	static final JsonReader.ReadObject<String> Reader = new JsonReader.ReadObject<String>() {
 		@Override
 		public String read(JsonReader reader) throws IOException {
-			return deserialize(reader);
+			return reader.readString();
 		}
 	};
-	static JsonWriter.WriteObject<String> Writer = new JsonWriter.WriteObject<String>() {
+	static final JsonWriter.WriteObject<String> Writer = new JsonWriter.WriteObject<String>() {
 		@Override
 		public void write(JsonWriter writer, String value) {
 			serializeNullable(value, writer);
@@ -75,10 +75,10 @@ public class StringConverter {
 	public static void serialize(final List<String> list, final JsonWriter writer) {
 		writer.writeByte(JsonWriter.ARRAY_START);
 		if (list.size() != 0) {
-			serialize(list.get(0), writer);
+			writer.writeString(list.get(0));
 			for (int i = 1; i < list.size(); i++) {
 				writer.writeByte(JsonWriter.COMMA);
-				serialize(list.get(i), writer);
+				writer.writeString(list.get(i));
 			}
 		}
 		writer.writeByte(JsonWriter.ARRAY_END);

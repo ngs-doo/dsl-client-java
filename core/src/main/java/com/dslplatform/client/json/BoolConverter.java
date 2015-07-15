@@ -6,13 +6,13 @@ import java.util.Collection;
 
 public class BoolConverter {
 
-	static JsonReader.ReadObject<Boolean> BooleanReader = new JsonReader.ReadObject<Boolean>() {
+	static final JsonReader.ReadObject<Boolean> BooleanReader = new JsonReader.ReadObject<Boolean>() {
 		@Override
 		public Boolean read(JsonReader reader) throws IOException {
 			return deserialize(reader);
 		}
 	};
-	static JsonWriter.WriteObject<Boolean> BooleanWriter = new JsonWriter.WriteObject<Boolean>() {
+	static final JsonWriter.WriteObject<Boolean> BooleanWriter = new JsonWriter.WriteObject<Boolean>() {
 		@Override
 		public void write(JsonWriter writer, Boolean value) {
 			serializeNullable(value, writer);

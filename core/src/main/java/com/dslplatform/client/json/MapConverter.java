@@ -5,25 +5,25 @@ import java.util.*;
 
 public class MapConverter {
 
-	private static JsonReader.ReadObject<Map<String, String>> TypedMapReader = new JsonReader.ReadObject<Map<String, String>>() {
+	private static final JsonReader.ReadObject<Map<String, String>> TypedMapReader = new JsonReader.ReadObject<Map<String, String>>() {
 		@Override
 		public Map<String, String> read(JsonReader reader) throws IOException {
 			return deserialize(reader);
 		}
 	};
-	static JsonReader.ReadObject<Map> MapReader = new JsonReader.ReadObject<Map>() {
+	static final JsonReader.ReadObject<Map> MapReader = new JsonReader.ReadObject<Map>() {
 		@Override
 		public Map read(JsonReader reader) throws IOException {
 			return deserialize(reader);
 		}
 	};
-	static JsonWriter.WriteObject<Map> MapWriter = new JsonWriter.WriteObject<Map>() {
+	static final JsonWriter.WriteObject<Map> MapWriter = new JsonWriter.WriteObject<Map>() {
 		@Override
 		public void write(JsonWriter writer, Map value) {
 			serializeNullable(value, writer);
 		}
 	};
-	static JsonWriter.WriteObject<HashMap> HashMapWriter = new JsonWriter.WriteObject<HashMap>() {
+	static final JsonWriter.WriteObject<HashMap> HashMapWriter = new JsonWriter.WriteObject<HashMap>() {
 		@Override
 		public void write(JsonWriter writer, HashMap value) {
 			serializeNullable(value, writer);

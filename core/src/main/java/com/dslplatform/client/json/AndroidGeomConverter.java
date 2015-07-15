@@ -9,49 +9,49 @@ import java.util.Collection;
 
 public class AndroidGeomConverter {
 
-	static JsonReader.ReadObject<PointF> LocationReader = new JsonReader.ReadObject<PointF>() {
+	static final JsonReader.ReadObject<PointF> LocationReader = new JsonReader.ReadObject<PointF>() {
 		@Override
 		public PointF read(JsonReader reader) throws IOException {
 			return deserializeLocation(reader);
 		}
 	};
-	static JsonWriter.WriteObject<PointF> LocationWriter = new JsonWriter.WriteObject<PointF>() {
+	static final JsonWriter.WriteObject<PointF> LocationWriter = new JsonWriter.WriteObject<PointF>() {
 		@Override
 		public void write(JsonWriter writer, PointF value) {
 			serializeLocationNullable(value, writer);
 		}
 	};
-	static JsonReader.ReadObject<Point> PointReader = new JsonReader.ReadObject<Point>() {
+	static final JsonReader.ReadObject<Point> PointReader = new JsonReader.ReadObject<Point>() {
 		@Override
 		public Point read(JsonReader reader) throws IOException {
 			return deserializePoint(reader);
 		}
 	};
-	static JsonWriter.WriteObject<Point> PointWriter = new JsonWriter.WriteObject<Point>() {
+	static final JsonWriter.WriteObject<Point> PointWriter = new JsonWriter.WriteObject<Point>() {
 		@Override
 		public void write(JsonWriter writer, Point value) {
 			serializePointNullable(value, writer);
 		}
 	};
-	static JsonReader.ReadObject<Rect> RectangleReader = new JsonReader.ReadObject<Rect>() {
+	static final JsonReader.ReadObject<Rect> RectangleReader = new JsonReader.ReadObject<Rect>() {
 		@Override
 		public Rect read(JsonReader reader) throws IOException {
 			return deserializeRectangle(reader);
 		}
 	};
-	static JsonWriter.WriteObject<Rect> RectangleWriter = new JsonWriter.WriteObject<Rect>() {
+	static final JsonWriter.WriteObject<Rect> RectangleWriter = new JsonWriter.WriteObject<Rect>() {
 		@Override
 		public void write(JsonWriter writer, Rect value) {
 			serializeRectangleNullable(value, writer);
 		}
 	};
-	static JsonReader.ReadObject<Bitmap> ImageReader = new JsonReader.ReadObject<Bitmap>() {
+	static final JsonReader.ReadObject<Bitmap> ImageReader = new JsonReader.ReadObject<Bitmap>() {
 		@Override
 		public Bitmap read(JsonReader reader) throws IOException {
 			return deserializeImage(reader);
 		}
 	};
-	static JsonWriter.WriteObject<Bitmap> ImageWriter = new JsonWriter.WriteObject<Bitmap>() {
+	static final JsonWriter.WriteObject<Bitmap> ImageWriter = new JsonWriter.WriteObject<Bitmap>() {
 		@Override
 		public void write(JsonWriter writer, Bitmap value) {
 			serialize(value, writer);

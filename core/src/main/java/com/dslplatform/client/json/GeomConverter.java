@@ -12,79 +12,79 @@ import java.util.Collection;
 
 public class GeomConverter {
 
-	static JsonReader.ReadObject<Point2D> LocationReader = new JsonReader.ReadObject<Point2D>() {
+	static final JsonReader.ReadObject<Point2D> LocationReader = new JsonReader.ReadObject<Point2D>() {
 		@Override
 		public Point2D read(JsonReader reader) throws IOException {
 			return deserializeLocation(reader);
 		}
 	};
-	static JsonWriter.WriteObject<Point2D> LocationWriter = new JsonWriter.WriteObject<Point2D>() {
+	static final JsonWriter.WriteObject<Point2D> LocationWriter = new JsonWriter.WriteObject<Point2D>() {
 		@Override
 		public void write(JsonWriter writer, Point2D value) {
 			serializeLocationNullable(value, writer);
 		}
 	};
-	static JsonWriter.WriteObject<Point2D.Double> LocationWriterDouble = new JsonWriter.WriteObject<Point2D.Double>() {
+	static final JsonWriter.WriteObject<Point2D.Double> LocationWriterDouble = new JsonWriter.WriteObject<Point2D.Double>() {
 		@Override
 		public void write(JsonWriter writer, Point2D.Double value) {
 			serializeLocationNullable(value, writer);
 		}
 	};
-	static JsonWriter.WriteObject<Point2D.Float> LocationWriterFloat = new JsonWriter.WriteObject<Point2D.Float>() {
+	static final JsonWriter.WriteObject<Point2D.Float> LocationWriterFloat = new JsonWriter.WriteObject<Point2D.Float>() {
 		@Override
 		public void write(JsonWriter writer, Point2D.Float value) {
 			serializeLocationNullable(value, writer);
 		}
 	};
-	static JsonReader.ReadObject<Point> PointReader = new JsonReader.ReadObject<Point>() {
+	static final JsonReader.ReadObject<Point> PointReader = new JsonReader.ReadObject<Point>() {
 		@Override
 		public Point read(JsonReader reader) throws IOException {
 			return deserializePoint(reader);
 		}
 	};
-	static JsonWriter.WriteObject<Point> PointWriter = new JsonWriter.WriteObject<Point>() {
+	static final JsonWriter.WriteObject<Point> PointWriter = new JsonWriter.WriteObject<Point>() {
 		@Override
 		public void write(JsonWriter writer, Point value) {
 			serializePointNullable(value, writer);
 		}
 	};
-	static JsonReader.ReadObject<Rectangle2D> RectangleReader = new JsonReader.ReadObject<Rectangle2D>() {
+	static final JsonReader.ReadObject<Rectangle2D> RectangleReader = new JsonReader.ReadObject<Rectangle2D>() {
 		@Override
 		public Rectangle2D read(JsonReader reader) throws IOException {
 			return deserializeRectangle(reader);
 		}
 	};
-	static JsonWriter.WriteObject<Rectangle2D> RectangleWriter = new JsonWriter.WriteObject<Rectangle2D>() {
+	static final JsonWriter.WriteObject<Rectangle2D> RectangleWriter = new JsonWriter.WriteObject<Rectangle2D>() {
 		@Override
 		public void write(JsonWriter writer, Rectangle2D value) {
 			serializeRectangleNullable(value, writer);
 		}
 	};
-	static JsonWriter.WriteObject<Rectangle2D.Double> RectangleWriterDouble = new JsonWriter.WriteObject<Rectangle2D.Double>() {
+	static final JsonWriter.WriteObject<Rectangle2D.Double> RectangleWriterDouble = new JsonWriter.WriteObject<Rectangle2D.Double>() {
 		@Override
 		public void write(JsonWriter writer, Rectangle2D.Double value) {
 			serializeRectangleNullable(value, writer);
 		}
 	};
-	static JsonWriter.WriteObject<Rectangle2D.Float> RectangleWriterFloat = new JsonWriter.WriteObject<Rectangle2D.Float>() {
+	static final JsonWriter.WriteObject<Rectangle2D.Float> RectangleWriterFloat = new JsonWriter.WriteObject<Rectangle2D.Float>() {
 		@Override
 		public void write(JsonWriter writer, Rectangle2D.Float value) {
 			serializeRectangleNullable(value, writer);
 		}
 	};
-	static JsonReader.ReadObject<BufferedImage> ImageReader = new JsonReader.ReadObject<BufferedImage>() {
+	static final JsonReader.ReadObject<BufferedImage> ImageReader = new JsonReader.ReadObject<BufferedImage>() {
 		@Override
 		public BufferedImage read(JsonReader reader) throws IOException {
 			return deserializeImage(reader);
 		}
 	};
-	static JsonWriter.WriteObject<Image> ImageWriter = new JsonWriter.WriteObject<Image>() {
+	static final JsonWriter.WriteObject<Image> ImageWriter = new JsonWriter.WriteObject<Image>() {
 		@Override
 		public void write(JsonWriter writer, Image value) {
 			serialize(value, writer);
 		}
 	};
-	static JsonWriter.WriteObject<BufferedImage> BufferedImageWriter = new JsonWriter.WriteObject<BufferedImage>() {
+	static final JsonWriter.WriteObject<BufferedImage> BufferedImageWriter = new JsonWriter.WriteObject<BufferedImage>() {
 		@Override
 		public void write(JsonWriter writer, BufferedImage value) {
 			serialize(value, writer);

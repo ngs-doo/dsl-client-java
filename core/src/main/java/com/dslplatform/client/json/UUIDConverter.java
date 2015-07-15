@@ -8,13 +8,13 @@ import java.util.UUID;
 public class UUIDConverter {
 
 	public static final UUID MIN_UUID = new java.util.UUID(0L, 0L);
-	static JsonReader.ReadObject<UUID> Reader = new JsonReader.ReadObject<UUID>() {
+	static final JsonReader.ReadObject<UUID> Reader = new JsonReader.ReadObject<UUID>() {
 		@Override
 		public UUID read(JsonReader reader) throws IOException {
 			return deserialize(reader);
 		}
 	};
-	static JsonWriter.WriteObject<UUID> Writer = new JsonWriter.WriteObject<UUID>() {
+	static final JsonWriter.WriteObject<UUID> Writer = new JsonWriter.WriteObject<UUID>() {
 		@Override
 		public void write(JsonWriter writer, UUID value) {
 			serializeNullable(value, writer);

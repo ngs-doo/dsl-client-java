@@ -18,13 +18,13 @@ import java.util.Collection;
 
 public class XmlConverter {
 
-	static JsonReader.ReadObject<Element> Reader = new JsonReader.ReadObject<Element>() {
+	static final JsonReader.ReadObject<Element> Reader = new JsonReader.ReadObject<Element>() {
 		@Override
 		public Element read(JsonReader reader) throws IOException {
 			return deserialize(reader);
 		}
 	};
-	static JsonWriter.WriteObject<Element> Writer = new JsonWriter.WriteObject<Element>() {
+	static final JsonWriter.WriteObject<Element> Writer = new JsonWriter.WriteObject<Element>() {
 		@Override
 		public void write(JsonWriter writer, Element value) {
 			serializeNullable(value, writer);

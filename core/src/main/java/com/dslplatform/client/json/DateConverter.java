@@ -17,25 +17,25 @@ public class DateConverter {
 	private static final DateTimeFormatter dateTimeParser = ISODateTimeFormat.dateTimeParser().withOffsetParsed();
 	private static final DateTimeZone utcZone = DateTimeZone.UTC;
 
-	static JsonReader.ReadObject<LocalDate> LocalDateReader = new JsonReader.ReadObject<LocalDate>() {
+	static final JsonReader.ReadObject<LocalDate> LocalDateReader = new JsonReader.ReadObject<LocalDate>() {
 		@Override
 		public LocalDate read(final JsonReader reader) throws IOException {
 			return deserializeLocalDate(reader);
 		}
 	};
-	static JsonWriter.WriteObject<LocalDate> LocalDateWriter = new JsonWriter.WriteObject<LocalDate>() {
+	static final JsonWriter.WriteObject<LocalDate> LocalDateWriter = new JsonWriter.WriteObject<LocalDate>() {
 		@Override
 		public void write(JsonWriter writer, LocalDate value) {
 			serializeNullable(value, writer);
 		}
 	};
-	static JsonReader.ReadObject<DateTime> DateTimeReader = new JsonReader.ReadObject<DateTime>() {
+	static final JsonReader.ReadObject<DateTime> DateTimeReader = new JsonReader.ReadObject<DateTime>() {
 		@Override
 		public DateTime read(JsonReader reader) throws IOException {
 			return deserializeDateTime(reader);
 		}
 	};
-	static JsonWriter.WriteObject<DateTime> DateTimeWriter = new JsonWriter.WriteObject<DateTime>() {
+	static final JsonWriter.WriteObject<DateTime> DateTimeWriter = new JsonWriter.WriteObject<DateTime>() {
 		@Override
 		public void write(JsonWriter writer, DateTime value) {
 			serializeNullable(value, writer);

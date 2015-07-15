@@ -10,13 +10,13 @@ import java.util.Map;
 
 public class StorageConverter {
 
-	static JsonReader.ReadObject<S3> S3Reader = new JsonReader.ReadObject<S3>() {
+	static final JsonReader.ReadObject<S3> S3Reader = new JsonReader.ReadObject<S3>() {
 		@Override
 		public S3 read(JsonReader reader) throws IOException {
 			return deserializeS3(reader);
 		}
 	};
-	static JsonWriter.WriteObject<S3> S3Writer = new JsonWriter.WriteObject<S3>() {
+	static final JsonWriter.WriteObject<S3> S3Writer = new JsonWriter.WriteObject<S3>() {
 		@Override
 		public void write(JsonWriter writer, S3 value) {
 			if (value == null) {
