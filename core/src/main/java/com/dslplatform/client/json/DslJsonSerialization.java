@@ -29,15 +29,11 @@ public class DslJsonSerialization implements JsonSerialization {
 		registerReader(Boolean.class, BoolConverter.BooleanReader);
 		registerWriter(boolean.class, BoolConverter.BooleanWriter);
 		registerWriter(Boolean.class, BoolConverter.BooleanWriter);
-		//TODO: localdate/datetime should be optional
-		registerReader(LocalDate.class, DateConverter.LocalDateReader);
-		registerWriter(LocalDate.class, DateConverter.LocalDateWriter);
-		registerReader(DateTime.class, DateConverter.DateTimeReader);
-		registerWriter(DateTime.class, DateConverter.DateTimeWriter);
+		registerJodaConverters(this);
 		if (Utils.IS_ANDROID) {
-			registerAndroidSpecifics();
+			registerAndroidSpecifics(this);
 		} else {
-			registerJavaSpecifics();
+			registerJavaSpecifics(this);
 		}
 		registerReader(Map.class, MapConverter.MapReader);
 		registerWriter(Map.class, MapConverter.MapWriter);
@@ -74,31 +70,38 @@ public class DslJsonSerialization implements JsonSerialization {
 		registerWriter(S3.class, StorageConverter.S3Writer);
 	}
 
-	void registerAndroidSpecifics() {
-		registerReader(android.graphics.PointF.class, AndroidGeomConverter.LocationReader);
-		registerWriter(android.graphics.PointF.class, AndroidGeomConverter.LocationWriter);
-		registerReader(android.graphics.Point.class, AndroidGeomConverter.PointReader);
-		registerWriter(android.graphics.Point.class, AndroidGeomConverter.PointWriter);
-		registerReader(android.graphics.Rect.class, AndroidGeomConverter.RectangleReader);
-		registerWriter(android.graphics.Rect.class, AndroidGeomConverter.RectangleWriter);
-		registerReader(android.graphics.Bitmap.class, AndroidGeomConverter.ImageReader);
-		registerWriter(android.graphics.Bitmap.class, AndroidGeomConverter.ImageWriter);
+	static void registerAndroidSpecifics(final DslJsonSerialization json) {
+		json.registerReader(android.graphics.PointF.class, AndroidGeomConverter.LocationReader);
+		json.registerWriter(android.graphics.PointF.class, AndroidGeomConverter.LocationWriter);
+		json.registerReader(android.graphics.Point.class, AndroidGeomConverter.PointReader);
+		json.registerWriter(android.graphics.Point.class, AndroidGeomConverter.PointWriter);
+		json.registerReader(android.graphics.Rect.class, AndroidGeomConverter.RectangleReader);
+		json.registerWriter(android.graphics.Rect.class, AndroidGeomConverter.RectangleWriter);
+		json.registerReader(android.graphics.Bitmap.class, AndroidGeomConverter.ImageReader);
+		json.registerWriter(android.graphics.Bitmap.class, AndroidGeomConverter.ImageWriter);
 	}
 
-	void registerJavaSpecifics() {
-		registerReader(java.awt.geom.Point2D.class, GeomConverter.LocationReader);
-		registerWriter(java.awt.geom.Point2D.class, GeomConverter.LocationWriter);
-		registerWriter(java.awt.geom.Point2D.Double.class, GeomConverter.LocationWriterDouble);
-		registerWriter(java.awt.geom.Point2D.Float.class, GeomConverter.LocationWriterFloat);
-		registerReader(java.awt.Point.class, GeomConverter.PointReader);
-		registerWriter(java.awt.Point.class, GeomConverter.PointWriter);
-		registerReader(java.awt.geom.Rectangle2D.class, GeomConverter.RectangleReader);
-		registerWriter(java.awt.geom.Rectangle2D.class, GeomConverter.RectangleWriter);
-		registerWriter(java.awt.geom.Rectangle2D.Double.class, GeomConverter.RectangleWriterDouble);
-		registerWriter(java.awt.geom.Rectangle2D.Float.class, GeomConverter.RectangleWriterFloat);
-		registerReader(java.awt.image.BufferedImage.class, GeomConverter.ImageReader);
-		registerWriter(java.awt.Image.class, GeomConverter.ImageWriter);
-		registerWriter(java.awt.image.BufferedImage.class, GeomConverter.BufferedImageWriter);
+	static void registerJodaConverters(final DslJsonSerialization json) {
+		json.registerReader(LocalDate.class, DateConverter.LocalDateReader);
+		json.registerWriter(LocalDate.class, DateConverter.LocalDateWriter);
+		json.registerReader(DateTime.class, DateConverter.DateTimeReader);
+		json.registerWriter(DateTime.class, DateConverter.DateTimeWriter);
+	}
+
+	static void registerJavaSpecifics(final DslJsonSerialization json) {
+		json.registerReader(java.awt.geom.Point2D.class, GeomConverter.LocationReader);
+		json.registerWriter(java.awt.geom.Point2D.class, GeomConverter.LocationWriter);
+		json.registerWriter(java.awt.geom.Point2D.Double.class, GeomConverter.LocationWriterDouble);
+		json.registerWriter(java.awt.geom.Point2D.Float.class, GeomConverter.LocationWriterFloat);
+		json.registerReader(java.awt.Point.class, GeomConverter.PointReader);
+		json.registerWriter(java.awt.Point.class, GeomConverter.PointWriter);
+		json.registerReader(java.awt.geom.Rectangle2D.class, GeomConverter.RectangleReader);
+		json.registerWriter(java.awt.geom.Rectangle2D.class, GeomConverter.RectangleWriter);
+		json.registerWriter(java.awt.geom.Rectangle2D.Double.class, GeomConverter.RectangleWriterDouble);
+		json.registerWriter(java.awt.geom.Rectangle2D.Float.class, GeomConverter.RectangleWriterFloat);
+		json.registerReader(java.awt.image.BufferedImage.class, GeomConverter.ImageReader);
+		json.registerWriter(java.awt.Image.class, GeomConverter.ImageWriter);
+		json.registerWriter(java.awt.image.BufferedImage.class, GeomConverter.BufferedImageWriter);
 	}
 
 	private static boolean isNull(final int size, final byte[] body) {
@@ -175,12 +178,16 @@ public class DslJsonSerialization implements JsonSerialization {
 					return null;
 				}
 				final Object result = Array.newInstance(elementManifest, list.size());
-				for(int i = 0; i < list.size(); i++) {
+				for (int i = 0; i < list.size(); i++) {
 					Array.set(result, i, list.get(i));
 				}
-				return (TResult)result;
+				return (TResult) result;
 			}
-			throw new IOException("Unable to find reader for provided type: " + manifest);
+			if (Utils.HAS_JACKSON) {
+				return deserializeJackson(locator, manifest, body, size);
+			}
+			throw new IOException("Unable to find reader for provided type: " + manifest + " and Jackson is not found on classpath.\n" +
+					"Try initializing system with custom JsonSerialization.");
 		}
 		final JsonReader json = new JsonReader(body, size, locator);
 		json.getNextToken();
@@ -188,6 +195,24 @@ public class DslJsonSerialization implements JsonSerialization {
 			return null;
 		}
 		return (TResult) simpleReader.read(json);
+	}
+
+	private static <TResult> TResult deserializeJackson(
+			final ServiceLocator locator,
+			final Class<TResult> manifest,
+			final byte[] body,
+			final int size) throws IOException {
+		final JacksonJsonSerialization jackson = new JacksonJsonSerialization(locator);
+		return jackson.deserialize(manifest, body, size);
+	}
+
+	private static <TResult> List<TResult> deserializeJacksonList(
+			final ServiceLocator locator,
+			final Class<TResult> manifest,
+			final byte[] body,
+			final int size) throws IOException {
+		final JacksonJsonSerialization jackson = new JacksonJsonSerialization(locator);
+		return jackson.deserializeList(manifest, body, size);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -217,7 +242,11 @@ public class DslJsonSerialization implements JsonSerialization {
 		}
 		final JsonReader.ReadObject<?> simpleReader = jsonReaders.get(manifest);
 		if (simpleReader == null) {
-			throw new IOException("Unable to find reader for provided type: " + manifest);
+			if (Utils.HAS_JACKSON) {
+				return deserializeJacksonList(locator, manifest, body, size);
+			}
+			throw new IOException("Unable to find reader for provided type: " + manifest + " and Jackson is not found on classpath.\n" +
+					"Try initializing system with custom JsonSerialization.");
 		}
 		return json.deserializeNullableCollection((JsonReader.ReadObject<TResult>) simpleReader);
 	}
@@ -484,7 +513,7 @@ public class DslJsonSerialization implements JsonSerialization {
 				} else if (elementManifest == long.class) {
 					NumberConverter.serialize((long[]) value, writer);
 				} else if (elementManifest == byte.class) {
-					BinaryConverter.serialize((byte[])value, writer);
+					BinaryConverter.serialize((byte[]) value, writer);
 				} else if (elementManifest == short.class) {
 					NumberConverter.serialize((short[]) value, writer);
 				} else if (elementManifest == float.class) {

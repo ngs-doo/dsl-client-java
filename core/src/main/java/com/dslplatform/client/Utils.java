@@ -160,9 +160,17 @@ public class Utils {
 	}
 
 	public static final boolean IS_ANDROID;
+	public static final boolean HAS_JACKSON;
 
 	static {
 		IS_ANDROID = System.getProperty("java.runtime.name").toLowerCase(Locale.ENGLISH).contains("android");
+		boolean foundJackson = false;
+		try {
+			Class.forName("com.fasterxml.jackson.databind.ObjectMapper", false, null);
+			foundJackson = true;
+		} catch(Exception ignore) {
+		}
+		HAS_JACKSON = foundJackson;
 	}
 
 	static class AndroidEncoding {
