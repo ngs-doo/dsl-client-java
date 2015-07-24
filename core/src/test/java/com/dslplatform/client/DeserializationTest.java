@@ -1,16 +1,17 @@
 package com.dslplatform.client;
 
+import com.dslplatform.client.json.DslJsonSerialization;
 import com.dslplatform.client.json.JacksonJsonSerialization;
 import com.dslplatform.client.json.JsonObject;
 import com.dslplatform.client.json.JsonWriter;
-import com.dslplatform.patterns.AggregateRoot;
-import com.dslplatform.patterns.History;
-import com.dslplatform.patterns.ServiceLocator;
-import com.dslplatform.patterns.Snapshot;
+import com.dslplatform.patterns.*;
+import com.dslplatform.test.complex.SimpleEventWithIntParams;
+import com.dslplatform.test.detailtest.Node;
 import com.dslplatform.test.simple.SimpleRoot;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import junit.framework.Assert;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -72,6 +73,7 @@ public class DeserializationTest {
 		assertEquals("UPDATE", simpleRootSnapshot1.getAction());
 		assertEquals("UPDATE", simpleRootSnapshot2.getAction());
 		assertEquals(5, simpleRootSnapshot1.getValue().getI());
+		//TODO: requires Jackson to be correct
 		assertEquals(simpleRootSnapshot1.getValue(), simpleRootSnapshot2.getValue());
 	}
 
@@ -131,5 +133,25 @@ public class DeserializationTest {
 		final String json = jw.toString();
 		assertTrue(json.startsWith("{\"RootName\":\"simple.SimpleRoot\",\"ToInsert\":\"[{\\\"URI\\\":\\\""));
 		assertTrue(json.contains("\",\"ToUpdate\":\"[{\\\"Key\\\":{\\\"URI\\\":\\\""));
+	}
+
+	@Test
+	public void testEmptyArrayManual() throws Exception {
+		final DslJsonSerialization json = new DslJsonSerialization(null);
+		final Bytes bytes = json.serialize(new SimpleEventWithIntParams());
+		final String value = bytes.toUtf8();
+		assertTrue(value.contains("\"intarr\":[]"));
+		SimpleEventWithIntParams se = json.deserialize(SimpleEventWithIntParams.class, bytes.content, bytes.length);
+		assertSame(0, se.getIntarr().length);
+	}
+
+	@Test
+	public void testEmptyDetailManual() throws Exception {
+		final DslJsonSerialization json = new DslJsonSerialization(null);
+		final Bytes bytes = json.serialize(new Node());
+		final String value = bytes.toUtf8();
+		assertTrue(value.contains("\"leafsURI\":[]"));
+		Node se = json.deserialize(Node.class, bytes.content, bytes.length);
+		assertSame(0, se.getLeafsURI().length);
 	}
 }

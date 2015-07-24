@@ -6,7 +6,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 import com.dslplatform.patterns.AggregateDomainEvent;
 import com.dslplatform.patterns.AggregateRoot;
@@ -52,12 +54,21 @@ class HttpDomainProxy implements DomainProxy {
 	public <T extends Identifiable> Future<List<T>> find(final Class<T> manifest, final Iterable<String> uris) {
 		if (uris == null) throw new IllegalArgumentException("uris can't be null.");
 		final String domainName = client.getDslName(manifest);
+		final GetArgument arg = new GetArgument(domainName, uris);
+		if (arg.Uri.isEmpty()) {
+			return new FutureTask<List<T>>(new Callable<List<T>>() {
+				@Override
+				public List<T> call() throws Exception {
+					return new ArrayList<T>(0);
+				}
+			});
+		}
 
 		return client.sendCollectionRequest(
 				manifest,
 				APPLICATION_URI + "GetDomainObject",
 				"POST",
-				new GetArgument(domainName, uris),
+				arg,
 				new int[]{200});
 	}
 

@@ -150,4 +150,18 @@ public class ManualJsonTest {
 		java.awt.geom.Rectangle2D deser_r = json.deserialize(java.awt.geom.Rectangle2D.class, res, res.length);
 		assertEquals(orig_r, deser_r);
 	}
+
+	@Test
+	public void emptyArray() throws IOException {
+		final JsonSerialization json = new DslJsonSerialization(null);
+		int[] output = json.deserialize(int[].class, new byte[] {'[', ']'}, 2);
+		assertEquals(0, output.length);
+	}
+
+	@Test
+	public void emptyArrayWithSpaces() throws IOException {
+		final JsonSerialization json = new DslJsonSerialization(null);
+		int[] output = json.deserialize(int[].class, new byte[]{'[', ' ', ' ', ']'}, 4);
+		assertEquals(0, output.length);
+	}
 }

@@ -184,7 +184,7 @@ public class DslJsonSerialization implements JsonSerialization {
 				return (TResult) result;
 			}
 			if (Utils.HAS_JACKSON) {
-				return deserializeJackson(locator, manifest, body, size);
+				return deserializeJackson(this, manifest, body, size);
 			}
 			throw new IOException("Unable to find reader for provided type: " + manifest + " and Jackson is not found on classpath.\n" +
 					"Try initializing system with custom JsonSerialization.");
@@ -197,22 +197,31 @@ public class DslJsonSerialization implements JsonSerialization {
 		return (TResult) simpleReader.read(json);
 	}
 
+	private Object jackson;
+
 	private static <TResult> TResult deserializeJackson(
-			final ServiceLocator locator,
+			final DslJsonSerialization json,
 			final Class<TResult> manifest,
 			final byte[] body,
 			final int size) throws IOException {
-		final JacksonJsonSerialization jackson = new JacksonJsonSerialization(locator);
-		return jackson.deserialize(manifest, body, size);
+		if (json.jackson == null) json.jackson = new JacksonJsonSerialization(json.locator);
+		return ((JacksonJsonSerialization)json.jackson).deserialize(manifest, body, size);
 	}
 
 	private static <TResult> List<TResult> deserializeJacksonList(
-			final ServiceLocator locator,
+			final DslJsonSerialization json,
 			final Class<TResult> manifest,
 			final byte[] body,
 			final int size) throws IOException {
-		final JacksonJsonSerialization jackson = new JacksonJsonSerialization(locator);
-		return jackson.deserializeList(manifest, body, size);
+		if (json.jackson == null) json.jackson = new JacksonJsonSerialization(json.locator);
+		return ((JacksonJsonSerialization)json.jackson).deserializeList(manifest, body, size);
+	}
+
+	private static Bytes serializeJackson(
+			final DslJsonSerialization json,
+			final Object value) throws IOException {
+		if (json.jackson == null) json.jackson = new JacksonJsonSerialization(json.locator);
+		return ((JacksonJsonSerialization)json.jackson).serialize(value);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -233,7 +242,9 @@ public class DslJsonSerialization implements JsonSerialization {
 			}
 			throw new IOException("Expecting '[' as array start. Found: " + (char) json.last());
 		}
-		json.getNextToken();
+		if (json.getNextToken() == ']') {
+			return new ArrayList<TResult>(0);
+		}
 		if (JsonObject.class.isAssignableFrom(manifest)) {
 			final JsonReader.ReadJsonObject<JsonObject> reader = getObjectReader(manifest);
 			if (reader != null) {
@@ -243,7 +254,7 @@ public class DslJsonSerialization implements JsonSerialization {
 		final JsonReader.ReadObject<?> simpleReader = jsonReaders.get(manifest);
 		if (simpleReader == null) {
 			if (Utils.HAS_JACKSON) {
-				return deserializeJacksonList(locator, manifest, body, size);
+				return deserializeJacksonList(this, manifest, body, size);
 			}
 			throw new IOException("Unable to find reader for provided type: " + manifest + " and Jackson is not found on classpath.\n" +
 					"Try initializing system with custom JsonSerialization.");
@@ -583,6 +594,9 @@ public class DslJsonSerialization implements JsonSerialization {
 		final JsonWriter jw = new JsonWriter();
 		final Class<?> manifest = value.getClass();
 		if (!serialize(jw, manifest, value)) {
+			if (Utils.HAS_JACKSON) {
+				return serializeJackson(this, value);
+			}
 			throw new IOException("Unable to serialize provided object. Failed to find serializer for: " + manifest);
 		}
 		return jw.toBytes();
