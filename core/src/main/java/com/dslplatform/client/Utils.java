@@ -166,7 +166,7 @@ public class Utils {
 		IS_ANDROID = System.getProperty("java.runtime.name").toLowerCase(Locale.ENGLISH).contains("android");
 		boolean foundJackson = false;
 		try {
-			Class.forName("com.fasterxml.jackson.databind.ObjectMapper", false, null);
+			Class.forName("com.fasterxml.jackson.databind.ObjectMapper", false, Thread.currentThread().getContextClassLoader());
 			foundJackson = true;
 		} catch(Exception ignore) {
 		}
