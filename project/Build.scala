@@ -113,7 +113,11 @@ object Build extends Build with Default with Dependencies {
       , logback % "test"
       , xmlUnit % "test"
       )
-    , unmanagedSourceDirectories in Test := Seq((javaSource in Test).value)
+    , unmanagedSourceDirectories in Test := Seq(
+        (javaSource in Test).value
+      /* Uncomment next line to enable JSON serialization generated tests */
+      // , sourceDirectory.value / "test" / "java-generated"
+      )
     , testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v")
     , EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource
     , createVersionProperties

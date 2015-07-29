@@ -153,10 +153,10 @@ public class Utils {
 		return byteArrayOutputStream.toByteArray();
 	}
 
-	private static final DslJsonSerialization staticJson = new DslJsonSerialization(null);
+	static final DslJsonSerialization STATIC_JSON = new DslJsonSerialization(null);
 
 	static String serialize(final Object value) throws IOException {
-		return staticJson.serialize(value).toUtf8();
+		return STATIC_JSON.serialize(value).toUtf8();
 	}
 
 	public static final boolean IS_ANDROID;
