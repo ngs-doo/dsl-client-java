@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class StringConverter {
+public abstract class StringConverter {
 
 	static final JsonReader.ReadObject<String> Reader = new JsonReader.ReadObject<String>() {
 		@Override

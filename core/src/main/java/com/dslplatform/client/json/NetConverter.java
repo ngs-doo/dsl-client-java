@@ -6,7 +6,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class NetConverter {
+public abstract class NetConverter {
 
 	static final JsonReader.ReadObject<URI> UriReader = new JsonReader.ReadObject<URI>() {
 		@Override

@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class AndroidGeomConverter {
+public abstract class AndroidGeomConverter {
 
 	static final JsonReader.ReadObject<PointF> LocationReader = new JsonReader.ReadObject<PointF>() {
 		@Override

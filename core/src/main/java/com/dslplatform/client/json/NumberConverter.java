@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
-public class NumberConverter {
+public abstract class NumberConverter {
 
 	private final static int[] Digits = new int[100];
 	private final static double[] POW_10 = new double[16];
@@ -170,7 +170,7 @@ public class NumberConverter {
 		}
 	}
 
-	static class NumberInfo {
+	private static class NumberInfo {
 		public final char[] buffer;
 		public final int length;
 		public NumberInfo(final char[] buffer, final int length) {

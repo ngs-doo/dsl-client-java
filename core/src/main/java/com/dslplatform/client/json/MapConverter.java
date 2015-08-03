@@ -3,28 +3,12 @@ package com.dslplatform.client.json;
 import java.io.IOException;
 import java.util.*;
 
-public class MapConverter {
+public abstract class MapConverter {
 
 	private static final JsonReader.ReadObject<Map<String, String>> TypedMapReader = new JsonReader.ReadObject<Map<String, String>>() {
 		@Override
 		public Map<String, String> read(JsonReader reader) throws IOException {
 			return deserialize(reader);
-		}
-	};
-	static final JsonReader.ReadObject<Map> MapReader = new JsonReader.ReadObject<Map>() {
-		@Override
-		public Map read(JsonReader reader) throws IOException {
-			return deserializeObjectMap(reader);
-		}
-	};
-	static final JsonWriter.WriteObject<Map> MapWriter = new JsonWriter.WriteObject<Map>() {
-		@Override
-		public void write(JsonWriter writer, Map value) {
-			try {
-				serializeObjectMap(value, writer);
-			} catch (IOException ex) {
-				throw new RuntimeException(ex);
-			}
 		}
 	};
 
@@ -77,77 +61,6 @@ public class MapConverter {
 				throw new IOException("Expecting ':' at position " + reader.positionInStream() + ". Found " + (char) nextToken);
 			reader.getNextToken();
 			value = StringConverter.deserializeNullable(reader);
-			res.put(key, value);
-		}
-		if (nextToken != '}')
-			throw new IOException("Expecting '}' at position " + reader.positionInStream() + ". Found " + (char) nextToken);
-		return res;
-	}
-
-	private static final DslJsonSerialization JSON = new DslJsonSerialization(null);
-
-	public static void serializeObjectMap(final Map<String, Object> value, final JsonWriter sw) throws IOException {
-		sw.writeByte(JsonWriter.OBJECT_START);
-		final int size = value.size();
-		if (size > 0) {
-			final Iterator<Map.Entry<String, Object>> iterator = value.entrySet().iterator();
-			Map.Entry<String, Object> kv = iterator.next();
-			sw.writeString(kv.getKey());
-			sw.writeByte(JsonWriter.SEMI);
-			JSON.serialize(sw, kv.getValue());
-			for (int i = 1; i < size; i++) {
-				sw.writeByte(JsonWriter.COMMA);
-				kv = iterator.next();
-				sw.writeString(kv.getKey());
-				sw.writeByte(JsonWriter.SEMI);
-				JSON.serialize(sw, kv.getValue());
-			}
-		}
-		sw.writeByte(JsonWriter.OBJECT_END);
-	}
-
-	public static Map<String, Object> deserializeObjectMap(final JsonReader reader) throws IOException {
-		if (reader.last() != '{')
-			throw new IOException("Expecting '{' at position " + reader.positionInStream() + ". Found " + (char) reader.last());
-		final HashMap<String, Object> res = new HashMap<String, Object>();
-		byte nextToken = reader.getNextToken();
-		if (nextToken == '}') return res;
-		String key = StringConverter.deserialize(reader);
-		nextToken = reader.getNextToken();
-		if (nextToken != ':')
-			throw new IOException("Expecting ':' at position " + reader.positionInStream() + ". Found " + (char) nextToken);
-		nextToken = reader.getNextToken();
-		Object value;
-		if (nextToken == 'n') {
-			if (!reader.wasNull())
-				throw new IOException("Expecting 'null' at position " + reader.positionInStream() + ". Found " + (char) reader.last());
-			value = null;
-		} else if (nextToken == '"') {
-			value = reader.readString();
-		} else if (nextToken == '{') {
-			value = deserializeObjectMap(reader);
-		} else {
-			value = NumberConverter.deserializeNumber(reader);
-		}
-		res.put(key, value);
-		while ((nextToken = reader.getNextToken()) == ',') {
-			reader.getNextToken();
-			key = StringConverter.deserialize(reader);
-			nextToken = reader.getNextToken();
-			if (nextToken != ':')
-				throw new IOException("Expecting ':' at position " + reader.positionInStream() + ". Found " + (char) nextToken);
-			nextToken = reader.getNextToken();
-			if (nextToken == 'n') {
-				if (!reader.wasNull())
-					throw new IOException("Expecting 'null' at position " + reader.positionInStream() + ". Found " + (char) reader.last());
-				value = null;
-			} else if (nextToken == '"') {
-				value = reader.readString();
-			} else if (nextToken == '{') {
-				value = deserializeObjectMap(reader);
-			} else {
-				value = NumberConverter.deserializeNumber(reader);
-			}
 			res.put(key, value);
 		}
 		if (nextToken != '}')

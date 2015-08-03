@@ -9,6 +9,7 @@ import org.joda.time.LocalDate;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -180,12 +181,14 @@ public class ManualJsonTest {
 		Map<String, Object> nestedMap = new HashMap<String, Object>();
 		nestedMap.put("xxx", "abc");
 		nestedMap.put("yyy", "zzz");
+		nestedMap.put("integers", Arrays.asList(1L, 2L, 3L));
 		map.put("1", 1L);
-		map.put("2", "2");
-		map.put("3", 4.4);
-		map.put("4", null);
+		map.put("2-w", "2");
+		map.put("3", 4.4d);
+		map.put("4 f", null);
 		map.put("5", new HashMap());
 		map.put("6", nestedMap);
+		map.put("List", Arrays.asList(null, 2.2d, 3.14159d, 10e5d ));
 		Bytes result = json.serialize(map);
 		Map output = json.deserialize(Map.class, result.content, result.length);
 		assertEquals(map, output);

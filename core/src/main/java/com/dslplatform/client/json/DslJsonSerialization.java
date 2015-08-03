@@ -35,8 +35,8 @@ public class DslJsonSerialization implements JsonSerialization {
 		} else {
 			registerJavaSpecifics(this);
 		}
-		registerReader(Map.class, MapConverter.MapReader);
-		registerWriter(Map.class, MapConverter.MapWriter);
+		registerReader(Map.class, ObjectConverter.MapReader);
+		registerWriter(Map.class, ObjectConverter.MapWriter);
 		registerReader(URI.class, NetConverter.UriReader);
 		registerWriter(URI.class, NetConverter.UriWriter);
 		registerReader(InetAddress.class, NetConverter.AddressReader);

@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public class StorageConverter {
+public abstract class StorageConverter {
 
 	static final JsonReader.ReadObject<S3> S3Reader = new JsonReader.ReadObject<S3>() {
 		@Override

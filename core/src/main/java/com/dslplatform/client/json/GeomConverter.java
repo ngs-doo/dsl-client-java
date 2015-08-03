@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class GeomConverter {
+public abstract class GeomConverter {
 
 	static final JsonReader.ReadObject<Point2D> LocationReader = new JsonReader.ReadObject<Point2D>() {
 		@Override

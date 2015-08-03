@@ -15,7 +15,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.*;
 
-public class XmlConverter {
+public abstract class XmlConverter {
 
 	static final JsonReader.ReadObject<Element> Reader = new JsonReader.ReadObject<Element>() {
 		@Override
@@ -69,7 +69,7 @@ public class XmlConverter {
 				throw new IOException(ex);
 			}
 		} else {
-			final Map<String, Object> map = MapConverter.deserializeObjectMap(reader);
+			final Map<String, Object> map = ObjectConverter.deserializeMap(reader);
 			return mapToXml(map);
 		}
 	}
@@ -99,13 +99,6 @@ public class XmlConverter {
 	private static final String COMMENT_NODE_TAG = "#comment";
 	private static final String CDATA_NODE_TAG = "#cdata-section";
 
-	/**
-	 * Recursively builds an XML document subtree
-	 *
-	 * @param doc                the document to be built up
-	 * @param subtreeRootElement the root of the subtree
-	 * @param elementContent     the value of the subtree
-	 */
 	@SuppressWarnings("unchecked")
 	private static void buildXmlFromHashMap(
 			final Document doc,
