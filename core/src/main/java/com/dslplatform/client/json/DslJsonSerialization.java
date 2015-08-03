@@ -98,7 +98,7 @@ public class DslJsonSerialization implements JsonSerialization {
 		json.registerReader(java.awt.geom.Rectangle2D.class, GeomConverter.RectangleReader);
 		json.registerWriter(java.awt.geom.Rectangle2D.class, GeomConverter.RectangleWriter);
 		json.registerWriter(java.awt.geom.Rectangle2D.Double.class, GeomConverter.RectangleWriterDouble);
-		json.registerWriter(java.awt.geom.Rectangle2D.Float.class, GeomConverter.RectangleWriterFloat);
+		//json.registerWriter(java.awt.geom.Rectangle2D.Float.class, GeomConverter.RectangleWriterFloat);
 		json.registerReader(java.awt.image.BufferedImage.class, GeomConverter.ImageReader);
 		json.registerWriter(java.awt.Image.class, GeomConverter.ImageWriter);
 		json.registerWriter(java.awt.image.BufferedImage.class, GeomConverter.BufferedImageWriter);
@@ -491,6 +491,18 @@ public class DslJsonSerialization implements JsonSerialization {
 		writer.writeByte(JsonWriter.ARRAY_END);
 	}
 
+	private JsonWriter.WriteObject<?> tryFindWriter(Class<?> manifest) {
+		do {
+			JsonWriter.WriteObject<?> writer = jsonWriters.get(manifest);
+			if (writer != null) {
+				return writer;
+			}
+			manifest = manifest.getSuperclass();
+		} while (manifest != null);
+
+		return null;
+	}
+
 	@SuppressWarnings("unchecked")
 	public <T> boolean serialize(final JsonWriter writer, final Class<?> manifest, final Object value) {
 		if (value == null) {
@@ -578,7 +590,7 @@ public class DslJsonSerialization implements JsonSerialization {
 				serialize(writer, (Collection<JsonObject>) items);
 				return true;
 			}
-			final JsonWriter.WriteObject<Object> elementWriter = (JsonWriter.WriteObject<Object>) jsonWriters.get(baseType);
+			final JsonWriter.WriteObject<Object> elementWriter = (JsonWriter.WriteObject<Object>) tryFindWriter(baseType);
 			if (elementWriter != null) {
 				writer.serialize(items, elementWriter);
 				return true;

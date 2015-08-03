@@ -153,7 +153,7 @@ public class Utils {
 		return byteArrayOutputStream.toByteArray();
 	}
 
-	static final DslJsonSerialization STATIC_JSON = new DslJsonSerialization(null);
+	static final JsonSerialization STATIC_JSON = new DslJsonSerialization(null);
 
 	static String serialize(final Object value) throws IOException {
 		return STATIC_JSON.serialize(value).toUtf8();
