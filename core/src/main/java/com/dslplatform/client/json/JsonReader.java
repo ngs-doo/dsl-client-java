@@ -103,7 +103,7 @@ public final class JsonReader {
 		tmp[0] = ch;
 		int i = 1;
 		int ci = currentIndex;
-		while (i < tmp.length && ci < buffer.length) {
+		while (i < tmp.length && ci < length) {
 			ch = (char) buffer[ci++];
 			if (ch == ',' || ch == '}' || ch == ']') break;
 			tmp[i++] = ch;
@@ -118,7 +118,7 @@ public final class JsonReader {
 			throw new IOException("Expecting '\"' at position " + positionInStream() + ". Found " + (char) last);
 		int i = 0;
 		int ci = currentIndex;
-		while (i < tmp.length && ci < buffer.length) {
+		while (i < tmp.length && ci < length) {
 			final char ch = (char) buffer[ci++];
 			if (ch == '"') break;
 			tmp[i++] = ch;
@@ -132,11 +132,10 @@ public final class JsonReader {
 			throw new IOException("Expecting '\"' at position " + positionInStream() + ". Found " + (char) last);
 		}
 		int ci = tokenStart = currentIndex;
-		int i = 0;
-		while (i < tmp.length && ci < buffer.length) {
+		for (int i = 0; i < tmp.length && ci < length; i++) {
 			final char ch = (char) buffer[ci++];
 			if (ch == '"') break;
-			tmp[i++] = ch;
+			tmp[i] = ch;
 		}
 		currentIndex = ci;
 		return tmp;
@@ -153,22 +152,18 @@ public final class JsonReader {
 
 		byte bb = 0;
 		int ci = currentIndex;
-		try {
-			for (int i = 0; i < tmp.length; i++) {
-				bb = buffer[ci++];
-				if (bb == '"') {
-					currentIndex = ci;
-					return new String(tmp, 0, i);
-				}
-				// If we encounter a backslash, which is a beginning of an escape sequence
-				// or a high bit was set - indicating an UTF-8 encoded multibyte character,
-				// there is no chance that we can decode the string without instantiating
-				// a temporary buffer, so quit this loop
-				if ((bb ^ '\\') < 1) break;
-				tmp[i] = (char) bb;
+		for (int i = 0; i < tmp.length && ci < length; i++) {
+			bb = buffer[ci++];
+			if (bb == '"') {
+				currentIndex = ci;
+				return new String(tmp, 0, i);
 			}
-		} catch (ArrayIndexOutOfBoundsException ignore) {
-			throw new IOException("JSON string was not closed with a double quote at: " + currentIndex);
+			// If we encounter a backslash, which is a beginning of an escape sequence
+			// or a high bit was set - indicating an UTF-8 encoded multibyte character,
+			// there is no chance that we can decode the string without instantiating
+			// a temporary buffer, so quit this loop
+			if ((bb ^ '\\') < 1) break;
+			tmp[i] = (char) bb;
 		}
 		if (ci >= length) {
 			throw new IOException("JSON string was not closed with a double quote at: " + ci);

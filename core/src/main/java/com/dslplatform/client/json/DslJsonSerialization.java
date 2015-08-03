@@ -37,7 +37,6 @@ public class DslJsonSerialization implements JsonSerialization {
 		}
 		registerReader(Map.class, MapConverter.MapReader);
 		registerWriter(Map.class, MapConverter.MapWriter);
-		registerWriter(HashMap.class, MapConverter.HashMapWriter);
 		registerReader(URI.class, NetConverter.UriReader);
 		registerWriter(URI.class, NetConverter.UriWriter);
 		registerReader(InetAddress.class, NetConverter.AddressReader);
@@ -68,6 +67,7 @@ public class DslJsonSerialization implements JsonSerialization {
 		registerWriter(Element.class, XmlConverter.Writer);
 		registerReader(S3.class, StorageConverter.S3Reader);
 		registerWriter(S3.class, StorageConverter.S3Writer);
+		registerReader(Number.class, NumberConverter.NumberReader);
 	}
 
 	static void registerAndroidSpecifics(final DslJsonSerialization json) {
@@ -91,14 +91,10 @@ public class DslJsonSerialization implements JsonSerialization {
 	static void registerJavaSpecifics(final DslJsonSerialization json) {
 		json.registerReader(java.awt.geom.Point2D.class, GeomConverter.LocationReader);
 		json.registerWriter(java.awt.geom.Point2D.class, GeomConverter.LocationWriter);
-		json.registerWriter(java.awt.geom.Point2D.Double.class, GeomConverter.LocationWriterDouble);
-		json.registerWriter(java.awt.geom.Point2D.Float.class, GeomConverter.LocationWriterFloat);
 		json.registerReader(java.awt.Point.class, GeomConverter.PointReader);
 		json.registerWriter(java.awt.Point.class, GeomConverter.PointWriter);
 		json.registerReader(java.awt.geom.Rectangle2D.class, GeomConverter.RectangleReader);
 		json.registerWriter(java.awt.geom.Rectangle2D.class, GeomConverter.RectangleWriter);
-		json.registerWriter(java.awt.geom.Rectangle2D.Double.class, GeomConverter.RectangleWriterDouble);
-		//json.registerWriter(java.awt.geom.Rectangle2D.Float.class, GeomConverter.RectangleWriterFloat);
 		json.registerReader(java.awt.image.BufferedImage.class, GeomConverter.ImageReader);
 		json.registerWriter(java.awt.Image.class, GeomConverter.ImageWriter);
 		json.registerWriter(java.awt.image.BufferedImage.class, GeomConverter.BufferedImageWriter);
@@ -125,6 +121,17 @@ public class DslJsonSerialization implements JsonSerialization {
 
 	<T> void registerWriter(final Class<T> manifest, final JsonWriter.WriteObject<T> writer) {
 		jsonWriters.put(manifest, writer);
+	}
+
+	private JsonWriter.WriteObject<?> tryFindWriter(Class<?> manifest) {
+		do {
+			JsonWriter.WriteObject<?> writer = jsonWriters.get(manifest);
+			if (writer != null) {
+				return writer;
+			}
+			manifest = manifest.getSuperclass();
+		} while (manifest != null);
+		return null;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -205,7 +212,7 @@ public class DslJsonSerialization implements JsonSerialization {
 			final byte[] body,
 			final int size) throws IOException {
 		if (json.jackson == null) json.jackson = new JacksonJsonSerialization(json.locator);
-		return ((JacksonJsonSerialization)json.jackson).deserialize(manifest, body, size);
+		return ((JacksonJsonSerialization) json.jackson).deserialize(manifest, body, size);
 	}
 
 	private static <TResult> List<TResult> deserializeJacksonList(
@@ -214,14 +221,14 @@ public class DslJsonSerialization implements JsonSerialization {
 			final byte[] body,
 			final int size) throws IOException {
 		if (json.jackson == null) json.jackson = new JacksonJsonSerialization(json.locator);
-		return ((JacksonJsonSerialization)json.jackson).deserializeList(manifest, body, size);
+		return ((JacksonJsonSerialization) json.jackson).deserializeList(manifest, body, size);
 	}
 
 	private static Bytes serializeJackson(
 			final DslJsonSerialization json,
 			final Object value) throws IOException {
 		if (json.jackson == null) json.jackson = new JacksonJsonSerialization(json.locator);
-		return ((JacksonJsonSerialization)json.jackson).serialize(value);
+		return ((JacksonJsonSerialization) json.jackson).serialize(value);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -491,18 +498,6 @@ public class DslJsonSerialization implements JsonSerialization {
 		writer.writeByte(JsonWriter.ARRAY_END);
 	}
 
-	private JsonWriter.WriteObject<?> tryFindWriter(Class<?> manifest) {
-		do {
-			JsonWriter.WriteObject<?> writer = jsonWriters.get(manifest);
-			if (writer != null) {
-				return writer;
-			}
-			manifest = manifest.getSuperclass();
-		} while (manifest != null);
-
-		return null;
-	}
-
 	@SuppressWarnings("unchecked")
 	public <T> boolean serialize(final JsonWriter writer, final Class<?> manifest, final Object value) {
 		if (value == null) {
@@ -517,7 +512,7 @@ public class DslJsonSerialization implements JsonSerialization {
 			serialize(writer, (JsonObject[]) value);
 			return true;
 		}
-		final JsonWriter.WriteObject<Object> simpleWriter = (JsonWriter.WriteObject<Object>) jsonWriters.get(manifest);
+		final JsonWriter.WriteObject<Object> simpleWriter = (JsonWriter.WriteObject<Object>) tryFindWriter(manifest);
 		if (simpleWriter != null) {
 			simpleWriter.write(writer, value);
 			return true;
@@ -551,7 +546,7 @@ public class DslJsonSerialization implements JsonSerialization {
 				}
 				return true;
 			} else {
-				final JsonWriter.WriteObject<Object> elementWriter = (JsonWriter.WriteObject<Object>) jsonWriters.get(elementManifest);
+				final JsonWriter.WriteObject<Object> elementWriter = (JsonWriter.WriteObject<Object>) tryFindWriter(elementManifest);
 				if (elementWriter != null) {
 					writer.serialize((Object[]) value, elementWriter);
 					return true;
@@ -566,6 +561,7 @@ public class DslJsonSerialization implements JsonSerialization {
 			}
 			Class<?> baseType = null;
 			final Iterator iterator = items.iterator();
+			//TODO: pick lowest common denominator!?
 			do {
 				final Object item = iterator.next();
 				if (item != null) {
@@ -617,13 +613,17 @@ public class DslJsonSerialization implements JsonSerialization {
 	@Override
 	public final void serialize(final Writer writer, final Object value) throws IOException {
 		if (value == null) {
-			writer.write("NULL");
+			writer.write("null");
 			return;
 		}
 		final Class<?> manifest = value.getClass();
 		final boolean isJsonWriter = writer instanceof JsonWriter;
 		final JsonWriter jw = isJsonWriter ? (JsonWriter) writer : new JsonWriter();
 		if (!serialize(jw, manifest, value)) {
+			if (Utils.HAS_JACKSON) {
+				Bytes result = serializeJackson(this, value);
+				writer.write(result.toUtf8());
+			}
 			throw new IOException("Unable to serialize provided object. Failed to find serializer for: " + manifest);
 		}
 		if (!isJsonWriter) {

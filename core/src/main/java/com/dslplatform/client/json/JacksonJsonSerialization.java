@@ -4,8 +4,6 @@ import java.io.*;
 import java.util.*;
 
 import javax.imageio.ImageIO;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import com.dslplatform.client.Utils;
 import com.dslplatform.patterns.*;
@@ -15,7 +13,6 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -30,10 +27,6 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 
 public class JacksonJsonSerialization implements JsonSerialization {
 	private static final String TEXT_NODE_TAG = "#text";
-	private static final String COMMENT_NODE_TAG = "#comment";
-	private static final String CDATA_NODE_TAG = "#cdata-section";
-	//private static final String WHITESPACE_NODE_TAG = "#whitespace";
-	//private static final String SIGNIFICANT_WHITESPACE_NODE_TAG = "#significant-whitespace";
 
 	private static final JsonSerializer<LocalDate> dateSerializer = new JsonSerializer<LocalDate>() {
 		@Override
@@ -421,116 +414,6 @@ public class JacksonJsonSerialization implements JsonSerialization {
 		return jsonHashMap;
 	}
 
-	/**
-	 * Recursively builds an XML document subtree
-	 *
-	 * @param doc				the document to be built up
-	 * @param subtreeRootElement the root of the subtree
-	 * @param elementContent	 the value of the subtree
-	 */
-	@SuppressWarnings("unchecked")
-	private static void buildXmlFromHashMap(
-			final Document doc,
-			final Element subtreeRootElement,
-			final Object elementContent) {
-		if (elementContent instanceof HashMap) {
-			final HashMap<String, Object> elementContentMap = (HashMap<String, Object>) elementContent;
-			for (final Map.Entry<String, Object> childEntry : elementContentMap.entrySet()) {
-				final String key = childEntry.getKey();
-				if (key.startsWith("@")) {
-					subtreeRootElement.setAttribute(key.substring(1), childEntry.getValue().toString());
-				} else if (key.startsWith("#")) {
-					if (key.equals(TEXT_NODE_TAG)) {
-						if (childEntry.getValue() instanceof List) {
-							buildTextNodeList(doc, subtreeRootElement, (List<String>) childEntry.getValue());
-						} else {
-							final Node textNode = doc.createTextNode(childEntry.getValue().toString());
-							subtreeRootElement.appendChild(textNode);
-						}
-					} else if (key.equals(CDATA_NODE_TAG)) {
-						if (childEntry.getValue() instanceof List) {
-							buildCDataList(doc, subtreeRootElement, (List<String>) childEntry.getValue());
-						} else {
-							final Node cDataNode = doc.createCDATASection(childEntry.getValue().toString());
-							subtreeRootElement.appendChild(cDataNode);
-						}
-					} else if (key.equals(COMMENT_NODE_TAG)) {
-						if (childEntry.getValue() instanceof List) {
-							buildCommentList(doc, subtreeRootElement, (List<String>) childEntry.getValue());
-						} else {
-							final Node commentNode = doc.createComment(childEntry.getValue().toString());
-							subtreeRootElement.appendChild(commentNode);
-						}
-					} //else if (key.equals(WHITESPACE_NODE_TAG)
-					//	|| key.equals(SIGNIFICANT_WHITESPACE_NODE_TAG)) {
-					// Ignore
-					//} else {
-						/*
-						 * All other nodes whose name starts with a '#' are invalid XML
-						 * nodes, and thus ignored:
-						 */
-					//}
-				} else {
-					final Element newElement = doc.createElement(key);
-					subtreeRootElement.appendChild(newElement);
-					buildXmlFromHashMap(doc, newElement, childEntry.getValue());
-				}
-			}
-		} else if (elementContent instanceof List) {
-			buildXmlFromJsonArray(doc, subtreeRootElement, (List<Object>) elementContent);
-		} else {
-			if (elementContent != null) {
-				subtreeRootElement.setTextContent(elementContent.toString());
-			}
-		}
-	}
-
-	private static void buildTextNodeList(final Document doc, final Node subtreeRoot, final List<String> nodeValues) {
-		final StringBuilder sb = new StringBuilder();
-		for (final String nodeValue : nodeValues) {
-			sb.append(nodeValue);
-		}
-		subtreeRoot.appendChild(doc.createTextNode(sb.toString()));
-	}
-
-	private static void buildCDataList(final Document doc, final Node subtreeRoot, final List<String> nodeValues) {
-		for (final String nodeValue : nodeValues) {
-			subtreeRoot.appendChild(doc.createCDATASection(nodeValue));
-		}
-	}
-
-	private static void buildCommentList(final Document doc, final Node subtreeRoot, final List<String> nodeValues) {
-		for (final String nodeValue : nodeValues) {
-			subtreeRoot.appendChild(doc.createComment(nodeValue));
-		}
-	}
-
-	/**
-	 * Builds an XML subtree out of a list and a head element. The list elements
-	 * are serialized into a series of nodes whose title is
-	 * {@code listHeadElementName}. The head element need be created before
-	 * this method call.
-	 *
-	 * @param doc		  The parent document
-	 * @param listHeadNode The first node of the list, needs to be created before this method call
-	 * @param elementContentList  The actual list contents
-	 */
-	private static void buildXmlFromJsonArray(
-			final Document doc,
-			final Node listHeadNode,
-			final List<Object> elementContentList) {
-
-		final Node subtreeRootNode = listHeadNode.getParentNode();
-		/* The head node (already exists) */
-		buildXmlFromHashMap(doc, (Element) listHeadNode, elementContentList.get(0));
-		/* The rest of the list */
-		for (final Object elementContent : elementContentList.subList(1, elementContentList.size())) {
-			final Element newElement = doc.createElement(listHeadNode.getNodeName());
-			subtreeRootNode.appendChild(newElement);
-			buildXmlFromHashMap(doc, newElement, elementContent);
-		}
-	}
-
 	private static final JsonDeserializer<Element> xmlDeserializer = new JsonDeserializer<Element>() {
 		@Override
 		public Element deserialize(final JsonParser parser, final DeserializationContext context) throws IOException {
@@ -538,33 +421,7 @@ public class JacksonJsonSerialization implements JsonSerialization {
 			@SuppressWarnings("unchecked")
 			final HashMap<String, Object> hm = parser.readValueAs(HashMap.class);
 			if (hm == null) return null;
-
-			/* The root is expected to be a single element */
-			final Set<String> xmlRootElementNames = hm.keySet();
-
-			if (xmlRootElementNames.size() > 1) throw new IOException("Invalid XML. Expecting root element");
-
-			final String rootName = xmlRootElementNames.iterator().next();
-
-			final Document document;
-			final Element rootElement;
-
-			/* Initialise the document with a root element */
-			try {
-				synchronized (this) {
-					final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-					final DocumentBuilder builder = factory.newDocumentBuilder();
-					document = builder.newDocument();
-					rootElement = document.createElement(rootName);
-					document.appendChild(rootElement);
-				}
-			} catch (final Exception e) {
-				throw new IOException(e);
-			}
-
-			buildXmlFromHashMap(document, rootElement, hm.get(rootName));
-			return rootElement;
-
+			return XmlConverter.mapToXml(hm);
 		}
 	};
 

@@ -1,6 +1,7 @@
 package com.dslplatform.client;
 
 import com.dslplatform.client.json.DslJsonSerialization;
+import com.dslplatform.patterns.Bytes;
 import com.dslplatform.test.simple.E;
 import com.dslplatform.test.simple.SimpleRoot;
 import org.joda.time.DateTime;
@@ -163,5 +164,30 @@ public class ManualJsonTest {
 		final JsonSerialization json = new DslJsonSerialization(null);
 		int[] output = json.deserialize(int[].class, new byte[]{'[', ' ', ' ', ']'}, 4);
 		assertEquals(0, output.length);
+	}
+
+	@Test
+	public void genericNumberDeserialization() throws IOException {
+		final JsonSerialization json = new DslJsonSerialization(null);
+		Number output = json.deserialize(Number.class, new byte[]{'1', '2', '3', '4'}, 4);
+		assertEquals(1234L, output);
+	}
+
+	@Test
+	public void mapSerialization() throws IOException {
+		final JsonSerialization json = new DslJsonSerialization(null);
+		Map<String, Object> map = new HashMap<String, Object>();
+		Map<String, Object> nestedMap = new HashMap<String, Object>();
+		nestedMap.put("xxx", "abc");
+		nestedMap.put("yyy", "zzz");
+		map.put("1", 1L);
+		map.put("2", "2");
+		map.put("3", 4.4);
+		map.put("4", null);
+		map.put("5", new HashMap());
+		map.put("6", nestedMap);
+		Bytes result = json.serialize(map);
+		Map output = json.deserialize(Map.class, result.content, result.length);
+		assertEquals(map, output);
 	}
 }

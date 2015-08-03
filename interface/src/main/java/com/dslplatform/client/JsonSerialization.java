@@ -21,7 +21,7 @@ public interface JsonSerialization {
 	 * @return JSON as byte array (actual length might differ)
 	 * @throws IOException
 	 */
-	public Bytes serialize(Object value) throws IOException;
+	Bytes serialize(Object value) throws IOException;
 
 	/**
 	 * Serialize object if possible to an existing Writer.
@@ -29,7 +29,7 @@ public interface JsonSerialization {
 	 * @param value object instance to serialize
 	 * @throws IOException
 	 */
-	public void serialize(Writer writer, Object value) throws IOException;
+	void serialize(Writer writer, Object value) throws IOException;
 
 	/**
 	 * Try to deserialize provided JSON byte array input into specified object.
@@ -42,7 +42,7 @@ public interface JsonSerialization {
 	 * @return object instance
 	 * @throws IOException
 	 */
-	public <T> T deserialize(
+	<T> T deserialize(
 			final Class<T> manifest,
 			final byte[] content,
 			final int size) throws IOException;
@@ -59,7 +59,7 @@ public interface JsonSerialization {
 	 * @return list instance
 	 * @throws IOException
 	 */
-	public <T> List<T> deserializeList(
+	<T> List<T> deserializeList(
 			final Class<T> manifest,
 			final byte[] content,
 			final int size) throws IOException;
@@ -76,7 +76,7 @@ public interface JsonSerialization {
 	 * @return list instance of history objects
 	 * @throws IOException
 	 */
-	public <T extends AggregateRoot> List<History<T>> deserializeHistoryList(
+	<T extends AggregateRoot> List<History<T>> deserializeHistoryList(
 			final Class<T> manifest,
 			final byte[] content,
 			final int size) throws IOException;

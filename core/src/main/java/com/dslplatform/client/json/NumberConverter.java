@@ -9,6 +9,7 @@ import java.util.Collection;
 public class NumberConverter {
 
 	private final static int[] Digits = new int[100];
+	private final static double[] POW_10 = new double[16];
 	static final JsonReader.ReadObject<Double> DoubleReader = new JsonReader.ReadObject<Double>() {
 		@Override
 		public Double read(JsonReader reader) throws IOException {
@@ -69,10 +70,21 @@ public class NumberConverter {
 			serializeNullable(value, writer);
 		}
 	};
+	static final JsonReader.ReadObject<Number> NumberReader = new JsonReader.ReadObject<Number>() {
+		@Override
+		public Number read(JsonReader reader) throws IOException {
+			return deserializeNumber(reader);
+		}
+	};
 
 	static {
 		for (int i = 0; i < 100; i++) {
 			Digits[i] = (i < 10 ? 1 << 16 : 0) + (((i / 10) + '0') << 8) + i % 10 + '0';
+		}
+		long tenPow = 1;
+		for (int i = 0; i < POW_10.length; i++) {
+			POW_10[i] = tenPow;
+			tenPow = tenPow * 10;
 		}
 	}
 
@@ -704,7 +716,7 @@ public class NumberConverter {
 		}
 		final char ch = buf[0];
 		if (ch == '-') {
-			return parseNegativeDecimal(buf, position, len, 1);
+			return parseNegativeDecimal(buf, position, len);
 		} else if (ch == '+') {
 			return parsePositiveDecimal(buf, position, len, 1);
 		}
@@ -768,9 +780,10 @@ public class NumberConverter {
 		return BigDecimal.valueOf(value);
 	}
 
-	private static BigDecimal parseNegativeDecimal(final char[] buf, final int position, final int len, int i) throws IOException {
+	private static BigDecimal parseNegativeDecimal(final char[] buf, final int position, final int len) throws IOException {
 		long value = 0;
 		char ch = ' ';
+		int i = 1;
 		for (; i < len; i++) {
 			ch = buf[i];
 			if (ch == '.' || ch == 'e' || ch == 'E') break;
@@ -794,6 +807,142 @@ public class NumberConverter {
 				}
 			}
 			if (i == len) return BigDecimal.valueOf(value, len - dp);
+			else if (ch == 'e' || ch == 'E') {
+				final int ep = i;
+				i++;
+				ch = buf[i];
+				final int exp;
+				if (ch == '-') {
+					exp = parseNegativeInt(buf, position, len, i + 1);
+				} else if (ch == '+') {
+					exp = parsePositiveInt(buf, position, len, i + 1);
+				} else {
+					exp = parsePositiveInt(buf, position, len, i);
+				}
+				return BigDecimal.valueOf(value, ep - dp - exp);
+			}
+			return BigDecimal.valueOf(value, len - dp);
+		} else if (ch == 'e' || ch == 'E') {
+			i++;
+			ch = buf[i];
+			final int exp;
+			if (ch == '-') {
+				exp = parseNegativeInt(buf, position, len, i + 1);
+			} else if (ch == '+') {
+				exp = parsePositiveInt(buf, position, len, i + 1);
+			} else {
+				exp = parsePositiveInt(buf, position, len, i);
+			}
+			return BigDecimal.valueOf(value, -exp);
+		}
+		return BigDecimal.valueOf(value);
+	}
+
+	public static Number deserializeNumber(final JsonReader reader) throws IOException {
+		final char[] buf = reader.readNumber();
+		final int position = reader.getCurrentIndex();
+		final int len = position - reader.getTokenStart();
+		if (len > 18) {
+			if (len == buf.length) {
+				final NumberInfo tmp = readLongNumber(reader, buf);
+				return parseNumberGeneric(tmp.buffer, tmp.length, position);
+			} else {
+				return parseNumberGeneric(buf, len, position);
+			}
+		}
+		final char ch = buf[0];
+		if (ch == '-') {
+			return parseNegativeNumber(buf, position, len);
+		} else if (ch == '+') {
+			return parsePositiveNumber(buf, position, len, 1);
+		}
+		return parsePositiveNumber(buf, position, len, 0);
+	}
+
+	private static Number parsePositiveNumber(final char[] buf, final int position, final int len, int i) throws IOException {
+		long value = 0;
+		char ch = ' ';
+		for (; i < len; i++) {
+			ch = buf[i];
+			if (ch == '.' || ch == 'e' || ch == 'E') break;
+			final int ind = ch - 48;
+			value = (value << 3) + (value << 1) + ind;
+			if (ind < 0 || ind > 9) {
+				return parseNumberGeneric(buf, len, position);
+			}
+		}
+		if (i == len) return value;
+		else if (ch == '.') {
+			i++;
+			int dp = i;
+			for (; i < len; i++) {
+				ch = buf[i];
+				if (ch == 'e' || ch == 'E') break;
+				final int ind = ch - 48;
+				value = (value << 3) + (value << 1) + ind;
+				if (ind < 0 || ind > 9) {
+					return parseNumberGeneric(buf, len, position);
+				}
+			}
+			if (i == len) return value / POW_10[len - dp];
+			else if (ch == 'e' || ch == 'E') {
+				final int ep = i;
+				i++;
+				ch = buf[i];
+				final int exp;
+				if (ch == '-') {
+					exp = parseNegativeInt(buf, position, len, i + 1);
+				} else if (ch == '+') {
+					exp = parsePositiveInt(buf, position, len, i + 1);
+				} else {
+					exp = parsePositiveInt(buf, position, len, i);
+				}
+				return BigDecimal.valueOf(value, ep - dp - exp);
+			}
+			return BigDecimal.valueOf(value, len - dp);
+		} else if (ch == 'e' || ch == 'E') {
+			i++;
+			ch = buf[i];
+			final int exp;
+			if (ch == '-') {
+				exp = parseNegativeInt(buf, position, len, i + 1);
+			} else if (ch == '+') {
+				exp = parsePositiveInt(buf, position, len, i + 1);
+			} else {
+				exp = parsePositiveInt(buf, position, len, i);
+			}
+			return BigDecimal.valueOf(value, -exp);
+		}
+		return BigDecimal.valueOf(value);
+	}
+
+	private static Number parseNegativeNumber(final char[] buf, final int position, final int len) throws IOException {
+		long value = 0;
+		char ch = ' ';
+		int i = 1;
+		for (; i < len; i++) {
+			ch = buf[i];
+			if (ch == '.' || ch == 'e' || ch == 'E') break;
+			final int ind = ch - 48;
+			value = (value << 3) + (value << 1) - ind;
+			if (ind < 0 || ind > 9) {
+				return parseNumberGeneric(buf, len, position);
+			}
+		}
+		if (i == len) return value;
+		else if (ch == '.') {
+			i++;
+			int dp = i;
+			for (; i < len; i++) {
+				ch = buf[i];
+				if (ch == 'e' || ch == 'E') break;
+				final int ind = ch - 48;
+				value = (value << 3) + (value << 1) - ind;
+				if (ind < 0 || ind > 9) {
+					return parseNumberGeneric(buf, len, position);
+				}
+			}
+			if (i == len) return value / POW_10[len - dp];
 			else if (ch == 'e' || ch == 'E') {
 				final int ep = i;
 				i++;

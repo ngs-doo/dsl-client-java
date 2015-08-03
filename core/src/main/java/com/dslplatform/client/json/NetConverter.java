@@ -75,7 +75,7 @@ public class NetConverter {
 
 	public static void serialize(final InetAddress value, final JsonWriter sw) {
 		sw.writeByte(JsonWriter.QUOTE);
-		sw.writeAscii(value.toString());
+		sw.writeAscii(value.getHostAddress());
 		sw.writeByte(JsonWriter.QUOTE);
 	}
 

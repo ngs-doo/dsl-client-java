@@ -13,8 +13,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
 
 public class XmlConverter {
 
@@ -62,11 +61,140 @@ public class XmlConverter {
 	}
 
 	public static Element deserialize(final JsonReader reader) throws IOException {
+		if (reader.last() == '"') {
+			try {
+				InputSource source = new InputSource(new StringReader(reader.readString()));
+				return documentBuilder.parse(source).getDocumentElement();
+			} catch (SAXException ex) {
+				throw new IOException(ex);
+			}
+		} else {
+			final Map<String, Object> map = MapConverter.deserializeObjectMap(reader);
+			return mapToXml(map);
+		}
+	}
+
+	public static Element mapToXml(final Map<String, Object> map) throws IOException {
+		final Set<String> xmlRootElementNames = map.keySet();
+		if (xmlRootElementNames.size() > 1) throw new IOException("Invalid XML. Expecting root element");
+		final String rootName = xmlRootElementNames.iterator().next();
+		final Document document = createDocument();
+		final Element rootElement = document.createElement(rootName);
+		document.appendChild(rootElement);
+		buildXmlFromHashMap(document, rootElement, map.get(rootName));
+		return rootElement;
+	}
+
+	private static synchronized Document createDocument() throws IOException {
 		try {
-			InputSource source = new InputSource(new StringReader(reader.readString()));
-			return documentBuilder.parse(source).getDocumentElement();
-		}catch (SAXException ex) {
-			throw new IOException(ex);
+			final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			final DocumentBuilder builder = factory.newDocumentBuilder();
+			return builder.newDocument();
+		} catch (ParserConfigurationException e) {
+			throw new IOException(e);
+		}
+	}
+
+	private static final String TEXT_NODE_TAG = "#text";
+	private static final String COMMENT_NODE_TAG = "#comment";
+	private static final String CDATA_NODE_TAG = "#cdata-section";
+
+	/**
+	 * Recursively builds an XML document subtree
+	 *
+	 * @param doc                the document to be built up
+	 * @param subtreeRootElement the root of the subtree
+	 * @param elementContent     the value of the subtree
+	 */
+	@SuppressWarnings("unchecked")
+	private static void buildXmlFromHashMap(
+			final Document doc,
+			final Element subtreeRootElement,
+			final Object elementContent) {
+		if (elementContent instanceof HashMap) {
+			final HashMap<String, Object> elementContentMap = (HashMap<String, Object>) elementContent;
+			for (final Map.Entry<String, Object> childEntry : elementContentMap.entrySet()) {
+				final String key = childEntry.getKey();
+				if (key.startsWith("@")) {
+					subtreeRootElement.setAttribute(key.substring(1), childEntry.getValue().toString());
+				} else if (key.startsWith("#")) {
+					if (key.equals(TEXT_NODE_TAG)) {
+						if (childEntry.getValue() instanceof List) {
+							buildTextNodeList(doc, subtreeRootElement, (List<String>) childEntry.getValue());
+						} else {
+							final Node textNode = doc.createTextNode(childEntry.getValue().toString());
+							subtreeRootElement.appendChild(textNode);
+						}
+					} else if (key.equals(CDATA_NODE_TAG)) {
+						if (childEntry.getValue() instanceof List) {
+							buildCDataList(doc, subtreeRootElement, (List<String>) childEntry.getValue());
+						} else {
+							final Node cDataNode = doc.createCDATASection(childEntry.getValue().toString());
+							subtreeRootElement.appendChild(cDataNode);
+						}
+					} else if (key.equals(COMMENT_NODE_TAG)) {
+						if (childEntry.getValue() instanceof List) {
+							buildCommentList(doc, subtreeRootElement, (List<String>) childEntry.getValue());
+						} else {
+							final Node commentNode = doc.createComment(childEntry.getValue().toString());
+							subtreeRootElement.appendChild(commentNode);
+						}
+					} //else if (key.equals(WHITESPACE_NODE_TAG)
+					//	|| key.equals(SIGNIFICANT_WHITESPACE_NODE_TAG)) {
+					// Ignore
+					//} else {
+						/*
+						 * All other nodes whose name starts with a '#' are invalid XML
+						 * nodes, and thus ignored:
+						 */
+					//}
+				} else {
+					final Element newElement = doc.createElement(key);
+					subtreeRootElement.appendChild(newElement);
+					buildXmlFromHashMap(doc, newElement, childEntry.getValue());
+				}
+			}
+		} else if (elementContent instanceof List) {
+			buildXmlFromJsonArray(doc, subtreeRootElement, (List<Object>) elementContent);
+		} else {
+			if (elementContent != null) {
+				subtreeRootElement.setTextContent(elementContent.toString());
+			}
+		}
+	}
+
+	private static void buildTextNodeList(final Document doc, final Node subtreeRoot, final List<String> nodeValues) {
+		final StringBuilder sb = new StringBuilder();
+		for (final String nodeValue : nodeValues) {
+			sb.append(nodeValue);
+		}
+		subtreeRoot.appendChild(doc.createTextNode(sb.toString()));
+	}
+
+	private static void buildCDataList(final Document doc, final Node subtreeRoot, final List<String> nodeValues) {
+		for (final String nodeValue : nodeValues) {
+			subtreeRoot.appendChild(doc.createCDATASection(nodeValue));
+		}
+	}
+
+	private static void buildCommentList(final Document doc, final Node subtreeRoot, final List<String> nodeValues) {
+		for (final String nodeValue : nodeValues) {
+			subtreeRoot.appendChild(doc.createComment(nodeValue));
+		}
+	}
+
+	private static void buildXmlFromJsonArray(
+			final Document doc,
+			final Node listHeadNode,
+			final List<Object> elementContentList) {
+		final Node subtreeRootNode = listHeadNode.getParentNode();
+		/* The head node (already exists) */
+		buildXmlFromHashMap(doc, (Element) listHeadNode, elementContentList.get(0));
+		/* The rest of the list */
+		for (final Object elementContent : elementContentList.subList(1, elementContentList.size())) {
+			final Element newElement = doc.createElement(listHeadNode.getNodeName());
+			subtreeRootNode.appendChild(newElement);
+			buildXmlFromHashMap(doc, newElement, elementContent);
 		}
 	}
 

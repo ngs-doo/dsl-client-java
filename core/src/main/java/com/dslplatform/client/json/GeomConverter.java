@@ -3,9 +3,7 @@ package com.dslplatform.client.json;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.awt.image.WritableRaster;
+import java.awt.image.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,18 +19,6 @@ public class GeomConverter {
 	static final JsonWriter.WriteObject<Point2D> LocationWriter = new JsonWriter.WriteObject<Point2D>() {
 		@Override
 		public void write(JsonWriter writer, Point2D value) {
-			serializeLocationNullable(value, writer);
-		}
-	};
-	static final JsonWriter.WriteObject<Point2D.Double> LocationWriterDouble = new JsonWriter.WriteObject<Point2D.Double>() {
-		@Override
-		public void write(JsonWriter writer, Point2D.Double value) {
-			serializeLocationNullable(value, writer);
-		}
-	};
-	static final JsonWriter.WriteObject<Point2D.Float> LocationWriterFloat = new JsonWriter.WriteObject<Point2D.Float>() {
-		@Override
-		public void write(JsonWriter writer, Point2D.Float value) {
 			serializeLocationNullable(value, writer);
 		}
 	};
@@ -57,18 +43,6 @@ public class GeomConverter {
 	static final JsonWriter.WriteObject<Rectangle2D> RectangleWriter = new JsonWriter.WriteObject<Rectangle2D>() {
 		@Override
 		public void write(JsonWriter writer, Rectangle2D value) {
-			serializeRectangleNullable(value, writer);
-		}
-	};
-	static final JsonWriter.WriteObject<Rectangle2D.Double> RectangleWriterDouble = new JsonWriter.WriteObject<Rectangle2D.Double>() {
-		@Override
-		public void write(JsonWriter writer, Rectangle2D.Double value) {
-			serializeRectangleNullable(value, writer);
-		}
-	};
-	static final JsonWriter.WriteObject<Rectangle2D.Float> RectangleWriterFloat = new JsonWriter.WriteObject<Rectangle2D.Float>() {
-		@Override
-		public void write(JsonWriter writer, Rectangle2D.Float value) {
 			serializeRectangleNullable(value, writer);
 		}
 	};
@@ -108,14 +82,18 @@ public class GeomConverter {
 	}
 
 	public static Point2D deserializeLocation(final JsonReader reader) throws IOException {
-		if (reader.last() != '{') throw new IOException("Expecting '{' at position " + reader.positionInStream() + ". Found " + (char)reader.last());
+		if (reader.last() != '{') {
+			throw new IOException("Expecting '{' at position " + reader.positionInStream() + ". Found " + (char) reader.last());
+		}
 		byte nextToken = reader.getNextToken();
 		if (nextToken == '}') return new Point2D.Double();
 		double x = 0;
 		double y = 0;
 		String name = StringConverter.deserialize(reader);
 		nextToken = reader.getNextToken();
-		if (nextToken != ':') throw new IOException("Expecting ':' at position " + reader.positionInStream() + ". Found " + (char)nextToken);
+		if (nextToken != ':') {
+			throw new IOException("Expecting ':' at position " + reader.positionInStream() + ". Found " + (char) nextToken);
+		}
 		reader.getNextToken();
 		double value = NumberConverter.deserializeDouble(reader);
 		if ("X".equalsIgnoreCase(name)) {
@@ -127,7 +105,9 @@ public class GeomConverter {
 			reader.getNextToken();
 			name = StringConverter.deserialize(reader);
 			nextToken = reader.getNextToken();
-			if (nextToken != ':') throw new IOException("Expecting ':' at position " + reader.positionInStream() + ". Found " + (char)nextToken);
+			if (nextToken != ':') {
+				throw new IOException("Expecting ':' at position " + reader.positionInStream() + ". Found " + (char) nextToken);
+			}
 			reader.getNextToken();
 			value = NumberConverter.deserializeDouble(reader);
 			if ("X".equalsIgnoreCase(name)) {
@@ -136,7 +116,9 @@ public class GeomConverter {
 				y = value;
 			}
 		}
-		if (nextToken != '}') throw new IOException("Expecting '}' at position " + reader.positionInStream() + ". Found " + (char)nextToken);
+		if (nextToken != '}') {
+			throw new IOException("Expecting '}' at position " + reader.positionInStream() + ". Found " + (char) nextToken);
+		}
 		return new Point2D.Double(x, y);
 	}
 
@@ -173,14 +155,18 @@ public class GeomConverter {
 	}
 
 	public static Point deserializePoint(final JsonReader reader) throws IOException {
-		if (reader.last() != '{') throw new IOException("Expecting '{' at position " + reader.positionInStream() + ". Found " + (char)reader.last());
+		if (reader.last() != '{') {
+			throw new IOException("Expecting '{' at position " + reader.positionInStream() + ". Found " + (char) reader.last());
+		}
 		byte nextToken = reader.getNextToken();
 		if (nextToken == '}') return new Point();
 		int x = 0;
 		int y = 0;
 		String name = StringConverter.deserialize(reader);
 		nextToken = reader.getNextToken();
-		if (nextToken != ':') throw new IOException("Expecting ':' at position " + reader.positionInStream() + ". Found " + (char)nextToken);
+		if (nextToken != ':') {
+			throw new IOException("Expecting ':' at position " + reader.positionInStream() + ". Found " + (char) nextToken);
+		}
 		reader.getNextToken();
 		int value = NumberConverter.deserializeInt(reader);
 		if ("X".equalsIgnoreCase(name)) {
@@ -192,7 +178,9 @@ public class GeomConverter {
 			reader.getNextToken();
 			name = StringConverter.deserialize(reader);
 			nextToken = reader.getNextToken();
-			if (nextToken != ':') throw new IOException("Expecting ':' at position " + reader.positionInStream() + ". Found " + (char)nextToken);
+			if (nextToken != ':') {
+				throw new IOException("Expecting ':' at position " + reader.positionInStream() + ". Found " + (char) nextToken);
+			}
 			reader.getNextToken();
 			value = NumberConverter.deserializeInt(reader);
 			if ("X".equalsIgnoreCase(name)) {
@@ -201,7 +189,9 @@ public class GeomConverter {
 				y = value;
 			}
 		}
-		if (nextToken != '}') throw new IOException("Expecting '}' at position " + reader.positionInStream() + ". Found " + (char)nextToken);
+		if (nextToken != '}') {
+			throw new IOException("Expecting '}' at position " + reader.positionInStream() + ". Found " + (char) nextToken);
+		}
 		return new Point(x, y);
 
 	}
@@ -243,7 +233,9 @@ public class GeomConverter {
 	}
 
 	public static Rectangle2D deserializeRectangle(final JsonReader reader) throws IOException {
-		if (reader.last() != '{') throw new IOException("Expecting '{' at position " + reader.positionInStream() + ". Found " + (char)reader.last());
+		if (reader.last() != '{') {
+			throw new IOException("Expecting '{' at position " + reader.positionInStream() + ". Found " + (char) reader.last());
+		}
 		byte nextToken = reader.getNextToken();
 		if (nextToken == '}') return new Rectangle2D.Double();
 		double x = 0;
@@ -252,7 +244,9 @@ public class GeomConverter {
 		double height = 0;
 		String name = StringConverter.deserialize(reader);
 		nextToken = reader.getNextToken();
-		if (nextToken != ':') throw new IOException("Expecting ':' at position " + reader.positionInStream() + ". Found " + (char)nextToken);
+		if (nextToken != ':') {
+			throw new IOException("Expecting ':' at position " + reader.positionInStream() + ". Found " + (char) nextToken);
+		}
 		reader.getNextToken();
 		double value = NumberConverter.deserializeDouble(reader);
 		if ("X".equalsIgnoreCase(name)) {
@@ -268,7 +262,9 @@ public class GeomConverter {
 			reader.getNextToken();
 			name = StringConverter.deserialize(reader);
 			nextToken = reader.getNextToken();
-			if (nextToken != ':') throw new IOException("Expecting ':' at position " + reader.positionInStream() + ". Found " + (char)nextToken);
+			if (nextToken != ':') {
+				throw new IOException("Expecting ':' at position " + reader.positionInStream() + ". Found " + (char) nextToken);
+			}
 			reader.getNextToken();
 			value = NumberConverter.deserializeDouble(reader);
 			if ("X".equalsIgnoreCase(name)) {
@@ -281,7 +277,9 @@ public class GeomConverter {
 				height = value;
 			}
 		}
-		if (nextToken != '}') throw new IOException("Expecting '}' at position " + reader.positionInStream() + ". Found " + (char)nextToken);
+		if (nextToken != '}') {
+			throw new IOException("Expecting '}' at position " + reader.positionInStream() + ". Found " + (char) nextToken);
+		}
 		return new Rectangle2D.Double(x, y, width, height);
 	}
 
@@ -305,18 +303,20 @@ public class GeomConverter {
 		if (value == null) {
 			sw.writeNull();
 		} else if (value instanceof BufferedImage) {
-			final WritableRaster raster = ((BufferedImage)value).getRaster();
-			final DataBufferByte data = (DataBufferByte) raster.getDataBuffer();
-			BinaryConverter.serialize(data.getData(), sw);
-		} else {
-			final BufferedImage image = new BufferedImage(value.getWidth(null), value.getHeight(null), BufferedImage.TYPE_INT_ARGB);
-			final Graphics2D bGr = image.createGraphics();
-			bGr.drawImage(value, 0, 0, null);
-			bGr.dispose();
-			final WritableRaster raster = image.getRaster();
-			final DataBufferByte data = (DataBufferByte) raster.getDataBuffer();
-			BinaryConverter.serialize(data.getData(), sw);
+			final WritableRaster raster = ((BufferedImage) value).getRaster();
+			DataBuffer db = raster.getDataBuffer();
+			if (db instanceof DataBufferByte) {
+				final DataBufferByte data = (DataBufferByte) db;
+				BinaryConverter.serialize(data.getData(), sw);
+				return;
+			}
 		}
+		final BufferedImage image = new BufferedImage(value.getWidth(null), value.getHeight(null), BufferedImage.TYPE_4BYTE_ABGR);
+		final Graphics2D bGr = image.createGraphics();
+		bGr.drawImage(value, 0, 0, null);
+		bGr.dispose();
+		final DataBufferByte buffer = (DataBufferByte) image.getRaster().getDataBuffer();
+		BinaryConverter.serialize(buffer.getData(), sw);
 	}
 
 	public static BufferedImage deserializeImage(final JsonReader reader) throws IOException {
