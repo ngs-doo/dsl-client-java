@@ -20,7 +20,7 @@ public class NullableListOfNullableMapsDefaultValueTurtle {
         final java.util.List<java.util.Map<String, String>> defaultValueJsonDeserialized =
                 (java.util.List<java.util.Map<String, String>>)
                 (java.util.List<?>)
-                jsonSerialization.deserialize(java.util.Map.class, defaultValueJsonSerialized.content, defaultValueJsonSerialized.length);
+                jsonSerialization.deserializeList(java.util.Map.class, defaultValueJsonSerialized.content, defaultValueJsonSerialized.length);
         com.dslplatform.ocd.javaasserts.MapAsserts.assertNullableListOfNullableEquals(defaultValue, defaultValueJsonDeserialized);
     }
 
@@ -32,7 +32,7 @@ public class NullableListOfNullableMapsDefaultValueTurtle {
         final java.util.List<java.util.Map<String, String>> borderValue1JsonDeserialized =
                 (java.util.List<java.util.Map<String, String>>)
                 (java.util.List<?>)
-                jsonSerialization.deserialize(java.util.Map.class, borderValue1JsonSerialized.content, borderValue1JsonSerialized.length);
+                jsonSerialization.deserializeList(java.util.Map.class, borderValue1JsonSerialized.content, borderValue1JsonSerialized.length);
         com.dslplatform.ocd.javaasserts.MapAsserts.assertNullableListOfNullableEquals(borderValue1, borderValue1JsonDeserialized);
     }
 
@@ -44,7 +44,7 @@ public class NullableListOfNullableMapsDefaultValueTurtle {
         final java.util.List<java.util.Map<String, String>> borderValue2JsonDeserialized =
                 (java.util.List<java.util.Map<String, String>>)
                 (java.util.List<?>)
-                jsonSerialization.deserialize(java.util.Map.class, borderValue2JsonSerialized.content, borderValue2JsonSerialized.length);
+                jsonSerialization.deserializeList(java.util.Map.class, borderValue2JsonSerialized.content, borderValue2JsonSerialized.length);
         com.dslplatform.ocd.javaasserts.MapAsserts.assertNullableListOfNullableEquals(borderValue2, borderValue2JsonDeserialized);
     }
 
@@ -56,7 +56,7 @@ public class NullableListOfNullableMapsDefaultValueTurtle {
         final java.util.List<java.util.Map<String, String>> borderValue3JsonDeserialized =
                 (java.util.List<java.util.Map<String, String>>)
                 (java.util.List<?>)
-                jsonSerialization.deserialize(java.util.Map.class, borderValue3JsonSerialized.content, borderValue3JsonSerialized.length);
+                jsonSerialization.deserializeList(java.util.Map.class, borderValue3JsonSerialized.content, borderValue3JsonSerialized.length);
         com.dslplatform.ocd.javaasserts.MapAsserts.assertNullableListOfNullableEquals(borderValue3, borderValue3JsonDeserialized);
     }
 
@@ -68,7 +68,7 @@ public class NullableListOfNullableMapsDefaultValueTurtle {
         final java.util.List<java.util.Map<String, String>> borderValue4JsonDeserialized =
                 (java.util.List<java.util.Map<String, String>>)
                 (java.util.List<?>)
-                jsonSerialization.deserialize(java.util.Map.class, borderValue4JsonSerialized.content, borderValue4JsonSerialized.length);
+                jsonSerialization.deserializeList(java.util.Map.class, borderValue4JsonSerialized.content, borderValue4JsonSerialized.length);
         com.dslplatform.ocd.javaasserts.MapAsserts.assertNullableListOfNullableEquals(borderValue4, borderValue4JsonDeserialized);
     }
 
@@ -80,7 +80,7 @@ public class NullableListOfNullableMapsDefaultValueTurtle {
         final java.util.List<java.util.Map<String, String>> borderValue5JsonDeserialized =
                 (java.util.List<java.util.Map<String, String>>)
                 (java.util.List<?>)
-                jsonSerialization.deserialize(java.util.Map.class, borderValue5JsonSerialized.content, borderValue5JsonSerialized.length);
+                jsonSerialization.deserializeList(java.util.Map.class, borderValue5JsonSerialized.content, borderValue5JsonSerialized.length);
         com.dslplatform.ocd.javaasserts.MapAsserts.assertNullableListOfNullableEquals(borderValue5, borderValue5JsonDeserialized);
     }
 }
