@@ -352,17 +352,24 @@ public final class JsonWriter extends Writer {
 
 	@Override
 	public void write(int c) throws IOException {
-		write(new char[]{(char) c}, 0, 1);
+		if (c < 127) {
+			tmp[0] = (byte)c;
+			writeBuffer(1);
+		} else {
+			write(new char[]{(char) c}, 0, 1);
+		}
 	}
 
 	@Override
 	public void write(char[] cbuf, int off, int len) {
-		writeString(new String(cbuf, off, len));
+		String append = new String(cbuf, off, len);
+		writeAscii(append.getBytes(utf8));
 	}
 
 	@Override
 	public void write(String str, int off, int len) {
-		writeString(str.substring(off, off + len));
+		String append = str.substring(off, off + len);
+		writeAscii(append.getBytes(utf8));
 	}
 
 	@Override

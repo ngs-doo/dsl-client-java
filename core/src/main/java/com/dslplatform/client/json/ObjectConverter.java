@@ -11,18 +11,21 @@ public abstract class ObjectConverter {
 			return deserializeObject(reader);
 		}
 	};
+	@SuppressWarnings("rawtypes")
 	static final JsonReader.ReadObject<Collection> CollectionReader = new JsonReader.ReadObject<Collection>() {
 		@Override
 		public Collection read(JsonReader reader) throws IOException {
 			return deserializeList(reader);
 		}
 	};
+	@SuppressWarnings("rawtypes")
 	static final JsonReader.ReadObject<Map> MapReader = new JsonReader.ReadObject<Map>() {
 		@Override
 		public Map read(JsonReader reader) throws IOException {
 			return deserializeMap(reader);
 		}
 	};
+	@SuppressWarnings("rawtypes")
 	static final JsonWriter.WriteObject<Map> MapWriter = new JsonWriter.WriteObject<Map>() {
 		@Override
 		public void write(JsonWriter writer, Map value) {

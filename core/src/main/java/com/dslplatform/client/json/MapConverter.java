@@ -41,15 +41,17 @@ public abstract class MapConverter {
 	}
 
 	public static Map<String, String> deserialize(final JsonReader reader) throws IOException {
-		if (reader.last() != '{')
+		if (reader.last() != '{') {
 			throw new IOException("Expecting '{' at position " + reader.positionInStream() + ". Found " + (char) reader.last());
+		}
 		final HashMap<String, String> res = new HashMap<String, String>();
 		byte nextToken = reader.getNextToken();
 		if (nextToken == '}') return res;
 		String key = StringConverter.deserialize(reader);
 		nextToken = reader.getNextToken();
-		if (nextToken != ':')
+		if (nextToken != ':') {
 			throw new IOException("Expecting ':' at position " + reader.positionInStream() + ". Found " + (char) nextToken);
+		}
 		reader.getNextToken();
 		String value = StringConverter.deserializeNullable(reader);
 		res.put(key, value);
@@ -57,14 +59,16 @@ public abstract class MapConverter {
 			reader.getNextToken();
 			key = StringConverter.deserialize(reader);
 			nextToken = reader.getNextToken();
-			if (nextToken != ':')
+			if (nextToken != ':') {
 				throw new IOException("Expecting ':' at position " + reader.positionInStream() + ". Found " + (char) nextToken);
+			}
 			reader.getNextToken();
 			value = StringConverter.deserializeNullable(reader);
 			res.put(key, value);
 		}
-		if (nextToken != '}')
+		if (nextToken != '}') {
 			throw new IOException("Expecting '}' at position " + reader.positionInStream() + ". Found " + (char) nextToken);
+		}
 		return res;
 	}
 

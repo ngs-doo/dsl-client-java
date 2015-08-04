@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.dslplatform.client.Utils;
 import com.dslplatform.patterns.*;
@@ -48,7 +49,7 @@ public class DslJsonSerialization implements JsonSerialization {
 		registerReader(float.class, NumberConverter.FloatReader);
 		registerWriter(float.class, NumberConverter.FloatWriter);
 		registerReader(Float.class, NumberConverter.FloatReader);
-		registerWriter(float.class, NumberConverter.FloatWriter);
+		registerWriter(Float.class, NumberConverter.FloatWriter);
 		registerReader(int.class, NumberConverter.IntReader);
 		registerWriter(int.class, NumberConverter.IntWriter);
 		registerReader(Integer.class, NumberConverter.IntReader);
@@ -113,24 +114,66 @@ public class DslJsonSerialization implements JsonSerialization {
 	private final HashMap<Class<?>, JsonReader.ReadObject<?>> jsonReaders = new HashMap<Class<?>, JsonReader.ReadObject<?>>();
 
 	<T> void registerReader(final Class<T> manifest, final JsonReader.ReadObject<T> reader) {
+		readerMap.put(manifest, manifest);
 		jsonReaders.put(manifest, reader);
 	}
 
 	private final HashMap<Class<?>, JsonWriter.WriteObject<?>> jsonWriters = new HashMap<Class<?>, JsonWriter.WriteObject<?>>();
 
 	<T> void registerWriter(final Class<T> manifest, final JsonWriter.WriteObject<T> writer) {
+		writerMap.put(manifest, manifest);
 		jsonWriters.put(manifest, writer);
 	}
 
-	private JsonWriter.WriteObject<?> tryFindWriter(Class<?> manifest) {
-		do {
-			final JsonWriter.WriteObject<?> writer = jsonWriters.get(manifest);
+	private final ConcurrentMap<Class<?>, Class<?>> readerMap = new ConcurrentHashMap<Class<?>, Class<?>>();
+	private final ConcurrentMap<Class<?>, Class<?>> writerMap = new ConcurrentHashMap<Class<?>, Class<?>>();
+
+	private JsonReader.ReadObject<?> tryFindReader(final Class<?> manifest) {
+		Class<?> found = readerMap.get(manifest);
+		if (found != null) {
+			return jsonReaders.get(found);
+		}
+		final ArrayList<Class<?>> signatures = new ArrayList<Class<?>>();
+		findAllSignatures(manifest, signatures);
+		for (final Class<?> sig : signatures) {
+			final JsonReader.ReadObject<?> writer = jsonReaders.get(sig);
 			if (writer != null) {
+				readerMap.putIfAbsent(manifest, sig);
 				return writer;
 			}
-			manifest = manifest.getSuperclass();
-		} while (manifest != null);
+		}
 		return null;
+	}
+
+	private JsonWriter.WriteObject<?> tryFindWriter(final Class<?> manifest) {
+		Class<?> found = writerMap.get(manifest);
+		if (found != null) {
+			return jsonWriters.get(found);
+		}
+		final ArrayList<Class<?>> signatures = new ArrayList<Class<?>>();
+		findAllSignatures(manifest, signatures);
+		for (final Class<?> sig : signatures) {
+			final JsonWriter.WriteObject<?> writer = jsonWriters.get(sig);
+			if (writer != null) {
+				writerMap.putIfAbsent(manifest, sig);
+				return writer;
+			}
+		}
+		return null;
+	}
+
+	private static void findAllSignatures(final Class<?> manifest, final ArrayList<Class<?>> found) {
+		if (found.contains(manifest)) {
+			return;
+		}
+		found.add(manifest);
+		final Class<?> superClass = manifest.getSuperclass();
+		if (superClass != null && superClass != Object.class) {
+			findAllSignatures(superClass, found);
+		}
+		for (final Class<?> iface : manifest.getInterfaces()) {
+			findAllSignatures(iface, found);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -176,7 +219,7 @@ public class DslJsonSerialization implements JsonSerialization {
 				return (TResult) objectReader.deserialize(json, locator);
 			}
 		}
-		final JsonReader.ReadObject<?> simpleReader = jsonReaders.get(manifest);
+		final JsonReader.ReadObject<?> simpleReader = tryFindReader(manifest);
 		if (simpleReader == null) {
 			if (manifest.isArray()) {
 				final Class<?> elementManifest = manifest.getComponentType();
@@ -258,7 +301,7 @@ public class DslJsonSerialization implements JsonSerialization {
 				return (List<TResult>) json.deserializeNullableCollection(reader);
 			}
 		}
-		final JsonReader.ReadObject<?> simpleReader = jsonReaders.get(manifest);
+		final JsonReader.ReadObject<?> simpleReader = tryFindReader(manifest);
 		if (simpleReader == null) {
 			if (Utils.HAS_JACKSON) {
 				return deserializeJacksonList(this, manifest, body, size);
@@ -612,22 +655,29 @@ public class DslJsonSerialization implements JsonSerialization {
 
 	@Override
 	public final void serialize(final Writer writer, final Object value) throws IOException {
+		if (writer instanceof JsonWriter) {
+			serialize((JsonWriter)writer, value);
+		}
+		else {
+			final JsonWriter jw = new JsonWriter();
+			serialize(jw, value);
+			writer.write(jw.toString());
+		}
+	}
+
+	public final void serialize(final JsonWriter writer, final Object value) throws IOException {
 		if (value == null) {
-			writer.write("null");
+			writer.writeNull();
 			return;
 		}
 		final Class<?> manifest = value.getClass();
-		final boolean isJsonWriter = writer instanceof JsonWriter;
-		final JsonWriter jw = isJsonWriter ? (JsonWriter) writer : new JsonWriter();
-		if (!serialize(jw, manifest, value)) {
+		if (!serialize(writer, manifest, value)) {
 			if (Utils.HAS_JACKSON) {
 				Bytes result = serializeJackson(this, value);
 				writer.write(result.toUtf8());
 			}
 			throw new IOException("Unable to serialize provided object. Failed to find serializer for: " + manifest);
 		}
-		if (!isJsonWriter) {
-			writer.write(jw.toString());
-		}
 	}
+
 }
