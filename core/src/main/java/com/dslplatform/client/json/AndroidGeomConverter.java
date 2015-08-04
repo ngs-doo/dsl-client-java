@@ -298,5 +298,4 @@ public class AndroidGeomConverter {
 	public static void deserializeImageNullableCollection(final JsonReader reader, final Collection<Bitmap> res) throws IOException {
 		reader.deserializeNullableCollection(ImageReader, res);
 	}
-
 }

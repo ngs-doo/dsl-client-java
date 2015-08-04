@@ -7,7 +7,6 @@ object J2SEVersion {
   val `8` = J2SEVersion(52, 0)
 }
 
-
 object J2SEVersionCheck {
   def apply(bytecode: Array[Byte], versionCheck: J2SEVersion => Boolean) =
     new J2SEVersionCheck(bytecode).checkVersion(versionCheck)

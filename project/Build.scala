@@ -27,7 +27,7 @@ trait Default {
         "-target", "1.6"
       , "-deprecation"
       , "-Xlint:all"
-      ) ++ (sys.env.get("JDK16_HOME") match { 
+      ) ++ (sys.env.get("JDK16_HOME") match {
         case Some(jdk16Home) => Seq(
             "-bootclasspath"
           , Seq("rt", "jsse")
@@ -39,7 +39,7 @@ trait Default {
     , EclipseKeys.eclipseOutput := Some(".target")
     , EclipseKeys.executionEnvironment := Some(EclipseExecutionEnvironment.JavaSE16)
     , EclipseKeys.projectFlavor := EclipseProjectFlavor.Java
-    , ideaExcludeFolders := Seq(".idea", ".idea_modules", ".settings") 
+    , ideaExcludeFolders := Seq(".idea", ".idea_modules", ".settings")
     )
 
   def checkByteCode(jar: File): File = {
@@ -105,7 +105,7 @@ object Build extends Build with Default with Dependencies {
         slf4j
       , jackson % "provided"
       , androidSDK % "provided" intransitive()
-      , awsCore % "provided" 
+      , awsCore % "provided"
       , awsS3 % "provided"
       , jsonAssert % "test"
       , junit % "test"

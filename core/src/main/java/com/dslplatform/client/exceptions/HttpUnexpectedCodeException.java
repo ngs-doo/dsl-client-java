@@ -15,7 +15,7 @@ public class HttpUnexpectedCodeException extends HttpException {
 		super(response, receivedCode, headers);
 
 		if (expectedCode != null) {
-			for(final int ec : expectedCode) {
+			for (final int ec : expectedCode) {
 				this.expectedCode.add(ec);
 			}
 		}

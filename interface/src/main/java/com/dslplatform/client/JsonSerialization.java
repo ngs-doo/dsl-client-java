@@ -15,8 +15,8 @@ public interface JsonSerialization {
 
 	/**
 	 * Serialize object if possible.
-     * Returning byte array and total length, to allow for byte array reuse.
-     *
+	 * Returning byte array and total length, to allow for byte array reuse.
+	 *
 	 * @param value object instance to serialize
 	 * @return JSON as byte array (actual length might differ)
 	 * @throws IOException

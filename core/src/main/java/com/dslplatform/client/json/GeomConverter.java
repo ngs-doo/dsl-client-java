@@ -339,5 +339,4 @@ public class GeomConverter {
 	public static void deserializeImageNullableCollection(final JsonReader reader, final Collection<BufferedImage> res) throws IOException {
 		reader.deserializeNullableCollection(ImageReader, res);
 	}
-
 }
