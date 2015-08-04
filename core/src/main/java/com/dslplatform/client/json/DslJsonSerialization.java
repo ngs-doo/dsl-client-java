@@ -95,9 +95,8 @@ public class DslJsonSerialization implements JsonSerialization {
 		json.registerWriter(java.awt.Point.class, GeomConverter.PointWriter);
 		json.registerReader(java.awt.geom.Rectangle2D.class, GeomConverter.RectangleReader);
 		json.registerWriter(java.awt.geom.Rectangle2D.class, GeomConverter.RectangleWriter);
-		json.registerReader(java.awt.image.BufferedImage.class, ImageConverter.ImageReader);
-		json.registerWriter(java.awt.Image.class, ImageConverter.ImageWriter);
-		json.registerWriter(java.awt.image.BufferedImage.class, ImageConverter.BufferedImageWriter);
+		json.registerReader(java.awt.Image.class, GeomConverter.ImageReader);
+		json.registerWriter(java.awt.Image.class, GeomConverter.ImageWriter);
 	}
 
 	private static boolean isNull(final int size, final byte[] body) {
@@ -161,14 +160,11 @@ public class DslJsonSerialization implements JsonSerialization {
 		if (isNull(size, body)) {
 			return null;
 		}
-		if (size == 2 && body[0] == '{' && body[1] == '}') {
+		if (size == 2 && body[0] == '{' && body[1] == '}' && !manifest.isInterface()) {
 			try {
-				if (manifest.isInterface()) {
-					if (manifest == Map.class) return (TResult) new HashMap();
-					throw new IOException("Trying to instantiate an unsupported interface: " + manifest.getName());
-				}
 				return manifest.newInstance();
-			} catch (Exception e) {
+			} catch (InstantiationException ignore) {
+			} catch (IllegalAccessException e) {
 				throw new IOException(e);
 			}
 		}

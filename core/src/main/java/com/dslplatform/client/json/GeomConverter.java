@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.*;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,9 +47,9 @@ public abstract class GeomConverter {
 			serializeRectangleNullable(value, writer);
 		}
 	};
-	static final JsonReader.ReadObject<BufferedImage> ImageReader = new JsonReader.ReadObject<BufferedImage>() {
+	static final JsonReader.ReadObject<Image> ImageReader = new JsonReader.ReadObject<Image>() {
 		@Override
-		public BufferedImage read(JsonReader reader) throws IOException {
+		public Image read(JsonReader reader) throws IOException {
 			return deserializeImage(reader);
 		}
 	};
@@ -58,10 +59,10 @@ public abstract class GeomConverter {
 			serialize(value, writer);
 		}
 	};
-	static final JsonWriter.WriteObject<BufferedImage> BufferedImageWriter = new JsonWriter.WriteObject<BufferedImage>() {
+	private static final JsonReader.ReadObject<BufferedImage> BufferedImageReader = new JsonReader.ReadObject<BufferedImage>() {
 		@Override
-		public void write(JsonWriter writer, BufferedImage value) {
-			serialize(value, writer);
+		public BufferedImage read(JsonReader reader) throws IOException {
+			return deserializeImage(reader);
 		}
 	};
 
@@ -302,21 +303,27 @@ public abstract class GeomConverter {
 	public static void serialize(final Image value, final JsonWriter sw) {
 		if (value == null) {
 			sw.writeNull();
-		} else if (value instanceof BufferedImage) {
-			final WritableRaster raster = ((BufferedImage) value).getRaster();
-			DataBuffer db = raster.getDataBuffer();
-			if (db instanceof DataBufferByte) {
-				final DataBufferByte data = (DataBufferByte) db;
-				BinaryConverter.serialize(data.getData(), sw);
-				return;
-			}
+			return;
 		}
-		final BufferedImage image = new BufferedImage(value.getWidth(null), value.getHeight(null), BufferedImage.TYPE_4BYTE_ABGR);
-		final Graphics2D bGr = image.createGraphics();
-		bGr.drawImage(value, 0, 0, null);
-		bGr.dispose();
-		final DataBufferByte buffer = (DataBufferByte) image.getRaster().getDataBuffer();
-		BinaryConverter.serialize(buffer.getData(), sw);
+		final RenderedImage image;
+		if (value instanceof RenderedImage) {
+			image = (RenderedImage) value;
+		}
+		else {
+			final BufferedImage bufferedImage = new BufferedImage(value.getWidth(null), value.getHeight(null), BufferedImage.TYPE_4BYTE_ABGR);
+			final Graphics bGr = bufferedImage.createGraphics();
+			bGr.drawImage(value, 0, 0, null);
+			bGr.dispose();
+			image = bufferedImage;
+		}
+		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try {
+			javax.imageio.ImageIO.write(image, "png", baos);
+			BinaryConverter.serialize(baos.toByteArray(), sw);
+		}
+		catch (final IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public static BufferedImage deserializeImage(final JsonReader reader) throws IOException {
@@ -325,18 +332,18 @@ public abstract class GeomConverter {
 	}
 
 	public static ArrayList<BufferedImage> deserializeImageCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeCollection(ImageReader);
+		return reader.deserializeCollection(BufferedImageReader);
 	}
 
 	public static void deserializeImageCollection(final JsonReader reader, final Collection<BufferedImage> res) throws IOException {
-		reader.deserializeCollection(ImageReader, res);
+		reader.deserializeCollection(BufferedImageReader, res);
 	}
 
 	public static ArrayList<BufferedImage> deserializeImageNullableCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeNullableCollection(ImageReader);
+		return reader.deserializeNullableCollection(BufferedImageReader);
 	}
 
 	public static void deserializeImageNullableCollection(final JsonReader reader, final Collection<BufferedImage> res) throws IOException {
-		reader.deserializeNullableCollection(ImageReader, res);
+		reader.deserializeNullableCollection(BufferedImageReader, res);
 	}
 }

@@ -59,8 +59,8 @@ public abstract class ObjectConverter {
 			throw new IOException("Expecting '[' at position " + reader.positionInStream() + ". Found " + (char) reader.last());
 		}
 		byte nextToken = reader.getNextToken();
-		if (nextToken == ']') return new ArrayList<>(0);
-		final ArrayList<Object> res = new ArrayList<Object>();
+		if (nextToken == ']') return new ArrayList<Object>(0);
+		final ArrayList<Object> res = new ArrayList<Object>(4);
 		res.add(deserializeObject(reader));
 		while ((nextToken = reader.getNextToken()) == ',') {
 			reader.getNextToken();
