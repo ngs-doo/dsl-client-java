@@ -236,7 +236,7 @@ public class NumberConverter {
 		if (i == len) return value;
 		else if (ch == '.') {
 			i++;
-			int div = 1;
+			long div = 1;
 			for (; i < len; i++) {
 				final int ind = buf[i] - 48;
 				div = (div << 3) + (div << 1);
@@ -265,7 +265,7 @@ public class NumberConverter {
 		if (i == len) return value;
 		else if (ch == '.') {
 			i++;
-			int div = 1;
+			long div = 1;
 			for (; i < len; i++) {
 				final int ind = buf[i] - 48;
 				div = (div << 3) + (div << 1);
