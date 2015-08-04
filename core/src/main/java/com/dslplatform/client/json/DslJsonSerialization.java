@@ -95,9 +95,9 @@ public class DslJsonSerialization implements JsonSerialization {
 		json.registerWriter(java.awt.Point.class, GeomConverter.PointWriter);
 		json.registerReader(java.awt.geom.Rectangle2D.class, GeomConverter.RectangleReader);
 		json.registerWriter(java.awt.geom.Rectangle2D.class, GeomConverter.RectangleWriter);
-		json.registerReader(java.awt.image.BufferedImage.class, GeomConverter.ImageReader);
-		json.registerWriter(java.awt.Image.class, GeomConverter.ImageWriter);
-		json.registerWriter(java.awt.image.BufferedImage.class, GeomConverter.BufferedImageWriter);
+		json.registerReader(java.awt.image.BufferedImage.class, ImageConverter.ImageReader);
+		json.registerWriter(java.awt.Image.class, ImageConverter.ImageWriter);
+		json.registerWriter(java.awt.image.BufferedImage.class, ImageConverter.BufferedImageWriter);
 	}
 
 	private static boolean isNull(final int size, final byte[] body) {
