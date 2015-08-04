@@ -48,7 +48,6 @@ public class NullableListOfNullableXmlsDefaultValueTurtle {
 	public void testBorderValue4Equality() throws IOException {
 		final java.util.List<org.w3c.dom.Element> borderValue4 = new java.util.ArrayList<org.w3c.dom.Element>(java.util.Arrays.asList((org.w3c.dom.Element) null, com.dslplatform.ocd.test.Utils.stringToElement("<document/>"), com.dslplatform.ocd.test.Utils.stringToElement("<TextElement>some text &amp; &lt;stuff&gt;</TextElement>"), com.dslplatform.ocd.test.Utils.stringToElement("<ElementWithCData>&lt;?xml?&gt;&lt;xml&gt;&lt;!xml!&gt;</ElementWithCData>"), com.dslplatform.ocd.test.Utils.stringToElement("<AtributedElement foo=\"bar\" qwe=\"poi\"/>"), com.dslplatform.ocd.test.Utils.stringToElement("<NestedTextElement><FirstNest><SecondNest>bird</SecondNest></FirstNest></NestedTextElement>"), com.dslplatform.ocd.test.Utils.stringToElement("<ns3000:NamespacedElement/>")));
 		final Bytes borderValue4JsonSerialized = jsonSerialization.serialize(borderValue4);
-		System.out.println(borderValue4JsonSerialized.toUtf8());
 		final java.util.List<org.w3c.dom.Element> borderValue4JsonDeserialized = jsonSerialization.deserializeList(org.w3c.dom.Element.class, borderValue4JsonSerialized.content, borderValue4JsonSerialized.length);
 		com.dslplatform.ocd.javaasserts.XmlAsserts.assertNullableListOfNullableEquals(borderValue4, borderValue4JsonDeserialized);
 	}

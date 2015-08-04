@@ -46,7 +46,7 @@ public class NullableLocationDefaultValueTurtle {
 
 	@org.junit.Test
 	public void testBorderValue4Equality() throws IOException {
-		final java.awt.geom.Point2D borderValue4 = new java.awt.geom.Point2D.Float(Float.MIN_VALUE, Float.MAX_VALUE);
+		final java.awt.geom.Point2D borderValue4 = new java.awt.geom.Point2D.Double(Double.MIN_VALUE, Double.MAX_VALUE);
 		final Bytes borderValue4JsonSerialized = jsonSerialization.serialize(borderValue4);
 		final java.awt.geom.Point2D borderValue4JsonDeserialized = jsonSerialization.deserialize(java.awt.geom.Point2D.class, borderValue4JsonSerialized.content, borderValue4JsonSerialized.length);
 		com.dslplatform.ocd.javaasserts.LocationAsserts.assertNullableEquals(borderValue4, borderValue4JsonDeserialized);
@@ -54,25 +54,9 @@ public class NullableLocationDefaultValueTurtle {
 
 	@org.junit.Test
 	public void testBorderValue5Equality() throws IOException {
-		final java.awt.geom.Point2D borderValue5 = new java.awt.geom.Point2D.Float(-1.0000001f, 1.0000001f);
+		final java.awt.geom.Point2D borderValue5 = new java.awt.geom.Point2D.Double(-1.000000000000001, 1.000000000000001);
 		final Bytes borderValue5JsonSerialized = jsonSerialization.serialize(borderValue5);
 		final java.awt.geom.Point2D borderValue5JsonDeserialized = jsonSerialization.deserialize(java.awt.geom.Point2D.class, borderValue5JsonSerialized.content, borderValue5JsonSerialized.length);
 		com.dslplatform.ocd.javaasserts.LocationAsserts.assertNullableEquals(borderValue5, borderValue5JsonDeserialized);
-	}
-
-	@org.junit.Test
-	public void testBorderValue6Equality() throws IOException {
-		final java.awt.geom.Point2D borderValue6 = new java.awt.geom.Point2D.Double(Double.MIN_VALUE, Double.MAX_VALUE);
-		final Bytes borderValue6JsonSerialized = jsonSerialization.serialize(borderValue6);
-		final java.awt.geom.Point2D borderValue6JsonDeserialized = jsonSerialization.deserialize(java.awt.geom.Point2D.class, borderValue6JsonSerialized.content, borderValue6JsonSerialized.length);
-		com.dslplatform.ocd.javaasserts.LocationAsserts.assertNullableEquals(borderValue6, borderValue6JsonDeserialized);
-	}
-
-	@org.junit.Test
-	public void testBorderValue7Equality() throws IOException {
-		final java.awt.geom.Point2D borderValue7 = new java.awt.geom.Point2D.Double(-1.000000000000001, 1.000000000000001);
-		final Bytes borderValue7JsonSerialized = jsonSerialization.serialize(borderValue7);
-		final java.awt.geom.Point2D borderValue7JsonDeserialized = jsonSerialization.deserialize(java.awt.geom.Point2D.class, borderValue7JsonSerialized.content, borderValue7JsonSerialized.length);
-		com.dslplatform.ocd.javaasserts.LocationAsserts.assertNullableEquals(borderValue7, borderValue7JsonDeserialized);
 	}
 }

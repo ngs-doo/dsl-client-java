@@ -46,7 +46,7 @@ public class OneArrayOfNullableLocationsDefaultValueTurtle {
 
 	@org.junit.Test
 	public void testBorderValue4Equality() throws IOException {
-		final java.awt.geom.Point2D[] borderValue4 = new java.awt.geom.Point2D[] { new java.awt.geom.Point2D.Float(), new java.awt.Point(Integer.MIN_VALUE, Integer.MAX_VALUE), new java.awt.Point(-1000000000, 1000000000), new java.awt.geom.Point2D.Float(Float.MIN_VALUE, Float.MAX_VALUE), new java.awt.geom.Point2D.Float(-1.0000001f, 1.0000001f), new java.awt.geom.Point2D.Double(Double.MIN_VALUE, Double.MAX_VALUE), new java.awt.geom.Point2D.Double(-1.000000000000001, 1.000000000000001) };
+		final java.awt.geom.Point2D[] borderValue4 = new java.awt.geom.Point2D[] { new java.awt.geom.Point2D.Float(), new java.awt.Point(Integer.MIN_VALUE, Integer.MAX_VALUE), new java.awt.Point(-1000000000, 1000000000), new java.awt.geom.Point2D.Double(Double.MIN_VALUE, Double.MAX_VALUE), new java.awt.geom.Point2D.Double(-1.000000000000001, 1.000000000000001) };
 		final Bytes borderValue4JsonSerialized = jsonSerialization.serialize(borderValue4);
 		final java.awt.geom.Point2D[] borderValue4JsonDeserialized = jsonSerialization.deserialize(java.awt.geom.Point2D[].class, borderValue4JsonSerialized.content, borderValue4JsonSerialized.length);
 		com.dslplatform.ocd.javaasserts.LocationAsserts.assertOneArrayOfNullableEquals(borderValue4, borderValue4JsonDeserialized);
@@ -54,7 +54,7 @@ public class OneArrayOfNullableLocationsDefaultValueTurtle {
 
 	@org.junit.Test
 	public void testBorderValue5Equality() throws IOException {
-		final java.awt.geom.Point2D[] borderValue5 = new java.awt.geom.Point2D[] { null, new java.awt.geom.Point2D.Float(), new java.awt.Point(Integer.MIN_VALUE, Integer.MAX_VALUE), new java.awt.Point(-1000000000, 1000000000), new java.awt.geom.Point2D.Float(Float.MIN_VALUE, Float.MAX_VALUE), new java.awt.geom.Point2D.Float(-1.0000001f, 1.0000001f), new java.awt.geom.Point2D.Double(Double.MIN_VALUE, Double.MAX_VALUE), new java.awt.geom.Point2D.Double(-1.000000000000001, 1.000000000000001) };
+		final java.awt.geom.Point2D[] borderValue5 = new java.awt.geom.Point2D[] { null, new java.awt.geom.Point2D.Float(), new java.awt.Point(Integer.MIN_VALUE, Integer.MAX_VALUE), new java.awt.Point(-1000000000, 1000000000), new java.awt.geom.Point2D.Double(Double.MIN_VALUE, Double.MAX_VALUE), new java.awt.geom.Point2D.Double(-1.000000000000001, 1.000000000000001) };
 		final Bytes borderValue5JsonSerialized = jsonSerialization.serialize(borderValue5);
 		final java.awt.geom.Point2D[] borderValue5JsonDeserialized = jsonSerialization.deserialize(java.awt.geom.Point2D[].class, borderValue5JsonSerialized.content, borderValue5JsonSerialized.length);
 		com.dslplatform.ocd.javaasserts.LocationAsserts.assertOneArrayOfNullableEquals(borderValue5, borderValue5JsonDeserialized);
