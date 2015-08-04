@@ -125,7 +125,7 @@ public class DslJsonSerialization implements JsonSerialization {
 
 	private JsonWriter.WriteObject<?> tryFindWriter(Class<?> manifest) {
 		do {
-			JsonWriter.WriteObject<?> writer = jsonWriters.get(manifest);
+			final JsonWriter.WriteObject<?> writer = jsonWriters.get(manifest);
 			if (writer != null) {
 				return writer;
 			}
@@ -163,6 +163,10 @@ public class DslJsonSerialization implements JsonSerialization {
 		}
 		if (size == 2 && body[0] == '{' && body[1] == '}') {
 			try {
+				if (manifest.isInterface()) {
+					if (manifest == Map.class) return (TResult) new HashMap();
+					throw new IOException("Trying to instantiate an unsupported interface: " + manifest.getName());
+				}
 				return manifest.newInstance();
 			} catch (Exception e) {
 				throw new IOException(e);
