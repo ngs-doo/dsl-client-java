@@ -544,13 +544,13 @@ public final class JsonReader {
 		}
 	}
 
-	public final <T> ArrayList<T> deserializeCollection(final ReadObject<T> readObject) throws IOException {
+	public final <T, S extends T> ArrayList<T> deserializeCollection(final ReadObject<S> readObject) throws IOException {
 		final ArrayList<T> res = new ArrayList<T>(4);
 		deserializeCollection(readObject, res);
 		return res;
 	}
 
-	public final <T> void deserializeCollection(final ReadObject<T> readObject, final Collection<T> res) throws IOException {
+	public final <T, S extends T> void deserializeCollection(final ReadObject<S> readObject, final Collection<T> res) throws IOException {
 		res.add(readObject.read(this));
 		while (getNextToken() == ',') {
 			getNextToken();
@@ -559,13 +559,13 @@ public final class JsonReader {
 		checkArrayEnd();
 	}
 
-	public final <T> ArrayList<T> deserializeNullableCollection(final ReadObject<T> readObject) throws IOException {
+	public final <T, S extends T> ArrayList<T> deserializeNullableCollection(final ReadObject<S> readObject) throws IOException {
 		final ArrayList<T> res = new ArrayList<T>(4);
 		deserializeNullableCollection(readObject, res);
 		return res;
 	}
 
-	public final <T> void deserializeNullableCollection(final ReadObject<T> readObject, final Collection<T> res) throws IOException {
+	public final <T, S extends T> void deserializeNullableCollection(final ReadObject<S> readObject, final Collection<T> res) throws IOException {
 		if (wasNull()) {
 			res.add(null);
 		} else {

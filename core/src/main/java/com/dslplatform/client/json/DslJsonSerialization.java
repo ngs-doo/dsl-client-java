@@ -36,6 +36,8 @@ public class DslJsonSerialization implements JsonSerialization {
 		} else {
 			registerJavaSpecifics(this);
 		}
+		registerReader(LinkedHashMap.class, ObjectConverter.MapReader);
+		registerReader(HashMap.class, ObjectConverter.MapReader);
 		registerReader(Map.class, ObjectConverter.MapReader);
 		registerWriter(Map.class, ObjectConverter.MapWriter);
 		registerReader(URI.class, NetConverter.UriReader);
@@ -90,12 +92,15 @@ public class DslJsonSerialization implements JsonSerialization {
 	}
 
 	static void registerJavaSpecifics(final DslJsonSerialization json) {
+		json.registerReader(java.awt.geom.Point2D.Double.class, GeomConverter.LocationReader);
 		json.registerReader(java.awt.geom.Point2D.class, GeomConverter.LocationReader);
 		json.registerWriter(java.awt.geom.Point2D.class, GeomConverter.LocationWriter);
 		json.registerReader(java.awt.Point.class, GeomConverter.PointReader);
 		json.registerWriter(java.awt.Point.class, GeomConverter.PointWriter);
+		json.registerReader(java.awt.geom.Rectangle2D.Double.class, GeomConverter.RectangleReader);
 		json.registerReader(java.awt.geom.Rectangle2D.class, GeomConverter.RectangleReader);
 		json.registerWriter(java.awt.geom.Rectangle2D.class, GeomConverter.RectangleWriter);
+		json.registerReader(java.awt.image.BufferedImage.class, GeomConverter.ImageReader);
 		json.registerReader(java.awt.Image.class, GeomConverter.ImageReader);
 		json.registerWriter(java.awt.Image.class, GeomConverter.ImageWriter);
 	}
@@ -113,8 +118,7 @@ public class DslJsonSerialization implements JsonSerialization {
 
 	private final HashMap<Class<?>, JsonReader.ReadObject<?>> jsonReaders = new HashMap<Class<?>, JsonReader.ReadObject<?>>();
 
-	<T> void registerReader(final Class<T> manifest, final JsonReader.ReadObject<T> reader) {
-		readerMap.put(manifest, manifest);
+	<T, S extends T> void registerReader(final Class<T> manifest, final JsonReader.ReadObject<S> reader) {
 		jsonReaders.put(manifest, reader);
 	}
 
@@ -125,25 +129,7 @@ public class DslJsonSerialization implements JsonSerialization {
 		jsonWriters.put(manifest, writer);
 	}
 
-	private final ConcurrentMap<Class<?>, Class<?>> readerMap = new ConcurrentHashMap<Class<?>, Class<?>>();
 	private final ConcurrentMap<Class<?>, Class<?>> writerMap = new ConcurrentHashMap<Class<?>, Class<?>>();
-
-	private JsonReader.ReadObject<?> tryFindReader(final Class<?> manifest) {
-		Class<?> found = readerMap.get(manifest);
-		if (found != null) {
-			return jsonReaders.get(found);
-		}
-		final ArrayList<Class<?>> signatures = new ArrayList<Class<?>>();
-		findAllSignatures(manifest, signatures);
-		for (final Class<?> sig : signatures) {
-			final JsonReader.ReadObject<?> writer = jsonReaders.get(sig);
-			if (writer != null) {
-				readerMap.putIfAbsent(manifest, sig);
-				return writer;
-			}
-		}
-		return null;
-	}
 
 	private JsonWriter.WriteObject<?> tryFindWriter(final Class<?> manifest) {
 		Class<?> found = writerMap.get(manifest);
@@ -219,7 +205,7 @@ public class DslJsonSerialization implements JsonSerialization {
 				return (TResult) objectReader.deserialize(json, locator);
 			}
 		}
-		final JsonReader.ReadObject<?> simpleReader = tryFindReader(manifest);
+		final JsonReader.ReadObject<?> simpleReader = jsonReaders.get(manifest);
 		if (simpleReader == null) {
 			if (manifest.isArray()) {
 				final Class<?> elementManifest = manifest.getComponentType();
@@ -236,8 +222,7 @@ public class DslJsonSerialization implements JsonSerialization {
 			if (Utils.HAS_JACKSON) {
 				return deserializeJackson(this, manifest, body, size);
 			}
-			throw new IOException("Unable to find reader for provided type: " + manifest + " and Jackson is not found on classpath.\n" +
-					"Try initializing system with custom JsonSerialization.");
+			showErrorMessage(manifest);
 		}
 		final JsonReader json = new JsonReader(body, size, locator);
 		json.getNextToken();
@@ -245,6 +230,20 @@ public class DslJsonSerialization implements JsonSerialization {
 			return null;
 		}
 		return (TResult) simpleReader.read(json);
+	}
+
+	private void showErrorMessage(final Class<?> manifest) throws IOException {
+		final ArrayList<Class<?>> signatures = new ArrayList<Class<?>>();
+		findAllSignatures(manifest, signatures);
+		for (final Class<?> sig : signatures) {
+			if (jsonReaders.containsKey(sig)) {
+				throw new IOException("Unable to find reader for provided type: " + manifest + " and Jackson is not found on classpath.\n" +
+						"Found reader for: " + sig + " so try deserializing into it instead?\n" +
+						"Alternatively, try initializing system with custom JsonSerialization or register specified type using registerReader into " + DslJsonSerialization.class);
+			}
+		}
+		throw new IOException("Unable to find reader for provided type: " + manifest + " and Jackson is not found on classpath.\n" +
+				"Try initializing system with custom JsonSerialization or register specified type using registerReader into " + DslJsonSerialization.class);
 	}
 
 	private Object jackson;
@@ -301,13 +300,12 @@ public class DslJsonSerialization implements JsonSerialization {
 				return (List<TResult>) json.deserializeNullableCollection(reader);
 			}
 		}
-		final JsonReader.ReadObject<?> simpleReader = tryFindReader(manifest);
+		final JsonReader.ReadObject<?> simpleReader = jsonReaders.get(manifest);
 		if (simpleReader == null) {
 			if (Utils.HAS_JACKSON) {
 				return deserializeJacksonList(this, manifest, body, size);
 			}
-			throw new IOException("Unable to find reader for provided type: " + manifest + " and Jackson is not found on classpath.\n" +
-					"Try initializing system with custom JsonSerialization.");
+			showErrorMessage(manifest);
 		}
 		return json.deserializeNullableCollection((JsonReader.ReadObject<TResult>) simpleReader);
 	}
@@ -656,9 +654,8 @@ public class DslJsonSerialization implements JsonSerialization {
 	@Override
 	public final void serialize(final Writer writer, final Object value) throws IOException {
 		if (writer instanceof JsonWriter) {
-			serialize((JsonWriter)writer, value);
-		}
-		else {
+			serialize((JsonWriter) writer, value);
+		} else {
 			final JsonWriter jw = new JsonWriter();
 			serialize(jw, value);
 			writer.write(jw.toString());

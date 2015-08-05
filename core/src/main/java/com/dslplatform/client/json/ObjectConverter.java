@@ -19,9 +19,9 @@ public abstract class ObjectConverter {
 		}
 	};
 	@SuppressWarnings("rawtypes")
-	static final JsonReader.ReadObject<Map> MapReader = new JsonReader.ReadObject<Map>() {
+	static final JsonReader.ReadObject<LinkedHashMap> MapReader = new JsonReader.ReadObject<LinkedHashMap>() {
 		@Override
-		public Map read(JsonReader reader) throws IOException {
+		public LinkedHashMap read(JsonReader reader) throws IOException {
 			return deserializeMap(reader);
 		}
 	};
@@ -95,13 +95,13 @@ public abstract class ObjectConverter {
 		sw.writeByte(JsonWriter.OBJECT_END);
 	}
 
-	public static Map<String, Object> deserializeMap(final JsonReader reader) throws IOException {
+	public static LinkedHashMap<String, Object> deserializeMap(final JsonReader reader) throws IOException {
 		if (reader.last() != '{') {
 			throw new IOException("Expecting '{' at position " + reader.positionInStream() + ". Found " + (char) reader.last());
 		}
 		byte nextToken = reader.getNextToken();
-		if (nextToken == '}') return new HashMap<String, Object>(0);
-		final HashMap<String, Object> res = new HashMap<String, Object>();
+		if (nextToken == '}') return new LinkedHashMap<String, Object>(0);
+		final LinkedHashMap<String, Object> res = new LinkedHashMap<String, Object>();
 		String key = StringConverter.deserialize(reader);
 		nextToken = reader.getNextToken();
 		if (nextToken != ':') {

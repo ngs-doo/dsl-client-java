@@ -193,4 +193,47 @@ public class ManualJsonTest {
 		Map output = json.deserialize(Map.class, result.content, result.length);
 		assertEquals(map, output);
 	}
+
+	@Test
+	public void linkedHashMapCheck() throws IOException {
+		final JsonSerialization json = new DslJsonSerialization(null);
+		LinkedHashMap<String, Object> map = new LinkedHashMap<String, Object>();
+		map.put("1", "1");
+		map.put("2", 2L);
+		map.put("3", null);
+		Bytes result = json.serialize(map);
+		LinkedHashMap output = json.deserialize(LinkedHashMap.class, result.content, result.length);
+		assertEquals(map, output);
+	}
+
+	@Test
+	public void plainHashMapCheck() throws IOException {
+		final JsonSerialization json = new DslJsonSerialization(null);
+		HashMap<String, Object> map = new HashMap<String, Object>();
+		map.put("1", "1");
+		map.put("2", 2L);
+		map.put("3", null);
+		Bytes result = json.serialize(map);
+		HashMap output = json.deserialize(HashMap.class, result.content, result.length);
+		assertEquals(map, output);
+	}
+
+	public class CustomHashMap extends HashMap<String, Object> {
+	}
+
+	@Test
+	public void customHashMapCheck() throws IOException {
+		final JsonSerialization json = new DslJsonSerialization(null);
+		CustomHashMap map = new CustomHashMap();
+		map.put("1", "1");
+		map.put("2", 2L);
+		map.put("3", null);
+		Bytes result = json.serialize(map);
+		try {
+			json.deserialize(CustomHashMap.class, result.content, result.length);
+			fail("Expecting IOException");
+		}catch (IOException ex) {
+			//assertTrue(ex.getMessage().contains("Found reader for: class java.util.HashMap"));
+		}
+	}
 }

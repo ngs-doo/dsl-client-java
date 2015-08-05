@@ -11,9 +11,9 @@ import java.util.Collection;
 
 public abstract class GeomConverter {
 
-	static final JsonReader.ReadObject<Point2D> LocationReader = new JsonReader.ReadObject<Point2D>() {
+	static final JsonReader.ReadObject<Point2D.Double> LocationReader = new JsonReader.ReadObject<Point2D.Double>() {
 		@Override
-		public Point2D read(JsonReader reader) throws IOException {
+		public Point2D.Double read(JsonReader reader) throws IOException {
 			return deserializeLocation(reader);
 		}
 	};
@@ -35,9 +35,9 @@ public abstract class GeomConverter {
 			serializePointNullable(value, writer);
 		}
 	};
-	static final JsonReader.ReadObject<Rectangle2D> RectangleReader = new JsonReader.ReadObject<Rectangle2D>() {
+	static final JsonReader.ReadObject<Rectangle2D.Double> RectangleReader = new JsonReader.ReadObject<Rectangle2D.Double>() {
 		@Override
-		public Rectangle2D read(JsonReader reader) throws IOException {
+		public Rectangle2D.Double read(JsonReader reader) throws IOException {
 			return deserializeRectangle(reader);
 		}
 	};
@@ -47,19 +47,13 @@ public abstract class GeomConverter {
 			serializeRectangleNullable(value, writer);
 		}
 	};
-	static final JsonReader.ReadObject<Image> ImageReader = new JsonReader.ReadObject<Image>() {
-		@Override
-		public Image read(JsonReader reader) throws IOException {
-			return deserializeImage(reader);
-		}
-	};
 	static final JsonWriter.WriteObject<Image> ImageWriter = new JsonWriter.WriteObject<Image>() {
 		@Override
 		public void write(JsonWriter writer, Image value) {
 			serialize(value, writer);
 		}
 	};
-	private static final JsonReader.ReadObject<BufferedImage> BufferedImageReader = new JsonReader.ReadObject<BufferedImage>() {
+	static final JsonReader.ReadObject<BufferedImage> ImageReader = new JsonReader.ReadObject<BufferedImage>() {
 		@Override
 		public BufferedImage read(JsonReader reader) throws IOException {
 			return deserializeImage(reader);
@@ -82,7 +76,7 @@ public abstract class GeomConverter {
 		sw.writeByte(JsonWriter.OBJECT_END);
 	}
 
-	public static Point2D deserializeLocation(final JsonReader reader) throws IOException {
+	public static Point2D.Double deserializeLocation(final JsonReader reader) throws IOException {
 		if (reader.last() != '{') {
 			throw new IOException("Expecting '{' at position " + reader.positionInStream() + ". Found " + (char) reader.last());
 		}
@@ -124,7 +118,9 @@ public abstract class GeomConverter {
 	}
 
 	public static ArrayList<Point2D> deserializeLocationCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeCollection(LocationReader);
+		final ArrayList<Point2D> res = new ArrayList<Point2D>(4);
+		reader.deserializeCollection(LocationReader, res);
+		return res;
 	}
 
 	public static void deserializeLocationCollection(final JsonReader reader, final Collection<Point2D> res) throws IOException {
@@ -132,7 +128,9 @@ public abstract class GeomConverter {
 	}
 
 	public static ArrayList<Point2D> deserializeLocationNullableCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeNullableCollection(LocationReader);
+		final ArrayList<Point2D> res = new ArrayList<Point2D>(4);
+		reader.deserializeNullableCollection(LocationReader, res);
+		return res;
 	}
 
 	public static void deserializeLocationNullableCollection(final JsonReader reader, final Collection<Point2D> res) throws IOException {
@@ -233,7 +231,7 @@ public abstract class GeomConverter {
 		sw.writeByte(JsonWriter.OBJECT_END);
 	}
 
-	public static Rectangle2D deserializeRectangle(final JsonReader reader) throws IOException {
+	public static Rectangle2D.Double deserializeRectangle(final JsonReader reader) throws IOException {
 		if (reader.last() != '{') {
 			throw new IOException("Expecting '{' at position " + reader.positionInStream() + ". Found " + (char) reader.last());
 		}
@@ -285,7 +283,9 @@ public abstract class GeomConverter {
 	}
 
 	public static ArrayList<Rectangle2D> deserializeRectangleCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeCollection(RectangleReader);
+		final ArrayList<Rectangle2D> res = new ArrayList<Rectangle2D>(4);
+		reader.deserializeCollection(RectangleReader, res);
+		return res;
 	}
 
 	public static void deserializeRectangleCollection(final JsonReader reader, final Collection<Rectangle2D> res) throws IOException {
@@ -293,7 +293,9 @@ public abstract class GeomConverter {
 	}
 
 	public static ArrayList<Rectangle2D> deserializeRectangleNullableCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeNullableCollection(RectangleReader);
+		final ArrayList<Rectangle2D> res = new ArrayList<Rectangle2D>(4);
+		reader.deserializeNullableCollection(RectangleReader, res);
+		return res;
 	}
 
 	public static void deserializeRectangleNullableCollection(final JsonReader reader, final Collection<Rectangle2D> res) throws IOException {
@@ -332,18 +334,18 @@ public abstract class GeomConverter {
 	}
 
 	public static ArrayList<BufferedImage> deserializeImageCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeCollection(BufferedImageReader);
+		return reader.deserializeCollection(ImageReader);
 	}
 
 	public static void deserializeImageCollection(final JsonReader reader, final Collection<BufferedImage> res) throws IOException {
-		reader.deserializeCollection(BufferedImageReader, res);
+		reader.deserializeCollection(ImageReader, res);
 	}
 
 	public static ArrayList<BufferedImage> deserializeImageNullableCollection(final JsonReader reader) throws IOException {
-		return reader.deserializeNullableCollection(BufferedImageReader);
+		return reader.deserializeNullableCollection(ImageReader);
 	}
 
 	public static void deserializeImageNullableCollection(final JsonReader reader, final Collection<BufferedImage> res) throws IOException {
-		reader.deserializeNullableCollection(BufferedImageReader, res);
+		reader.deserializeNullableCollection(ImageReader, res);
 	}
 }

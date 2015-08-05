@@ -44,9 +44,9 @@ public abstract class MapConverter {
 		if (reader.last() != '{') {
 			throw new IOException("Expecting '{' at position " + reader.positionInStream() + ". Found " + (char) reader.last());
 		}
-		final HashMap<String, String> res = new HashMap<String, String>();
 		byte nextToken = reader.getNextToken();
-		if (nextToken == '}') return res;
+		if (nextToken == '}') return new LinkedHashMap<String, String>(0);
+		final LinkedHashMap<String, String> res = new LinkedHashMap<String, String>();
 		String key = StringConverter.deserialize(reader);
 		nextToken = reader.getNextToken();
 		if (nextToken != ':') {
