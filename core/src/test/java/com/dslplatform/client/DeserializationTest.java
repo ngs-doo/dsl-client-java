@@ -24,8 +24,10 @@ import static org.junit.Assert.*;
 public class DeserializationTest {
 	/** Copy of private static inner class from JsonSerialization */
 	private static class SnapshotDelegate<T extends AggregateRoot> {
+		@SuppressWarnings("unused")
 		public final DateTime At;
 		public final String Action;
+		@SuppressWarnings("unused")
 		public final T Value;
 
 		@SuppressWarnings("unused")
@@ -48,7 +50,7 @@ public class DeserializationTest {
 		final TypeFactory typeFactory = new ObjectMapper().getTypeFactory();
 		final JavaType st = typeFactory.constructCollectionType(
 				ArrayList.class,
-				typeFactory.constructParametricType(SnapshotDelegate.class, SimpleRoot.class));
+				typeFactory.constructParametrizedType(SnapshotDelegate.class, SnapshotDelegate.class, SimpleRoot.class));
 		final List<SnapshotDelegate<SimpleRoot>> snapshotList = JsonStatic.INSTANCE.jackson.deserialize(st, jason);
 		assertEquals(4, snapshotList.size());
 		assertEquals("INSERT", snapshotList.get(0).Action);
