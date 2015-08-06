@@ -7,12 +7,18 @@ import org.joda.time.LocalDate;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.*;
 
 public class Utils {
 	public static final DateTime MIN_DATE_TIME = DateTime.parse("0001-01-01T00:00:00Z");
 	public static final LocalDate MIN_LOCAL_DATE = new LocalDate(1, 1, 1);
 	public static final UUID MIN_UUID = new java.util.UUID(0L, 0L);
+	public static final byte[] EMPTY_BINARY = new byte[0];
+	public static final BigDecimal ZERO_0 = BigDecimal.ZERO.setScale(0);
+	public static final BigDecimal ZERO_1 = BigDecimal.ZERO.setScale(1);
+	public static final BigDecimal ZERO_2 = BigDecimal.ZERO.setScale(2);
+	public static final BigDecimal ZERO_3 = BigDecimal.ZERO.setScale(3);
 
 	static <T> ArrayList<T> toArrayList(final Iterable<T> iterable) {
 		final ArrayList<T> copy = new ArrayList<T>();

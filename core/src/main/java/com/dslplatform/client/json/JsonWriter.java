@@ -9,11 +9,12 @@ import java.nio.charset.Charset;
 import java.util.*;
 
 public final class JsonWriter extends Writer {
-	public final byte[] tmp = new byte[48];
-	private byte[] result;
-	private int position;
 
-	private static final Charset utf8 = Charset.forName("UTF-8");
+	private static final Charset UTF_8 = Charset.forName("UTF-8");
+
+	public final byte[] tmp = new byte[48];
+	private int position;
+	private byte[] result;
 
 	public JsonWriter() {
 		this(512);
@@ -66,18 +67,20 @@ public final class JsonWriter extends Writer {
 		int cur = position + 1;
 		for (int i = 0; i < len; i++) {
 			final char c = str.charAt(i);
-			if (c < 32 || c == '"' || c == '\\' || c > 126) {
-				position = writeQuotedString(str, i, cur, _result);
+			if (c > 31 && c != '"' && c != '\\' && c < 126) {
+				_result[cur++] = (byte) c;
+			} else {
+				writeQuotedString(str, i, cur, len);
 				return;
 			}
-			_result[cur++] = (byte) c;
 		}
 		_result[cur] = QUOTE;
 		position = cur + 1;
 	}
 
-	private static int writeQuotedString(final String str, int i, int cur, final byte[] _result) {
-		for (; i < str.length(); i++) {
+	private void writeQuotedString(final String str, int i, int cur, final int len) {
+		final byte[] _result = this.result;
+		for (; i < len; i++) {
 			final char c = str.charAt(i);
 			if (c == '"') {
 				_result[cur++] = ESCAPE;
@@ -245,7 +248,7 @@ public final class JsonWriter extends Writer {
 			}
 		}
 		_result[cur] = QUOTE;
-		return cur + 1;
+		position = cur + 1;
 	}
 
 	public final void writeBuffer(final int off, final int end) {
@@ -327,7 +330,7 @@ public final class JsonWriter extends Writer {
 
 	@Override
 	public String toString() {
-		return new String(result, 0, position, utf8);
+		return new String(result, 0, position, UTF_8);
 	}
 
 	public final Bytes toBytes() {
@@ -353,7 +356,7 @@ public final class JsonWriter extends Writer {
 	@Override
 	public void write(int c) throws IOException {
 		if (c < 127) {
-			tmp[0] = (byte)c;
+			tmp[0] = (byte) c;
 			writeBuffer(1);
 		} else {
 			write(new char[]{(char) c}, 0, 1);
@@ -363,13 +366,13 @@ public final class JsonWriter extends Writer {
 	@Override
 	public void write(char[] cbuf, int off, int len) {
 		String append = new String(cbuf, off, len);
-		writeAscii(append.getBytes(utf8));
+		writeAscii(append.getBytes(UTF_8));
 	}
 
 	@Override
 	public void write(String str, int off, int len) {
 		String append = str.substring(off, off + len);
-		writeAscii(append.getBytes(utf8));
+		writeAscii(append.getBytes(UTF_8));
 	}
 
 	@Override

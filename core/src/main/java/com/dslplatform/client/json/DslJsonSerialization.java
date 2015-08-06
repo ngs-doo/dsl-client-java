@@ -202,7 +202,7 @@ public class DslJsonSerialization implements JsonSerialization {
 			final JsonReader json = new JsonReader(body, size, locator);
 			if (objectReader != null && json.getNextToken() == '{') {
 				json.getNextToken();
-				return (TResult) objectReader.deserialize(json, locator);
+				return  (TResult) objectReader.deserialize(json, locator);
 			}
 		}
 		final JsonReader.ReadObject<?> simpleReader = jsonReaders.get(manifest);
@@ -229,7 +229,11 @@ public class DslJsonSerialization implements JsonSerialization {
 		if (json.wasNull()) {
 			return null;
 		}
-		return (TResult) simpleReader.read(json);
+		final TResult result = (TResult) simpleReader.read(json);
+		if (json.positionInStream() > json.length) {
+			throw new IOException("JSON string was not closed with a double quote");
+		}
+		return result;
 	}
 
 	private void showErrorMessage(final Class<?> manifest) throws IOException {

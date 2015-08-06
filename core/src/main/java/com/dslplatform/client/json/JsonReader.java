@@ -24,14 +24,15 @@ public final class JsonReader {
 		Whitespace[-29 + 128] = true;
 	}
 
-	private final byte[] buffer;
-	final int length;
-	final ServiceLocator locator;
-	private final char[] tmp;
-
 	private int tokenStart;
 	private int currentIndex = 0;
 	private byte last = ' ';
+
+	final int length;
+	private final char[] tmp;
+
+	final ServiceLocator locator;
+	private final byte[] buffer;
 
 	private JsonReader(final char[] tmp, final byte[] buffer, final int length, final ServiceLocator locator) {
 		this.tmp = tmp;
@@ -67,16 +68,16 @@ public final class JsonReader {
 		}
 	}
 
-	private final static Charset utf8 = Charset.forName("UTF-8");
+	private final static Charset UTF_8 = Charset.forName("UTF-8");
 
 	@Override
 	public String toString() {
-		return new String(buffer, 0, length, utf8);
+		return new String(buffer, 0, length, UTF_8);
 	}
 
 	public final byte read() throws IOException {
 		if (currentIndex >= length) {
-			throw new IOException("end of stream");
+			throw new IOException("Unexpected end of JSON input");
 		}
 		return last = buffer[currentIndex++];
 	}
@@ -99,17 +100,17 @@ public final class JsonReader {
 
 	public final char[] readNumber() {
 		tokenStart = currentIndex - 1;
-		char ch = (char) last;
-		tmp[0] = ch;
+		tmp[0] = (char) last;
 		int i = 1;
 		int ci = currentIndex;
+		byte bb = last;
 		while (i < tmp.length && ci < length) {
-			ch = (char) buffer[ci++];
-			if (ch == ',' || ch == '}' || ch == ']') break;
-			tmp[i++] = ch;
+			bb = buffer[ci++];
+			if (bb == ',' || bb == '}' || bb == ']') break;
+			tmp[i++] = (char) bb;
 		}
 		currentIndex += i - 1;
-		last = (byte) ch;
+		last = bb;
 		return tmp;
 	}
 
@@ -118,10 +119,17 @@ public final class JsonReader {
 			throw new IOException("Expecting '\"' at position " + positionInStream() + ". Found " + (char) last);
 		int i = 0;
 		int ci = currentIndex;
-		while (i < tmp.length && ci < length) {
-			final char ch = (char) buffer[ci++];
-			if (ch == '"') break;
-			tmp[i++] = ch;
+		try {
+			while (i < tmp.length) {
+				final byte bb = buffer[ci++];
+				if (bb == '"') break;
+				tmp[i++] = (char) bb;
+			}
+		} catch (ArrayIndexOutOfBoundsException ignore) {
+			throw new IOException("JSON string was not closed with a double quote at: " + currentIndex);
+		}
+		if (ci > length) {
+			throw new IOException("JSON string was not closed with a double quote at: " + currentIndex);
 		}
 		currentIndex = ci;
 		return new String(tmp, 0, i);
@@ -132,19 +140,24 @@ public final class JsonReader {
 			throw new IOException("Expecting '\"' at position " + positionInStream() + ". Found " + (char) last);
 		}
 		int ci = tokenStart = currentIndex;
-		for (int i = 0; i < tmp.length && ci < length; i++) {
-			final char ch = (char) buffer[ci++];
-			if (ch == '"') break;
-			tmp[i] = ch;
+		try {
+			for (int i = 0; i < tmp.length; i++) {
+				final byte bb = buffer[ci++];
+				if (bb == '"') break;
+				tmp[i] = (char) bb;
+			}
+		} catch (ArrayIndexOutOfBoundsException ignore) {
+			throw new IOException("JSON string was not closed with a double quote at: " + currentIndex);
+		}
+		if (ci > length) {
+			throw new IOException("JSON string was not closed with a double quote at: " + currentIndex);
 		}
 		currentIndex = ci;
 		return tmp;
 	}
 
 	public final String readString() throws IOException {
-
 		final int startIndex = currentIndex;
-		// At this point, buffer cannot be empty or null, it is safe to read first character
 		if (last != '"') {
 			//TODO: count special chars in separate counter
 			throw new IOException("JSON string must start with a double quote at: " + currentIndex);
@@ -152,18 +165,22 @@ public final class JsonReader {
 
 		byte bb = 0;
 		int ci = currentIndex;
-		for (int i = 0; i < tmp.length && ci < length; i++) {
-			bb = buffer[ci++];
-			if (bb == '"') {
-				currentIndex = ci;
-				return new String(tmp, 0, i);
+		try {
+			for (int i = 0; i < tmp.length; i++) {
+				bb = buffer[ci++];
+				if (bb == '"') {
+					currentIndex = ci;
+					return new String(tmp, 0, i);
+				}
+				// If we encounter a backslash, which is a beginning of an escape sequence
+				// or a high bit was set - indicating an UTF-8 encoded multibyte character,
+				// there is no chance that we can decode the string without instantiating
+				// a temporary buffer, so quit this loop
+				if ((bb ^ '\\') < 1) break;
+				tmp[i] = (char) bb;
 			}
-			// If we encounter a backslash, which is a beginning of an escape sequence
-			// or a high bit was set - indicating an UTF-8 encoded multibyte character,
-			// there is no chance that we can decode the string without instantiating
-			// a temporary buffer, so quit this loop
-			if ((bb ^ '\\') < 1) break;
-			tmp[i] = (char) bb;
+		} catch (ArrayIndexOutOfBoundsException ignore) {
+			throw new IOException("JSON string was not closed with a double quote at: " + currentIndex);
 		}
 		if (ci >= length) {
 			throw new IOException("JSON string was not closed with a double quote at: " + ci);
@@ -360,7 +377,7 @@ public final class JsonReader {
 		return last;
 	}
 
-	public final long positionInStream() {
+	public final int positionInStream() {
 		return currentIndex;
 	}
 

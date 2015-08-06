@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -156,7 +157,7 @@ public class ManualJsonTest {
 	@Test
 	public void emptyArray() throws IOException {
 		final JsonSerialization json = new DslJsonSerialization(null);
-		int[] output = json.deserialize(int[].class, new byte[] {'[', ']'}, 2);
+		int[] output = json.deserialize(int[].class, new byte[]{'[', ']'}, 2);
 		assertEquals(0, output.length);
 	}
 
@@ -234,6 +235,35 @@ public class ManualJsonTest {
 			fail("Expecting IOException");
 		}catch (IOException ex) {
 			//assertTrue(ex.getMessage().contains("Found reader for: class java.util.HashMap"));
+		}
+	}
+
+	@Test
+	public void stringLimitCheck() throws IOException {
+		final JsonSerialization json = new DslJsonSerialization(null);
+		try {
+			json.deserialize(String.class, "\"abcd\"".getBytes(Charset.forName("UTF-8")), 2);
+			fail("length check error");
+		} catch (IOException ex) {
+			assertTrue(ex.getMessage().contains("JSON string was not closed"));
+		}
+	}
+
+	@Test
+	public void numberLimitCheck() throws IOException {
+		final JsonSerialization json = new DslJsonSerialization(null);
+		final int number = json.deserialize(int.class, "123456".getBytes(Charset.forName("UTF-8")), 3);
+		assertEquals(123, number);
+	}
+
+	@Test
+	public void arrayLimitCheck() throws IOException {
+		final JsonSerialization json = new DslJsonSerialization(null);
+		try {
+			json.deserializeList(String.class, "[\"abcd\"]".getBytes(Charset.forName("UTF-8")), 4);
+			fail("length check error");
+		} catch (IOException ex) {
+			assertTrue(ex.getMessage().contains("Unexpected end"));
 		}
 	}
 }
