@@ -131,13 +131,9 @@ public class XmlBruteForceComparator implements Comparator<Element> {
 	/**
 	 * Recursively builds a list of all path from root to leaf
 	 *
-	 * @param allPaths
-	 *            The list containing all paths for the current tree
-	 * @param pathUpToNode
-	 *            The current path being built; {@code null} in the first step
-	 * @param node
-	 *            The current node on the path; root in the first step, a leaf
-	 *            in the last step
+	 * @param allPaths      The list containing all paths for the current tree
+	 * @param pathUpToNode  The current path being built; {@code null} in the first step
+	 * @param node          The current node on the path; root in the first step, a leaf in the last step
 	 */
 	private void buildPaths(final List<List<Node>> allPaths, List<Node> pathUpToNode, final Node node) {
 		if (pathUpToNode == null) {
@@ -165,11 +161,9 @@ public class XmlBruteForceComparator implements Comparator<Element> {
 	 * If for every path in lhs a unique equivalent path in rhs is found, the
 	 * trees are considered equal.
 	 *
-	 * @param lhs
-	 *            The lhs XML tree paths
-	 * @param rhs
-	 *            The rhs XML tree paths
-	 * @return {@code 0} if they are equal {@code -1} otherwise
+	 * @param lhs  The lhs XML tree paths
+	 * @param rhs  The rhs XML tree paths
+	 * @return     {@code 0} if they are equal {@code -1} otherwise
 	 */
 	private int compareAllPaths(final List<List<Node>> lhs, final List<List<Node>> rhs) {
 		if (lhs.size() != rhs.size()) {

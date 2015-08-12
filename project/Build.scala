@@ -4,15 +4,17 @@ import Keys._
 import com.typesafe.sbteclipse.plugin.EclipsePlugin._
 import org.sbtidea.SbtIdeaPlugin._
 import net.virtualvoid.sbt.graph.Plugin._
+import xerial.sbt.Pack._
 
 // ----------------------------------------------------------------------------
 
 trait Default {
   val defaultSettings =
     Defaults.coreDefaultSettings ++
-    eclipseSettings ++
-    graphSettings ++ Seq(
-      scalaVersion := "2.11.5"
+    autoImport.eclipseSettings ++
+    graphSettings ++
+    packSettings ++ Seq(
+      scalaVersion := "2.11.7"
     , crossPaths := false
     , autoScalaLibrary := false
     , unmanagedSourceDirectories in Compile := Seq((javaSource in Compile).value)
@@ -39,7 +41,7 @@ trait Default {
     , EclipseKeys.eclipseOutput := Some(".target")
     , EclipseKeys.executionEnvironment := Some(EclipseExecutionEnvironment.JavaSE16)
     , EclipseKeys.projectFlavor := EclipseProjectFlavor.Java
-    , ideaExcludeFolders := Seq(".idea", ".idea_modules", ".settings")
+    , ideaExcludeFolders := Seq(".classpath", ".idea", ".idea_modules", ".project", ".settings")
     )
 
   def checkByteCode(jar: File): File = {
@@ -58,17 +60,17 @@ trait Default {
 
 trait Dependencies {
   // JodaTime
-  val jodaTime = "joda-time" % "joda-time" % "2.7"
+  val jodaTime = "joda-time" % "joda-time" % "2.8.1"
 
   // Json serialization
-  val jackson = "com.fasterxml.jackson.core" % "jackson-databind" % "2.5.0"
+  val jackson = "com.fasterxml.jackson.core" % "jackson-databind" % "2.6.0"
 
   // Logging facade
-  val slf4j = "org.slf4j" % "slf4j-api" % "1.7.10"
+  val slf4j = "org.slf4j" % "slf4j-api" % "1.7.12"
 
   // Amazon Web Services SDK (S3 type)
-  val awsCore = "com.amazonaws" % "aws-java-sdk-core" % "1.9.16"
-  val awsS3   = "com.amazonaws" % "aws-java-sdk-s3" % "1.9.16"
+  val awsCore = "com.amazonaws" % "aws-java-sdk-core" % "1.10.8"
+  val awsS3   = "com.amazonaws" % "aws-java-sdk-s3" % "1.10.8"
 
   // Android SDK
   val androidSDK = "com.google.android" % "android" % "4.1.1.4"
@@ -77,8 +79,8 @@ trait Dependencies {
   val junit = "junit" % "junit" % "4.12"
   val junitInterface = "com.novocode" % "junit-interface" % "0.11"
   val jsonAssert = "org.skyscreamer" % "jsonassert" % "1.2.3"
-  val xmlUnit = "xmlunit" % "xmlunit" % "1.5"
-  val logback = "ch.qos.logback" % "logback-classic" % "1.1.2"
+  val xmlUnit = "xmlunit" % "xmlunit" % "1.6"
+  val logback = "ch.qos.logback" % "logback-classic" % "1.1.3"
 }
 
 // ----------------------------------------------------------------------------
@@ -116,10 +118,9 @@ object Build extends Build with Default with Dependencies {
     , unmanagedSourceDirectories in Test := Seq(
         (javaSource in Test).value
       /* Uncomment next line to enable JSON serialization generated tests */
-      // , sourceDirectory.value / "test" / "java-generated"
+      , sourceDirectory.value / "test" / "java-generated"
       )
     , testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v")
-    , EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource
     , createVersionProperties
     , unmanagedJars in Test += baseDirectory.value / "test-lib" / "java-client.jar"
     )

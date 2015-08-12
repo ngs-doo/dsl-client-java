@@ -1,19 +1,13 @@
 package com.dslplatform.client;
 
-import com.dslplatform.client.json.DslJsonSerialization;
 import com.dslplatform.client.json.JacksonJsonSerialization;
-import com.dslplatform.test.simple.E;
-import com.dslplatform.test.simple.SimpleRoot;
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class JacksonTest {
 	@Test
