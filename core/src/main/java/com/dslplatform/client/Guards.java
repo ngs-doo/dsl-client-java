@@ -281,4 +281,20 @@ public abstract class Guards {
 		}
 		return true;
 	}
+
+	public static <T> boolean compareQueue(final Queue<T> left, final Queue<T> right) {
+		if (left == null && right == null) return true;
+		if (left == null || right == null) return false;
+
+		final Iterator<T> leftIterator = left.iterator();
+		final Iterator<T> rightIterator = right.iterator();
+
+		while (leftIterator.hasNext() && rightIterator.hasNext()) {
+			final T l = leftIterator.next();
+			final T r = rightIterator.next();
+			if (!(l == r || l != null && r != null && l.equals(r))) return false;
+		}
+
+		return leftIterator.hasNext() == rightIterator.hasNext();
+	}
 }
