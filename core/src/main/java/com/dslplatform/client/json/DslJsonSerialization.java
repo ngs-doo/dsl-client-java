@@ -202,7 +202,7 @@ public class DslJsonSerialization implements JsonSerialization {
 			final JsonReader json = new JsonReader(body, size, locator);
 			if (objectReader != null && json.getNextToken() == '{') {
 				json.getNextToken();
-				return  (TResult) objectReader.deserialize(json, locator);
+				return (TResult) objectReader.deserialize(json, locator);
 			}
 		}
 		final JsonReader.ReadObject<?> simpleReader = jsonReaders.get(manifest);

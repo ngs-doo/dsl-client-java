@@ -2,7 +2,6 @@ package com.dslplatform.client.json;
 
 import com.dslplatform.client.TestLogging;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;

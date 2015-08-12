@@ -85,7 +85,7 @@ class HttpDomainProxy implements DomainProxy {
 		final Class<T> manifest = (Class<T>) specClass.getDeclaringClass();
 		final String parentName = client.getDslName(manifest);
 
-		final String url =  Utils.appendLimitOffsetOrder(
+		final String url = Utils.appendLimitOffsetOrder(
 				parentName + "?specification=" + specClass.getSimpleName(),
 				limit,
 				offset,

@@ -1,23 +1,14 @@
 package com.dslplatform.client;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.File;
-import java.io.InputStream;
-import java.util.Properties;
-import java.util.UUID;
-
 import com.dslplatform.patterns.Bytes;
 import com.dslplatform.patterns.ServiceLocator;
 import com.dslplatform.storage.S3;
 import com.dslplatform.storage.S3Repository;
-
-import org.hamcrest.core.IsEqual;
-import org.hamcrest.core.IsNot;
 import org.junit.*;
-import org.junit.rules.ExpectedException;
 import org.slf4j.Logger;
+
+import java.io.IOException;
+import java.util.UUID;
 
 public class S3Test {
 

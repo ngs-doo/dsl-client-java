@@ -157,8 +157,8 @@ public class Bootstrap {
 	 * Initialize service locator using provided dsl-project.properties path.
 	 *
 	 * @param propertiesPath  path to dsl-project.properties
-	 * @return initialized service locator
-	 * @throws IOException in case of failure to read dsl-project.properties
+	 * @return                initialized service locator
+	 * @throws IOException    in case of failure to read dsl-project.properties
 	 */
 	public static ServiceLocator init(final String propertiesPath) throws IOException {
 		if (propertiesPath == null) throw new IOException("Provided path to properties file was null.");

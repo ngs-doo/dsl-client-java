@@ -5,7 +5,6 @@ import com.dslplatform.storage.S3;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 public abstract class StorageConverter {
