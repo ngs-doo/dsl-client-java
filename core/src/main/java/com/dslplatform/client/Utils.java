@@ -159,7 +159,7 @@ public class Utils {
 		return byteArrayOutputStream.toByteArray();
 	}
 
-	static final JsonSerialization STATIC_JSON = new DslJsonSerialization(null);
+	static final JsonSerialization STATIC_JSON;
 
 	static String serialize(final Object value) throws IOException {
 		return STATIC_JSON.serialize(value).toUtf8();
@@ -177,6 +177,7 @@ public class Utils {
 		} catch(Exception ignore) {
 		}
 		HAS_JACKSON = foundJackson;
+		STATIC_JSON = new DslJsonSerialization(null);
 	}
 
 	static class AndroidEncoding {
