@@ -258,4 +258,332 @@ public class PointAsserts {
 	public static void assertNullableSetOfNullableEquals(final java.util.Set<java.awt.Point> expecteds, final java.util.Set<java.awt.Point> actuals) {
 		assertNullableSetOfNullableEquals("NullableSetOfNullablePoint mismatch: ", expecteds, actuals);
 	}
+
+	private static void assertQueueOfOneEquals(final String message, final java.util.Queue<java.awt.Point> expecteds, final java.util.Queue<java.awt.Point> actuals) {
+		final int expectedsSize = expecteds.size();
+		final int actualsSize = actuals.size();
+		if (expectedsSize != actualsSize) {
+			Assert.fail(message + "expecteds was a queue of size " + expectedsSize + ", but actuals was a queue of size " + actualsSize);
+		}
+
+		final java.util.Iterator<java.awt.Point> expectedsIterator = expecteds.iterator();
+		final java.util.Iterator<java.awt.Point> actualsIterator = actuals.iterator();
+		for (int i = 0; i < expectedsSize; i++) {
+			final java.awt.Point expected = expectedsIterator.next();
+			final java.awt.Point actual = actualsIterator.next();
+			assertOneEquals(message + "element mismatch occurred at index " + i + ": ", expected, actual);
+		}
+	}
+
+	private static void assertOneQueueOfOneEquals(final String message, final java.util.Queue<java.awt.Point> expecteds, final java.util.Queue<java.awt.Point> actuals) {
+		int i = 0;
+		for (final java.awt.Point expected : expecteds) {
+			if (expected == null) {
+				Assert.fail(message + "element mismatch occurred at index " + i + ": expected was <null> - WARNING: This is a preconditions failure in expected, this assertion will never succeed!");
+			}
+			i++;
+		}
+		if (expecteds == actuals) return;
+		if (actuals == null) Assert.fail(message + "expecteds was a queue of size " + expecteds.size() + ", but actuals was <null>");
+		assertQueueOfOneEquals(message, expecteds, actuals);
+	}
+
+	public static void assertOneQueueOfOneEquals(final java.util.Queue<java.awt.Point> expecteds, final java.util.Queue<java.awt.Point> actuals) {
+		assertOneQueueOfOneEquals("OneQueueOfOnePoint mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertNullableQueueOfOneEquals(final String message, final java.util.Queue<java.awt.Point> expecteds, final java.util.Queue<java.awt.Point> actuals) {
+		if (expecteds == actuals) return;
+		if (expecteds == null) Assert.fail(message + "expecteds was <null>, but actuals was a queue of size " + actuals.size());
+		if (actuals == null) Assert.fail(message + " expecteds was a queue of size " + expecteds.size() + ", but actuals was <null>");
+		assertQueueOfOneEquals(message, expecteds, actuals);
+	}
+
+	public static void assertNullableQueueOfOneEquals(final java.util.Queue<java.awt.Point> expecteds, final java.util.Queue<java.awt.Point> actuals) {
+		assertNullableQueueOfOneEquals("NullableQueueOfOnePoint mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertQueueOfNullableEquals(final String message, final java.util.Queue<java.awt.Point> expecteds, final java.util.Queue<java.awt.Point> actuals) {
+		final int expectedsSize = expecteds.size();
+		final int actualsSize = actuals.size();
+		if (expectedsSize != actualsSize) {
+			Assert.fail(message + "expecteds was a queue of size " + expectedsSize + ", but actuals was a queue of size " + actualsSize);
+		}
+
+		final java.util.Iterator<java.awt.Point> expectedsIterator = expecteds.iterator();
+		final java.util.Iterator<java.awt.Point> actualsIterator = actuals.iterator();
+		for (int i = 0; i < expectedsSize; i++) {
+			final java.awt.Point expected = expectedsIterator.next();
+			final java.awt.Point actual = actualsIterator.next();
+			assertNullableEquals(message + "element mismatch occurred at index " + i + ": ", expected, actual);
+		}
+	}
+
+	private static void assertOneQueueOfNullableEquals(final String message, final java.util.Queue<java.awt.Point> expecteds, final java.util.Queue<java.awt.Point> actuals) {
+		if (expecteds == null) Assert.fail(message + "expecteds was <null> - WARNING: This is a preconditions failure in expecteds, this assertion will never succeed!");
+		if (expecteds == actuals) return;
+		if (actuals == null) Assert.fail(message + "expecteds was a queue of size " + expecteds.size() + ", but actuals was <null>");
+		assertQueueOfNullableEquals(message, expecteds, actuals);
+	}
+
+	public static void assertOneQueueOfNullableEquals(final java.util.Queue<java.awt.Point> expecteds, final java.util.Queue<java.awt.Point> actuals) {
+		assertOneQueueOfNullableEquals("OneQueueOfNullablePoint mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertNullableQueueOfNullableEquals(final String message, final java.util.Queue<java.awt.Point> expecteds, final java.util.Queue<java.awt.Point> actuals) {
+		if (expecteds == actuals) return;
+		if (expecteds == null) Assert.fail(message + "expecteds was <null>, but actuals was a queue of size " + actuals.size());
+		if (actuals == null) Assert.fail(message + " expecteds was a queue of size " + expecteds.size() + ", but actuals was <null>");
+		assertQueueOfNullableEquals(message, expecteds, actuals);
+	}
+
+	public static void assertNullableQueueOfNullableEquals(final java.util.Queue<java.awt.Point> expecteds, final java.util.Queue<java.awt.Point> actuals) {
+		assertNullableQueueOfNullableEquals("NullableQueueOfNullablePoint mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertLinkedListOfOneEquals(final String message, final java.util.LinkedList<java.awt.Point> expecteds, final java.util.LinkedList<java.awt.Point> actuals) {
+		final int expectedsSize = expecteds.size();
+		final int actualsSize = actuals.size();
+		if (expectedsSize != actualsSize) {
+			Assert.fail(message + "expecteds was a linked list of size " + expectedsSize + ", but actuals was a linked list of size " + actualsSize);
+		}
+
+		final java.util.Iterator<java.awt.Point> expectedsIterator = expecteds.iterator();
+		final java.util.Iterator<java.awt.Point> actualsIterator = actuals.iterator();
+		for (int i = 0; i < expectedsSize; i++) {
+			final java.awt.Point expected = expectedsIterator.next();
+			final java.awt.Point actual = actualsIterator.next();
+			assertOneEquals(message + "element mismatch occurred at index " + i + ": ", expected, actual);
+		}
+	}
+
+	private static void assertOneLinkedListOfOneEquals(final String message, final java.util.LinkedList<java.awt.Point> expecteds, final java.util.LinkedList<java.awt.Point> actuals) {
+		int i = 0;
+		for (final java.awt.Point expected : expecteds) {
+			if (expected == null) {
+				Assert.fail(message + "element mismatch occurred at index " + i + ": expected was <null> - WARNING: This is a preconditions failure in expected, this assertion will never succeed!");
+			}
+			i++;
+		}
+		if (expecteds == actuals) return;
+		if (actuals == null) Assert.fail(message + "expecteds was a linked list of size " + expecteds.size() + ", but actuals was <null>");
+		assertLinkedListOfOneEquals(message, expecteds, actuals);
+	}
+
+	public static void assertOneLinkedListOfOneEquals(final java.util.LinkedList<java.awt.Point> expecteds, final java.util.LinkedList<java.awt.Point> actuals) {
+		assertOneLinkedListOfOneEquals("OneLinkedListOfOnePoint mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertNullableLinkedListOfOneEquals(final String message, final java.util.LinkedList<java.awt.Point> expecteds, final java.util.LinkedList<java.awt.Point> actuals) {
+		if (expecteds == actuals) return;
+		if (expecteds == null) Assert.fail(message + "expecteds was <null>, but actuals was a linked list of size " + actuals.size());
+		if (actuals == null) Assert.fail(message + " expecteds was a linked list of size " + expecteds.size() + ", but actuals was <null>");
+		assertLinkedListOfOneEquals(message, expecteds, actuals);
+	}
+
+	public static void assertNullableLinkedListOfOneEquals(final java.util.LinkedList<java.awt.Point> expecteds, final java.util.LinkedList<java.awt.Point> actuals) {
+		assertNullableLinkedListOfOneEquals("NullableLinkedListOfOnePoint mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertLinkedListOfNullableEquals(final String message, final java.util.LinkedList<java.awt.Point> expecteds, final java.util.LinkedList<java.awt.Point> actuals) {
+		final int expectedsSize = expecteds.size();
+		final int actualsSize = actuals.size();
+		if (expectedsSize != actualsSize) {
+			Assert.fail(message + "expecteds was a linked list of size " + expectedsSize + ", but actuals was a linked list of size " + actualsSize);
+		}
+
+		final java.util.Iterator<java.awt.Point> expectedsIterator = expecteds.iterator();
+		final java.util.Iterator<java.awt.Point> actualsIterator = actuals.iterator();
+		for (int i = 0; i < expectedsSize; i++) {
+			final java.awt.Point expected = expectedsIterator.next();
+			final java.awt.Point actual = actualsIterator.next();
+			assertNullableEquals(message + "element mismatch occurred at index " + i + ": ", expected, actual);
+		}
+	}
+
+	private static void assertOneLinkedListOfNullableEquals(final String message, final java.util.LinkedList<java.awt.Point> expecteds, final java.util.LinkedList<java.awt.Point> actuals) {
+		if (expecteds == null) Assert.fail(message + "expecteds was <null> - WARNING: This is a preconditions failure in expecteds, this assertion will never succeed!");
+		if (expecteds == actuals) return;
+		if (actuals == null) Assert.fail(message + "expecteds was a linked list of size " + expecteds.size() + ", but actuals was <null>");
+		assertLinkedListOfNullableEquals(message, expecteds, actuals);
+	}
+
+	public static void assertOneLinkedListOfNullableEquals(final java.util.LinkedList<java.awt.Point> expecteds, final java.util.LinkedList<java.awt.Point> actuals) {
+		assertOneLinkedListOfNullableEquals("OneLinkedListOfNullablePoint mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertNullableLinkedListOfNullableEquals(final String message, final java.util.LinkedList<java.awt.Point> expecteds, final java.util.LinkedList<java.awt.Point> actuals) {
+		if (expecteds == actuals) return;
+		if (expecteds == null) Assert.fail(message + "expecteds was <null>, but actuals was a linked list of size " + actuals.size());
+		if (actuals == null) Assert.fail(message + " expecteds was a linked list of size " + expecteds.size() + ", but actuals was <null>");
+		assertLinkedListOfNullableEquals(message, expecteds, actuals);
+	}
+
+	public static void assertNullableLinkedListOfNullableEquals(final java.util.LinkedList<java.awt.Point> expecteds, final java.util.LinkedList<java.awt.Point> actuals) {
+		assertNullableLinkedListOfNullableEquals("NullableLinkedListOfNullablePoint mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertStackOfOneEquals(final String message, final java.util.Stack<java.awt.Point> expecteds, final java.util.Stack<java.awt.Point> actuals) {
+		final int expectedsSize = expecteds.size();
+		final int actualsSize = actuals.size();
+		if (expectedsSize != actualsSize) {
+			Assert.fail(message + "expecteds was a stack of size " + expectedsSize + ", but actuals was a stack of size " + actualsSize);
+		}
+
+		final java.util.Iterator<java.awt.Point> expectedsIterator = expecteds.iterator();
+		final java.util.Iterator<java.awt.Point> actualsIterator = actuals.iterator();
+		for (int i = 0; i < expectedsSize; i++) {
+			final java.awt.Point expected = expectedsIterator.next();
+			final java.awt.Point actual = actualsIterator.next();
+			assertOneEquals(message + "element mismatch occurred at index " + i + ": ", expected, actual);
+		}
+	}
+
+	private static void assertOneStackOfOneEquals(final String message, final java.util.Stack<java.awt.Point> expecteds, final java.util.Stack<java.awt.Point> actuals) {
+		int i = 0;
+		for (final java.awt.Point expected : expecteds) {
+			if (expected == null) {
+				Assert.fail(message + "element mismatch occurred at index " + i + ": expected was <null> - WARNING: This is a preconditions failure in expected, this assertion will never succeed!");
+			}
+			i++;
+		}
+		if (expecteds == actuals) return;
+		if (actuals == null) Assert.fail(message + "expecteds was a stack of size " + expecteds.size() + ", but actuals was <null>");
+		assertStackOfOneEquals(message, expecteds, actuals);
+	}
+
+	public static void assertOneStackOfOneEquals(final java.util.Stack<java.awt.Point> expecteds, final java.util.Stack<java.awt.Point> actuals) {
+		assertOneStackOfOneEquals("OneStackOfOnePoint mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertNullableStackOfOneEquals(final String message, final java.util.Stack<java.awt.Point> expecteds, final java.util.Stack<java.awt.Point> actuals) {
+		if (expecteds == actuals) return;
+		if (expecteds == null) Assert.fail(message + "expecteds was <null>, but actuals was a stack of size " + actuals.size());
+		if (actuals == null) Assert.fail(message + " expecteds was a stack of size " + expecteds.size() + ", but actuals was <null>");
+		assertStackOfOneEquals(message, expecteds, actuals);
+	}
+
+	public static void assertNullableStackOfOneEquals(final java.util.Stack<java.awt.Point> expecteds, final java.util.Stack<java.awt.Point> actuals) {
+		assertNullableStackOfOneEquals("NullableStackOfOnePoint mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertStackOfNullableEquals(final String message, final java.util.Stack<java.awt.Point> expecteds, final java.util.Stack<java.awt.Point> actuals) {
+		final int expectedsSize = expecteds.size();
+		final int actualsSize = actuals.size();
+		if (expectedsSize != actualsSize) {
+			Assert.fail(message + "expecteds was a stack of size " + expectedsSize + ", but actuals was a stack of size " + actualsSize);
+		}
+
+		final java.util.Iterator<java.awt.Point> expectedsIterator = expecteds.iterator();
+		final java.util.Iterator<java.awt.Point> actualsIterator = actuals.iterator();
+		for (int i = 0; i < expectedsSize; i++) {
+			final java.awt.Point expected = expectedsIterator.next();
+			final java.awt.Point actual = actualsIterator.next();
+			assertNullableEquals(message + "element mismatch occurred at index " + i + ": ", expected, actual);
+		}
+	}
+
+	private static void assertOneStackOfNullableEquals(final String message, final java.util.Stack<java.awt.Point> expecteds, final java.util.Stack<java.awt.Point> actuals) {
+		if (expecteds == null) Assert.fail(message + "expecteds was <null> - WARNING: This is a preconditions failure in expecteds, this assertion will never succeed!");
+		if (expecteds == actuals) return;
+		if (actuals == null) Assert.fail(message + "expecteds was a stack of size " + expecteds.size() + ", but actuals was <null>");
+		assertStackOfNullableEquals(message, expecteds, actuals);
+	}
+
+	public static void assertOneStackOfNullableEquals(final java.util.Stack<java.awt.Point> expecteds, final java.util.Stack<java.awt.Point> actuals) {
+		assertOneStackOfNullableEquals("OneStackOfNullablePoint mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertNullableStackOfNullableEquals(final String message, final java.util.Stack<java.awt.Point> expecteds, final java.util.Stack<java.awt.Point> actuals) {
+		if (expecteds == actuals) return;
+		if (expecteds == null) Assert.fail(message + "expecteds was <null>, but actuals was a stack of size " + actuals.size());
+		if (actuals == null) Assert.fail(message + " expecteds was a stack of size " + expecteds.size() + ", but actuals was <null>");
+		assertStackOfNullableEquals(message, expecteds, actuals);
+	}
+
+	public static void assertNullableStackOfNullableEquals(final java.util.Stack<java.awt.Point> expecteds, final java.util.Stack<java.awt.Point> actuals) {
+		assertNullableStackOfNullableEquals("NullableStackOfNullablePoint mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertVectorOfOneEquals(final String message, final java.util.Vector<java.awt.Point> expecteds, final java.util.Vector<java.awt.Point> actuals) {
+		final int expectedsSize = expecteds.size();
+		final int actualsSize = actuals.size();
+		if (expectedsSize != actualsSize) {
+			Assert.fail(message + "expecteds was a vector of size " + expectedsSize + ", but actuals was a vector of size " + actualsSize);
+		}
+
+		final java.util.Iterator<java.awt.Point> expectedsIterator = expecteds.iterator();
+		final java.util.Iterator<java.awt.Point> actualsIterator = actuals.iterator();
+		for (int i = 0; i < expectedsSize; i++) {
+			final java.awt.Point expected = expectedsIterator.next();
+			final java.awt.Point actual = actualsIterator.next();
+			assertOneEquals(message + "element mismatch occurred at index " + i + ": ", expected, actual);
+		}
+	}
+
+	private static void assertOneVectorOfOneEquals(final String message, final java.util.Vector<java.awt.Point> expecteds, final java.util.Vector<java.awt.Point> actuals) {
+		int i = 0;
+		for (final java.awt.Point expected : expecteds) {
+			if (expected == null) {
+				Assert.fail(message + "element mismatch occurred at index " + i + ": expected was <null> - WARNING: This is a preconditions failure in expected, this assertion will never succeed!");
+			}
+			i++;
+		}
+		if (expecteds == actuals) return;
+		if (actuals == null) Assert.fail(message + "expecteds was a vector of size " + expecteds.size() + ", but actuals was <null>");
+		assertVectorOfOneEquals(message, expecteds, actuals);
+	}
+
+	public static void assertOneVectorOfOneEquals(final java.util.Vector<java.awt.Point> expecteds, final java.util.Vector<java.awt.Point> actuals) {
+		assertOneVectorOfOneEquals("OneVectorOfOnePoint mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertNullableVectorOfOneEquals(final String message, final java.util.Vector<java.awt.Point> expecteds, final java.util.Vector<java.awt.Point> actuals) {
+		if (expecteds == actuals) return;
+		if (expecteds == null) Assert.fail(message + "expecteds was <null>, but actuals was a vector of size " + actuals.size());
+		if (actuals == null) Assert.fail(message + " expecteds was a vector of size " + expecteds.size() + ", but actuals was <null>");
+		assertVectorOfOneEquals(message, expecteds, actuals);
+	}
+
+	public static void assertNullableVectorOfOneEquals(final java.util.Vector<java.awt.Point> expecteds, final java.util.Vector<java.awt.Point> actuals) {
+		assertNullableVectorOfOneEquals("NullableVectorOfOnePoint mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertVectorOfNullableEquals(final String message, final java.util.Vector<java.awt.Point> expecteds, final java.util.Vector<java.awt.Point> actuals) {
+		final int expectedsSize = expecteds.size();
+		final int actualsSize = actuals.size();
+		if (expectedsSize != actualsSize) {
+			Assert.fail(message + "expecteds was a vector of size " + expectedsSize + ", but actuals was a vector of size " + actualsSize);
+		}
+
+		final java.util.Iterator<java.awt.Point> expectedsIterator = expecteds.iterator();
+		final java.util.Iterator<java.awt.Point> actualsIterator = actuals.iterator();
+		for (int i = 0; i < expectedsSize; i++) {
+			final java.awt.Point expected = expectedsIterator.next();
+			final java.awt.Point actual = actualsIterator.next();
+			assertNullableEquals(message + "element mismatch occurred at index " + i + ": ", expected, actual);
+		}
+	}
+
+	private static void assertOneVectorOfNullableEquals(final String message, final java.util.Vector<java.awt.Point> expecteds, final java.util.Vector<java.awt.Point> actuals) {
+		if (expecteds == null) Assert.fail(message + "expecteds was <null> - WARNING: This is a preconditions failure in expecteds, this assertion will never succeed!");
+		if (expecteds == actuals) return;
+		if (actuals == null) Assert.fail(message + "expecteds was a vector of size " + expecteds.size() + ", but actuals was <null>");
+		assertVectorOfNullableEquals(message, expecteds, actuals);
+	}
+
+	public static void assertOneVectorOfNullableEquals(final java.util.Vector<java.awt.Point> expecteds, final java.util.Vector<java.awt.Point> actuals) {
+		assertOneVectorOfNullableEquals("OneVectorOfNullablePoint mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertNullableVectorOfNullableEquals(final String message, final java.util.Vector<java.awt.Point> expecteds, final java.util.Vector<java.awt.Point> actuals) {
+		if (expecteds == actuals) return;
+		if (expecteds == null) Assert.fail(message + "expecteds was <null>, but actuals was a vector of size " + actuals.size());
+		if (actuals == null) Assert.fail(message + " expecteds was a vector of size " + expecteds.size() + ", but actuals was <null>");
+		assertVectorOfNullableEquals(message, expecteds, actuals);
+	}
+
+	public static void assertNullableVectorOfNullableEquals(final java.util.Vector<java.awt.Point> expecteds, final java.util.Vector<java.awt.Point> actuals) {
+		assertNullableVectorOfNullableEquals("NullableVectorOfNullablePoint mismatch: ", expecteds, actuals);
+	}
 }

@@ -258,4 +258,332 @@ public class TextAsserts {
 	public static void assertNullableSetOfNullableEquals(final java.util.Set<String> expecteds, final java.util.Set<String> actuals) {
 		assertNullableSetOfNullableEquals("NullableSetOfNullableText mismatch: ", expecteds, actuals);
 	}
+
+	private static void assertQueueOfOneEquals(final String message, final java.util.Queue<String> expecteds, final java.util.Queue<String> actuals) {
+		final int expectedsSize = expecteds.size();
+		final int actualsSize = actuals.size();
+		if (expectedsSize != actualsSize) {
+			Assert.fail(message + "expecteds was a queue of size " + expectedsSize + ", but actuals was a queue of size " + actualsSize);
+		}
+
+		final java.util.Iterator<String> expectedsIterator = expecteds.iterator();
+		final java.util.Iterator<String> actualsIterator = actuals.iterator();
+		for (int i = 0; i < expectedsSize; i++) {
+			final String expected = expectedsIterator.next();
+			final String actual = actualsIterator.next();
+			assertOneEquals(message + "element mismatch occurred at index " + i + ": ", expected, actual);
+		}
+	}
+
+	private static void assertOneQueueOfOneEquals(final String message, final java.util.Queue<String> expecteds, final java.util.Queue<String> actuals) {
+		int i = 0;
+		for (final String expected : expecteds) {
+			if (expected == null) {
+				Assert.fail(message + "element mismatch occurred at index " + i + ": expected was <null> - WARNING: This is a preconditions failure in expected, this assertion will never succeed!");
+			}
+			i++;
+		}
+		if (expecteds == actuals) return;
+		if (actuals == null) Assert.fail(message + "expecteds was a queue of size " + expecteds.size() + ", but actuals was <null>");
+		assertQueueOfOneEquals(message, expecteds, actuals);
+	}
+
+	public static void assertOneQueueOfOneEquals(final java.util.Queue<String> expecteds, final java.util.Queue<String> actuals) {
+		assertOneQueueOfOneEquals("OneQueueOfOneText mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertNullableQueueOfOneEquals(final String message, final java.util.Queue<String> expecteds, final java.util.Queue<String> actuals) {
+		if (expecteds == actuals) return;
+		if (expecteds == null) Assert.fail(message + "expecteds was <null>, but actuals was a queue of size " + actuals.size());
+		if (actuals == null) Assert.fail(message + " expecteds was a queue of size " + expecteds.size() + ", but actuals was <null>");
+		assertQueueOfOneEquals(message, expecteds, actuals);
+	}
+
+	public static void assertNullableQueueOfOneEquals(final java.util.Queue<String> expecteds, final java.util.Queue<String> actuals) {
+		assertNullableQueueOfOneEquals("NullableQueueOfOneText mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertQueueOfNullableEquals(final String message, final java.util.Queue<String> expecteds, final java.util.Queue<String> actuals) {
+		final int expectedsSize = expecteds.size();
+		final int actualsSize = actuals.size();
+		if (expectedsSize != actualsSize) {
+			Assert.fail(message + "expecteds was a queue of size " + expectedsSize + ", but actuals was a queue of size " + actualsSize);
+		}
+
+		final java.util.Iterator<String> expectedsIterator = expecteds.iterator();
+		final java.util.Iterator<String> actualsIterator = actuals.iterator();
+		for (int i = 0; i < expectedsSize; i++) {
+			final String expected = expectedsIterator.next();
+			final String actual = actualsIterator.next();
+			assertNullableEquals(message + "element mismatch occurred at index " + i + ": ", expected, actual);
+		}
+	}
+
+	private static void assertOneQueueOfNullableEquals(final String message, final java.util.Queue<String> expecteds, final java.util.Queue<String> actuals) {
+		if (expecteds == null) Assert.fail(message + "expecteds was <null> - WARNING: This is a preconditions failure in expecteds, this assertion will never succeed!");
+		if (expecteds == actuals) return;
+		if (actuals == null) Assert.fail(message + "expecteds was a queue of size " + expecteds.size() + ", but actuals was <null>");
+		assertQueueOfNullableEquals(message, expecteds, actuals);
+	}
+
+	public static void assertOneQueueOfNullableEquals(final java.util.Queue<String> expecteds, final java.util.Queue<String> actuals) {
+		assertOneQueueOfNullableEquals("OneQueueOfNullableText mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertNullableQueueOfNullableEquals(final String message, final java.util.Queue<String> expecteds, final java.util.Queue<String> actuals) {
+		if (expecteds == actuals) return;
+		if (expecteds == null) Assert.fail(message + "expecteds was <null>, but actuals was a queue of size " + actuals.size());
+		if (actuals == null) Assert.fail(message + " expecteds was a queue of size " + expecteds.size() + ", but actuals was <null>");
+		assertQueueOfNullableEquals(message, expecteds, actuals);
+	}
+
+	public static void assertNullableQueueOfNullableEquals(final java.util.Queue<String> expecteds, final java.util.Queue<String> actuals) {
+		assertNullableQueueOfNullableEquals("NullableQueueOfNullableText mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertLinkedListOfOneEquals(final String message, final java.util.LinkedList<String> expecteds, final java.util.LinkedList<String> actuals) {
+		final int expectedsSize = expecteds.size();
+		final int actualsSize = actuals.size();
+		if (expectedsSize != actualsSize) {
+			Assert.fail(message + "expecteds was a linked list of size " + expectedsSize + ", but actuals was a linked list of size " + actualsSize);
+		}
+
+		final java.util.Iterator<String> expectedsIterator = expecteds.iterator();
+		final java.util.Iterator<String> actualsIterator = actuals.iterator();
+		for (int i = 0; i < expectedsSize; i++) {
+			final String expected = expectedsIterator.next();
+			final String actual = actualsIterator.next();
+			assertOneEquals(message + "element mismatch occurred at index " + i + ": ", expected, actual);
+		}
+	}
+
+	private static void assertOneLinkedListOfOneEquals(final String message, final java.util.LinkedList<String> expecteds, final java.util.LinkedList<String> actuals) {
+		int i = 0;
+		for (final String expected : expecteds) {
+			if (expected == null) {
+				Assert.fail(message + "element mismatch occurred at index " + i + ": expected was <null> - WARNING: This is a preconditions failure in expected, this assertion will never succeed!");
+			}
+			i++;
+		}
+		if (expecteds == actuals) return;
+		if (actuals == null) Assert.fail(message + "expecteds was a linked list of size " + expecteds.size() + ", but actuals was <null>");
+		assertLinkedListOfOneEquals(message, expecteds, actuals);
+	}
+
+	public static void assertOneLinkedListOfOneEquals(final java.util.LinkedList<String> expecteds, final java.util.LinkedList<String> actuals) {
+		assertOneLinkedListOfOneEquals("OneLinkedListOfOneText mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertNullableLinkedListOfOneEquals(final String message, final java.util.LinkedList<String> expecteds, final java.util.LinkedList<String> actuals) {
+		if (expecteds == actuals) return;
+		if (expecteds == null) Assert.fail(message + "expecteds was <null>, but actuals was a linked list of size " + actuals.size());
+		if (actuals == null) Assert.fail(message + " expecteds was a linked list of size " + expecteds.size() + ", but actuals was <null>");
+		assertLinkedListOfOneEquals(message, expecteds, actuals);
+	}
+
+	public static void assertNullableLinkedListOfOneEquals(final java.util.LinkedList<String> expecteds, final java.util.LinkedList<String> actuals) {
+		assertNullableLinkedListOfOneEquals("NullableLinkedListOfOneText mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertLinkedListOfNullableEquals(final String message, final java.util.LinkedList<String> expecteds, final java.util.LinkedList<String> actuals) {
+		final int expectedsSize = expecteds.size();
+		final int actualsSize = actuals.size();
+		if (expectedsSize != actualsSize) {
+			Assert.fail(message + "expecteds was a linked list of size " + expectedsSize + ", but actuals was a linked list of size " + actualsSize);
+		}
+
+		final java.util.Iterator<String> expectedsIterator = expecteds.iterator();
+		final java.util.Iterator<String> actualsIterator = actuals.iterator();
+		for (int i = 0; i < expectedsSize; i++) {
+			final String expected = expectedsIterator.next();
+			final String actual = actualsIterator.next();
+			assertNullableEquals(message + "element mismatch occurred at index " + i + ": ", expected, actual);
+		}
+	}
+
+	private static void assertOneLinkedListOfNullableEquals(final String message, final java.util.LinkedList<String> expecteds, final java.util.LinkedList<String> actuals) {
+		if (expecteds == null) Assert.fail(message + "expecteds was <null> - WARNING: This is a preconditions failure in expecteds, this assertion will never succeed!");
+		if (expecteds == actuals) return;
+		if (actuals == null) Assert.fail(message + "expecteds was a linked list of size " + expecteds.size() + ", but actuals was <null>");
+		assertLinkedListOfNullableEquals(message, expecteds, actuals);
+	}
+
+	public static void assertOneLinkedListOfNullableEquals(final java.util.LinkedList<String> expecteds, final java.util.LinkedList<String> actuals) {
+		assertOneLinkedListOfNullableEquals("OneLinkedListOfNullableText mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertNullableLinkedListOfNullableEquals(final String message, final java.util.LinkedList<String> expecteds, final java.util.LinkedList<String> actuals) {
+		if (expecteds == actuals) return;
+		if (expecteds == null) Assert.fail(message + "expecteds was <null>, but actuals was a linked list of size " + actuals.size());
+		if (actuals == null) Assert.fail(message + " expecteds was a linked list of size " + expecteds.size() + ", but actuals was <null>");
+		assertLinkedListOfNullableEquals(message, expecteds, actuals);
+	}
+
+	public static void assertNullableLinkedListOfNullableEquals(final java.util.LinkedList<String> expecteds, final java.util.LinkedList<String> actuals) {
+		assertNullableLinkedListOfNullableEquals("NullableLinkedListOfNullableText mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertStackOfOneEquals(final String message, final java.util.Stack<String> expecteds, final java.util.Stack<String> actuals) {
+		final int expectedsSize = expecteds.size();
+		final int actualsSize = actuals.size();
+		if (expectedsSize != actualsSize) {
+			Assert.fail(message + "expecteds was a stack of size " + expectedsSize + ", but actuals was a stack of size " + actualsSize);
+		}
+
+		final java.util.Iterator<String> expectedsIterator = expecteds.iterator();
+		final java.util.Iterator<String> actualsIterator = actuals.iterator();
+		for (int i = 0; i < expectedsSize; i++) {
+			final String expected = expectedsIterator.next();
+			final String actual = actualsIterator.next();
+			assertOneEquals(message + "element mismatch occurred at index " + i + ": ", expected, actual);
+		}
+	}
+
+	private static void assertOneStackOfOneEquals(final String message, final java.util.Stack<String> expecteds, final java.util.Stack<String> actuals) {
+		int i = 0;
+		for (final String expected : expecteds) {
+			if (expected == null) {
+				Assert.fail(message + "element mismatch occurred at index " + i + ": expected was <null> - WARNING: This is a preconditions failure in expected, this assertion will never succeed!");
+			}
+			i++;
+		}
+		if (expecteds == actuals) return;
+		if (actuals == null) Assert.fail(message + "expecteds was a stack of size " + expecteds.size() + ", but actuals was <null>");
+		assertStackOfOneEquals(message, expecteds, actuals);
+	}
+
+	public static void assertOneStackOfOneEquals(final java.util.Stack<String> expecteds, final java.util.Stack<String> actuals) {
+		assertOneStackOfOneEquals("OneStackOfOneText mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertNullableStackOfOneEquals(final String message, final java.util.Stack<String> expecteds, final java.util.Stack<String> actuals) {
+		if (expecteds == actuals) return;
+		if (expecteds == null) Assert.fail(message + "expecteds was <null>, but actuals was a stack of size " + actuals.size());
+		if (actuals == null) Assert.fail(message + " expecteds was a stack of size " + expecteds.size() + ", but actuals was <null>");
+		assertStackOfOneEquals(message, expecteds, actuals);
+	}
+
+	public static void assertNullableStackOfOneEquals(final java.util.Stack<String> expecteds, final java.util.Stack<String> actuals) {
+		assertNullableStackOfOneEquals("NullableStackOfOneText mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertStackOfNullableEquals(final String message, final java.util.Stack<String> expecteds, final java.util.Stack<String> actuals) {
+		final int expectedsSize = expecteds.size();
+		final int actualsSize = actuals.size();
+		if (expectedsSize != actualsSize) {
+			Assert.fail(message + "expecteds was a stack of size " + expectedsSize + ", but actuals was a stack of size " + actualsSize);
+		}
+
+		final java.util.Iterator<String> expectedsIterator = expecteds.iterator();
+		final java.util.Iterator<String> actualsIterator = actuals.iterator();
+		for (int i = 0; i < expectedsSize; i++) {
+			final String expected = expectedsIterator.next();
+			final String actual = actualsIterator.next();
+			assertNullableEquals(message + "element mismatch occurred at index " + i + ": ", expected, actual);
+		}
+	}
+
+	private static void assertOneStackOfNullableEquals(final String message, final java.util.Stack<String> expecteds, final java.util.Stack<String> actuals) {
+		if (expecteds == null) Assert.fail(message + "expecteds was <null> - WARNING: This is a preconditions failure in expecteds, this assertion will never succeed!");
+		if (expecteds == actuals) return;
+		if (actuals == null) Assert.fail(message + "expecteds was a stack of size " + expecteds.size() + ", but actuals was <null>");
+		assertStackOfNullableEquals(message, expecteds, actuals);
+	}
+
+	public static void assertOneStackOfNullableEquals(final java.util.Stack<String> expecteds, final java.util.Stack<String> actuals) {
+		assertOneStackOfNullableEquals("OneStackOfNullableText mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertNullableStackOfNullableEquals(final String message, final java.util.Stack<String> expecteds, final java.util.Stack<String> actuals) {
+		if (expecteds == actuals) return;
+		if (expecteds == null) Assert.fail(message + "expecteds was <null>, but actuals was a stack of size " + actuals.size());
+		if (actuals == null) Assert.fail(message + " expecteds was a stack of size " + expecteds.size() + ", but actuals was <null>");
+		assertStackOfNullableEquals(message, expecteds, actuals);
+	}
+
+	public static void assertNullableStackOfNullableEquals(final java.util.Stack<String> expecteds, final java.util.Stack<String> actuals) {
+		assertNullableStackOfNullableEquals("NullableStackOfNullableText mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertVectorOfOneEquals(final String message, final java.util.Vector<String> expecteds, final java.util.Vector<String> actuals) {
+		final int expectedsSize = expecteds.size();
+		final int actualsSize = actuals.size();
+		if (expectedsSize != actualsSize) {
+			Assert.fail(message + "expecteds was a vector of size " + expectedsSize + ", but actuals was a vector of size " + actualsSize);
+		}
+
+		final java.util.Iterator<String> expectedsIterator = expecteds.iterator();
+		final java.util.Iterator<String> actualsIterator = actuals.iterator();
+		for (int i = 0; i < expectedsSize; i++) {
+			final String expected = expectedsIterator.next();
+			final String actual = actualsIterator.next();
+			assertOneEquals(message + "element mismatch occurred at index " + i + ": ", expected, actual);
+		}
+	}
+
+	private static void assertOneVectorOfOneEquals(final String message, final java.util.Vector<String> expecteds, final java.util.Vector<String> actuals) {
+		int i = 0;
+		for (final String expected : expecteds) {
+			if (expected == null) {
+				Assert.fail(message + "element mismatch occurred at index " + i + ": expected was <null> - WARNING: This is a preconditions failure in expected, this assertion will never succeed!");
+			}
+			i++;
+		}
+		if (expecteds == actuals) return;
+		if (actuals == null) Assert.fail(message + "expecteds was a vector of size " + expecteds.size() + ", but actuals was <null>");
+		assertVectorOfOneEquals(message, expecteds, actuals);
+	}
+
+	public static void assertOneVectorOfOneEquals(final java.util.Vector<String> expecteds, final java.util.Vector<String> actuals) {
+		assertOneVectorOfOneEquals("OneVectorOfOneText mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertNullableVectorOfOneEquals(final String message, final java.util.Vector<String> expecteds, final java.util.Vector<String> actuals) {
+		if (expecteds == actuals) return;
+		if (expecteds == null) Assert.fail(message + "expecteds was <null>, but actuals was a vector of size " + actuals.size());
+		if (actuals == null) Assert.fail(message + " expecteds was a vector of size " + expecteds.size() + ", but actuals was <null>");
+		assertVectorOfOneEquals(message, expecteds, actuals);
+	}
+
+	public static void assertNullableVectorOfOneEquals(final java.util.Vector<String> expecteds, final java.util.Vector<String> actuals) {
+		assertNullableVectorOfOneEquals("NullableVectorOfOneText mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertVectorOfNullableEquals(final String message, final java.util.Vector<String> expecteds, final java.util.Vector<String> actuals) {
+		final int expectedsSize = expecteds.size();
+		final int actualsSize = actuals.size();
+		if (expectedsSize != actualsSize) {
+			Assert.fail(message + "expecteds was a vector of size " + expectedsSize + ", but actuals was a vector of size " + actualsSize);
+		}
+
+		final java.util.Iterator<String> expectedsIterator = expecteds.iterator();
+		final java.util.Iterator<String> actualsIterator = actuals.iterator();
+		for (int i = 0; i < expectedsSize; i++) {
+			final String expected = expectedsIterator.next();
+			final String actual = actualsIterator.next();
+			assertNullableEquals(message + "element mismatch occurred at index " + i + ": ", expected, actual);
+		}
+	}
+
+	private static void assertOneVectorOfNullableEquals(final String message, final java.util.Vector<String> expecteds, final java.util.Vector<String> actuals) {
+		if (expecteds == null) Assert.fail(message + "expecteds was <null> - WARNING: This is a preconditions failure in expecteds, this assertion will never succeed!");
+		if (expecteds == actuals) return;
+		if (actuals == null) Assert.fail(message + "expecteds was a vector of size " + expecteds.size() + ", but actuals was <null>");
+		assertVectorOfNullableEquals(message, expecteds, actuals);
+	}
+
+	public static void assertOneVectorOfNullableEquals(final java.util.Vector<String> expecteds, final java.util.Vector<String> actuals) {
+		assertOneVectorOfNullableEquals("OneVectorOfNullableText mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertNullableVectorOfNullableEquals(final String message, final java.util.Vector<String> expecteds, final java.util.Vector<String> actuals) {
+		if (expecteds == actuals) return;
+		if (expecteds == null) Assert.fail(message + "expecteds was <null>, but actuals was a vector of size " + actuals.size());
+		if (actuals == null) Assert.fail(message + " expecteds was a vector of size " + expecteds.size() + ", but actuals was <null>");
+		assertVectorOfNullableEquals(message, expecteds, actuals);
+	}
+
+	public static void assertNullableVectorOfNullableEquals(final java.util.Vector<String> expecteds, final java.util.Vector<String> actuals) {
+		assertNullableVectorOfNullableEquals("NullableVectorOfNullableText mismatch: ", expecteds, actuals);
+	}
 }

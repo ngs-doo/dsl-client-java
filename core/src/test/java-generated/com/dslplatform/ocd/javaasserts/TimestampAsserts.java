@@ -366,4 +366,396 @@ public class TimestampAsserts {
 	public static void assertNullableSetOfNullableEquals(final java.util.Set<org.joda.time.DateTime> expecteds, final java.util.Set<org.joda.time.DateTime> actuals) {
 		assertNullableSetOfNullableEquals(expecteds, actuals, org.joda.time.Duration.ZERO);
 	}
+
+	private static void assertQueueOfOneEquals(final String message, final java.util.Queue<org.joda.time.DateTime> expecteds, final java.util.Queue<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		final int expectedsSize = expecteds.size();
+		final int actualsSize = actuals.size();
+		if (expectedsSize != actualsSize) {
+			Assert.fail(message + "expecteds was a queue of size " + expectedsSize + ", but actuals was a queue of size " + actualsSize);
+		}
+
+		final java.util.Iterator<org.joda.time.DateTime> expectedsIterator = expecteds.iterator();
+		final java.util.Iterator<org.joda.time.DateTime> actualsIterator = actuals.iterator();
+		for (int i = 0; i < expectedsSize; i++) {
+			final org.joda.time.DateTime expected = expectedsIterator.next();
+			final org.joda.time.DateTime actual = actualsIterator.next();
+			assertOneEquals(message + "element mismatch occurred at index " + i + ": ", expected, actual, delta);
+		}
+	}
+
+	private static void assertOneQueueOfOneEquals(final String message, final java.util.Queue<org.joda.time.DateTime> expecteds, final java.util.Queue<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		int i = 0;
+		for (final org.joda.time.DateTime expected : expecteds) {
+			if (expected == null) {
+				Assert.fail(message + "element mismatch occurred at index " + i + ": expected was <null> - WARNING: This is a preconditions failure in expected, this assertion will never succeed!");
+			}
+			i++;
+		}
+		if (expecteds == actuals) return;
+		if (actuals == null) Assert.fail(message + "expecteds was a queue of size " + expecteds.size() + ", but actuals was <null>");
+		assertQueueOfOneEquals(message, expecteds, actuals, delta);
+	}
+
+	public static void assertOneQueueOfOneEquals(final java.util.Queue<org.joda.time.DateTime> expecteds, final java.util.Queue<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		assertOneQueueOfOneEquals("OneQueueOfOneTimestamp mismatch: ", expecteds, actuals, delta);
+	}
+
+	public static void assertOneQueueOfOneEquals(final java.util.Queue<org.joda.time.DateTime> expecteds, final java.util.Queue<org.joda.time.DateTime> actuals) {
+		assertOneQueueOfOneEquals(expecteds, actuals, org.joda.time.Duration.ZERO);
+	}
+
+	private static void assertNullableQueueOfOneEquals(final String message, final java.util.Queue<org.joda.time.DateTime> expecteds, final java.util.Queue<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		if (expecteds == actuals) return;
+		if (expecteds == null) Assert.fail(message + "expecteds was <null>, but actuals was a queue of size " + actuals.size());
+		if (actuals == null) Assert.fail(message + " expecteds was a queue of size " + expecteds.size() + ", but actuals was <null>");
+		assertQueueOfOneEquals(message, expecteds, actuals, delta);
+	}
+
+	public static void assertNullableQueueOfOneEquals(final java.util.Queue<org.joda.time.DateTime> expecteds, final java.util.Queue<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		assertNullableQueueOfOneEquals("NullableQueueOfOneTimestamp mismatch: ", expecteds, actuals, delta);
+	}
+
+	public static void assertNullableQueueOfOneEquals(final java.util.Queue<org.joda.time.DateTime> expecteds, final java.util.Queue<org.joda.time.DateTime> actuals) {
+		assertNullableQueueOfOneEquals(expecteds, actuals, org.joda.time.Duration.ZERO);
+	}
+
+	private static void assertQueueOfNullableEquals(final String message, final java.util.Queue<org.joda.time.DateTime> expecteds, final java.util.Queue<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		final int expectedsSize = expecteds.size();
+		final int actualsSize = actuals.size();
+		if (expectedsSize != actualsSize) {
+			Assert.fail(message + "expecteds was a queue of size " + expectedsSize + ", but actuals was a queue of size " + actualsSize);
+		}
+
+		final java.util.Iterator<org.joda.time.DateTime> expectedsIterator = expecteds.iterator();
+		final java.util.Iterator<org.joda.time.DateTime> actualsIterator = actuals.iterator();
+		for (int i = 0; i < expectedsSize; i++) {
+			final org.joda.time.DateTime expected = expectedsIterator.next();
+			final org.joda.time.DateTime actual = actualsIterator.next();
+			assertNullableEquals(message + "element mismatch occurred at index " + i + ": ", expected, actual, delta);
+		}
+	}
+
+	private static void assertOneQueueOfNullableEquals(final String message, final java.util.Queue<org.joda.time.DateTime> expecteds, final java.util.Queue<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		if (expecteds == null) Assert.fail(message + "expecteds was <null> - WARNING: This is a preconditions failure in expecteds, this assertion will never succeed!");
+		if (expecteds == actuals) return;
+		if (actuals == null) Assert.fail(message + "expecteds was a queue of size " + expecteds.size() + ", but actuals was <null>");
+		assertQueueOfNullableEquals(message, expecteds, actuals, delta);
+	}
+
+	public static void assertOneQueueOfNullableEquals(final java.util.Queue<org.joda.time.DateTime> expecteds, final java.util.Queue<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		assertOneQueueOfNullableEquals("OneQueueOfNullableTimestamp mismatch: ", expecteds, actuals, delta);
+	}
+
+	public static void assertOneQueueOfNullableEquals(final java.util.Queue<org.joda.time.DateTime> expecteds, final java.util.Queue<org.joda.time.DateTime> actuals) {
+		assertOneQueueOfNullableEquals(expecteds, actuals, org.joda.time.Duration.ZERO);
+	}
+
+	private static void assertNullableQueueOfNullableEquals(final String message, final java.util.Queue<org.joda.time.DateTime> expecteds, final java.util.Queue<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		if (expecteds == actuals) return;
+		if (expecteds == null) Assert.fail(message + "expecteds was <null>, but actuals was a queue of size " + actuals.size());
+		if (actuals == null) Assert.fail(message + " expecteds was a queue of size " + expecteds.size() + ", but actuals was <null>");
+		assertQueueOfNullableEquals(message, expecteds, actuals, delta);
+	}
+
+	public static void assertNullableQueueOfNullableEquals(final java.util.Queue<org.joda.time.DateTime> expecteds, final java.util.Queue<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		assertNullableQueueOfNullableEquals("NullableQueueOfNullableTimestamp mismatch: ", expecteds, actuals, delta);
+	}
+
+	public static void assertNullableQueueOfNullableEquals(final java.util.Queue<org.joda.time.DateTime> expecteds, final java.util.Queue<org.joda.time.DateTime> actuals) {
+		assertNullableQueueOfNullableEquals(expecteds, actuals, org.joda.time.Duration.ZERO);
+	}
+
+	private static void assertLinkedListOfOneEquals(final String message, final java.util.LinkedList<org.joda.time.DateTime> expecteds, final java.util.LinkedList<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		final int expectedsSize = expecteds.size();
+		final int actualsSize = actuals.size();
+		if (expectedsSize != actualsSize) {
+			Assert.fail(message + "expecteds was a linked list of size " + expectedsSize + ", but actuals was a linked list of size " + actualsSize);
+		}
+
+		final java.util.Iterator<org.joda.time.DateTime> expectedsIterator = expecteds.iterator();
+		final java.util.Iterator<org.joda.time.DateTime> actualsIterator = actuals.iterator();
+		for (int i = 0; i < expectedsSize; i++) {
+			final org.joda.time.DateTime expected = expectedsIterator.next();
+			final org.joda.time.DateTime actual = actualsIterator.next();
+			assertOneEquals(message + "element mismatch occurred at index " + i + ": ", expected, actual, delta);
+		}
+	}
+
+	private static void assertOneLinkedListOfOneEquals(final String message, final java.util.LinkedList<org.joda.time.DateTime> expecteds, final java.util.LinkedList<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		int i = 0;
+		for (final org.joda.time.DateTime expected : expecteds) {
+			if (expected == null) {
+				Assert.fail(message + "element mismatch occurred at index " + i + ": expected was <null> - WARNING: This is a preconditions failure in expected, this assertion will never succeed!");
+			}
+			i++;
+		}
+		if (expecteds == actuals) return;
+		if (actuals == null) Assert.fail(message + "expecteds was a linked list of size " + expecteds.size() + ", but actuals was <null>");
+		assertLinkedListOfOneEquals(message, expecteds, actuals, delta);
+	}
+
+	public static void assertOneLinkedListOfOneEquals(final java.util.LinkedList<org.joda.time.DateTime> expecteds, final java.util.LinkedList<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		assertOneLinkedListOfOneEquals("OneLinkedListOfOneTimestamp mismatch: ", expecteds, actuals, delta);
+	}
+
+	public static void assertOneLinkedListOfOneEquals(final java.util.LinkedList<org.joda.time.DateTime> expecteds, final java.util.LinkedList<org.joda.time.DateTime> actuals) {
+		assertOneLinkedListOfOneEquals(expecteds, actuals, org.joda.time.Duration.ZERO);
+	}
+
+	private static void assertNullableLinkedListOfOneEquals(final String message, final java.util.LinkedList<org.joda.time.DateTime> expecteds, final java.util.LinkedList<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		if (expecteds == actuals) return;
+		if (expecteds == null) Assert.fail(message + "expecteds was <null>, but actuals was a linked list of size " + actuals.size());
+		if (actuals == null) Assert.fail(message + " expecteds was a linked list of size " + expecteds.size() + ", but actuals was <null>");
+		assertLinkedListOfOneEquals(message, expecteds, actuals, delta);
+	}
+
+	public static void assertNullableLinkedListOfOneEquals(final java.util.LinkedList<org.joda.time.DateTime> expecteds, final java.util.LinkedList<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		assertNullableLinkedListOfOneEquals("NullableLinkedListOfOneTimestamp mismatch: ", expecteds, actuals, delta);
+	}
+
+	public static void assertNullableLinkedListOfOneEquals(final java.util.LinkedList<org.joda.time.DateTime> expecteds, final java.util.LinkedList<org.joda.time.DateTime> actuals) {
+		assertNullableLinkedListOfOneEquals(expecteds, actuals, org.joda.time.Duration.ZERO);
+	}
+
+	private static void assertLinkedListOfNullableEquals(final String message, final java.util.LinkedList<org.joda.time.DateTime> expecteds, final java.util.LinkedList<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		final int expectedsSize = expecteds.size();
+		final int actualsSize = actuals.size();
+		if (expectedsSize != actualsSize) {
+			Assert.fail(message + "expecteds was a linked list of size " + expectedsSize + ", but actuals was a linked list of size " + actualsSize);
+		}
+
+		final java.util.Iterator<org.joda.time.DateTime> expectedsIterator = expecteds.iterator();
+		final java.util.Iterator<org.joda.time.DateTime> actualsIterator = actuals.iterator();
+		for (int i = 0; i < expectedsSize; i++) {
+			final org.joda.time.DateTime expected = expectedsIterator.next();
+			final org.joda.time.DateTime actual = actualsIterator.next();
+			assertNullableEquals(message + "element mismatch occurred at index " + i + ": ", expected, actual, delta);
+		}
+	}
+
+	private static void assertOneLinkedListOfNullableEquals(final String message, final java.util.LinkedList<org.joda.time.DateTime> expecteds, final java.util.LinkedList<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		if (expecteds == null) Assert.fail(message + "expecteds was <null> - WARNING: This is a preconditions failure in expecteds, this assertion will never succeed!");
+		if (expecteds == actuals) return;
+		if (actuals == null) Assert.fail(message + "expecteds was a linked list of size " + expecteds.size() + ", but actuals was <null>");
+		assertLinkedListOfNullableEquals(message, expecteds, actuals, delta);
+	}
+
+	public static void assertOneLinkedListOfNullableEquals(final java.util.LinkedList<org.joda.time.DateTime> expecteds, final java.util.LinkedList<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		assertOneLinkedListOfNullableEquals("OneLinkedListOfNullableTimestamp mismatch: ", expecteds, actuals, delta);
+	}
+
+	public static void assertOneLinkedListOfNullableEquals(final java.util.LinkedList<org.joda.time.DateTime> expecteds, final java.util.LinkedList<org.joda.time.DateTime> actuals) {
+		assertOneLinkedListOfNullableEquals(expecteds, actuals, org.joda.time.Duration.ZERO);
+	}
+
+	private static void assertNullableLinkedListOfNullableEquals(final String message, final java.util.LinkedList<org.joda.time.DateTime> expecteds, final java.util.LinkedList<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		if (expecteds == actuals) return;
+		if (expecteds == null) Assert.fail(message + "expecteds was <null>, but actuals was a linked list of size " + actuals.size());
+		if (actuals == null) Assert.fail(message + " expecteds was a linked list of size " + expecteds.size() + ", but actuals was <null>");
+		assertLinkedListOfNullableEquals(message, expecteds, actuals, delta);
+	}
+
+	public static void assertNullableLinkedListOfNullableEquals(final java.util.LinkedList<org.joda.time.DateTime> expecteds, final java.util.LinkedList<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		assertNullableLinkedListOfNullableEquals("NullableLinkedListOfNullableTimestamp mismatch: ", expecteds, actuals, delta);
+	}
+
+	public static void assertNullableLinkedListOfNullableEquals(final java.util.LinkedList<org.joda.time.DateTime> expecteds, final java.util.LinkedList<org.joda.time.DateTime> actuals) {
+		assertNullableLinkedListOfNullableEquals(expecteds, actuals, org.joda.time.Duration.ZERO);
+	}
+
+	private static void assertStackOfOneEquals(final String message, final java.util.Stack<org.joda.time.DateTime> expecteds, final java.util.Stack<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		final int expectedsSize = expecteds.size();
+		final int actualsSize = actuals.size();
+		if (expectedsSize != actualsSize) {
+			Assert.fail(message + "expecteds was a stack of size " + expectedsSize + ", but actuals was a stack of size " + actualsSize);
+		}
+
+		final java.util.Iterator<org.joda.time.DateTime> expectedsIterator = expecteds.iterator();
+		final java.util.Iterator<org.joda.time.DateTime> actualsIterator = actuals.iterator();
+		for (int i = 0; i < expectedsSize; i++) {
+			final org.joda.time.DateTime expected = expectedsIterator.next();
+			final org.joda.time.DateTime actual = actualsIterator.next();
+			assertOneEquals(message + "element mismatch occurred at index " + i + ": ", expected, actual, delta);
+		}
+	}
+
+	private static void assertOneStackOfOneEquals(final String message, final java.util.Stack<org.joda.time.DateTime> expecteds, final java.util.Stack<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		int i = 0;
+		for (final org.joda.time.DateTime expected : expecteds) {
+			if (expected == null) {
+				Assert.fail(message + "element mismatch occurred at index " + i + ": expected was <null> - WARNING: This is a preconditions failure in expected, this assertion will never succeed!");
+			}
+			i++;
+		}
+		if (expecteds == actuals) return;
+		if (actuals == null) Assert.fail(message + "expecteds was a stack of size " + expecteds.size() + ", but actuals was <null>");
+		assertStackOfOneEquals(message, expecteds, actuals, delta);
+	}
+
+	public static void assertOneStackOfOneEquals(final java.util.Stack<org.joda.time.DateTime> expecteds, final java.util.Stack<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		assertOneStackOfOneEquals("OneStackOfOneTimestamp mismatch: ", expecteds, actuals, delta);
+	}
+
+	public static void assertOneStackOfOneEquals(final java.util.Stack<org.joda.time.DateTime> expecteds, final java.util.Stack<org.joda.time.DateTime> actuals) {
+		assertOneStackOfOneEquals(expecteds, actuals, org.joda.time.Duration.ZERO);
+	}
+
+	private static void assertNullableStackOfOneEquals(final String message, final java.util.Stack<org.joda.time.DateTime> expecteds, final java.util.Stack<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		if (expecteds == actuals) return;
+		if (expecteds == null) Assert.fail(message + "expecteds was <null>, but actuals was a stack of size " + actuals.size());
+		if (actuals == null) Assert.fail(message + " expecteds was a stack of size " + expecteds.size() + ", but actuals was <null>");
+		assertStackOfOneEquals(message, expecteds, actuals, delta);
+	}
+
+	public static void assertNullableStackOfOneEquals(final java.util.Stack<org.joda.time.DateTime> expecteds, final java.util.Stack<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		assertNullableStackOfOneEquals("NullableStackOfOneTimestamp mismatch: ", expecteds, actuals, delta);
+	}
+
+	public static void assertNullableStackOfOneEquals(final java.util.Stack<org.joda.time.DateTime> expecteds, final java.util.Stack<org.joda.time.DateTime> actuals) {
+		assertNullableStackOfOneEquals(expecteds, actuals, org.joda.time.Duration.ZERO);
+	}
+
+	private static void assertStackOfNullableEquals(final String message, final java.util.Stack<org.joda.time.DateTime> expecteds, final java.util.Stack<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		final int expectedsSize = expecteds.size();
+		final int actualsSize = actuals.size();
+		if (expectedsSize != actualsSize) {
+			Assert.fail(message + "expecteds was a stack of size " + expectedsSize + ", but actuals was a stack of size " + actualsSize);
+		}
+
+		final java.util.Iterator<org.joda.time.DateTime> expectedsIterator = expecteds.iterator();
+		final java.util.Iterator<org.joda.time.DateTime> actualsIterator = actuals.iterator();
+		for (int i = 0; i < expectedsSize; i++) {
+			final org.joda.time.DateTime expected = expectedsIterator.next();
+			final org.joda.time.DateTime actual = actualsIterator.next();
+			assertNullableEquals(message + "element mismatch occurred at index " + i + ": ", expected, actual, delta);
+		}
+	}
+
+	private static void assertOneStackOfNullableEquals(final String message, final java.util.Stack<org.joda.time.DateTime> expecteds, final java.util.Stack<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		if (expecteds == null) Assert.fail(message + "expecteds was <null> - WARNING: This is a preconditions failure in expecteds, this assertion will never succeed!");
+		if (expecteds == actuals) return;
+		if (actuals == null) Assert.fail(message + "expecteds was a stack of size " + expecteds.size() + ", but actuals was <null>");
+		assertStackOfNullableEquals(message, expecteds, actuals, delta);
+	}
+
+	public static void assertOneStackOfNullableEquals(final java.util.Stack<org.joda.time.DateTime> expecteds, final java.util.Stack<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		assertOneStackOfNullableEquals("OneStackOfNullableTimestamp mismatch: ", expecteds, actuals, delta);
+	}
+
+	public static void assertOneStackOfNullableEquals(final java.util.Stack<org.joda.time.DateTime> expecteds, final java.util.Stack<org.joda.time.DateTime> actuals) {
+		assertOneStackOfNullableEquals(expecteds, actuals, org.joda.time.Duration.ZERO);
+	}
+
+	private static void assertNullableStackOfNullableEquals(final String message, final java.util.Stack<org.joda.time.DateTime> expecteds, final java.util.Stack<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		if (expecteds == actuals) return;
+		if (expecteds == null) Assert.fail(message + "expecteds was <null>, but actuals was a stack of size " + actuals.size());
+		if (actuals == null) Assert.fail(message + " expecteds was a stack of size " + expecteds.size() + ", but actuals was <null>");
+		assertStackOfNullableEquals(message, expecteds, actuals, delta);
+	}
+
+	public static void assertNullableStackOfNullableEquals(final java.util.Stack<org.joda.time.DateTime> expecteds, final java.util.Stack<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		assertNullableStackOfNullableEquals("NullableStackOfNullableTimestamp mismatch: ", expecteds, actuals, delta);
+	}
+
+	public static void assertNullableStackOfNullableEquals(final java.util.Stack<org.joda.time.DateTime> expecteds, final java.util.Stack<org.joda.time.DateTime> actuals) {
+		assertNullableStackOfNullableEquals(expecteds, actuals, org.joda.time.Duration.ZERO);
+	}
+
+	private static void assertVectorOfOneEquals(final String message, final java.util.Vector<org.joda.time.DateTime> expecteds, final java.util.Vector<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		final int expectedsSize = expecteds.size();
+		final int actualsSize = actuals.size();
+		if (expectedsSize != actualsSize) {
+			Assert.fail(message + "expecteds was a vector of size " + expectedsSize + ", but actuals was a vector of size " + actualsSize);
+		}
+
+		final java.util.Iterator<org.joda.time.DateTime> expectedsIterator = expecteds.iterator();
+		final java.util.Iterator<org.joda.time.DateTime> actualsIterator = actuals.iterator();
+		for (int i = 0; i < expectedsSize; i++) {
+			final org.joda.time.DateTime expected = expectedsIterator.next();
+			final org.joda.time.DateTime actual = actualsIterator.next();
+			assertOneEquals(message + "element mismatch occurred at index " + i + ": ", expected, actual, delta);
+		}
+	}
+
+	private static void assertOneVectorOfOneEquals(final String message, final java.util.Vector<org.joda.time.DateTime> expecteds, final java.util.Vector<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		int i = 0;
+		for (final org.joda.time.DateTime expected : expecteds) {
+			if (expected == null) {
+				Assert.fail(message + "element mismatch occurred at index " + i + ": expected was <null> - WARNING: This is a preconditions failure in expected, this assertion will never succeed!");
+			}
+			i++;
+		}
+		if (expecteds == actuals) return;
+		if (actuals == null) Assert.fail(message + "expecteds was a vector of size " + expecteds.size() + ", but actuals was <null>");
+		assertVectorOfOneEquals(message, expecteds, actuals, delta);
+	}
+
+	public static void assertOneVectorOfOneEquals(final java.util.Vector<org.joda.time.DateTime> expecteds, final java.util.Vector<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		assertOneVectorOfOneEquals("OneVectorOfOneTimestamp mismatch: ", expecteds, actuals, delta);
+	}
+
+	public static void assertOneVectorOfOneEquals(final java.util.Vector<org.joda.time.DateTime> expecteds, final java.util.Vector<org.joda.time.DateTime> actuals) {
+		assertOneVectorOfOneEquals(expecteds, actuals, org.joda.time.Duration.ZERO);
+	}
+
+	private static void assertNullableVectorOfOneEquals(final String message, final java.util.Vector<org.joda.time.DateTime> expecteds, final java.util.Vector<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		if (expecteds == actuals) return;
+		if (expecteds == null) Assert.fail(message + "expecteds was <null>, but actuals was a vector of size " + actuals.size());
+		if (actuals == null) Assert.fail(message + " expecteds was a vector of size " + expecteds.size() + ", but actuals was <null>");
+		assertVectorOfOneEquals(message, expecteds, actuals, delta);
+	}
+
+	public static void assertNullableVectorOfOneEquals(final java.util.Vector<org.joda.time.DateTime> expecteds, final java.util.Vector<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		assertNullableVectorOfOneEquals("NullableVectorOfOneTimestamp mismatch: ", expecteds, actuals, delta);
+	}
+
+	public static void assertNullableVectorOfOneEquals(final java.util.Vector<org.joda.time.DateTime> expecteds, final java.util.Vector<org.joda.time.DateTime> actuals) {
+		assertNullableVectorOfOneEquals(expecteds, actuals, org.joda.time.Duration.ZERO);
+	}
+
+	private static void assertVectorOfNullableEquals(final String message, final java.util.Vector<org.joda.time.DateTime> expecteds, final java.util.Vector<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		final int expectedsSize = expecteds.size();
+		final int actualsSize = actuals.size();
+		if (expectedsSize != actualsSize) {
+			Assert.fail(message + "expecteds was a vector of size " + expectedsSize + ", but actuals was a vector of size " + actualsSize);
+		}
+
+		final java.util.Iterator<org.joda.time.DateTime> expectedsIterator = expecteds.iterator();
+		final java.util.Iterator<org.joda.time.DateTime> actualsIterator = actuals.iterator();
+		for (int i = 0; i < expectedsSize; i++) {
+			final org.joda.time.DateTime expected = expectedsIterator.next();
+			final org.joda.time.DateTime actual = actualsIterator.next();
+			assertNullableEquals(message + "element mismatch occurred at index " + i + ": ", expected, actual, delta);
+		}
+	}
+
+	private static void assertOneVectorOfNullableEquals(final String message, final java.util.Vector<org.joda.time.DateTime> expecteds, final java.util.Vector<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		if (expecteds == null) Assert.fail(message + "expecteds was <null> - WARNING: This is a preconditions failure in expecteds, this assertion will never succeed!");
+		if (expecteds == actuals) return;
+		if (actuals == null) Assert.fail(message + "expecteds was a vector of size " + expecteds.size() + ", but actuals was <null>");
+		assertVectorOfNullableEquals(message, expecteds, actuals, delta);
+	}
+
+	public static void assertOneVectorOfNullableEquals(final java.util.Vector<org.joda.time.DateTime> expecteds, final java.util.Vector<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		assertOneVectorOfNullableEquals("OneVectorOfNullableTimestamp mismatch: ", expecteds, actuals, delta);
+	}
+
+	public static void assertOneVectorOfNullableEquals(final java.util.Vector<org.joda.time.DateTime> expecteds, final java.util.Vector<org.joda.time.DateTime> actuals) {
+		assertOneVectorOfNullableEquals(expecteds, actuals, org.joda.time.Duration.ZERO);
+	}
+
+	private static void assertNullableVectorOfNullableEquals(final String message, final java.util.Vector<org.joda.time.DateTime> expecteds, final java.util.Vector<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		if (expecteds == actuals) return;
+		if (expecteds == null) Assert.fail(message + "expecteds was <null>, but actuals was a vector of size " + actuals.size());
+		if (actuals == null) Assert.fail(message + " expecteds was a vector of size " + expecteds.size() + ", but actuals was <null>");
+		assertVectorOfNullableEquals(message, expecteds, actuals, delta);
+	}
+
+	public static void assertNullableVectorOfNullableEquals(final java.util.Vector<org.joda.time.DateTime> expecteds, final java.util.Vector<org.joda.time.DateTime> actuals, final org.joda.time.Duration delta) {
+		assertNullableVectorOfNullableEquals("NullableVectorOfNullableTimestamp mismatch: ", expecteds, actuals, delta);
+	}
+
+	public static void assertNullableVectorOfNullableEquals(final java.util.Vector<org.joda.time.DateTime> expecteds, final java.util.Vector<org.joda.time.DateTime> actuals) {
+		assertNullableVectorOfNullableEquals(expecteds, actuals, org.joda.time.Duration.ZERO);
+	}
 }

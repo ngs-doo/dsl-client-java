@@ -258,4 +258,332 @@ public class UrlAsserts {
 	public static void assertNullableSetOfNullableEquals(final java.util.Set<java.net.URI> expecteds, final java.util.Set<java.net.URI> actuals) {
 		assertNullableSetOfNullableEquals("NullableSetOfNullableUrl mismatch: ", expecteds, actuals);
 	}
+
+	private static void assertQueueOfOneEquals(final String message, final java.util.Queue<java.net.URI> expecteds, final java.util.Queue<java.net.URI> actuals) {
+		final int expectedsSize = expecteds.size();
+		final int actualsSize = actuals.size();
+		if (expectedsSize != actualsSize) {
+			Assert.fail(message + "expecteds was a queue of size " + expectedsSize + ", but actuals was a queue of size " + actualsSize);
+		}
+
+		final java.util.Iterator<java.net.URI> expectedsIterator = expecteds.iterator();
+		final java.util.Iterator<java.net.URI> actualsIterator = actuals.iterator();
+		for (int i = 0; i < expectedsSize; i++) {
+			final java.net.URI expected = expectedsIterator.next();
+			final java.net.URI actual = actualsIterator.next();
+			assertOneEquals(message + "element mismatch occurred at index " + i + ": ", expected, actual);
+		}
+	}
+
+	private static void assertOneQueueOfOneEquals(final String message, final java.util.Queue<java.net.URI> expecteds, final java.util.Queue<java.net.URI> actuals) {
+		int i = 0;
+		for (final java.net.URI expected : expecteds) {
+			if (expected == null) {
+				Assert.fail(message + "element mismatch occurred at index " + i + ": expected was <null> - WARNING: This is a preconditions failure in expected, this assertion will never succeed!");
+			}
+			i++;
+		}
+		if (expecteds == actuals) return;
+		if (actuals == null) Assert.fail(message + "expecteds was a queue of size " + expecteds.size() + ", but actuals was <null>");
+		assertQueueOfOneEquals(message, expecteds, actuals);
+	}
+
+	public static void assertOneQueueOfOneEquals(final java.util.Queue<java.net.URI> expecteds, final java.util.Queue<java.net.URI> actuals) {
+		assertOneQueueOfOneEquals("OneQueueOfOneUrl mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertNullableQueueOfOneEquals(final String message, final java.util.Queue<java.net.URI> expecteds, final java.util.Queue<java.net.URI> actuals) {
+		if (expecteds == actuals) return;
+		if (expecteds == null) Assert.fail(message + "expecteds was <null>, but actuals was a queue of size " + actuals.size());
+		if (actuals == null) Assert.fail(message + " expecteds was a queue of size " + expecteds.size() + ", but actuals was <null>");
+		assertQueueOfOneEquals(message, expecteds, actuals);
+	}
+
+	public static void assertNullableQueueOfOneEquals(final java.util.Queue<java.net.URI> expecteds, final java.util.Queue<java.net.URI> actuals) {
+		assertNullableQueueOfOneEquals("NullableQueueOfOneUrl mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertQueueOfNullableEquals(final String message, final java.util.Queue<java.net.URI> expecteds, final java.util.Queue<java.net.URI> actuals) {
+		final int expectedsSize = expecteds.size();
+		final int actualsSize = actuals.size();
+		if (expectedsSize != actualsSize) {
+			Assert.fail(message + "expecteds was a queue of size " + expectedsSize + ", but actuals was a queue of size " + actualsSize);
+		}
+
+		final java.util.Iterator<java.net.URI> expectedsIterator = expecteds.iterator();
+		final java.util.Iterator<java.net.URI> actualsIterator = actuals.iterator();
+		for (int i = 0; i < expectedsSize; i++) {
+			final java.net.URI expected = expectedsIterator.next();
+			final java.net.URI actual = actualsIterator.next();
+			assertNullableEquals(message + "element mismatch occurred at index " + i + ": ", expected, actual);
+		}
+	}
+
+	private static void assertOneQueueOfNullableEquals(final String message, final java.util.Queue<java.net.URI> expecteds, final java.util.Queue<java.net.URI> actuals) {
+		if (expecteds == null) Assert.fail(message + "expecteds was <null> - WARNING: This is a preconditions failure in expecteds, this assertion will never succeed!");
+		if (expecteds == actuals) return;
+		if (actuals == null) Assert.fail(message + "expecteds was a queue of size " + expecteds.size() + ", but actuals was <null>");
+		assertQueueOfNullableEquals(message, expecteds, actuals);
+	}
+
+	public static void assertOneQueueOfNullableEquals(final java.util.Queue<java.net.URI> expecteds, final java.util.Queue<java.net.URI> actuals) {
+		assertOneQueueOfNullableEquals("OneQueueOfNullableUrl mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertNullableQueueOfNullableEquals(final String message, final java.util.Queue<java.net.URI> expecteds, final java.util.Queue<java.net.URI> actuals) {
+		if (expecteds == actuals) return;
+		if (expecteds == null) Assert.fail(message + "expecteds was <null>, but actuals was a queue of size " + actuals.size());
+		if (actuals == null) Assert.fail(message + " expecteds was a queue of size " + expecteds.size() + ", but actuals was <null>");
+		assertQueueOfNullableEquals(message, expecteds, actuals);
+	}
+
+	public static void assertNullableQueueOfNullableEquals(final java.util.Queue<java.net.URI> expecteds, final java.util.Queue<java.net.URI> actuals) {
+		assertNullableQueueOfNullableEquals("NullableQueueOfNullableUrl mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertLinkedListOfOneEquals(final String message, final java.util.LinkedList<java.net.URI> expecteds, final java.util.LinkedList<java.net.URI> actuals) {
+		final int expectedsSize = expecteds.size();
+		final int actualsSize = actuals.size();
+		if (expectedsSize != actualsSize) {
+			Assert.fail(message + "expecteds was a linked list of size " + expectedsSize + ", but actuals was a linked list of size " + actualsSize);
+		}
+
+		final java.util.Iterator<java.net.URI> expectedsIterator = expecteds.iterator();
+		final java.util.Iterator<java.net.URI> actualsIterator = actuals.iterator();
+		for (int i = 0; i < expectedsSize; i++) {
+			final java.net.URI expected = expectedsIterator.next();
+			final java.net.URI actual = actualsIterator.next();
+			assertOneEquals(message + "element mismatch occurred at index " + i + ": ", expected, actual);
+		}
+	}
+
+	private static void assertOneLinkedListOfOneEquals(final String message, final java.util.LinkedList<java.net.URI> expecteds, final java.util.LinkedList<java.net.URI> actuals) {
+		int i = 0;
+		for (final java.net.URI expected : expecteds) {
+			if (expected == null) {
+				Assert.fail(message + "element mismatch occurred at index " + i + ": expected was <null> - WARNING: This is a preconditions failure in expected, this assertion will never succeed!");
+			}
+			i++;
+		}
+		if (expecteds == actuals) return;
+		if (actuals == null) Assert.fail(message + "expecteds was a linked list of size " + expecteds.size() + ", but actuals was <null>");
+		assertLinkedListOfOneEquals(message, expecteds, actuals);
+	}
+
+	public static void assertOneLinkedListOfOneEquals(final java.util.LinkedList<java.net.URI> expecteds, final java.util.LinkedList<java.net.URI> actuals) {
+		assertOneLinkedListOfOneEquals("OneLinkedListOfOneUrl mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertNullableLinkedListOfOneEquals(final String message, final java.util.LinkedList<java.net.URI> expecteds, final java.util.LinkedList<java.net.URI> actuals) {
+		if (expecteds == actuals) return;
+		if (expecteds == null) Assert.fail(message + "expecteds was <null>, but actuals was a linked list of size " + actuals.size());
+		if (actuals == null) Assert.fail(message + " expecteds was a linked list of size " + expecteds.size() + ", but actuals was <null>");
+		assertLinkedListOfOneEquals(message, expecteds, actuals);
+	}
+
+	public static void assertNullableLinkedListOfOneEquals(final java.util.LinkedList<java.net.URI> expecteds, final java.util.LinkedList<java.net.URI> actuals) {
+		assertNullableLinkedListOfOneEquals("NullableLinkedListOfOneUrl mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertLinkedListOfNullableEquals(final String message, final java.util.LinkedList<java.net.URI> expecteds, final java.util.LinkedList<java.net.URI> actuals) {
+		final int expectedsSize = expecteds.size();
+		final int actualsSize = actuals.size();
+		if (expectedsSize != actualsSize) {
+			Assert.fail(message + "expecteds was a linked list of size " + expectedsSize + ", but actuals was a linked list of size " + actualsSize);
+		}
+
+		final java.util.Iterator<java.net.URI> expectedsIterator = expecteds.iterator();
+		final java.util.Iterator<java.net.URI> actualsIterator = actuals.iterator();
+		for (int i = 0; i < expectedsSize; i++) {
+			final java.net.URI expected = expectedsIterator.next();
+			final java.net.URI actual = actualsIterator.next();
+			assertNullableEquals(message + "element mismatch occurred at index " + i + ": ", expected, actual);
+		}
+	}
+
+	private static void assertOneLinkedListOfNullableEquals(final String message, final java.util.LinkedList<java.net.URI> expecteds, final java.util.LinkedList<java.net.URI> actuals) {
+		if (expecteds == null) Assert.fail(message + "expecteds was <null> - WARNING: This is a preconditions failure in expecteds, this assertion will never succeed!");
+		if (expecteds == actuals) return;
+		if (actuals == null) Assert.fail(message + "expecteds was a linked list of size " + expecteds.size() + ", but actuals was <null>");
+		assertLinkedListOfNullableEquals(message, expecteds, actuals);
+	}
+
+	public static void assertOneLinkedListOfNullableEquals(final java.util.LinkedList<java.net.URI> expecteds, final java.util.LinkedList<java.net.URI> actuals) {
+		assertOneLinkedListOfNullableEquals("OneLinkedListOfNullableUrl mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertNullableLinkedListOfNullableEquals(final String message, final java.util.LinkedList<java.net.URI> expecteds, final java.util.LinkedList<java.net.URI> actuals) {
+		if (expecteds == actuals) return;
+		if (expecteds == null) Assert.fail(message + "expecteds was <null>, but actuals was a linked list of size " + actuals.size());
+		if (actuals == null) Assert.fail(message + " expecteds was a linked list of size " + expecteds.size() + ", but actuals was <null>");
+		assertLinkedListOfNullableEquals(message, expecteds, actuals);
+	}
+
+	public static void assertNullableLinkedListOfNullableEquals(final java.util.LinkedList<java.net.URI> expecteds, final java.util.LinkedList<java.net.URI> actuals) {
+		assertNullableLinkedListOfNullableEquals("NullableLinkedListOfNullableUrl mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertStackOfOneEquals(final String message, final java.util.Stack<java.net.URI> expecteds, final java.util.Stack<java.net.URI> actuals) {
+		final int expectedsSize = expecteds.size();
+		final int actualsSize = actuals.size();
+		if (expectedsSize != actualsSize) {
+			Assert.fail(message + "expecteds was a stack of size " + expectedsSize + ", but actuals was a stack of size " + actualsSize);
+		}
+
+		final java.util.Iterator<java.net.URI> expectedsIterator = expecteds.iterator();
+		final java.util.Iterator<java.net.URI> actualsIterator = actuals.iterator();
+		for (int i = 0; i < expectedsSize; i++) {
+			final java.net.URI expected = expectedsIterator.next();
+			final java.net.URI actual = actualsIterator.next();
+			assertOneEquals(message + "element mismatch occurred at index " + i + ": ", expected, actual);
+		}
+	}
+
+	private static void assertOneStackOfOneEquals(final String message, final java.util.Stack<java.net.URI> expecteds, final java.util.Stack<java.net.URI> actuals) {
+		int i = 0;
+		for (final java.net.URI expected : expecteds) {
+			if (expected == null) {
+				Assert.fail(message + "element mismatch occurred at index " + i + ": expected was <null> - WARNING: This is a preconditions failure in expected, this assertion will never succeed!");
+			}
+			i++;
+		}
+		if (expecteds == actuals) return;
+		if (actuals == null) Assert.fail(message + "expecteds was a stack of size " + expecteds.size() + ", but actuals was <null>");
+		assertStackOfOneEquals(message, expecteds, actuals);
+	}
+
+	public static void assertOneStackOfOneEquals(final java.util.Stack<java.net.URI> expecteds, final java.util.Stack<java.net.URI> actuals) {
+		assertOneStackOfOneEquals("OneStackOfOneUrl mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertNullableStackOfOneEquals(final String message, final java.util.Stack<java.net.URI> expecteds, final java.util.Stack<java.net.URI> actuals) {
+		if (expecteds == actuals) return;
+		if (expecteds == null) Assert.fail(message + "expecteds was <null>, but actuals was a stack of size " + actuals.size());
+		if (actuals == null) Assert.fail(message + " expecteds was a stack of size " + expecteds.size() + ", but actuals was <null>");
+		assertStackOfOneEquals(message, expecteds, actuals);
+	}
+
+	public static void assertNullableStackOfOneEquals(final java.util.Stack<java.net.URI> expecteds, final java.util.Stack<java.net.URI> actuals) {
+		assertNullableStackOfOneEquals("NullableStackOfOneUrl mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertStackOfNullableEquals(final String message, final java.util.Stack<java.net.URI> expecteds, final java.util.Stack<java.net.URI> actuals) {
+		final int expectedsSize = expecteds.size();
+		final int actualsSize = actuals.size();
+		if (expectedsSize != actualsSize) {
+			Assert.fail(message + "expecteds was a stack of size " + expectedsSize + ", but actuals was a stack of size " + actualsSize);
+		}
+
+		final java.util.Iterator<java.net.URI> expectedsIterator = expecteds.iterator();
+		final java.util.Iterator<java.net.URI> actualsIterator = actuals.iterator();
+		for (int i = 0; i < expectedsSize; i++) {
+			final java.net.URI expected = expectedsIterator.next();
+			final java.net.URI actual = actualsIterator.next();
+			assertNullableEquals(message + "element mismatch occurred at index " + i + ": ", expected, actual);
+		}
+	}
+
+	private static void assertOneStackOfNullableEquals(final String message, final java.util.Stack<java.net.URI> expecteds, final java.util.Stack<java.net.URI> actuals) {
+		if (expecteds == null) Assert.fail(message + "expecteds was <null> - WARNING: This is a preconditions failure in expecteds, this assertion will never succeed!");
+		if (expecteds == actuals) return;
+		if (actuals == null) Assert.fail(message + "expecteds was a stack of size " + expecteds.size() + ", but actuals was <null>");
+		assertStackOfNullableEquals(message, expecteds, actuals);
+	}
+
+	public static void assertOneStackOfNullableEquals(final java.util.Stack<java.net.URI> expecteds, final java.util.Stack<java.net.URI> actuals) {
+		assertOneStackOfNullableEquals("OneStackOfNullableUrl mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertNullableStackOfNullableEquals(final String message, final java.util.Stack<java.net.URI> expecteds, final java.util.Stack<java.net.URI> actuals) {
+		if (expecteds == actuals) return;
+		if (expecteds == null) Assert.fail(message + "expecteds was <null>, but actuals was a stack of size " + actuals.size());
+		if (actuals == null) Assert.fail(message + " expecteds was a stack of size " + expecteds.size() + ", but actuals was <null>");
+		assertStackOfNullableEquals(message, expecteds, actuals);
+	}
+
+	public static void assertNullableStackOfNullableEquals(final java.util.Stack<java.net.URI> expecteds, final java.util.Stack<java.net.URI> actuals) {
+		assertNullableStackOfNullableEquals("NullableStackOfNullableUrl mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertVectorOfOneEquals(final String message, final java.util.Vector<java.net.URI> expecteds, final java.util.Vector<java.net.URI> actuals) {
+		final int expectedsSize = expecteds.size();
+		final int actualsSize = actuals.size();
+		if (expectedsSize != actualsSize) {
+			Assert.fail(message + "expecteds was a vector of size " + expectedsSize + ", but actuals was a vector of size " + actualsSize);
+		}
+
+		final java.util.Iterator<java.net.URI> expectedsIterator = expecteds.iterator();
+		final java.util.Iterator<java.net.URI> actualsIterator = actuals.iterator();
+		for (int i = 0; i < expectedsSize; i++) {
+			final java.net.URI expected = expectedsIterator.next();
+			final java.net.URI actual = actualsIterator.next();
+			assertOneEquals(message + "element mismatch occurred at index " + i + ": ", expected, actual);
+		}
+	}
+
+	private static void assertOneVectorOfOneEquals(final String message, final java.util.Vector<java.net.URI> expecteds, final java.util.Vector<java.net.URI> actuals) {
+		int i = 0;
+		for (final java.net.URI expected : expecteds) {
+			if (expected == null) {
+				Assert.fail(message + "element mismatch occurred at index " + i + ": expected was <null> - WARNING: This is a preconditions failure in expected, this assertion will never succeed!");
+			}
+			i++;
+		}
+		if (expecteds == actuals) return;
+		if (actuals == null) Assert.fail(message + "expecteds was a vector of size " + expecteds.size() + ", but actuals was <null>");
+		assertVectorOfOneEquals(message, expecteds, actuals);
+	}
+
+	public static void assertOneVectorOfOneEquals(final java.util.Vector<java.net.URI> expecteds, final java.util.Vector<java.net.URI> actuals) {
+		assertOneVectorOfOneEquals("OneVectorOfOneUrl mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertNullableVectorOfOneEquals(final String message, final java.util.Vector<java.net.URI> expecteds, final java.util.Vector<java.net.URI> actuals) {
+		if (expecteds == actuals) return;
+		if (expecteds == null) Assert.fail(message + "expecteds was <null>, but actuals was a vector of size " + actuals.size());
+		if (actuals == null) Assert.fail(message + " expecteds was a vector of size " + expecteds.size() + ", but actuals was <null>");
+		assertVectorOfOneEquals(message, expecteds, actuals);
+	}
+
+	public static void assertNullableVectorOfOneEquals(final java.util.Vector<java.net.URI> expecteds, final java.util.Vector<java.net.URI> actuals) {
+		assertNullableVectorOfOneEquals("NullableVectorOfOneUrl mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertVectorOfNullableEquals(final String message, final java.util.Vector<java.net.URI> expecteds, final java.util.Vector<java.net.URI> actuals) {
+		final int expectedsSize = expecteds.size();
+		final int actualsSize = actuals.size();
+		if (expectedsSize != actualsSize) {
+			Assert.fail(message + "expecteds was a vector of size " + expectedsSize + ", but actuals was a vector of size " + actualsSize);
+		}
+
+		final java.util.Iterator<java.net.URI> expectedsIterator = expecteds.iterator();
+		final java.util.Iterator<java.net.URI> actualsIterator = actuals.iterator();
+		for (int i = 0; i < expectedsSize; i++) {
+			final java.net.URI expected = expectedsIterator.next();
+			final java.net.URI actual = actualsIterator.next();
+			assertNullableEquals(message + "element mismatch occurred at index " + i + ": ", expected, actual);
+		}
+	}
+
+	private static void assertOneVectorOfNullableEquals(final String message, final java.util.Vector<java.net.URI> expecteds, final java.util.Vector<java.net.URI> actuals) {
+		if (expecteds == null) Assert.fail(message + "expecteds was <null> - WARNING: This is a preconditions failure in expecteds, this assertion will never succeed!");
+		if (expecteds == actuals) return;
+		if (actuals == null) Assert.fail(message + "expecteds was a vector of size " + expecteds.size() + ", but actuals was <null>");
+		assertVectorOfNullableEquals(message, expecteds, actuals);
+	}
+
+	public static void assertOneVectorOfNullableEquals(final java.util.Vector<java.net.URI> expecteds, final java.util.Vector<java.net.URI> actuals) {
+		assertOneVectorOfNullableEquals("OneVectorOfNullableUrl mismatch: ", expecteds, actuals);
+	}
+
+	private static void assertNullableVectorOfNullableEquals(final String message, final java.util.Vector<java.net.URI> expecteds, final java.util.Vector<java.net.URI> actuals) {
+		if (expecteds == actuals) return;
+		if (expecteds == null) Assert.fail(message + "expecteds was <null>, but actuals was a vector of size " + actuals.size());
+		if (actuals == null) Assert.fail(message + " expecteds was a vector of size " + expecteds.size() + ", but actuals was <null>");
+		assertVectorOfNullableEquals(message, expecteds, actuals);
+	}
+
+	public static void assertNullableVectorOfNullableEquals(final java.util.Vector<java.net.URI> expecteds, final java.util.Vector<java.net.URI> actuals) {
+		assertNullableVectorOfNullableEquals("NullableVectorOfNullableUrl mismatch: ", expecteds, actuals);
+	}
 }
