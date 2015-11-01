@@ -8,7 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
-import com.dslplatform.client.json.*;
+import com.dslplatform.json.JsonObject;
+import com.dslplatform.json.JsonWriter;
+import com.dslplatform.json.NumberConverter;
+import com.dslplatform.json.StringConverter;
 import com.dslplatform.patterns.Searchable;
 import com.dslplatform.patterns.ServiceLocator;
 

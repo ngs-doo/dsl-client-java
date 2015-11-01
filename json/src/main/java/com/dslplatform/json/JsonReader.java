@@ -1,13 +1,11 @@
-package com.dslplatform.client.json;
-
-import com.dslplatform.patterns.ServiceLocator;
+package com.dslplatform.json;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public final class JsonReader {
+public final class JsonReader<TContext> {
 
 	private static final boolean[] Whitespace = new boolean[256];
 
@@ -31,33 +29,33 @@ public final class JsonReader {
 	final int length;
 	private final char[] tmp;
 
-	final ServiceLocator locator;
+	public final TContext context;
 	private final byte[] buffer;
 
-	private JsonReader(final char[] tmp, final byte[] buffer, final int length, final ServiceLocator locator) {
+	private JsonReader(final char[] tmp, final byte[] buffer, final int length, final TContext context) {
 		this.tmp = tmp;
 		this.buffer = buffer;
 		this.length = length;
-		this.locator = locator;
+		this.context = context;
 	}
 
-	public JsonReader(final byte[] buffer, final ServiceLocator locator) {
-		this(new char[64], buffer, buffer.length, locator);
+	public JsonReader(final byte[] buffer, final TContext context) {
+		this(new char[64], buffer, buffer.length, context);
 	}
 
-	public JsonReader(final byte[] buffer, final ServiceLocator locator, final char[] tmp) {
-		this(tmp, buffer, buffer.length, locator);
+	public JsonReader(final byte[] buffer, final TContext context, final char[] tmp) {
+		this(tmp, buffer, buffer.length, context);
 		if (tmp == null) {
 			throw new NullPointerException("tmp buffer provided as null.");
 		}
 	}
 
-	public JsonReader(final byte[] buffer, final int length, final ServiceLocator locator) throws IOException {
-		this(buffer, length, locator, new char[64]);
+	public JsonReader(final byte[] buffer, final int length, final TContext context) throws IOException {
+		this(buffer, length, context, new char[64]);
 	}
 
-	public JsonReader(final byte[] buffer, final int length, final ServiceLocator locator, final char[] tmp) throws IOException {
-		this(tmp, buffer, length, locator);
+	public JsonReader(final byte[] buffer, final int length, final TContext context, final char[] tmp) throws IOException {
+		this(tmp, buffer, length, context);
 		if (tmp == null) {
 			throw new NullPointerException("tmp buffer provided as null.");
 		}
@@ -506,12 +504,12 @@ public final class JsonReader {
 		return Base64.decodeFast(buffer, start, currentIndex - 1);
 	}
 
-	interface ReadObject<T> {
+	public interface ReadObject<T> {
 		T read(JsonReader reader) throws IOException;
 	}
 
 	public interface ReadJsonObject<T extends JsonObject> {
-		T deserialize(JsonReader reader, ServiceLocator locator) throws IOException;
+		T deserialize(JsonReader reader) throws IOException;
 	}
 
 	public final boolean wasNull() throws IOException {
@@ -608,12 +606,12 @@ public final class JsonReader {
 	public final <T extends JsonObject> void deserializeCollection(final ReadJsonObject<T> readObject, final Collection<T> res) throws IOException {
 		if (last == '{') {
 			getNextToken();
-			res.add(readObject.deserialize(this, locator));
+			res.add(readObject.deserialize(this));
 		} else throw new IOException("Expecting '{' at position " + positionInStream() + ". Found " + (char) last);
 		while (getNextToken() == ',') {
 			if (getNextToken() == '{') {
 				getNextToken();
-				res.add(readObject.deserialize(this, locator));
+				res.add(readObject.deserialize(this));
 			} else throw new IOException("Expecting '{' at position " + positionInStream() + ". Found " + (char) last);
 		}
 		checkArrayEnd();
@@ -628,14 +626,14 @@ public final class JsonReader {
 	public final <T extends JsonObject> void deserializeNullableCollection(final ReadJsonObject<T> readObject, final Collection<T> res) throws IOException {
 		if (last == '{') {
 			getNextToken();
-			res.add(readObject.deserialize(this, locator));
+			res.add(readObject.deserialize(this));
 		} else if (wasNull()) {
 			res.add(null);
 		} else throw new IOException("Expecting '{' at position " + positionInStream() + ". Found " + (char) last);
 		while (getNextToken() == ',') {
 			if (getNextToken() == '{') {
 				getNextToken();
-				res.add(readObject.deserialize(this, locator));
+				res.add(readObject.deserialize(this));
 			} else if (wasNull()) {
 				res.add(null);
 			} else throw new IOException("Expecting '{' at position " + positionInStream() + ". Found " + (char) last);

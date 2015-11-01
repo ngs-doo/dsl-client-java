@@ -1,6 +1,5 @@
 package com.dslplatform.client;
 
-import com.dslplatform.client.json.DslJsonSerialization;
 import com.dslplatform.patterns.Bytes;
 import com.dslplatform.test.simple.E;
 import com.dslplatform.test.simple.SimpleRoot;

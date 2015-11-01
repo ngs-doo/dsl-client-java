@@ -1,6 +1,8 @@
 package com.dslplatform.client.json;
 
 import com.dslplatform.client.TestLogging;
+import com.dslplatform.json.JsonReader;
+import com.dslplatform.json.JsonWriter;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -113,7 +115,7 @@ public class StringConverterTest extends TestLogging {
 			jw.writeString(text);
 
 			// check
-			final String read = new String(buf, 0, jw.toBytes().length, "UTF-8");
+			final String read = new String(buf, 0, jw.size(), "UTF-8");
 
 			// solidus will not be escaped "/"
 			// characters < 32 will be unicode escaped "\\u00.."

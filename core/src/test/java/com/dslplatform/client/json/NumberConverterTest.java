@@ -1,6 +1,9 @@
 package com.dslplatform.client.json;
 
 import com.dslplatform.client.TestLogging;
+import com.dslplatform.json.JsonReader;
+import com.dslplatform.json.JsonWriter;
+import com.dslplatform.json.NumberConverter;
 import org.junit.Assert;
 import org.junit.Test;
 

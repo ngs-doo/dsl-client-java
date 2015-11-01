@@ -1,9 +1,7 @@
 package com.dslplatform.client;
 
-import com.dslplatform.client.json.DslJsonSerialization;
-import com.dslplatform.client.json.JacksonJsonSerialization;
-import com.dslplatform.client.json.JsonObject;
-import com.dslplatform.client.json.JsonWriter;
+import com.dslplatform.json.JsonObject;
+import com.dslplatform.json.JsonWriter;
 import com.dslplatform.patterns.*;
 import com.dslplatform.test.complex.SimpleEventWithIntParams;
 import com.dslplatform.test.detailtest.Node;
@@ -11,7 +9,6 @@ import com.dslplatform.test.simple.SimpleRoot;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import junit.framework.Assert;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.slf4j.Logger;

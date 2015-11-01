@@ -1,4 +1,4 @@
-package com.dslplatform.client.json;
+package com.dslplatform.client;
 
 import java.io.*;
 import java.util.*;
@@ -6,6 +6,7 @@ import java.util.*;
 import javax.imageio.ImageIO;
 
 import com.dslplatform.client.Utils;
+import com.dslplatform.json.XmlConverter;
 import com.dslplatform.patterns.*;
 import com.dslplatform.client.JsonSerialization;
 import com.dslplatform.storage.S3;

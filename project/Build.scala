@@ -98,6 +98,19 @@ object Build extends Build with Default with Dependencies {
     )
   )
 
+  lazy val json = Project(
+    "json"
+    , file("json")
+    , settings = defaultSettings ++ Seq(
+      name := "dsl-client-json"
+      , libraryDependencies ++= Seq(
+          jodaTime % "provided" intransitive()
+        , androidSDK % "provided" intransitive()
+      )
+      , unmanagedSourceDirectories in Test := Nil
+    )
+  )
+
   lazy val core = Project(
     "core"
   , file("core")
@@ -124,7 +137,7 @@ object Build extends Build with Default with Dependencies {
     , createVersionProperties
     , unmanagedJars in Test += baseDirectory.value / "test-lib" / "java-client.jar"
     )
-  ) dependsOn(interface)
+  ) dependsOn(interface, json)
 
   private val createVersionProperties =
     onLoad := {
@@ -141,9 +154,9 @@ object Build extends Build with Default with Dependencies {
       onLoad.value
     }
 
-  def aggregatedCompile = ScopeFilter(inProjects(interface, core), inConfigurations(Compile))
+  def aggregatedCompile = ScopeFilter(inProjects(interface, json, core), inConfigurations(Compile))
 
-  def aggregatedTest = ScopeFilter(inProjects(interface, core), inConfigurations(Test))
+  def aggregatedTest = ScopeFilter(inProjects(interface, json, core), inConfigurations(Test))
 
   def rootSettings = Seq(
     sources in Compile                        := sources.all(aggregatedCompile).value.flatten,

@@ -1,4 +1,4 @@
-package com.dslplatform.client.json;
+package com.dslplatform.json;
 
 import android.graphics.*;
 

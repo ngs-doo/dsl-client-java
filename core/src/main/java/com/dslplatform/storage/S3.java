@@ -103,9 +103,7 @@ public class S3 implements java.io.Serializable {
 		this.name = name;
 		this.mimeType = mimeType;
 		if (metadata != null) {
-			for (final Map.Entry<String, String> kv : metadata.entrySet()) {
-				metadata.put(kv.getKey(), kv.getValue());
-			}
+			this.metadata.putAll(metadata);
 		}
 	}
 

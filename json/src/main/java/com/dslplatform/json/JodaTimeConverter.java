@@ -1,4 +1,4 @@
-package com.dslplatform.client.json;
+package com.dslplatform.json;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,7 +10,7 @@ import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
-public abstract class DateConverter {
+public abstract class JodaTimeConverter {
 	public static final DateTime MIN_DATE_TIME = DateTime.parse("0001-01-01T00:00:00Z");
 	public static final LocalDate MIN_LOCAL_DATE = new LocalDate(1, 1, 1);
 	private static final DateTimeFormatter localDateParser = ISODateTimeFormat.localDateParser();

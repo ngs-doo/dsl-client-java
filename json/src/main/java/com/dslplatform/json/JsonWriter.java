@@ -1,6 +1,4 @@
-package com.dslplatform.client.json;
-
-import com.dslplatform.patterns.Bytes;
+package com.dslplatform.json;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -333,16 +331,16 @@ public final class JsonWriter extends Writer {
 		return new String(result, 0, position, UTF_8);
 	}
 
-	public final Bytes toBytes() {
-		return new Bytes(result, position);
-	}
-
 	public final byte[] toByteArray() {
 		return Arrays.copyOf(result, position);
 	}
 
 	public final void toStream(final OutputStream stream) throws IOException {
 		stream.write(result, 0, position);
+	}
+
+	public final byte[] getByteBuffer() {
+		return result;
 	}
 
 	public final int size() {
@@ -384,7 +382,7 @@ public final class JsonWriter extends Writer {
 		position = 0;
 	}
 
-	interface WriteObject<T> {
+	public interface WriteObject<T> {
 		void write(JsonWriter writer, T value);
 	}
 

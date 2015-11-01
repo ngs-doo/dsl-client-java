@@ -6,9 +6,9 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-import com.dslplatform.client.json.JsonObject;
-import com.dslplatform.client.json.JsonWriter;
-import com.dslplatform.client.json.StringConverter;
+import com.dslplatform.json.JsonObject;
+import com.dslplatform.json.JsonWriter;
+import com.dslplatform.json.StringConverter;
 import com.dslplatform.patterns.*;
 
 class HttpReportingProxy implements ReportingProxy {

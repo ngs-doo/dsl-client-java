@@ -1,4 +1,4 @@
-package com.dslplatform.client.json;
+package com.dslplatform.json;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public abstract class GeomConverter {
+public abstract class JavaGeomConverter {
 
 	static final JsonReader.ReadObject<Point2D.Double> LocationReader = new JsonReader.ReadObject<Point2D.Double>() {
 		@Override
@@ -329,7 +329,7 @@ public abstract class GeomConverter {
 	}
 
 	public static BufferedImage deserializeImage(final JsonReader reader) throws IOException {
-		final byte[] content = com.dslplatform.client.json.BinaryConverter.deserialize(reader);
+		final byte[] content = BinaryConverter.deserialize(reader);
 		return javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(content));
 	}
 

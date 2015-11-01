@@ -1,6 +1,5 @@
 package com.dslplatform.client;
 
-import com.dslplatform.client.json.DslJsonSerialization;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 

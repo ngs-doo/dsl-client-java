@@ -1,5 +1,6 @@
-package com.dslplatform.client.json;
+package com.dslplatform.json;
 
+import com.dslplatform.patterns.ServiceLocator;
 import com.dslplatform.storage.S3;
 
 import java.io.IOException;
@@ -9,13 +10,13 @@ import java.util.Map;
 
 public abstract class StorageConverter {
 
-	static final JsonReader.ReadObject<S3> S3Reader = new JsonReader.ReadObject<S3>() {
+	public static final JsonReader.ReadObject<S3> S3Reader = new JsonReader.ReadObject<S3>() {
 		@Override
 		public S3 read(JsonReader reader) throws IOException {
 			return deserializeS3(reader);
 		}
 	};
-	static final JsonWriter.WriteObject<S3> S3Writer = new JsonWriter.WriteObject<S3>() {
+	public static final JsonWriter.WriteObject<S3> S3Writer = new JsonWriter.WriteObject<S3>() {
 		@Override
 		public void write(JsonWriter writer, S3 value) {
 			if (value == null) {
@@ -42,7 +43,7 @@ public abstract class StorageConverter {
 		sw.writeByte(JsonWriter.OBJECT_END);
 	}
 
-	public static S3 deserializeS3(final JsonReader reader) throws IOException {
+	public static S3 deserializeS3(final JsonReader<ServiceLocator> reader) throws IOException {
 		String bucket = null;
 		String key = null;
 		long length = 0;
@@ -99,7 +100,7 @@ public abstract class StorageConverter {
 				throw new IOException("Expecting '}' at " + reader.getCurrentIndex());
 			}
 		}
-		return new S3(reader.locator, bucket, key, length, name, mimeType, metadata);
+		return new S3(reader.context, bucket, key, length, name, mimeType, metadata);
 	}
 
 	public static ArrayList<S3> deserializeS3Collection(final JsonReader reader) throws IOException {

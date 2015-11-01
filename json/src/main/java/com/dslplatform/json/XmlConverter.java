@@ -1,4 +1,4 @@
-package com.dslplatform.client.json;
+package com.dslplatform.json;
 
 import org.w3c.dom.*;
 import org.w3c.dom.ls.DOMImplementationLS;
@@ -69,7 +69,7 @@ public abstract class XmlConverter {
 				throw new IOException(ex);
 			}
 		} else {
-			final Map<String, Object> map = ObjectConverter.deserializeMap(reader);
+			final Map<String, Object> map = DslJson.deserializeMap(reader);
 			return mapToXml(map);
 		}
 	}

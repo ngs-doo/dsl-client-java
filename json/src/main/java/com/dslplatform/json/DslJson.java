@@ -1,6 +1,10 @@
-package com.dslplatform.client.json;
+package com.dslplatform.json;
 
-import java.io.*;
+import org.w3c.dom.Element;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.net.InetAddress;
@@ -9,37 +13,73 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.dslplatform.client.Utils;
-import com.dslplatform.patterns.*;
-import com.dslplatform.client.JsonSerialization;
-import com.dslplatform.storage.S3;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
-import org.w3c.dom.Element;
+public class DslJson<TContext> {
 
-public class DslJsonSerialization implements JsonSerialization {
+	protected final TContext context;
+	protected final Fallback fallback;
 
-	private final ServiceLocator locator;
+	public interface Fallback<TContext> {
+		void serialize(Object instance, OutputStream stream) throws IOException;
+		Object deserialize(TContext context, Class<?> manifest, byte[] body, final int size) throws IOException;
+	}
 
-	public DslJsonSerialization(final ServiceLocator locator) {
-		this.locator = locator;
+	static final JsonReader.ReadObject<Object> ObjectReader = new JsonReader.ReadObject<Object>() {
+		@Override
+		public Object read(JsonReader reader) throws IOException {
+			return deserializeObject(reader);
+		}
+	};
+	@SuppressWarnings("rawtypes")
+	static final JsonReader.ReadObject<Collection> CollectionReader = new JsonReader.ReadObject<Collection>() {
+		@Override
+		public Collection read(JsonReader reader) throws IOException {
+			return deserializeList(reader);
+		}
+	};
+	@SuppressWarnings("rawtypes")
+	static final JsonReader.ReadObject<LinkedHashMap> MapReader = new JsonReader.ReadObject<LinkedHashMap>() {
+		@Override
+		public LinkedHashMap read(JsonReader reader) throws IOException {
+			return deserializeMap(reader);
+		}
+	};
 
+	public DslJson(
+			final TContext context,
+			final boolean androidSpecifics,
+			final boolean javaSpecifics,
+			final boolean jodaTime,
+			final Fallback<TContext> fallback) {
+		this.context = context;
+		this.fallback = fallback;
 		registerReader(byte[].class, BinaryConverter.Base64Reader);
 		registerWriter(byte[].class, BinaryConverter.Base64Writer);
 		registerReader(boolean.class, BoolConverter.BooleanReader);
 		registerReader(Boolean.class, BoolConverter.BooleanReader);
 		registerWriter(boolean.class, BoolConverter.BooleanWriter);
 		registerWriter(Boolean.class, BoolConverter.BooleanWriter);
-		registerJodaConverters(this);
-		if (Utils.IS_ANDROID) {
+		if (androidSpecifics) {
 			registerAndroidSpecifics(this);
-		} else {
+		}
+		if (javaSpecifics) {
 			registerJavaSpecifics(this);
 		}
-		registerReader(LinkedHashMap.class, ObjectConverter.MapReader);
-		registerReader(HashMap.class, ObjectConverter.MapReader);
-		registerReader(Map.class, ObjectConverter.MapReader);
-		registerWriter(Map.class, ObjectConverter.MapWriter);
+		if (jodaTime) {
+			registerJodaConverters(this);
+		}
+		registerReader(LinkedHashMap.class, MapReader);
+		registerReader(HashMap.class, MapReader);
+		registerReader(Map.class, MapReader);
+		registerWriter(Map.class, new JsonWriter.WriteObject<Map>() {
+			@Override
+			public void write(JsonWriter writer, Map value) {
+				try {
+					serializeMap(value, writer);
+				} catch (IOException ex) {
+					throw new RuntimeException(ex);
+				}
+			}
+		});
 		registerReader(URI.class, NetConverter.UriReader);
 		registerWriter(URI.class, NetConverter.UriWriter);
 		registerReader(InetAddress.class, NetConverter.AddressReader);
@@ -68,12 +108,10 @@ public class DslJsonSerialization implements JsonSerialization {
 		registerWriter(UUID.class, UUIDConverter.Writer);
 		registerReader(Element.class, XmlConverter.Reader);
 		registerWriter(Element.class, XmlConverter.Writer);
-		registerReader(S3.class, StorageConverter.S3Reader);
-		registerWriter(S3.class, StorageConverter.S3Writer);
 		registerReader(Number.class, NumberConverter.NumberReader);
 	}
 
-	static void registerAndroidSpecifics(final DslJsonSerialization json) {
+	static void registerAndroidSpecifics(final DslJson json) {
 		json.registerReader(android.graphics.PointF.class, AndroidGeomConverter.LocationReader);
 		json.registerWriter(android.graphics.PointF.class, AndroidGeomConverter.LocationWriter);
 		json.registerReader(android.graphics.Point.class, AndroidGeomConverter.PointReader);
@@ -84,28 +122,28 @@ public class DslJsonSerialization implements JsonSerialization {
 		json.registerWriter(android.graphics.Bitmap.class, AndroidGeomConverter.ImageWriter);
 	}
 
-	static void registerJodaConverters(final DslJsonSerialization json) {
-		json.registerReader(LocalDate.class, DateConverter.LocalDateReader);
-		json.registerWriter(LocalDate.class, DateConverter.LocalDateWriter);
-		json.registerReader(DateTime.class, DateConverter.DateTimeReader);
-		json.registerWriter(DateTime.class, DateConverter.DateTimeWriter);
+	static void registerJodaConverters(final DslJson json) {
+		json.registerReader(org.joda.time.LocalDate.class, JodaTimeConverter.LocalDateReader);
+		json.registerWriter(org.joda.time.LocalDate.class, JodaTimeConverter.LocalDateWriter);
+		json.registerReader(org.joda.time.DateTime.class, JodaTimeConverter.DateTimeReader);
+		json.registerWriter(org.joda.time.DateTime.class, JodaTimeConverter.DateTimeWriter);
 	}
 
-	static void registerJavaSpecifics(final DslJsonSerialization json) {
-		json.registerReader(java.awt.geom.Point2D.Double.class, GeomConverter.LocationReader);
-		json.registerReader(java.awt.geom.Point2D.class, GeomConverter.LocationReader);
-		json.registerWriter(java.awt.geom.Point2D.class, GeomConverter.LocationWriter);
-		json.registerReader(java.awt.Point.class, GeomConverter.PointReader);
-		json.registerWriter(java.awt.Point.class, GeomConverter.PointWriter);
-		json.registerReader(java.awt.geom.Rectangle2D.Double.class, GeomConverter.RectangleReader);
-		json.registerReader(java.awt.geom.Rectangle2D.class, GeomConverter.RectangleReader);
-		json.registerWriter(java.awt.geom.Rectangle2D.class, GeomConverter.RectangleWriter);
-		json.registerReader(java.awt.image.BufferedImage.class, GeomConverter.ImageReader);
-		json.registerReader(java.awt.Image.class, GeomConverter.ImageReader);
-		json.registerWriter(java.awt.Image.class, GeomConverter.ImageWriter);
+	static void registerJavaSpecifics(final DslJson json) {
+		json.registerReader(java.awt.geom.Point2D.Double.class, JavaGeomConverter.LocationReader);
+		json.registerReader(java.awt.geom.Point2D.class, JavaGeomConverter.LocationReader);
+		json.registerWriter(java.awt.geom.Point2D.class, JavaGeomConverter.LocationWriter);
+		json.registerReader(java.awt.Point.class, JavaGeomConverter.PointReader);
+		json.registerWriter(java.awt.Point.class, JavaGeomConverter.PointWriter);
+		json.registerReader(java.awt.geom.Rectangle2D.Double.class, JavaGeomConverter.RectangleReader);
+		json.registerReader(java.awt.geom.Rectangle2D.class, JavaGeomConverter.RectangleReader);
+		json.registerWriter(java.awt.geom.Rectangle2D.class, JavaGeomConverter.RectangleWriter);
+		json.registerReader(java.awt.image.BufferedImage.class, JavaGeomConverter.ImageReader);
+		json.registerReader(java.awt.Image.class, JavaGeomConverter.ImageReader);
+		json.registerWriter(java.awt.Image.class, JavaGeomConverter.ImageWriter);
 	}
 
-	private static boolean isNull(final int size, final byte[] body) {
+	protected static boolean isNull(final int size, final byte[] body) {
 		return size == 4
 				&& body[0] == 'n'
 				&& body[1] == 'u'
@@ -118,20 +156,20 @@ public class DslJsonSerialization implements JsonSerialization {
 
 	private final HashMap<Class<?>, JsonReader.ReadObject<?>> jsonReaders = new HashMap<Class<?>, JsonReader.ReadObject<?>>();
 
-	<T, S extends T> void registerReader(final Class<T> manifest, final JsonReader.ReadObject<S> reader) {
+	public <T, S extends T> void registerReader(final Class<T> manifest, final JsonReader.ReadObject<S> reader) {
 		jsonReaders.put(manifest, reader);
 	}
 
 	private final HashMap<Class<?>, JsonWriter.WriteObject<?>> jsonWriters = new HashMap<Class<?>, JsonWriter.WriteObject<?>>();
 
-	<T> void registerWriter(final Class<T> manifest, final JsonWriter.WriteObject<T> writer) {
+	public <T> void registerWriter(final Class<T> manifest, final JsonWriter.WriteObject<T> writer) {
 		writerMap.put(manifest, manifest);
 		jsonWriters.put(manifest, writer);
 	}
 
 	private final ConcurrentMap<Class<?>, Class<?>> writerMap = new ConcurrentHashMap<Class<?>, Class<?>>();
 
-	private JsonWriter.WriteObject<?> tryFindWriter(final Class<?> manifest) {
+	protected final JsonWriter.WriteObject<?> tryFindWriter(final Class<?> manifest) {
 		Class<?> found = writerMap.get(manifest);
 		if (found != null) {
 			return jsonWriters.get(found);
@@ -163,7 +201,7 @@ public class DslJsonSerialization implements JsonSerialization {
 	}
 
 	@SuppressWarnings("unchecked")
-	private JsonReader.ReadJsonObject<JsonObject> getObjectReader(final Class<?> manifest) {
+	protected final JsonReader.ReadJsonObject<JsonObject> getObjectReader(final Class<?> manifest) {
 		try {
 			JsonReader.ReadJsonObject<JsonObject> reader = jsonObjectReaders.get(manifest);
 			if (reader == null) {
@@ -179,6 +217,92 @@ public class DslJsonSerialization implements JsonSerialization {
 		} catch (final Exception ignore) {
 			return null;
 		}
+	}
+
+	public void serializeMap(final Map<String, Object> value, final JsonWriter sw) throws IOException {
+		sw.writeByte(JsonWriter.OBJECT_START);
+		final int size = value.size();
+		if (size > 0) {
+			final Iterator<Map.Entry<String, Object>> iterator = value.entrySet().iterator();
+			Map.Entry<String, Object> kv = iterator.next();
+			sw.writeString(kv.getKey());
+			sw.writeByte(JsonWriter.SEMI);
+			serialize(sw, kv.getValue());
+			for (int i = 1; i < size; i++) {
+				sw.writeByte(JsonWriter.COMMA);
+				kv = iterator.next();
+				sw.writeString(kv.getKey());
+				sw.writeByte(JsonWriter.SEMI);
+				serialize(sw, kv.getValue());
+			}
+		}
+		sw.writeByte(JsonWriter.OBJECT_END);
+	}
+
+	public static Object deserializeObject(final JsonReader reader) throws IOException {
+		switch (reader.last()) {
+			case 'n':
+				if (!reader.wasNull()) {
+					throw new IOException("Expecting 'null' at position " + reader.positionInStream() + ". Found " + (char) reader.last());
+				}
+				return null;
+			case '"':
+				return reader.readString();
+			case '{':
+				return deserializeMap(reader);
+			case '[':
+				return deserializeList(reader);
+			default:
+				return NumberConverter.deserializeNumber(reader);
+		}
+	}
+
+	public static ArrayList<Object> deserializeList(final JsonReader reader) throws IOException {
+		if (reader.last() != '[') {
+			throw new IOException("Expecting '[' at position " + reader.positionInStream() + ". Found " + (char) reader.last());
+		}
+		byte nextToken = reader.getNextToken();
+		if (nextToken == ']') return new ArrayList<Object>(0);
+		final ArrayList<Object> res = new ArrayList<Object>(4);
+		res.add(deserializeObject(reader));
+		while ((nextToken = reader.getNextToken()) == ',') {
+			reader.getNextToken();
+			res.add(deserializeObject(reader));
+		}
+		if (nextToken != ']') {
+			throw new IOException("Expecting ']' at position " + reader.positionInStream() + ". Found " + (char) nextToken);
+		}
+		return res;
+	}
+
+	public static LinkedHashMap<String, Object> deserializeMap(final JsonReader reader) throws IOException {
+		if (reader.last() != '{') {
+			throw new IOException("Expecting '{' at position " + reader.positionInStream() + ". Found " + (char) reader.last());
+		}
+		byte nextToken = reader.getNextToken();
+		if (nextToken == '}') return new LinkedHashMap<String, Object>(0);
+		final LinkedHashMap<String, Object> res = new LinkedHashMap<String, Object>();
+		String key = StringConverter.deserialize(reader);
+		nextToken = reader.getNextToken();
+		if (nextToken != ':') {
+			throw new IOException("Expecting ':' at position " + reader.positionInStream() + ". Found " + (char) nextToken);
+		}
+		reader.getNextToken();
+		res.put(key, deserializeObject(reader));
+		while ((nextToken = reader.getNextToken()) == ',') {
+			reader.getNextToken();
+			key = StringConverter.deserialize(reader);
+			nextToken = reader.getNextToken();
+			if (nextToken != ':') {
+				throw new IOException("Expecting ':' at position " + reader.positionInStream() + ". Found " + (char) nextToken);
+			}
+			reader.getNextToken();
+			res.put(key, deserializeObject(reader));
+		}
+		if (nextToken != '}') {
+			throw new IOException("Expecting '}' at position " + reader.positionInStream() + ". Found " + (char) nextToken);
+		}
+		return res;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -199,10 +323,10 @@ public class DslJsonSerialization implements JsonSerialization {
 		}
 		if (JsonObject.class.isAssignableFrom(manifest)) {
 			final JsonReader.ReadJsonObject<JsonObject> objectReader = getObjectReader(manifest);
-			final JsonReader json = new JsonReader(body, size, locator);
+			final JsonReader json = new JsonReader(body, size, context);
 			if (objectReader != null && json.getNextToken() == '{') {
 				json.getNextToken();
-				return (TResult) objectReader.deserialize(json, locator);
+				return (TResult) objectReader.deserialize(json);
 			}
 		}
 		final JsonReader.ReadObject<?> simpleReader = jsonReaders.get(manifest);
@@ -219,12 +343,12 @@ public class DslJsonSerialization implements JsonSerialization {
 				}
 				return (TResult) result;
 			}
-			if (Utils.HAS_JACKSON) {
-				return deserializeJackson(this, manifest, body, size);
+			if (fallback != null) {
+				return (TResult) fallback.deserialize(context, manifest, body, size);
 			}
 			showErrorMessage(manifest);
 		}
-		final JsonReader json = new JsonReader(body, size, locator);
+		final JsonReader json = new JsonReader(body, size, context);
 		json.getNextToken();
 		if (json.wasNull()) {
 			return null;
@@ -243,39 +367,13 @@ public class DslJsonSerialization implements JsonSerialization {
 			if (jsonReaders.containsKey(sig)) {
 				throw new IOException("Unable to find reader for provided type: " + manifest + " and Jackson is not found on classpath.\n" +
 						"Found reader for: " + sig + " so try deserializing into it instead?\n" +
-						"Alternatively, try initializing system with custom JsonSerialization or register specified type using registerReader into " + DslJsonSerialization.class);
+						"Alternatively, try initializing system with custom JsonSerialization or register specified type using registerReader into " + DslJson.class);
 			}
 		}
 		throw new IOException("Unable to find reader for provided type: " + manifest + " and Jackson is not found on classpath.\n" +
-				"Try initializing system with custom JsonSerialization or register specified type using registerReader into " + DslJsonSerialization.class);
+				"Try initializing system with custom JsonSerialization or register specified type using registerReader into " + DslJson.class);
 	}
 
-	private Object jackson;
-
-	private static <TResult> TResult deserializeJackson(
-			final DslJsonSerialization json,
-			final Class<TResult> manifest,
-			final byte[] body,
-			final int size) throws IOException {
-		if (json.jackson == null) json.jackson = new JacksonJsonSerialization(json.locator);
-		return ((JacksonJsonSerialization) json.jackson).deserialize(manifest, body, size);
-	}
-
-	private static <TResult> List<TResult> deserializeJacksonList(
-			final DslJsonSerialization json,
-			final Class<TResult> manifest,
-			final byte[] body,
-			final int size) throws IOException {
-		if (json.jackson == null) json.jackson = new JacksonJsonSerialization(json.locator);
-		return ((JacksonJsonSerialization) json.jackson).deserializeList(manifest, body, size);
-	}
-
-	private static Bytes serializeJackson(
-			final DslJsonSerialization json,
-			final Object value) throws IOException {
-		if (json.jackson == null) json.jackson = new JacksonJsonSerialization(json.locator);
-		return ((JacksonJsonSerialization) json.jackson).serialize(value);
-	}
 
 	@SuppressWarnings("unchecked")
 	public <TResult> List<TResult> deserializeList(
@@ -288,7 +386,7 @@ public class DslJsonSerialization implements JsonSerialization {
 		if (size == 2 && body[0] == '[' && body[1] == ']') {
 			return new ArrayList<TResult>(0);
 		}
-		final JsonReader json = new JsonReader(body, size, locator);
+		final JsonReader json = new JsonReader(body, size, context);
 		if (json.getNextToken() != '[') {
 			if (json.wasNull()) {
 				return null;
@@ -306,162 +404,21 @@ public class DslJsonSerialization implements JsonSerialization {
 		}
 		final JsonReader.ReadObject<?> simpleReader = jsonReaders.get(manifest);
 		if (simpleReader == null) {
-			if (Utils.HAS_JACKSON) {
-				return deserializeJacksonList(this, manifest, body, size);
+			if (fallback != null) {
+				Object array = Array.newInstance(manifest, 0);
+				TResult[] result = (TResult[])fallback.deserialize(context, array.getClass(), body, size);
+				if (result == null) {
+					return null;
+				}
+				ArrayList<TResult> list = new ArrayList<TResult>(result.length);
+				for (TResult aResult : result) {
+					list.add(aResult);
+				}
+				return list;
 			}
 			showErrorMessage(manifest);
 		}
-		return json.deserializeNullableCollection((JsonReader.ReadObject<TResult>) simpleReader);
-	}
-
-	public <TResult extends AggregateRoot> List<History<TResult>> deserializeHistoryList(
-			final Class<TResult> manifest,
-			final byte[] body,
-			final int size) throws IOException {
-		if (isNull(size, body)) {
-			return null;
-		}
-		if (size == 2 && body[0] == '[' && body[1] == ']') {
-			return new ArrayList<History<TResult>>(0);
-		}
-		final JsonReader json = new JsonReader(body, size, locator);
-		if (json.getNextToken() != '[') {
-			throw new IOException("Expecting '[' as array start. Found: " + (char) json.last());
-		}
-		if (json.getNextToken() == ']') {
-			return new ArrayList<History<TResult>>(0);
-		}
-		final JsonReader.ReadJsonObject<JsonObject> reader = getObjectReader(manifest);
-		if (reader == null) {
-			throw new IOException("Unable to find reader for provided history type: " + manifest);
-		}
-		final ArrayList<History<TResult>> result = new ArrayList<History<TResult>>();
-		do {
-			if (json.last() != '{') {
-				throw new IOException("Expecting '{' at " + json.getCurrentIndex());
-			}
-			ArrayList<Snapshot<TResult>> snapshots = null;
-			json.getNextToken();
-			String name = json.readString();
-			if (json.getNextToken() != ':') {
-				throw new IOException("Expecting ':' at " + json.getCurrentIndex());
-			}
-			if ("Snapshots".equalsIgnoreCase(name)) {
-				snapshots = readSnaphosts(manifest, reader, json, locator);
-			} else {
-				json.skip();
-			}
-			while (json.getNextToken() == ',') {
-				name = json.readString();
-				if (json.getNextToken() != ':') {
-					throw new IOException("Expecting ':' at" + json.getCurrentIndex());
-				}
-				if ("Snapshots".equalsIgnoreCase(name)) {
-					snapshots = readSnaphosts(manifest, reader, json, locator);
-				} else {
-					json.skip();
-				}
-			}
-			if (json.last() != '}') {
-				throw new IOException("Expecting '}' at " + json.getCurrentIndex());
-			}
-			if (snapshots == null) {
-				throw new IOException("Snapshots not provided. It can't be null. Error at " + json.getCurrentIndex());
-			}
-			result.add(new History<TResult>(snapshots));
-			switch (json.getNextToken()) {
-				case ']':
-					return result;
-				case ',':
-					json.getNextToken();
-					break;
-				default:
-					throw new IOException("Expecting ']' or ',' at " + json.getCurrentIndex());
-			}
-		} while (true);
-	}
-
-	@SuppressWarnings("unchecked")
-	private static <TResult extends AggregateRoot> ArrayList<Snapshot<TResult>> readSnaphosts(
-			final Class<TResult> manifest,
-			final JsonReader.ReadJsonObject<JsonObject> reader,
-			final JsonReader json,
-			final ServiceLocator locator) throws IOException {
-		if (json.getNextToken() != '[') {
-			throw new IOException("Expecting '[' at " + json.getCurrentIndex());
-		}
-		if (json.getNextToken() == ']') {
-			return new ArrayList<Snapshot<TResult>>(0);
-		}
-		final ArrayList<Snapshot<TResult>> result = new ArrayList<Snapshot<TResult>>();
-		do {
-			if (json.last() != '{') {
-				throw new IOException("Expecting '{' at " + json.getCurrentIndex());
-			}
-			DateTime at = Utils.MIN_DATE_TIME;
-			String action = null;
-			TResult value = null;
-			String name;
-			json.getNextToken();
-			name = json.readString();
-			if (json.getNextToken() != ':') {
-				throw new IOException("Expecting ':' at " + json.getCurrentIndex());
-			}
-			json.getNextToken();
-			if ("at".equalsIgnoreCase(name)) {
-				at = DateConverter.deserializeDateTime(json);
-			} else if ("action".equalsIgnoreCase(name)) {
-				action = StringConverter.deserialize(json);
-			} else if ("value".equalsIgnoreCase(name)) {
-				if (json.last() != '{') {
-					throw new IOException("Expecting '{' at " + json.getCurrentIndex());
-				}
-				json.getNextToken();
-				value = (TResult) reader.deserialize(json, locator);
-			} else {
-				json.skip();
-			}
-			while (json.getNextToken() == ',') {
-				json.getNextToken();
-				name = json.readString();
-				if (json.getNextToken() != ':') {
-					throw new IOException("Expecting ':' at " + json.getCurrentIndex());
-				}
-				json.getNextToken();
-				if ("at".equalsIgnoreCase(name)) {
-					at = DateConverter.deserializeDateTime(json);
-				} else if ("action".equalsIgnoreCase(name)) {
-					action = StringConverter.deserialize(json);
-				} else if ("value".equalsIgnoreCase(name)) {
-					if (json.last() != '{') {
-						throw new IOException("Expecting '{' at " + json.getCurrentIndex());
-					}
-					json.getNextToken();
-					value = (TResult) reader.deserialize(json, locator);
-				} else {
-					json.skip();
-				}
-			}
-			if (json.last() != '}') {
-				throw new IOException("Expecting '}' at " + json.getCurrentIndex());
-			}
-			if (action == null) {
-				throw new IOException("Action not provided. It can't be null. Error at " + json.getCurrentIndex());
-			}
-			if (value == null) {
-				throw new IOException("Value not provided. It can't be null. Error at " + json.getCurrentIndex());
-			}
-			result.add(new Snapshot<TResult>(at, action, value));
-			switch (json.getNextToken()) {
-				case ']':
-					return result;
-				case ',':
-					json.getNextToken();
-					break;
-				default:
-					throw new IOException("Expecting ']' or ',' at " + json.getCurrentIndex());
-			}
-		} while (true);
+		return json.deserializeNullableCollection(simpleReader);
 	}
 
 	public <T extends JsonObject> void serialize(final JsonWriter writer, final T[] array) {
@@ -640,29 +597,23 @@ public class DslJsonSerialization implements JsonSerialization {
 		return false;
 	}
 
-	private static final Bytes NULL = new Bytes(new byte[]{'n', 'u', 'l', 'l'}, 4);
+	private static final byte[] NULL = new byte[]{'n', 'u', 'l', 'l'};
 
-	public final Bytes serialize(final Object value) throws IOException {
-		if (value == null) return NULL;
+	public final void serialize(final Object value, final OutputStream stream) throws IOException {
+		if (value == null) {
+			stream.write(NULL);
+			return;
+		}
 		final JsonWriter jw = new JsonWriter();
 		final Class<?> manifest = value.getClass();
 		if (!serialize(jw, manifest, value)) {
-			if (Utils.HAS_JACKSON) {
-				return serializeJackson(this, value);
+			if (fallback != null) {
+				fallback.serialize(value, stream);
+			} else {
+				throw new IOException("Unable to serialize provided object. Failed to find serializer for: " + manifest);
 			}
-			throw new IOException("Unable to serialize provided object. Failed to find serializer for: " + manifest);
-		}
-		return jw.toBytes();
-	}
-
-	@Override
-	public final void serialize(final Writer writer, final Object value) throws IOException {
-		if (writer instanceof JsonWriter) {
-			serialize((JsonWriter) writer, value);
 		} else {
-			final JsonWriter jw = new JsonWriter();
-			serialize(jw, value);
-			writer.write(jw.toString());
+			jw.toStream(stream);
 		}
 	}
 
@@ -673,12 +624,12 @@ public class DslJsonSerialization implements JsonSerialization {
 		}
 		final Class<?> manifest = value.getClass();
 		if (!serialize(writer, manifest, value)) {
-			if (Utils.HAS_JACKSON) {
-				Bytes result = serializeJackson(this, value);
-				writer.write(result.toUtf8());
+			if (fallback != null) {
+				ByteArrayOutputStream stream = new ByteArrayOutputStream();
+				fallback.serialize(value, stream);
+				writer.writeAscii(stream.toByteArray());
 			}
 			throw new IOException("Unable to serialize provided object. Failed to find serializer for: " + manifest);
 		}
 	}
-
 }

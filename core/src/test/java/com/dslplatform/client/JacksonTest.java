@@ -1,6 +1,5 @@
 package com.dslplatform.client;
 
-import com.dslplatform.client.json.JacksonJsonSerialization;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
