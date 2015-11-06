@@ -62,6 +62,8 @@ trait Dependencies {
   // JodaTime
   val jodaTime = "joda-time" % "joda-time" % "2.8.1"
 
+  val dslJson = "com.dslplatform" % "dsl-json" % "0.9.0"
+
   // Json serialization
   val jackson = "com.fasterxml.jackson.core" % "jackson-databind" % "2.6.0"
 
@@ -98,19 +100,6 @@ object Build extends Build with Default with Dependencies {
     )
   )
 
-  lazy val json = Project(
-    "json"
-    , file("json")
-    , settings = defaultSettings ++ Seq(
-      name := "dsl-client-json"
-      , libraryDependencies ++= Seq(
-          jodaTime % "provided" intransitive()
-        , androidSDK % "provided" intransitive()
-      )
-      , unmanagedSourceDirectories in Test := Nil
-    )
-  )
-
   lazy val core = Project(
     "core"
   , file("core")
@@ -118,6 +107,7 @@ object Build extends Build with Default with Dependencies {
       name := "dsl-client-core"
     , libraryDependencies ++= Seq(
         slf4j
+      , dslJson
       , jackson % "provided"
       , androidSDK % "provided" intransitive()
       , awsCore % "provided"
@@ -137,7 +127,7 @@ object Build extends Build with Default with Dependencies {
     , createVersionProperties
     , unmanagedJars in Test += baseDirectory.value / "test-lib" / "java-client.jar"
     )
-  ) dependsOn(interface, json)
+  ) dependsOn(interface)
 
   private val createVersionProperties =
     onLoad := {
@@ -154,9 +144,9 @@ object Build extends Build with Default with Dependencies {
       onLoad.value
     }
 
-  def aggregatedCompile = ScopeFilter(inProjects(interface, json, core), inConfigurations(Compile))
+  def aggregatedCompile = ScopeFilter(inProjects(interface, core), inConfigurations(Compile))
 
-  def aggregatedTest = ScopeFilter(inProjects(interface, json, core), inConfigurations(Test))
+  def aggregatedTest = ScopeFilter(inProjects(interface, core), inConfigurations(Test))
 
   def rootSettings = Seq(
     sources in Compile                        := sources.all(aggregatedCompile).value.flatten,
