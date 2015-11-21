@@ -32,7 +32,7 @@ public class DslJsonSerialization extends DslJson<ServiceLocator> implements Jso
 	}
 
 	public DslJsonSerialization(final ServiceLocator locator) {
-		super(locator, Utils.IS_ANDROID, !Utils.IS_ANDROID, true, new DslFallback(), Collections.EMPTY_LIST);
+		super(locator, Utils.IS_ANDROID, !Utils.IS_ANDROID, true, new DslFallback(), Collections.<Configuration>emptyList());
 
 		((DslFallback)fallback).bind(this);
 
