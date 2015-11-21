@@ -1,6 +1,7 @@
 package com.dslplatform.client;
 
 import java.io.*;
+import java.lang.reflect.Type;
 import java.util.*;
 
 import com.dslplatform.json.*;
@@ -25,13 +26,13 @@ public class DslJsonSerialization extends DslJson<ServiceLocator> implements Jso
 		}
 
 		@Override
-		public Object deserialize(ServiceLocator serviceLocator, Class<?> manifest, byte[] body, int size) throws IOException {
+		public Object deserialize(ServiceLocator serviceLocator, Type manifest, byte[] body, int size) throws IOException {
 			return deserializeJackson(dslJson, manifest, body, size);
 		}
 	}
 
 	public DslJsonSerialization(final ServiceLocator locator) {
-		super(locator, Utils.IS_ANDROID, !Utils.IS_ANDROID, true, new DslFallback());
+		super(locator, Utils.IS_ANDROID, !Utils.IS_ANDROID, true, new DslFallback(), Collections.EMPTY_LIST);
 
 		((DslFallback)fallback).bind(this);
 
@@ -43,7 +44,7 @@ public class DslJsonSerialization extends DslJson<ServiceLocator> implements Jso
 
 	private static <TResult> TResult deserializeJackson(
 			final DslJsonSerialization json,
-			final Class<TResult> manifest,
+			final Type manifest,
 			final byte[] body,
 			final int size) throws IOException {
 		if (json.jackson == null) json.jackson = new JacksonJsonSerialization(json.context);

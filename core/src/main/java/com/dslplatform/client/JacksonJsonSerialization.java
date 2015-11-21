@@ -1,6 +1,7 @@
 package com.dslplatform.client;
 
 import java.io.*;
+import java.lang.reflect.Type;
 import java.util.*;
 
 import javax.imageio.ImageIO;
@@ -477,6 +478,11 @@ public class JacksonJsonSerialization implements JsonSerialization {
 
 	public <T> T deserialize(final JavaType type, final byte[] data, final int size) throws IOException {
 		return deserializationMapper.readValue(data, 0, size, type);
+	}
+
+	public <T> T deserialize(final Type type, final byte[] data, final int size) throws IOException {
+		final JavaType javaType = deserializationMapper.getTypeFactory().constructType(type);
+		return deserializationMapper.readValue(data, 0, size, javaType);
 	}
 
 	public <T> T deserialize(final Class<T> clazz, final byte[] data) throws IOException {

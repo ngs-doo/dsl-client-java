@@ -60,15 +60,15 @@ trait Default {
 
 trait Dependencies {
   // JodaTime
-  val jodaTime = "joda-time" % "joda-time" % "2.8.1"
+  val jodaTime = "joda-time" % "joda-time" % "2.9.1"
 
-  val dslJson = "com.dslplatform" % "dsl-json" % "0.9.0"
+  val dslJson = "com.dslplatform" % "dsl-json" % "0.9.1"
 
   // Json serialization
   val jackson = "com.fasterxml.jackson.core" % "jackson-databind" % "2.6.0"
 
   // Logging facade
-  val slf4j = "org.slf4j" % "slf4j-api" % "1.7.12"
+  val slf4j = "org.slf4j" % "slf4j-api" % "1.7.13"
 
   // Amazon Web Services SDK (S3 type)
   val awsCore = "com.amazonaws" % "aws-java-sdk-core" % "1.10.8"
