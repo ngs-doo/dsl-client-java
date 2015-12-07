@@ -1,5 +1,6 @@
 package com.dslplatform.client;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -48,7 +49,7 @@ class HttpClient {
 
 		public Response(final HttpURLConnection connection, final byte[] buffer) throws IOException {
 			this.code = connection.getResponseCode();
-			size = connection.getContentLength();
+			int size = connection.getContentLength();
 			if (code < 300 && size >= 0) {
 				byte[] bytes = buffer;
 				if (bytes.length < size) {
@@ -62,11 +63,27 @@ class HttpClient {
 				body = bytes;
 			} else {
 				body = code < 400
-						? Utils.inputStreamToByteArray(connection.getInputStream())
-						: Utils.inputStreamToByteArray(connection.getErrorStream());
+						? inputStreamToByteArray(connection.getInputStream(), buffer)
+						: inputStreamToByteArray(connection.getErrorStream(), buffer);
+				if (body != null) {
+					size = body.length;
+				}
 			}
+			this.size = size;
 			this.connection = connection;
 		}
+
+		private static byte[] inputStreamToByteArray(final InputStream stream, final byte[] buffer) throws IOException {
+			if (stream == null) return null;
+			final ByteArrayOutputStream os = new ByteArrayOutputStream();
+			int len;
+			while ((len = stream.read(buffer, 0, buffer.length)) != -1) {
+				os.write(buffer, 0, len);
+			}
+
+			return os.toByteArray();
+		}
+
 
 		public String bodyToString() {
 			try {

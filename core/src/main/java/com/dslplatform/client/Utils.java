@@ -146,18 +146,6 @@ public class Utils {
 		return false;
 	}
 
-	static byte[] inputStreamToByteArray(final InputStream stream) throws IOException {
-		if (stream == null) return null;
-		final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-		final byte[] buffer = new byte[1024];
-		int len;
-		while ((len = stream.read(buffer, 0, 1024)) != -1) {
-			byteArrayOutputStream.write(buffer, 0, len);
-		}
-
-		return byteArrayOutputStream.toByteArray();
-	}
-
 	static final JsonSerialization STATIC_JSON;
 
 	static String serialize(final Object value) throws IOException {
