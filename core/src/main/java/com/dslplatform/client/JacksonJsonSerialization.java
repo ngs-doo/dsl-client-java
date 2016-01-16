@@ -5,11 +5,12 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 import javax.imageio.ImageIO;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
-import com.dslplatform.client.Utils;
 import com.dslplatform.json.XmlConverter;
 import com.dslplatform.patterns.*;
-import com.dslplatform.client.JsonSerialization;
 import com.dslplatform.storage.S3;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
@@ -26,6 +27,7 @@ import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import org.xml.sax.SAXException;
 
 public class JacksonJsonSerialization implements JsonSerialization {
 	private static final String TEXT_NODE_TAG = "#text";
@@ -83,7 +85,7 @@ public class JacksonJsonSerialization implements JsonSerialization {
 			String name = null;
 			String mimeType = null;
 			Map<String, String> metadata = null;
-			while(parser.nextToken() == JsonToken.FIELD_NAME) {
+			while (parser.nextToken() == JsonToken.FIELD_NAME) {
 				String field = parser.getCurrentName();
 				if ("Bucket".equalsIgnoreCase(field)) {
 					bucket = parser.nextTextValue();
@@ -111,7 +113,7 @@ public class JacksonJsonSerialization implements JsonSerialization {
 			if (parser.getCurrentToken() != JsonToken.END_OBJECT) {
 				throw new IOException("Expecting '}'. Found: " + parser.getCurrentToken());
 			}
-			ServiceLocator locator = (ServiceLocator)context.findInjectableValue("_serviceLocator", null, null);
+			ServiceLocator locator = (ServiceLocator) context.findInjectableValue("_serviceLocator", null, null);
 			return new S3(locator, bucket, key, length, name, mimeType, metadata);
 		}
 	};
@@ -161,6 +163,13 @@ public class JacksonJsonSerialization implements JsonSerialization {
 			module.addDeserializer(java.awt.Point.class, new JsonDeserializer<java.awt.Point>() {
 				@Override
 				public java.awt.Point deserialize(final JsonParser parser, final DeserializationContext unused) throws IOException {
+					if (parser.getCurrentToken() == JsonToken.VALUE_STRING) {
+						String[] parts = parser.getValueAsString().split(",");
+						if (parts.length == 2) {
+							return new java.awt.Point(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]));
+						}
+						throw new IOException("Unable to parse \"number,number\" format for point");
+					}
 					final JsonNode tree = parser.getCodec().readTree(parser);
 					JsonNode x = tree.get("X");
 					if (x == null) x = tree.get("x");
@@ -172,6 +181,13 @@ public class JacksonJsonSerialization implements JsonSerialization {
 			module.addDeserializer(java.awt.geom.Point2D.class, new JsonDeserializer<java.awt.geom.Point2D>() {
 				@Override
 				public java.awt.geom.Point2D deserialize(final JsonParser parser, final DeserializationContext unused) throws IOException {
+					if (parser.getCurrentToken() == JsonToken.VALUE_STRING) {
+						String[] parts = parser.getValueAsString().split(",");
+						if (parts.length == 2) {
+							return new java.awt.geom.Point2D.Double(Double.parseDouble(parts[0]), Double.parseDouble(parts[1]));
+						}
+						throw new IOException("Unable to parse \"number,number\" format for point");
+					}
 					final JsonNode tree = parser.getCodec().readTree(parser);
 					JsonNode x = tree.get("X");
 					if (x == null) x = tree.get("x");
@@ -183,6 +199,17 @@ public class JacksonJsonSerialization implements JsonSerialization {
 			module.addDeserializer(java.awt.geom.Rectangle2D.class, new JsonDeserializer<java.awt.geom.Rectangle2D>() {
 				@Override
 				public java.awt.geom.Rectangle2D deserialize(final JsonParser parser, final DeserializationContext _unused) throws IOException {
+					if (parser.getCurrentToken() == JsonToken.VALUE_STRING) {
+						String[] parts = parser.getValueAsString().split(",");
+						if (parts.length == 4) {
+							return new java.awt.geom.Rectangle2D.Double(
+									Double.parseDouble(parts[0]),
+									Double.parseDouble(parts[1]),
+									Double.parseDouble(parts[2]),
+									Double.parseDouble(parts[3]));
+						}
+						throw new IOException("Unable to parse \"number,number,number,number\" format for rectangle");
+					}
 					final JsonNode tree = parser.getCodec().readTree(parser);
 					JsonNode x = tree.get("X");
 					if (x == null) x = tree.get("x");
@@ -315,7 +342,9 @@ public class JacksonJsonSerialization implements JsonSerialization {
 	private static class HistoryDelegate<T extends AggregateRoot> {
 		public final List<SnapshotDelegate<T>> Snapshots;
 
-		private HistoryDelegate() { this.Snapshots = null; }
+		private HistoryDelegate() {
+			this.Snapshots = null;
+		}
 	}
 
 	private static class SnapshotDelegate<T extends AggregateRoot> {
@@ -324,7 +353,9 @@ public class JacksonJsonSerialization implements JsonSerialization {
 		public final T Value;
 
 		@SuppressWarnings("unused")
-		private SnapshotDelegate() { this(null, null, null); }
+		private SnapshotDelegate() {
+			this(null, null, null);
+		}
 
 		public SnapshotDelegate(
 				final DateTime At,
@@ -432,10 +463,29 @@ public class JacksonJsonSerialization implements JsonSerialization {
 		return jsonHashMap;
 	}
 
+	private static final ThreadLocal<DocumentBuilder> documentBuilder = new ThreadLocal<DocumentBuilder>() {
+		@Override
+		public DocumentBuilder initialValue() {
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			try {
+				return dbFactory.newDocumentBuilder();
+			} catch (ParserConfigurationException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	};
+
 	private static final JsonDeserializer<Element> xmlDeserializer = new JsonDeserializer<Element>() {
 		@Override
 		public Element deserialize(final JsonParser parser, final DeserializationContext context) throws IOException {
-
+			if (parser.getCurrentToken() == JsonToken.VALUE_STRING) {
+				try {
+					byte[] content = parser.getValueAsString().getBytes("UTF-8");
+					return documentBuilder.get().parse(new ByteArrayInputStream(content)).getDocumentElement();
+				} catch (SAXException ex) {
+					throw new IOException(ex);
+				}
+			}
 			@SuppressWarnings("unchecked")
 			final HashMap<String, Object> hm = parser.readValueAs(HashMap.class);
 			if (hm == null) return null;
