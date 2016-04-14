@@ -3,10 +3,11 @@ package com.dslplatform.client;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigDecimal;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.*;
 
 public class Utils {
@@ -18,6 +19,20 @@ public class Utils {
 	public static final BigDecimal ZERO_1 = BigDecimal.ZERO.setScale(1);
 	public static final BigDecimal ZERO_2 = BigDecimal.ZERO.setScale(2);
 	public static final BigDecimal ZERO_3 = BigDecimal.ZERO.setScale(3);
+	public static final InetAddress LOOPBACK;
+
+	static {
+		InetAddress localhost = null;
+		try {
+			if (InetAddress.getLocalHost() instanceof Inet4Address) {
+				localhost = InetAddress.getByName("127.0.0.1");
+			} else {
+				localhost = InetAddress.getByName("::1");
+			}
+		} catch (UnknownHostException ignore) {
+		}
+		LOOPBACK = localhost;
+	}
 
 	static <T> ArrayList<T> toArrayList(final Iterable<T> iterable) {
 		final ArrayList<T> copy = new ArrayList<T>();
@@ -161,7 +176,7 @@ public class Utils {
 		try {
 			Class.forName("com.fasterxml.jackson.databind.ObjectMapper", false, Thread.currentThread().getContextClassLoader());
 			foundJackson = true;
-		} catch(Exception ignore) {
+		} catch (Exception ignore) {
 		}
 		HAS_JACKSON = foundJackson;
 		STATIC_JSON = new DslJsonSerialization(null);
