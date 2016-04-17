@@ -3,11 +3,14 @@ package com.dslplatform.client;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
+
+import org.joda.time.DateTime;
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.dslplatform.ocd.javaasserts.DecimalAsserts;
 
-public class GuardsScaleTests {
+public class GuardsTests {
 	private static final BigDecimal[] PIES = new BigDecimal[] {
 		new BigDecimal("3.14159265358979323846264"),
 		new BigDecimal("2.14159265358979323846264"),
@@ -138,5 +141,15 @@ public class GuardsScaleTests {
 				new BigDecimal("-1.1411").setScale(3, RoundingMode.FLOOR),
 				new BigDecimal("-2.1425").setScale(3, RoundingMode.HALF_DOWN),
 				new BigDecimal("-3.1420").setScale(3, RoundingMode.UNNECESSARY))));
+	}
+
+	@Test
+	public void checkDateTime() {
+		final Set<DateTime> left = new HashSet<DateTime>();
+		left.add(DateTime.parse("2016-04-17T08:43:14.530+01:00"));
+		final Set<DateTime> right = new HashSet<DateTime>();
+		right.add(DateTime.parse("2016-04-17T06:43:14.530-01:00"));
+
+		Assert.assertFalse(Guards.compareDateTime(left, right));
 	}
 }
