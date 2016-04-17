@@ -368,8 +368,8 @@ public abstract class Guards {
 			final long rm = r.getMillis();
 			if (lm != rm) return false;
 
-			if (!org.joda.time.field.FieldUtils.equals(l.getChronology(), r.getChronology()) &&
-					l.getZone().getOffset(lm) != r.getZone().getOffset(rm)) return false;
+			if (!org.joda.time.field.FieldUtils.equals(l.getChronology(), r.getChronology())
+					&& l.getZone().getOffset(lm) != r.getZone().getOffset(rm)) return false;
 		}
 		return true;
 	}

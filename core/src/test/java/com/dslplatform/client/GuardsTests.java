@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 import java.util.*;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -145,11 +146,21 @@ public class GuardsTests {
 
 	@Test
 	public void checkDateTime() {
-		final Set<DateTime> left = new HashSet<DateTime>();
-		left.add(DateTime.parse("2016-04-17T08:43:14.530+01:00"));
-		final Set<DateTime> right = new HashSet<DateTime>();
-		right.add(DateTime.parse("2016-04-17T06:43:14.530-01:00"));
+		final Set<DateTime> at2 = new HashSet<DateTime>();
+		at2.add(DateTime.parse("2016-04-17T09:43:14.530+02:00"));
+		final Set<DateTime> atMin2 = new HashSet<DateTime>();
+		atMin2.add(DateTime.parse("2016-04-17T05:43:14.530-02:00"));
+		final Set<DateTime> zagreb = new HashSet<DateTime>();
+		zagreb.add(new DateTime(2016, 4, 17, 9, 43, 14, 530, DateTimeZone.forID("Europe/Zagreb")));
+		final Set<DateTime> paris1 = new HashSet<DateTime>();
+		paris1.add(new DateTime(2016, 4, 17, 9, 43, 14, 530, DateTimeZone.forID("Europe/Paris")));
+		final Set<DateTime> paris2 = new HashSet<DateTime>();
+		paris2.add(new DateTime(2016, 4, 17, 9, 43, 14, 530, DateTimeZone.forID("Europe/Paris")));
 
-		Assert.assertFalse(Guards.compareDateTime(left, right));
+		Assert.assertFalse(Guards.compareDateTime(at2, atMin2));
+		Assert.assertTrue(Guards.compareDateTime(at2, at2));
+		Assert.assertTrue(Guards.compareDateTime(at2, zagreb));
+		Assert.assertTrue(Guards.compareDateTime(zagreb, paris1));
+		Assert.assertTrue(Guards.compareDateTime(paris1, paris2));
 	}
 }
