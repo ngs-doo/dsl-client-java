@@ -1,9 +1,10 @@
 package com.dslplatform.client;
 
-import org.w3c.dom.Element;
-
 import java.math.BigDecimal;
 import java.util.*;
+
+import org.joda.time.DateTime;
+import org.w3c.dom.Element;
 
 public abstract class Guards {
 	public static <T> void checkNulls(final Iterable<T> values) {
@@ -326,6 +327,82 @@ public abstract class Guards {
 			return false;
 		}
 		return true;
+	}
+
+	public static boolean compareDateTime(final Iterable<DateTime> left, final Iterable<DateTime> right) {
+		if (left == null && right == null) return true;
+		if (left == null || right == null) return false;
+
+		final Iterator<DateTime> leftIterator = left.iterator();
+		final Iterator<DateTime> rightIterator = right.iterator();
+
+		while (leftIterator.hasNext() && rightIterator.hasNext()) {
+			final DateTime l = leftIterator.next();
+			final DateTime r = rightIterator.next();
+			if (l == r) continue;
+			if (l == null || r == null) return false;
+
+			final long lm = l.getMillis();
+			final long rm = r.getMillis();
+			if (lm != rm) return false;
+
+			if (!org.joda.time.field.FieldUtils.equals(l.getChronology(), r.getChronology()) &&
+					l.getZone().getOffset(lm) != r.getZone().getOffset(rm)) return false;
+		}
+
+		return leftIterator.hasNext() == rightIterator.hasNext();
+	}
+
+	public static boolean compareDateTime(final DateTime[] left, final DateTime[] right) {
+		if (left == null && right == null) return true;
+		if (left == null || right == null) return false;
+
+		if (left.length != right.length) return false;
+		for (int i = 0; i < left.length; i++) {
+			final DateTime l = left[i];
+			final DateTime r = right[i];
+			if (l == r) continue;
+			if (l == null || r == null) return false;
+
+			final long lm = l.getMillis();
+			final long rm = r.getMillis();
+			if (lm != rm) return false;
+
+			if (!org.joda.time.field.FieldUtils.equals(l.getChronology(), r.getChronology()) &&
+					l.getZone().getOffset(lm) != r.getZone().getOffset(rm)) return false;
+		}
+		return true;
+	}
+
+	private static final Comparator<DateTime> dateTimeComparator = new Comparator<DateTime>() {
+		@Override
+		public int compare(final DateTime left, final DateTime right) {
+			if (left == null && right == null) return 0;
+			if (left == null) return -1;
+			if (right == null) return 1;
+
+			final long lm = left.getMillis();
+			final long rm = right.getMillis();
+			if (lm < rm) return -1;
+			if (lm > rm) return 1;
+
+			if (org.joda.time.field.FieldUtils.equals(left.getChronology(), right.getChronology())) return 0;
+			return right.getZone().getOffset(rm) - left.getZone().getOffset(lm);
+		}
+	};
+
+	public static boolean compareDateTime(final Set<DateTime> left, final Set<DateTime> right) {
+		if (left == null && right == null) return true;
+		if (left == null || right == null) return false;
+
+		if (left.size() != right.size()) return false;
+
+		final DateTime[] leftSorted = left.toArray(new DateTime[0]);
+		Arrays.sort(leftSorted, dateTimeComparator);
+		final DateTime[] rightSorted = right.toArray(new DateTime[0]);
+		Arrays.sort(rightSorted, dateTimeComparator);
+
+		return compareDateTime(leftSorted, rightSorted);
 	}
 
 	public static <T> boolean compareQueue(final Queue<T> left, final Queue<T> right) {
