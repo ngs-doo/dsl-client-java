@@ -559,6 +559,11 @@ public class JacksonJsonSerialization implements JsonSerialization {
 		return deserializationMapper.readValue(data, clazz);
 	}
 
+	public <T> T deserialize(final Type type, final InputStream stream) throws IOException {
+		final JavaType javaType = deserializationMapper.getTypeFactory().constructType(type);
+		return deserializationMapper.readValue(stream, javaType);
+	}
+
 	public <T> T deserialize(final JavaType type, final InputStream stream) throws IOException {
 		return deserializationMapper.readValue(stream, type);
 	}

@@ -29,6 +29,11 @@ public class DslJsonSerialization extends DslJson<ServiceLocator> implements Jso
 		public Object deserialize(ServiceLocator serviceLocator, Type manifest, byte[] body, int size) throws IOException {
 			return deserializeJackson(dslJson, manifest, body, size);
 		}
+
+		@Override
+		public Object deserialize(ServiceLocator serviceLocator, Type manifest, InputStream stream) throws IOException {
+			return deserializeJackson(dslJson, manifest, stream);
+		}
 	}
 
 	public DslJsonSerialization(final ServiceLocator locator) {
@@ -49,6 +54,14 @@ public class DslJsonSerialization extends DslJson<ServiceLocator> implements Jso
 			final int size) throws IOException {
 		if (json.jackson == null) json.jackson = new JacksonJsonSerialization(json.context);
 		return ((JacksonJsonSerialization) json.jackson).deserialize(manifest, body, size);
+	}
+
+	private static <TResult> TResult deserializeJackson(
+			final DslJsonSerialization json,
+			final Type manifest,
+			final InputStream stream) throws IOException {
+		if (json.jackson == null) json.jackson = new JacksonJsonSerialization(json.context);
+		return ((JacksonJsonSerialization) json.jackson).deserialize(manifest, stream);
 	}
 
 	private static Bytes serializeJackson(

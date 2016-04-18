@@ -62,7 +62,7 @@ trait Dependencies {
   // JodaTime
   val jodaTime = "joda-time" % "joda-time" % "2.9.1"
 
-  val dslJson = "com.dslplatform" % "dsl-json" % "0.9.8"
+  val dslJson = "com.dslplatform" % "dsl-json" % "0.9.9"
 
   // Json serialization
   val jackson = "com.fasterxml.jackson.core" % "jackson-databind" % "2.7.3"
