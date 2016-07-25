@@ -2,19 +2,14 @@ import sbt._
 import Keys._
 
 import com.typesafe.sbteclipse.plugin.EclipsePlugin._
-import org.sbtidea.SbtIdeaPlugin._
-import net.virtualvoid.sbt.graph.Plugin._
-import xerial.sbt.Pack._
 
 // ----------------------------------------------------------------------------
 
 trait Default {
   val defaultSettings =
     Defaults.coreDefaultSettings ++
-    autoImport.eclipseSettings ++
-    graphSettings ++
-    packSettings ++ Seq(
-      scalaVersion := "2.11.7"
+    autoImport.eclipseSettings ++ Seq(
+      scalaVersion := "2.11.8"
     , crossPaths := false
     , autoScalaLibrary := false
     , unmanagedSourceDirectories in Compile := Seq((javaSource in Compile).value)
@@ -41,7 +36,6 @@ trait Default {
     , EclipseKeys.eclipseOutput := Some(".target")
     , EclipseKeys.executionEnvironment := Some(EclipseExecutionEnvironment.JavaSE16)
     , EclipseKeys.projectFlavor := EclipseProjectFlavor.Java
-    , ideaExcludeFolders := Seq(".classpath", ".idea", ".idea_modules", ".project", ".settings")
     )
 
   def checkByteCode(jar: File): File = {
@@ -60,15 +54,15 @@ trait Default {
 
 trait Dependencies {
   // JodaTime
-  val jodaTime = "joda-time" % "joda-time" % "2.9.1"
+  val jodaTime = "joda-time" % "joda-time" % "2.9.4"
 
-  val dslJson = "com.dslplatform" % "dsl-json" % "0.9.9"
+  val dslJson = "com.dslplatform" % "dsl-json" % "1.1.1"
 
   // Json serialization
-  val jackson = "com.fasterxml.jackson.core" % "jackson-databind" % "2.7.3"
+  val jackson = "com.fasterxml.jackson.core" % "jackson-databind" % "2.7.4"
 
   // Logging facade
-  val slf4j = "org.slf4j" % "slf4j-api" % "1.7.13"
+  val slf4j = "org.slf4j" % "slf4j-api" % "1.7.21"
 
   // Amazon Web Services SDK (S3 type)
   val awsCore = "com.amazonaws" % "aws-java-sdk-core" % "1.10.38"
@@ -82,7 +76,7 @@ trait Dependencies {
   val junitInterface = "com.novocode" % "junit-interface" % "0.11"
   val jsonAssert = "org.skyscreamer" % "jsonassert" % "1.2.3"
   val xmlUnit = "xmlunit" % "xmlunit" % "1.6"
-  val logback = "ch.qos.logback" % "logback-classic" % "1.1.3"
+  val logback = "ch.qos.logback" % "logback-classic" % "1.1.7"
 }
 
 // ----------------------------------------------------------------------------
