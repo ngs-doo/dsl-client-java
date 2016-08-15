@@ -210,7 +210,7 @@ class HttpClient {
 
 		if (logger.isDebugEnabled()) {
 			final long time = System.currentTimeMillis() - start;
-			logger.debug("Received response [{}, {} bytes] in {} ms", response.code, response.body.length, time);
+			logger.debug("Received response [{}, {} bytes] in {} ms", response.code, response.size, time);
 
 			if (logger.isTraceEnabled()) {
 				logger.trace("Received response body: {}", response.bodyToString());
