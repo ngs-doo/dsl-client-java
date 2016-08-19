@@ -330,17 +330,25 @@ class HttpClient {
 				if (response.code < HttpURLConnection.HTTP_INTERNAL_ERROR) {
 					return response;
 				}
-				logger.error("At {} [{}] {}", url, response.code, response.bodyToString());
-				logger.error("Error connecting to {}. Trying next server if exists...", url);
+				if (logger.isErrorEnabled()) {
+					logger.error("Error at {} [{}] {}", url, response.code, response.bodyToString());
+					if (currentUrl + 1 < maxLen) {
+						logger.error("Error connecting to {}, trying next server...", url);
+					}
+				}
 				error = new IOException(response.bodyToString());
 			} catch (final java.net.ConnectException ce) {
 				if (retriesOnConflictOrConnectionError > 0) {
 					return transmit(service, headers, method, payload, buffer, retriesOnConflictOrConnectionError - 1);
 				}
-				logger.error("At {} {}. Trying next server if exists...", service, ce.getMessage());
+				if (logger.isErrorEnabled()) {
+					logger.error("Error at {} {}{}", service, ce.getMessage(), currentUrl + 1 < maxLen ? ", trying next server..." : ".");
+				}
 				error = ce;
 			} catch (final IOException ex) {
-				logger.error("IOException {} to {}. Trying next server if exists...", ex.getMessage(), service);
+				if (logger.isErrorEnabled()) {
+					logger.error("IOException {} to {}{}", ex.getMessage(), service, currentUrl + 1 < maxLen ? ", trying next server..." : ".");
+				}
 				error = ex;
 			}
 			currentUrl++;
@@ -370,7 +378,9 @@ class HttpClient {
 			conn.setRequestProperty(h.getKey(), h.getValue());
 		}
 
-		logger.debug("{} {}", method, url.toString());
+		if (logger.isDebugEnabled()) {
+			logger.debug("{} {}", method, url);
+		}
 		for (final Map.Entry<String, String> h : headerProvider.getHeaders()) {
 			conn.setRequestProperty(h.getKey(), h.getValue());
 		}
