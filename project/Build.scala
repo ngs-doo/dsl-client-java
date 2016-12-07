@@ -56,10 +56,10 @@ trait Dependencies {
   // JodaTime
   val jodaTime = "joda-time" % "joda-time" % "2.9.4"
 
-  val dslJson = "com.dslplatform" % "dsl-json" % "1.1.2"
+  val dslJson = "com.dslplatform" % "dsl-json-joda" % "1.3.1"
 
   // Json serialization
-  val jackson = "com.fasterxml.jackson.core" % "jackson-databind" % "2.7.4"
+  val jackson = "com.fasterxml.jackson.core" % "jackson-databind" % "2.7.8"
 
   // Logging facade
   val slf4j = "org.slf4j" % "slf4j-api" % "1.7.21"

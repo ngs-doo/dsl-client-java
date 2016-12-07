@@ -37,12 +37,14 @@ public class DslJsonSerialization extends DslJson<ServiceLocator> implements Jso
 	}
 
 	public DslJsonSerialization(final ServiceLocator locator) {
-		super(locator, Utils.IS_ANDROID, !Utils.IS_ANDROID, true, new DslFallback(), false, Collections.<Configuration>emptyList());
+		super(locator, false, new DslFallback(), false, null, ServiceLoader.load(Configuration.class));
 
 		((DslFallback)fallback).bind(this);
 
 		registerReader(S3.class, StorageConverter.S3Reader);
 		registerWriter(S3.class, StorageConverter.S3Writer);
+		registerReader(TreePath.class, TreePathConverter.Reader);
+		registerWriter(TreePath.class, TreePathConverter.Writer);
 	}
 
 	private Object jackson;
@@ -225,7 +227,7 @@ public class DslJsonSerialization extends DslJson<ServiceLocator> implements Jso
 
 	public final Bytes serialize(final Object value) throws IOException {
 		if (value == null) return NULL;
-		final JsonWriter jw = new JsonWriter();
+		final JsonWriter jw = newWriter();
 		final Class<?> manifest = value.getClass();
 		if (!serialize(jw, manifest, value)) {
 			if (Utils.HAS_JACKSON) {
@@ -241,7 +243,7 @@ public class DslJsonSerialization extends DslJson<ServiceLocator> implements Jso
 		if (writer instanceof JsonWriter) {
 			serialize((JsonWriter) writer, value);
 		} else {
-			final JsonWriter jw = new JsonWriter();
+			final JsonWriter jw = newWriter();
 			serialize(jw, value);
 			writer.write(jw.toString());
 		}
