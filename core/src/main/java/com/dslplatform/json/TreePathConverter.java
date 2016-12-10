@@ -40,7 +40,7 @@ public abstract class TreePathConverter {
 		try {
 			return TreePath.create(reader.readString());
 		} catch(final IOException e) {
-			throw new IOException("Can't parse JSON TreePath", e);
+			throw new IOException("Can't parse JSON TreePath at position " + reader.positionInStream(), e);
 		}
 	}
 

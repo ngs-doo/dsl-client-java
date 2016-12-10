@@ -36,7 +36,10 @@ public final class TreePath {
 	private static void checkParts(String[] parts) {
 		for (String p : parts) {
 			for (int j = 0; j < p.length(); j++) {
-				if (!Character.isLetterOrDigit(p.charAt(j))) {
+				final char ch = p.charAt(j);
+				if ((ch < 'a' || ch > 'z') &&
+						(ch < 'A' || ch > 'Z') &&
+						(ch < '0' || ch > '9')) {
 					throw new IllegalArgumentException("Invalid value for part: " + p + ". Only [A-Za-z0-9] allowed for labels");
 				}
 			}

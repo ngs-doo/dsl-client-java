@@ -1,10 +1,7 @@
-package com.dslplatform.client.json;
+package com.dslplatform.json;
 
 import com.dslplatform.client.JsonStatic;
 import com.dslplatform.client.TestLogging;
-import com.dslplatform.json.JsonReader;
-import com.dslplatform.json.JsonWriter;
-import com.dslplatform.json.NumberConverter;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -34,13 +31,12 @@ public class DecimalConverterTest extends TestLogging {
 			"-12.12E-12, -12.12E+0, -12.12E+1, -12.12E+12 ";
 
 	@Test
-	@SuppressWarnings("deprecation")
 	public void testSerialization() throws IOException {
 		// setup
 		final String[] values = VALUES.split(", *");
 		final int count = values.length;
 
-		final JsonWriter jw = new JsonWriter();
+		final JsonWriter jw = new JsonWriter(null);
 
 		for (int i = 0; i < count - 1; i ++) {
 			// setup

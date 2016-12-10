@@ -1,19 +1,17 @@
-package com.dslplatform.client.json;
+package com.dslplatform.json;
 
 import com.dslplatform.client.TreePath;
-import com.dslplatform.json.JsonReader;
-import com.dslplatform.json.JsonWriter;
-import com.dslplatform.json.TreePathConverter;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
 
 public class TreePathConverterTest {
 	@Test
-	@SuppressWarnings("deprecation")
 	public void testSerialization() throws IOException {
-		final JsonWriter jw = new JsonWriter();
+		final JsonWriter jw = new JsonWriter(null);
 
 		final TreePath expectedPath = new TreePath("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
 		final String expectedJson = "\"" + expectedPath + "\"";
@@ -26,5 +24,18 @@ public class TreePathConverterTest {
 		jr.getNextToken();
 		final TreePath deserializedPath = TreePathConverter.deserialize(jr);
 		Assert.assertEquals(expectedPath, deserializedPath);
+	}
+
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
+
+	@Test
+	public void testDeserializationErrors() throws IOException {
+		final String malformedTreePathJson = "\"opr.s\u0161t.uvz\"";
+		final JsonReader jr = new JsonReader(malformedTreePathJson.getBytes("UTF-8"), null);
+		jr.getNextToken();
+		thrown.expect(IllegalArgumentException.class);
+		thrown.expectMessage("Invalid value for part: s\u0161t. Only [A-Za-z0-9] allowed for labels");
+		TreePathConverter.deserialize(jr);
 	}
 }

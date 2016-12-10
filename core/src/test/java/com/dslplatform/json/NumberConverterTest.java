@@ -1,9 +1,6 @@
-package com.dslplatform.client.json;
+package com.dslplatform.json;
 
 import com.dslplatform.client.TestLogging;
-import com.dslplatform.json.JsonReader;
-import com.dslplatform.json.JsonWriter;
-import com.dslplatform.json.NumberConverter;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -12,10 +9,9 @@ import java.nio.charset.Charset;
 
 public class NumberConverterTest extends TestLogging {
 	@Test
-	@SuppressWarnings("deprecation")
 	public void testSerialization() {
 		// setup
-		final JsonWriter sw = new JsonWriter();
+		final JsonWriter sw = new JsonWriter(null);
 
 		final int from = -1000000;
 		final int to = 1000000;

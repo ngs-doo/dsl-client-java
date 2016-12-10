@@ -1,8 +1,6 @@
-package com.dslplatform.client.json;
+package com.dslplatform.json;
 
 import com.dslplatform.client.TestLogging;
-import com.dslplatform.json.JsonReader;
-import com.dslplatform.json.JsonWriter;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -79,10 +77,9 @@ public class StringConverterTest extends TestLogging {
 	}
 
 	@Test
-	@SuppressWarnings("deprecation")
 	public void testCharacterPrinting() throws IOException {
 		// setup
-		final JsonWriter jw = new JsonWriter();
+		final JsonWriter jw = new JsonWriter(null);
 
 		final int from = 0;
 		final int to = Character.MAX_VALUE;
