@@ -1,8 +1,6 @@
-package com.dslplatform.client.json;
+package com.dslplatform.json;
 
 import com.dslplatform.client.TestLogging;
-import com.dslplatform.json.JsonReader;
-import com.dslplatform.json.JsonWriter;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -81,8 +79,7 @@ public class StringConverterTest extends TestLogging {
 	@Test
 	public void testCharacterPrinting() throws IOException {
 		// setup
-		final byte[] buf = new byte[1024];
-		final JsonWriter jw = new JsonWriter(buf);
+		final JsonWriter jw = new JsonWriter(null);
 
 		final int from = 0;
 		final int to = Character.MAX_VALUE;
@@ -115,7 +112,7 @@ public class StringConverterTest extends TestLogging {
 			jw.writeString(text);
 
 			// check
-			final String read = new String(buf, 0, jw.size(), "UTF-8");
+			final String read = new String(jw.getByteBuffer(), 0, jw.size(), "UTF-8");
 
 			// solidus will not be escaped "/"
 			// characters < 32 will be unicode escaped "\\u00.."

@@ -1,10 +1,7 @@
-package com.dslplatform.client.json;
+package com.dslplatform.json;
 
 import com.dslplatform.client.JsonStatic;
 import com.dslplatform.client.TestLogging;
-import com.dslplatform.json.JsonReader;
-import com.dslplatform.json.JsonWriter;
-import com.dslplatform.json.NumberConverter;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -39,8 +36,7 @@ public class DecimalConverterTest extends TestLogging {
 		final String[] values = VALUES.split(", *");
 		final int count = values.length;
 
-		final byte[] buf = new byte[1024];
-		final JsonWriter jw = new JsonWriter(buf);
+		final JsonWriter jw = new JsonWriter(null);
 
 		for (int i = 0; i < count - 1; i ++) {
 			// setup
