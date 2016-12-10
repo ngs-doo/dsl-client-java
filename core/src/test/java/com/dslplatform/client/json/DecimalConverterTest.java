@@ -34,13 +34,13 @@ public class DecimalConverterTest extends TestLogging {
 			"-12.12E-12, -12.12E+0, -12.12E+1, -12.12E+12 ";
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void testSerialization() throws IOException {
 		// setup
 		final String[] values = VALUES.split(", *");
 		final int count = values.length;
 
-		final byte[] buf = new byte[1024];
-		final JsonWriter jw = new JsonWriter(buf);
+		final JsonWriter jw = new JsonWriter();
 
 		for (int i = 0; i < count - 1; i ++) {
 			// setup

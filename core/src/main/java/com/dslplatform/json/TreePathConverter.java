@@ -37,12 +37,10 @@ public abstract class TreePathConverter {
 	}
 
 	public static TreePath deserialize(final JsonReader reader) throws IOException {
-		final char[] tmp = reader.readSimpleQuote();
-		final int len = reader.getCurrentIndex() - reader.getTokenStart() - 1;
-		if (len == 0) {
-			return TreePath.EMPTY;
-		}else {
-			return TreePath.create(new String(tmp, 0, len));
+		try {
+			return TreePath.create(reader.readString());
+		} catch(final IOException e) {
+			throw new IOException("Can't parse JSON TreePath", e);
 		}
 	}
 

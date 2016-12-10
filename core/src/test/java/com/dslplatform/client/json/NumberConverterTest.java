@@ -12,9 +12,10 @@ import java.nio.charset.Charset;
 
 public class NumberConverterTest extends TestLogging {
 	@Test
+	@SuppressWarnings("deprecation")
 	public void testSerialization() {
 		// setup
-		final JsonWriter sw = new JsonWriter(40);
+		final JsonWriter sw = new JsonWriter();
 
 		final int from = -1000000;
 		final int to = 1000000;

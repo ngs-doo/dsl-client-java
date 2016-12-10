@@ -79,10 +79,10 @@ public class StringConverterTest extends TestLogging {
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void testCharacterPrinting() throws IOException {
 		// setup
-		final byte[] buf = new byte[1024];
-		final JsonWriter jw = new JsonWriter(buf);
+		final JsonWriter jw = new JsonWriter();
 
 		final int from = 0;
 		final int to = Character.MAX_VALUE;
@@ -115,7 +115,7 @@ public class StringConverterTest extends TestLogging {
 			jw.writeString(text);
 
 			// check
-			final String read = new String(buf, 0, jw.size(), "UTF-8");
+			final String read = new String(jw.getByteBuffer(), 0, jw.size(), "UTF-8");
 
 			// solidus will not be escaped "/"
 			// characters < 32 will be unicode escaped "\\u00.."
